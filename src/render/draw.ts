@@ -46,8 +46,8 @@ export function drawFloor(g: G): void {
 export function drawTable(g: G, layout: Layout): void {
   g.clear();
   drawFloor(g);
-  drawTableShadow(g);
-  drawTableSurface(g);
+  drawTableFrame(g, layout.table);
+  drawTableSurface(g, layout.table);
   drawTableRim(g);
   for (const o of layout.obstacles) drawObstacle(g, o);
 }
@@ -73,11 +73,60 @@ export function drawTableSurface(g: G, table: Layout['table'] = 'bg-table'): voi
   g.fillRect(TABLE.x, TABLE.y + TABLE.h / 2 - 90, TABLE.w, 180);
 }
 
+/** Thin contact line where the playing surface meets the frame. */
 export function drawTableRim(g: G): void {
-  g.lineStyle(5, 0xc48b57, 1);
-  g.strokeRoundedRect(TABLE.x, TABLE.y, TABLE.w, TABLE.h, 22);
-  g.lineStyle(2, 0x5b351c, 0.8);
-  g.strokeRoundedRect(TABLE.x - 3, TABLE.y - 3, TABLE.w + 6, TABLE.h + 6, 24);
+  g.lineStyle(4, 0x000000, 0.22);
+  g.strokeRoundedRect(TABLE.x + 1, TABLE.y + 1, TABLE.w - 2, TABLE.h - 2, 22);
+  g.lineStyle(2, 0xffffff, 0.18);
+  g.strokeRoundedRect(TABLE.x - 1, TABLE.y - 1, TABLE.w + 2, TABLE.h + 2, 23);
+}
+
+interface FrameStyle { frame: number; hi: number; lip: number; depth: number }
+const FRAMES: Record<Layout['table'], FrameStyle> = {
+  'bg-table': { frame: 0x6b3e20, hi: 0xa8703f, lip: 0x3e2211, depth: 16 },
+  'bg-sushi': { frame: 0xc9a46a, hi: 0xeed6a4, lip: 0x8a6838, depth: 14 },
+  'bg-party': { frame: 0xf0a6c0, hi: 0xffd6e4, lip: 0xc7708f, depth: 18 },
+  'bg-board': { frame: 0x9b6a3c, hi: 0xcf9a62, lip: 0x5e3b1f, depth: 22 },
+};
+
+/** Soft floor shadow, the table's 3D front lip and its frame, styled per table. */
+export function drawTableFrame(g: G, table: Layout['table']): void {
+  const F = FRAMES[table], b = 12;
+  // soft shadow on the floor (stacked translucent layers)
+  for (let i = 0; i < 7; i++) {
+    g.fillStyle(0x000000, 0.06);
+    g.fillRoundedRect(TABLE.x - b - 10 + i * 3 + 8, TABLE.y - b - 4 + i * 3 + 18, TABLE.w + 2 * b + 20 - i * 6, TABLE.h + 2 * b + F.depth + 14 - i * 6, 34);
+  }
+  // front lip (the table's thickness)
+  g.fillStyle(F.lip, 1);
+  g.fillRoundedRect(TABLE.x - b, TABLE.y - b, TABLE.w + 2 * b, TABLE.h + 2 * b + F.depth, 28);
+  if (table === 'bg-board') {
+    // end-grain stripes on the butcher block's front face
+    g.fillStyle(0x4a2e17, 0.55);
+    for (let x = TABLE.x; x < TABLE.x + TABLE.w; x += 26) g.fillRect(x, TABLE.y + TABLE.h + b, 3, F.depth - 2);
+  }
+  // frame band + top highlight
+  g.fillStyle(F.frame, 1);
+  g.fillRoundedRect(TABLE.x - b, TABLE.y - b, TABLE.w + 2 * b, TABLE.h + 2 * b, 28);
+  g.lineStyle(3, F.hi, 0.9);
+  g.strokeRoundedRect(TABLE.x - b + 2, TABLE.y - b + 2, TABLE.w + 2 * b - 4, TABLE.h + 2 * b - 4, 26);
+  if (table === 'bg-party') {
+    // the tablecloth hangs over the front edge in scallops
+    const y = TABLE.y + TABLE.h + b + F.depth - 6;
+    for (let x = TABLE.x - b + 16; x < TABLE.x + TABLE.w + b - 8; x += 32) {
+      g.fillStyle(F.lip, 1); g.fillCircle(x, y + 2, 16);
+      g.fillStyle(F.frame, 1); g.fillCircle(x, y - 2, 15);
+      g.fillStyle(0xffffff, 0.6); g.fillCircle(x - 4, y - 6, 3);
+    }
+  }
+}
+
+/** Place mat under a player's starting spot (shape fallback), rimmed in their colour. */
+export function drawMat(g: G, x: number, y: number, color: number, table: Layout['table']): void {
+  const fill: Record<Layout['table'], number> = { 'bg-table': 0xd9b878, 'bg-sushi': 0x9fc26a, 'bg-party': 0xfff1f6, 'bg-board': 0x4a4e57 };
+  g.fillStyle(0x000000, 0.18); g.fillRoundedRect(x - 54, y - 38, 112, 82, 12);
+  g.fillStyle(fill[table], 0.9); g.fillRoundedRect(x - 56, y - 41, 112, 82, 12);
+  g.lineStyle(3, color, 0.85); g.strokeRoundedRect(x - 56, y - 41, 112, 82, 12);
 }
 
 /** Soft drop shadow under an obstacle sprite (rounded to follow the painted shapes). */

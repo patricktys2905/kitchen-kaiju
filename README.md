@@ -20,7 +20,7 @@ npm run dev      # opens on http://localhost:5180
 3. Touch controls: drag anywhere on the **left half** to move · **THROW**: hold to charge, drag away from the button to aim, let go to throw (without dragging it aims at the rival you're facing) · **SWIPE**, **DASH**, **STOMP** (glows when your belly is full) · PAUSE / MENU top right.
 4. Menu buttons: JOIN/LEAVE (touch), + BOT, − BOT, bot difficulty, PLAY.
 
-Tips: Android Chrome goes fullscreen on the first tap. On iPhone, use Share → **Add to Home Screen** for a full-screen launch. Bluetooth gamepads paired to the phone work too. Add `?touch=1` on a PC to try the touch UI with a mouse.
+Full screen: tap the ⛶ FULL SCREEN button (top-left on the menu, under MENU in game). Where the browser can't (iPhone Safari), it shows how to Add to Home Screen, which always opens full screen. Android Chrome also goes fullscreen on the first tap. On iPhone, use Share → **Add to Home Screen** for a full-screen launch. Bluetooth gamepads paired to the phone work too. Add `?touch=1` on a PC to try the touch UI with a mouse.
 
 ## Controls
 

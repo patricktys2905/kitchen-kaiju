@@ -63,6 +63,16 @@ const CSS = `
 #tc-rotate { position: fixed; inset: 0; z-index: 20; background: #140e0a; color: #ffe9c7; display: none; align-items: center; justify-content: center;
   flex-direction: column; font-family: 'Luckiest Guy', 'Arial Black', Impact, sans-serif; letter-spacing: 0.04em; font-size: 6vw; text-align: center; gap: 4vw; }
 @media (orientation: portrait) { body.touch #tc-rotate { display: flex; } }
+#tc .fsbtn { position: absolute; pointer-events: auto; top: calc(1.5vmin + env(safe-area-inset-top)); left: calc(1.5vmin + env(safe-area-inset-left));
+  padding: 1.4vmin 2.2vmin; border-radius: 1.6vmin; background: #2a1408e6; color: #ffe9c7; border: 3px solid #ffcf8a; font-size: 2.6vmin; touch-action: none; }
+#tc .fsbtn.down { transform: scale(0.95); }
+#tc-guide { position: fixed; inset: 0; z-index: 30; background: #140e0aee; color: #ffe9c7; display: none; align-items: center; justify-content: center;
+  font-family: Nunito, Arial, sans-serif; font-weight: 800; }
+#tc-guide.on { display: flex; }
+#tc-guide .card { max-width: 80vw; background: #2a1408; border: 3px solid #ffcf8a; border-radius: 3vmin; padding: 4vmin 5vmin; font-size: 3.4vmin; line-height: 1.5; }
+#tc-guide h2 { font-family: 'Luckiest Guy', 'Arial Black', sans-serif; font-weight: 400; letter-spacing: 0.04em; margin: 0 0 2vmin; font-size: 5vmin; color: #ffb347; }
+#tc-guide ol { margin: 0 0 3vmin; padding-left: 5vmin; }
+#tc-guide .ok { display: inline-block; padding: 1.6vmin 4vmin; border-radius: 2vmin; background: #ff9a3c; color: #2a1408; font-family: 'Luckiest Guy', sans-serif; font-weight: 400; font-size: 3.6vmin; }
 `;
 
 let layers: Record<Exclude<TouchMode, 'off'>, HTMLElement> | null = null;
@@ -74,6 +84,58 @@ function el(tag: string, parent: HTMLElement, attrs: Record<string, string> = {}
   if (text) e.textContent = text;
   parent.appendChild(e);
   return e;
+}
+
+/** Already running full screen as an installed app (home-screen icon)? */
+export function isInstalledApp(): boolean {
+  return matchMedia('(display-mode: fullscreen)').matches || matchMedia('(display-mode: standalone)').matches
+    || (navigator as Navigator & { standalone?: boolean }).standalone === true;
+}
+
+/** Can this browser put a web page into full screen? (iPhone Safari can't.) */
+function canFullscreen(): boolean {
+  const d = document as Document & { webkitFullscreenEnabled?: boolean };
+  return !!(document.fullscreenEnabled || d.webkitFullscreenEnabled);
+}
+
+function isFullscreen(): boolean {
+  const d = document as Document & { webkitFullscreenElement?: Element };
+  return !!(document.fullscreenElement || d.webkitFullscreenElement);
+}
+
+let fsButtons: HTMLElement[] = [];
+function refreshFsButtons(): void {
+  const hide = isInstalledApp();
+  for (const b of fsButtons) {
+    b.style.display = hide ? 'none' : '';
+    b.textContent = isFullscreen() ? '⛶ EXIT FULL SCREEN' : '⛶ FULL SCREEN';
+  }
+}
+
+/** Full screen on/off; on iPhone shows how to get full screen via Add to Home Screen. */
+export function toggleFullscreen(): void {
+  if (!canFullscreen()) { document.getElementById('tc-guide')?.classList.add('on'); return; }
+  const d = document as Document & { webkitExitFullscreen?: () => void };
+  if (isFullscreen()) {
+    if (document.exitFullscreen) void document.exitFullscreen().catch(() => {});
+    else d.webkitExitFullscreen?.();
+    return;
+  }
+  const el = document.documentElement as HTMLElement & { webkitRequestFullscreen?: () => void };
+  const showGuide = () => document.getElementById('tc-guide')?.classList.add('on');
+  try {
+    if (el.requestFullscreen) {
+      el.requestFullscreen({ navigationUI: 'hide' })
+        .then(() => (screen.orientation as ScreenOrientation & { lock?: (o: string) => Promise<void> }).lock?.('landscape'))
+        .catch(() => { if (!isFullscreen()) showGuide(); });
+    } else {
+      el.webkitRequestFullscreen?.();
+    }
+  } catch {
+    showGuide();
+  }
+  // Some browsers neither enter full screen nor report an error: fall back to the guide.
+  setTimeout(() => { if (!isFullscreen()) showGuide(); }, 700);
 }
 
 let triedFullscreen = false;
@@ -125,6 +187,20 @@ export function initTouch(injectTap: (code: string) => void): void {
   el('div', rot, {}, '↻');
   el('div', rot, {}, 'Turn your phone sideways');
   const root = el('div', document.body, { id: 'tc' });
+
+  // iPhone guide (Safari can't make web pages full screen; an installed home-screen app can)
+  const guide = el('div', document.body, { id: 'tc-guide' });
+  const card = el('div', guide, { class: 'card' });
+  el('h2', card, {}, 'Play full screen');
+  el('div', card, {}, 'This browser won\'t go full screen here. Install the game instead; it then always opens full screen and works offline:');
+  const ol = el('ol', card);
+  el('li', ol, {}, 'iPhone / iPad (Safari): tap Share (square with an up arrow), then "Add to Home Screen".');
+  el('li', ol, {}, 'Android (Chrome): tap the ⋮ menu, then "Install app" or "Add to Home screen".');
+  el('li', ol, {}, 'Open Kitchen Kaiju from the new icon on your home screen.');
+  const ok = el('div', card, { class: 'ok' }, 'GOT IT');
+  ok.addEventListener('pointerup', () => guide.classList.remove('on'));
+  document.addEventListener('fullscreenchange', refreshFsButtons);
+  document.addEventListener('webkitfullscreenchange', refreshFsButtons);
 
   // ---- game layer
   const game = el('div', root, { class: 'layer' });
@@ -231,6 +307,16 @@ export function initTouch(injectTap: (code: string) => void): void {
   tapButton(el('div', erow, { class: 'pill go' }, '↻ REMATCH'), 'Digit1');
   tapButton(el('div', erow, { class: 'pill' }, 'MENU'), 'Escape');
 
+  for (const layer of [menu, top, end]) {
+    const b = el('div', layer, { class: 'fsbtn' }, '⛶ FULL SCREEN');
+    if (layer === top) Object.assign(b.style, { left: 'auto', right: 'calc(1.5vmin + env(safe-area-inset-right))', top: '29.5vh' });
+    // own handler: the shared tap handler also auto-enters full screen on press, which would fight the toggle
+    b.addEventListener('pointerdown', e => { e.preventDefault(); b.classList.add('down'); });
+    b.addEventListener('pointercancel', () => b.classList.remove('down'));
+    b.addEventListener('pointerup', () => { b.classList.remove('down'); toggleFullscreen(); });
+    fsButtons.push(b);
+  }
+  refreshFsButtons();
   layers = { menu, game, watch: top, end }; // 'game' also turns on the pause/menu buttons (see setTouchMode)
 }
 

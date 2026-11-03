@@ -50,6 +50,15 @@ try {
   m0 = await menuState();
   await tapEl(page.getByText('KAIJU ▶'));
   check((await menuState()).pick !== m0.pick, 'KAIJU button changes your kaiju');
+  // Full screen button: goes full screen where allowed, otherwise shows the Add-to-Home-Screen guide.
+  const fsBtn = page.locator('#tc .layer.on .fsbtn');
+  check(await fsBtn.isVisible(), 'FULL SCREEN button visible on the menu');
+  const wasFs = await page.evaluate(() => !!document.fullscreenElement); // earlier taps may already have entered it
+  await tapEl(fsBtn);
+  await wait(1000);
+  const fsState = await page.evaluate(() => ({ fs: !!document.fullscreenElement, guide: document.getElementById('tc-guide')?.classList.contains('on') }));
+  check(fsState.fs !== wasFs || fsState.guide, `FULL SCREEN button toggles (before=${wasFs}, after=${fsState.fs}, guide=${fsState.guide})`);
+  await page.evaluate(() => document.getElementById('tc-guide')?.classList.remove('on'));
   await tapEl(page.getByText('+ BOT')); // add 2 bots
   await tapEl(page.getByText('+ BOT'));
   await tapEl(page.getByText('▶ PLAY'));

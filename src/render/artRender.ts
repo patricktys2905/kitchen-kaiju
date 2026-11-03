@@ -6,7 +6,7 @@ import type { Cutlery, Player, World } from '../sim/world';
 import { CUTLERY_LEN, fitInside, hasArt, SpritePool } from './art';
 import {
   cutleryAngle, drawBelt, drawChopMark, drawCleaverBlade, drawCleaverWarn, drawCrumbs, drawCutlery, drawCutleryGlow, drawFloor,
-  drawHand, drawKaiju, drawObstacle, drawObstacleShadow, drawPlayerOver, drawPlayerUnder, drawTableRim, drawTableShadow,
+  drawHand, drawKaiju, drawObstacle, drawObstacleShadow, drawMat, drawPlayerOver, drawPlayerUnder, drawTableFrame, drawTableRim,
   drawTableSurface, drawWind, playerAlpha,
 } from './draw';
 
@@ -19,7 +19,7 @@ export interface Looks {
 type G = Phaser.GameObjects.Graphics;
 
 // Sprite layer depths (graphics: base -2.5, table -1, under 0, over 3.6)
-const D = { floor: -3, table: -2, obstacle: -0.5, crumb: 0.5, loose: 1, player: 2, flying: 3, hand: 3.5 };
+const D = { floor: -3, table: -2, mat: -1.5, obstacle: -0.5, light: 3.7, crumb: 0.5, loose: 1, player: 2, flying: 3, hand: 3.5 };
 
 export class ArtRenderer {
   private pool: SpritePool;
@@ -28,10 +28,46 @@ export class ArtRenderer {
 
   constructor(private scene: Phaser.Scene, private baseG: G, private tableG: G, private looks: Looks) {
     this.pool = new SpritePool(scene);
+    this.addLighting();
+  }
+
+  /** Warm pool of light over the table + darker corners (generated once, no image files). */
+  private addLighting(): void {
+    const tex = this.scene.textures;
+    if (!tex.exists('kk-vignette')) {
+      const t = tex.createCanvas('kk-vignette', 640, 360);
+      if (t) {
+        const c = t.getContext();
+        const g = c.createRadialGradient(320, 185, 70, 320, 185, 400);
+        g.addColorStop(0, 'rgba(0,0,0,0)');
+        g.addColorStop(0.55, 'rgba(10,4,0,0.06)');
+        g.addColorStop(1, 'rgba(10,4,0,0.5)');
+        c.fillStyle = g;
+        c.fillRect(0, 0, 640, 360);
+        t.refresh();
+      }
+    }
+    if (!tex.exists('kk-glow')) {
+      const t = tex.createCanvas('kk-glow', 320, 180);
+      if (t) {
+        const c = t.getContext();
+        const g = c.createRadialGradient(160, 90, 0, 160, 90, 170);
+        g.addColorStop(0, 'rgba(255,214,150,0.55)');
+        g.addColorStop(1, 'rgba(255,214,150,0)');
+        c.fillStyle = g;
+        c.fillRect(0, 0, 320, 180);
+        t.refresh();
+      }
+    }
+    if (tex.exists('kk-glow')) {
+      this.scene.add.image(TABLE.x + TABLE.w / 2, TABLE.y + TABLE.h / 2, 'kk-glow')
+        .setDisplaySize(TABLE.w * 1.1, TABLE.h * 1.2).setBlendMode('ADD').setAlpha(0.32).setDepth(D.light - 0.01);
+    }
+    if (tex.exists('kk-vignette')) this.scene.add.image(VIEW.w / 2, VIEW.h / 2, 'kk-vignette').setDisplaySize(VIEW.w, VIEW.h).setDepth(D.light);
   }
 
   /** Static scenery for a round: floor, table, obstacles. */
-  setupTable(layout: Layout): void {
+  setupTable(layout: Layout, starts: { x: number; y: number; color: number }[] = []): void {
     for (const s of this.statics) s.destroy();
     this.statics = [];
     this.baseG.clear();
@@ -41,13 +77,29 @@ export class ArtRenderer {
     } else {
       drawFloor(this.baseG);
     }
-    drawTableShadow(this.baseG);
+    drawTableFrame(this.baseG, layout.table);
     if (hasArt(layout.table)) {
       this.statics.push(this.scene.add.image(TABLE.x + TABLE.w / 2, TABLE.y + TABLE.h / 2, layout.table).setDisplaySize(TABLE.w, TABLE.h).setDepth(D.table));
     } else {
       drawTableSurface(this.baseG, layout.table);
     }
     drawTableRim(this.tableG);
+    // place mats under each player's starting spot
+    const matKey = layout.table.replace('bg-', 'mat-');
+    starts.forEach((st, i) => {
+      if (!hasArt(matKey)) { drawMat(this.tableG, st.x, st.y + 6, st.color, layout.table); return; }
+      const rot = ((i * 37) % 9 - 4) * 0.02;
+      this.tableG.fillStyle(0x000000, 0.18);
+      this.tableG.fillRoundedRect(st.x - 54, st.y - 30, 116, 84, 14);
+      const img = this.scene.add.image(st.x, st.y + 6, matKey).setDepth(D.mat).setRotation(rot);
+      fitInside(img, 118, 88);
+      this.statics.push(img);
+      const ring = this.scene.add.graphics().setDepth(D.mat + 0.01);
+      ring.lineStyle(3, st.color, 0.8);
+      ring.strokeRoundedRect(st.x - img.displayWidth / 2 - 3, st.y + 6 - img.displayHeight / 2 - 3, img.displayWidth + 6, img.displayHeight + 6, 12);
+      ring.setRotation(0);
+      this.statics.push(ring as unknown as Phaser.GameObjects.Image);
+    });
     for (const o of layout.obstacles) {
       const key = `ob-${o.style}`;
       if (!hasArt(key)) { drawObstacle(this.tableG, o); continue; }

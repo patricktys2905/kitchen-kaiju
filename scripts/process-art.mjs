@@ -21,6 +21,7 @@ const SPRITES = [
   [/^ob-[a-z]+$/, 320],
   [/^hand$/, 640],
   [/^cleaver$/, 640],
+  [/^mat-[a-z]+$/, 320],
 ];
 const TABLES = ['bg-table', 'bg-sushi', 'bg-party', 'bg-board']; // table surfaces get rounded corners
 const BACKGROUNDS = { 'bg-floor': [1280, 720], 'bg-menu': [1280, 720], ...Object.fromEntries(TABLES.map(t => [t, [1080, 575]])) };

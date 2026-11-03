@@ -97,7 +97,7 @@ export class GameScene extends Phaser.Scene {
     this.fxG = this.add.graphics().setDepth(3.8);
     this.hudG = this.add.graphics().setDepth(5);
     this.art = new ArtRenderer(this, this.baseG, this.tableG, { species: this.species, colors: this.colors });
-    this.art.setupTable(this.world.layout);
+    this.art.setupTable(this.world.layout, this.world.players.map(p => ({ x: p.x, y: p.y, color: this.colors[p.id] })));
     this.hudIcons = this.species.map((sp, i) => (hasArt(`kaiju-${sp}`) ? fitInside(this.add.image(HUD_X(i) + 20, 40, `kaiju-${sp}`), 40, 44).setDepth(6) : null));
     this.hudHeld = this.slots.map((_, i) => (hasArt('cut-fork') ? this.add.image(HUD_X(i) + 206, 18, 'cut-fork').setDepth(6).setRotation(-0.35) : null));
 
@@ -186,7 +186,7 @@ export class GameScene extends Phaser.Scene {
     for (const e of events) {
       switch (e.type) {
         case 'roundStart':
-          this.art.setupTable(w.layout);
+          this.art.setupTable(w.layout, this.world.players.map(p => ({ x: p.x, y: p.y, color: this.colors[p.id] })));
           this.parts = [];
           this.rings = [];
           break;

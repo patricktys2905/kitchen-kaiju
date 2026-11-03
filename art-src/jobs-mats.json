@@ -1,0 +1,22 @@
+[
+  {
+    "name": "mat-table",
+    "newChat": true,
+    "refs": [
+      "art-src/ref-props.png"
+    ],
+    "prompt": "Generate an image. A rectangular woven RAFFIA PLACEMAT with rounded corners in warm natural straw colours and a neat stitched border, seen from DIRECTLY ABOVE (top-down, flat), in exactly the art style of the attached reference props (bold chunky cartoon, thick dark-brown outlines, flat colours, soft cel shading, one white highlight). Centred, filling about 90% of the frame, solid flat magenta (#FF00FF) background, no shadow, no text, nothing on top of it. Wide 4:3 landscape image."
+  },
+  {
+    "name": "mat-sushi",
+    "prompt": "Next, same style and magenta background: a rectangular rolled BAMBOO SUSHI MAT (makisu) made of thin light-green bamboo slats held by string, seen from DIRECTLY ABOVE (top-down, flat), in exactly the art style of the attached reference props (bold chunky cartoon, thick dark-brown outlines, flat colours, soft cel shading, one white highlight). Centred, filling about 90% of the frame, solid flat magenta (#FF00FF) background, no shadow, no text, nothing on top of it. Wide 4:3 landscape image."
+  },
+  {
+    "name": "mat-party",
+    "prompt": "Next, same style and magenta background: a rectangular paper PARTY PLACEMAT with a scalloped edge, pastel stripes and little stars, seen from DIRECTLY ABOVE (top-down, flat), in exactly the art style of the attached reference props (bold chunky cartoon, thick dark-brown outlines, flat colours, soft cel shading, one white highlight). Centred, filling about 90% of the frame, solid flat magenta (#FF00FF) background, no shadow, no text, nothing on top of it. Wide 4:3 landscape image."
+  },
+  {
+    "name": "mat-board",
+    "prompt": "Next, same style and magenta background: a rectangular dark grey SLATE SERVING BOARD with slightly rough edges and a few chalk-dust marks, seen from DIRECTLY ABOVE (top-down, flat), in exactly the art style of the attached reference props (bold chunky cartoon, thick dark-brown outlines, flat colours, soft cel shading, one white highlight). Centred, filling about 90% of the frame, solid flat magenta (#FF00FF) background, no shadow, no text, nothing on top of it. Wide 4:3 landscape image."
+  }
+]
