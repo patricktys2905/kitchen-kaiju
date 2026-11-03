@@ -1,0 +1,16 @@
+[
+  {
+    "name": "ob-sushi",
+    "newChat": true,
+    "refs": ["art-src/ref-props.png"],
+    "prompt": "Generate an image. The attached picture shows prop sprites from my cartoon game, seen from directly above. Draw a NEW prop in exactly that art style (bold chunky cartoon, thick dark-brown outlines, flat bright colours, soft cel shading, one white highlight), seen from DIRECTLY ABOVE: a round dark-blue ceramic plate holding two pieces of salmon sushi and two cucumber rolls. Centred, filling about 85% of the frame, solid flat magenta (#FF00FF) background, no shadow, no text. Square 1:1."
+  },
+  {
+    "name": "ob-carrot",
+    "prompt": "Great. Next prop in the same style and magenta background, seen from directly above: an orange cartoon carrot vegetable lying sideways (leafy green top on the left, tip on the right). Square 1:1."
+  },
+  {
+    "name": "cleaver",
+    "prompt": "Next prop in the same style and magenta background, seen from directly above: a big cartoon kitchen chopping knife (a square-bladed chef's cleaver) pointing straight up, shiny steel blade at the top and a brown wooden handle at the bottom. Square 1:1."
+  }
+]

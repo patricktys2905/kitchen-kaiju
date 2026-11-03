@@ -1,0 +1,36 @@
+[
+  {
+    "name": "kaiju-4",
+    "newChat": true,
+    "refs": ["art-src/ref-kaiju.png"],
+    "prompt": "Generate an image. The attached picture shows 4 existing character sprites from my party brawler game Kitchen Kaiju (tiny monsters fighting on a dinner table). I need NEW characters that match this art style EXACTLY: same bold chunky cartoon look, same thick dark-brown outlines, same flat bright colours with soft cel shading and one crisp white highlight, same cheeky (not babyish) expressions, same proportions and size. Framing: one full-body character, three-quarter view turned to face the RIGHT, standing, centred, filling about 80% of the frame. Solid flat magenta (#FF00FF) background, no ground shadow, no text, no border, no props. Square 1:1 image. New character: MOTHBALL, a round fuzzy lavender (#b98cff) moth kaiju with a fluffy collar, two big feathery antennae, small stubby wings folded behind it, big shiny eyes and a dreamy mischievous smile."
+  },
+  {
+    "name": "kaiju-5",
+    "prompt": "Next NEW character in exactly the same style as the attached reference, same size and framing (three-quarter view facing RIGHT), solid flat magenta (#FF00FF) background: TOASTBAT, a stubby orange (#ff9a3c) bat kaiju whose two little wings are slices of golden toast, pointy ears, tiny fangs, a sleepy-but-sneaky grin, a few crumbs on its belly. No text, no props. Square 1:1."
+  },
+  {
+    "name": "kaiju-6",
+    "prompt": "Next NEW character in exactly the same style as the attached reference, same size and framing (three-quarter view facing RIGHT), solid flat magenta (#FF00FF) background: DUMPLORD, a plump cream-white (#f3e3c3) steamed-dumpling kaiju with a pleated twisted top like a crown, two tiny horns, little stubby arms and legs, rosy cheeks and a smug lordly grin, a wisp of steam on top. No text, no props. Square 1:1."
+  },
+  {
+    "name": "kaiju-7",
+    "prompt": "Next NEW character in exactly the same style as the attached reference, same size and framing (three-quarter view facing RIGHT), solid flat magenta (#FF00FF) background: NORIGON, a small chunky teal (#21c7a8) dragon kaiju made of seaweed, with a crinkly dark-green nori frill down its back, a curly tail, stubby legs, and a confident toothy grin. No text, no props. Square 1:1."
+  },
+  {
+    "name": "kaiju-4-rage",
+    "prompt": "Now MOTHBALL in KAIJU MODE: exactly the same character design and colours, same style, framing (facing RIGHT) and solid flat magenta (#FF00FF) background, but roaring furiously with mouth wide open, wings spread wide, antennae bristling, angry eyebrows, small puffs of steam. No text. Square 1:1."
+  },
+  {
+    "name": "kaiju-5-rage",
+    "prompt": "Now TOASTBAT in KAIJU MODE: exactly the same character design (orange bat with toast-slice wings), same style, framing (facing RIGHT) and solid flat magenta (#FF00FF) background, but roaring furiously with mouth wide open, toast wings flared, angry eyebrows, small puffs of steam. No text. Square 1:1."
+  },
+  {
+    "name": "kaiju-6-rage",
+    "prompt": "Now DUMPLORD in KAIJU MODE: exactly the same character design (cream dumpling with the pleated crown top and tiny horns), same style, framing (facing RIGHT) and solid flat magenta (#FF00FF) background, but roaring furiously with mouth wide open, arms raised, angry eyebrows, big puffs of steam bursting from its top. No text. Square 1:1."
+  },
+  {
+    "name": "kaiju-7-rage",
+    "prompt": "Now NORIGON in KAIJU MODE: exactly the same character design (teal seaweed dragon with the nori frill), same style, framing (facing RIGHT) and solid flat magenta (#FF00FF) background, but roaring furiously with mouth wide open, frill flared up, tail lashing, angry eyebrows, small puffs of steam. No text. Square 1:1."
+  }
+]

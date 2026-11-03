@@ -20,7 +20,7 @@ const BOOMERANG_TURN = 10; // rad/s (turn radius = speed / turn)
 
 export const NO_INPUT: PlayerInput = { mx: 0, my: 0, throw: false, swipe: false, dash: false, stomp: false };
 
-export type KOCause = 'cutlery' | 'swipe' | 'squash' | 'fall' | 'hand';
+export type KOCause = 'cutlery' | 'swipe' | 'squash' | 'fall' | 'hand' | 'wind' | 'chop';
 
 export type GameEvent =
   | { type: 'throw'; id: number; kind: CutleryKind; x: number; y: number }
@@ -41,6 +41,10 @@ export type GameEvent =
   | { type: 'ko'; id: number; by: number | null; cause: KOCause; x: number; y: number }
   | { type: 'handWarn'; y: number; dir: number; target: number | null }
   | { type: 'handSweep' }
+  | { type: 'windWarn'; dir: number }
+  | { type: 'windGust'; dir: number }
+  | { type: 'cleaverWarn'; x: number }
+  | { type: 'cleaverChop'; x: number }
   | { type: 'spawnCutlery'; kind: CutleryKind; x: number; y: number }
   | { type: 'countdown'; n: number }
   | { type: 'go' }
@@ -132,16 +136,33 @@ export interface WorldOptions {
   crumbSpawns?: boolean;
   pickupSpawns?: boolean;
   layout?: number; // force one layout
+  layouts?: number[]; // pool of tables to rotate through (default: all)
   starterKind?: CutleryKind; // force everyone's starting cutlery
+}
+
+/** Birthday Bash wind. dir is an angle (radians) the gust blows towards. */
+export interface Wind {
+  state: 'warn' | 'gust';
+  dir: number;
+  t: number;
+}
+
+/** Chef's Board cleaver: a vertical lane at x. */
+export interface Cleaver {
+  state: 'warn' | 'chop';
+  x: number;
+  t: number;
 }
 
 export class World {
   readonly rng: Rng;
-  readonly opts: Required<Omit<WorldOptions, 'layout' | 'starterKind'>> & Pick<WorldOptions, 'layout' | 'starterKind'>;
+  readonly opts: Required<Omit<WorldOptions, 'layout' | 'starterKind' | 'layouts'>> & Pick<WorldOptions, 'layout' | 'starterKind' | 'layouts'>;
   players: Player[] = [];
   cutlery: Cutlery[] = [];
   crumbs: Crumb[] = [];
   hand: Hand | null = null;
+  wind: Wind | null = null;
+  cleaver: Cleaver | null = null;
   layout: Layout = LAYOUTS[0];
   phase: Phase = 'countdown';
   phaseT = 0;
@@ -151,6 +172,8 @@ export class World {
   events: GameEvent[] = [];
   private nextId = 1;
   private handTimer = 0;
+  private windTimer = 0;
+  private cleaverTimer = 0;
   private crumbTimer = 0;
   private pickupTimer = 0;
   private lastCount = 0;
@@ -165,10 +188,12 @@ export class World {
       pickupSpawns: o.pickupSpawns ?? true,
       players: o.players,
       layout: o.layout,
+      layouts: o.layouts,
       starterKind: o.starterKind,
     };
     this.rng = new Rng(this.opts.seed);
-    this.layoutOrder = this.rng.shuffle(LAYOUTS.map((_, i) => i));
+    const pool = o.layouts?.filter(i => i >= 0 && i < LAYOUTS.length);
+    this.layoutOrder = this.rng.shuffle(pool && pool.length ? pool.slice() : LAYOUTS.map((_, i) => i));
     this.players = o.players.map((p, id) => this.makePlayer(id, p.name));
     this.startRound();
   }
@@ -193,6 +218,10 @@ export class World {
     this.hand = null;
     this.winner = null;
     this.handTimer = RULES.handFirst;
+    this.wind = null;
+    this.cleaver = null;
+    this.windTimer = RULES.windFirst;
+    this.cleaverTimer = RULES.cleaverFirst;
     this.crumbTimer = 0;
     this.pickupTimer = RULES.pickupEvery;
     this.phase = 'countdown';
@@ -271,11 +300,11 @@ export class World {
     this.resolvePlayerContacts();
     this.updateCutlery(dt);
     this.eatCrumbs();
-    if (this.phase === 'play') {
-      this.spawnTimers(dt);
+    if (this.phase === 'play' || this.hand || this.wind || this.cleaver) {
+      if (this.phase === 'play') this.spawnTimers(dt);
       this.updateHand(dt);
-    } else if (this.hand) {
-      this.updateHand(dt);
+      this.updateWind(dt);
+      this.updateCleaver(dt);
     }
     this.cutlery = this.cutlery.filter(c => !c.dead);
     this.checkRound();
@@ -359,6 +388,9 @@ export class World {
     p.x += (p.vx + p.kx) * dt;
     p.y += (p.vy + p.ky) * dt;
 
+    for (const b of this.layout.belts ?? []) {
+      if (p.x > b.x && p.x < b.x + b.w && p.y > b.y && p.y < b.y + b.h) p.x += b.vx * dt;
+    }
     this.pushOutOfObstacles(p);
 
     // Table edge: walking can't take you off, knockback can.
@@ -368,7 +400,7 @@ export class World {
       p.x = clamp(p.x, TABLE.x + inset, TABLE.x + TABLE.w - inset);
       p.y = clamp(p.y, TABLE.y + inset, TABLE.y + TABLE.h - inset);
     } else if (p.x < TABLE.x || p.x > TABLE.x + TABLE.w || p.y < TABLE.y || p.y > TABLE.y + TABLE.h) {
-      this.ko(p, p.lastHitBy, 'fall');
+      this.ko(p, p.lastHitBy, p.lastHitBy === null && this.wind?.state === 'gust' ? 'wind' : 'fall');
       return;
     }
 
@@ -590,6 +622,11 @@ export class World {
           break;
         }
       }
+      if (c.state === 'stuck') {
+        for (const b of this.layout.belts ?? []) {
+          if (c.x > b.x && c.x < b.x + b.w && c.y > b.y && c.y < b.y + b.h) c.x = clamp(c.x + b.vx * dt, TABLE.x + 8, TABLE.x + TABLE.w - 8);
+        }
+      }
       if (c.state === 'stuck' || c.state === 'returning') this.tryPickup(c);
     }
   }
@@ -795,8 +832,92 @@ export class World {
   }
 
   // ---------------------------------------------------------------- hazards
+  private hazardOn(k: 'hand' | 'wind' | 'cleaver'): boolean {
+    return this.opts.hazards && this.layout.hazards.includes(k);
+  }
+
+  private moveCrumbsOnBelts(dt: number): void {
+    const belts = this.layout.belts;
+    if (!belts?.length) return;
+    for (const c of this.crumbs) {
+      for (const b of belts) if (c.x > b.x && c.x < b.x + b.w && c.y > b.y && c.y < b.y + b.h) c.x += b.vx * dt;
+    }
+    this.crumbs = this.crumbs.filter(c => c.x > TABLE.x + 6 && c.x < TABLE.x + TABLE.w - 6); // fall off the end
+  }
+
+  private updateWind(dt: number): void {
+    if (!this.hazardOn('wind')) return;
+    if (!this.wind) {
+      if (this.phase !== 'play') return;
+      this.windTimer -= dt;
+      if (this.windTimer > 0) return;
+      const dir = this.rng.int(4) * (Math.PI / 2); // right, down, left, up
+      this.wind = { state: 'warn', dir, t: 0 };
+      this.emit({ type: 'windWarn', dir });
+      return;
+    }
+    const w = this.wind;
+    w.t += dt;
+    if (w.state === 'warn') {
+      if (w.t >= RULES.windWarn) { w.state = 'gust'; w.t = 0; this.emit({ type: 'windGust', dir: w.dir }); }
+      return;
+    }
+    const ax = Math.cos(w.dir) * RULES.windForce * dt, ay = Math.sin(w.dir) * RULES.windForce * dt;
+    for (const p of this.players) {
+      if (!p.alive) continue;
+      const k = p.kaijuT > 0 ? 0.35 : 1; // big kaiju are harder to blow away
+      p.kx += ax * k;
+      p.ky += ay * k;
+    }
+    for (const c of this.cutlery) if (c.state === 'flying') { c.vx += ax * 0.3; c.vy += ay * 0.3; }
+    for (const c of this.crumbs) { c.x += Math.cos(w.dir) * 160 * dt; c.y += Math.sin(w.dir) * 160 * dt; }
+    this.crumbs = this.crumbs.filter(c => c.x > TABLE.x && c.x < TABLE.x + TABLE.w && c.y > TABLE.y && c.y < TABLE.y + TABLE.h);
+    if (w.t >= RULES.windGust) {
+      this.wind = null;
+      const iv = this.roundT > RULES.suddenDeathAt ? RULES.suddenDeathInterval : RULES.windInterval;
+      this.windTimer = this.rng.range(iv[0], iv[1]);
+    }
+  }
+
+  private updateCleaver(dt: number): void {
+    if (!this.hazardOn('cleaver')) return;
+    if (!this.cleaver) {
+      if (this.phase !== 'play') return;
+      this.cleaverTimer -= dt;
+      if (this.cleaverTimer > 0) return;
+      const alive = this.alivePlayers();
+      if (!alive.length) return;
+      const target = this.rng.pick(alive);
+      const half = RULES.cleaverBand / 2;
+      const x = clamp(target.x + this.rng.range(-30, 30), TABLE.x + half, TABLE.x + TABLE.w - half);
+      this.cleaver = { state: 'warn', x, t: 0 };
+      this.emit({ type: 'cleaverWarn', x });
+      return;
+    }
+    const c = this.cleaver;
+    c.t += dt;
+    if (c.state === 'warn') {
+      if (c.t >= RULES.cleaverWarn) {
+        c.state = 'chop';
+        c.t = 0;
+        this.emit({ type: 'cleaverChop', x: c.x });
+        for (const p of this.players) {
+          if (p.alive && Math.abs(p.x - c.x) < RULES.cleaverBand / 2 + p.r * 0.5) this.ko(p, null, 'chop');
+        }
+        this.crumbs = this.crumbs.filter(cr => Math.abs(cr.x - c.x) > RULES.cleaverBand / 2);
+      }
+      return;
+    }
+    if (c.t >= RULES.cleaverShow) {
+      this.cleaver = null;
+      const iv = this.roundT > RULES.suddenDeathAt ? RULES.cleaverSuddenDeath : RULES.cleaverInterval;
+      this.cleaverTimer = this.rng.range(iv[0], iv[1]);
+    }
+  }
+
   private updateHand(dt: number): void {
-    if (!this.opts.hazards) return;
+    this.moveCrumbsOnBelts(dt);
+    if (!this.hazardOn('hand')) return;
     const band = RULES.handBand, W = RULES.handWidth;
     if (!this.hand) {
       this.handTimer -= dt;

@@ -55,8 +55,9 @@ const CSS = `
 #tc .small { position: absolute; pointer-events: auto; padding: 1.2vmin 2vmin; border-radius: 1.5vmin; background: #000a; color: #fff;
   border: 2px solid #fff5; font-size: 2.6vmin; touch-action: none; }
 #tc .row { position: absolute; left: 0; right: 0; bottom: calc(2vmin + env(safe-area-inset-bottom)); display: flex; justify-content: center; gap: 2vmin; }
-#tc .row .pill { pointer-events: auto; padding: 2.2vmin 3vmin; border-radius: 2vmin; background: #2a1408e6; color: #ffe9c7; border: 3px solid #ffcf8a;
-  font-size: 3vmin; touch-action: none; white-space: nowrap; }
+#tc .row .pill { pointer-events: auto; padding: 2vmin 2.2vmin; border-radius: 2vmin; background: #2a1408e6; color: #ffe9c7; border: 3px solid #ffcf8a;
+  font-size: 2.6vmin; touch-action: none; white-space: nowrap; }
+#tc .row { gap: 1.4vmin; }
 #tc .row .pill.go { background: #ff9a3c; color: #2a1408; }
 #tc .row .pill.down { transform: scale(0.95); filter: brightness(1.3); }
 #tc-rotate { position: fixed; inset: 0; z-index: 20; background: #140e0a; color: #ffe9c7; display: none; align-items: center; justify-content: center;
@@ -65,7 +66,7 @@ const CSS = `
 `;
 
 let layers: Record<Exclude<TouchMode, 'off'>, HTMLElement> | null = null;
-let stompBtn: HTMLElement, throwBtn: HTMLElement, joinPill: HTMLElement, diffPill: HTMLElement, aimEl: HTMLElement;
+let stompBtn: HTMLElement, throwBtn: HTMLElement, joinPill: HTMLElement, diffPill: HTMLElement, tablePill: HTMLElement, aimEl: HTMLElement;
 
 function el(tag: string, parent: HTMLElement, attrs: Record<string, string> = {}, text = ''): HTMLElement {
   const e = document.createElement(tag);
@@ -213,12 +214,15 @@ export function initTouch(injectTap: (code: string) => void): void {
   // ---- menu layer
   const menu = el('div', root, { class: 'layer' });
   const row = el('div', menu, { class: 'row' });
-  joinPill = el('div', row, { class: 'pill' }, 'JOIN (TOUCH)');
+  joinPill = el('div', row, { class: 'pill' }, 'JOIN');
   tapButton(joinPill, 'TouchJoin');
+  tapButton(el('div', row, { class: 'pill' }, 'KAIJU ▶'), 'TouchKaiju');
   tapButton(el('div', row, { class: 'pill' }, '+ BOT'), 'KeyB');
   tapButton(el('div', row, { class: 'pill' }, '− BOT'), 'KeyN');
   diffPill = el('div', row, { class: 'pill' }, 'BOTS: NORMAL');
   tapButton(diffPill, 'KeyD');
+  tablePill = el('div', row, { class: 'pill' }, 'TABLE: ALL');
+  tapButton(tablePill, 'KeyM');
   tapButton(el('div', row, { class: 'pill go' }, '▶ PLAY'), 'Digit1');
 
   // ---- match end
@@ -244,13 +248,14 @@ export function setTouchMode(mode: TouchMode): void {
 }
 
 let lastHud = '';
-export function setTouchHud(h: { stompReady?: boolean; armed?: boolean; joined?: boolean; difficulty?: string }): void {
+export function setTouchHud(h: { stompReady?: boolean; armed?: boolean; joined?: boolean; difficulty?: string; table?: string }): void {
   if (!layers) return;
   const key = JSON.stringify(h);
   if (key === lastHud) return;
   lastHud = key;
   if (h.stompReady !== undefined) stompBtn.classList.toggle('ready', h.stompReady);
   if (h.armed !== undefined) throwBtn.classList.toggle('dim', !h.armed);
-  if (h.joined !== undefined) joinPill.textContent = h.joined ? 'LEAVE (TOUCH)' : 'JOIN (TOUCH)';
+  if (h.joined !== undefined) joinPill.textContent = h.joined ? 'LEAVE' : 'JOIN';
+  if (h.table !== undefined) tablePill.textContent = `TABLE: ${h.table}`;
   if (h.difficulty !== undefined) diffPill.textContent = `BOTS: ${h.difficulty.toUpperCase()}`;
 }

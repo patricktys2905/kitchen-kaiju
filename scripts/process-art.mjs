@@ -20,8 +20,10 @@ const SPRITES = [
   [/^cut-[a-z]+$/, 160],
   [/^ob-[a-z]+$/, 320],
   [/^hand$/, 640],
+  [/^cleaver$/, 640],
 ];
-const BACKGROUNDS = { 'bg-table': [1080, 575], 'bg-floor': [1280, 720], 'bg-menu': [1280, 720] };
+const TABLES = ['bg-table', 'bg-sushi', 'bg-party', 'bg-board']; // table surfaces get rounded corners
+const BACKGROUNDS = { 'bg-floor': [1280, 720], 'bg-menu': [1280, 720], ...Object.fromEntries(TABLES.map(t => [t, [1080, 575]])) };
 
 fs.mkdirSync(OUT, { recursive: true });
 const files = fs.existsSync(RAW) ? fs.readdirSync(RAW).filter(f => /\.(png|jpe?g|webp)$/i.test(f)) : [];
@@ -98,7 +100,7 @@ for (const file of files) {
   if (BACKGROUNDS[name]) {
     const [w, h] = BACKGROUNDS[name];
     let img = sharp(src).resize({ width: w, height: h, fit: 'cover' });
-    if (name === 'bg-table') {
+    if (TABLES.includes(name)) {
       // round the corners to match the table outline drawn in-game (radius 22)
       const mask = Buffer.from(`<svg width="${w}" height="${h}"><rect width="${w}" height="${h}" rx="22" ry="22" fill="#fff"/></svg>`);
       img = sharp(await img.png().toBuffer()).composite([{ input: mask, blend: 'dest-in' }]);

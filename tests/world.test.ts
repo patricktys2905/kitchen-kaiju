@@ -207,6 +207,63 @@ describe('giant hand', () => {
   });
 });
 
+describe('new tables', () => {
+  it('Sushi Bar: the conveyor carries players and loose cutlery sideways', () => {
+    const w = makeWorld(2, 'fork', { layout: 3 });
+    expect(w.layout.name).toBe('Sushi Bar');
+    place(w, 0, 500, 383);
+    place(w, 1, 900, 620);
+    const fork = w.cutleryById(w.players[1].holding)!;
+    disarm(w, 1);
+    w.cutlery.push(fork);
+    Object.assign(fork, { state: 'stuck', holder: null, owner: null, x: 300, y: 383 });
+    run(w, 1);
+    expect(w.players[0].x).toBeGreaterThan(600);
+    expect(fork.x).toBeGreaterThan(400);
+  });
+
+  it('Birthday Bash: a gust blows a player near the edge off the table', () => {
+    const w = makeWorld(3, 'fork', { layout: 4, hazards: true });
+    place(w, 0, 1130, 260);
+    place(w, 1, 300, 600);
+    place(w, 2, 640, 150);
+    w.wind = { state: 'gust', dir: 0, t: 0 };
+    const ev = run(w, 1.5);
+    expect(ev.find(e => e.type === 'ko' && e.id === 0)).toMatchObject({ cause: 'wind' });
+  });
+
+  it('Birthday Bash: walking into the wind keeps you on the table', () => {
+    const w = makeWorld(3, 'fork', { layout: 4, hazards: true });
+    place(w, 0, 900, 260);
+    place(w, 1, 300, 600);
+    place(w, 2, 640, 150);
+    w.wind = { state: 'gust', dir: 0, t: 0 };
+    run(w, 1.5, () => [{ ...NO_INPUT, mx: -1 }]);
+    expect(w.players[0].alive).toBe(true);
+  });
+
+  it("Chef's Board: the cleaver warns, then chops everyone in its lane", () => {
+    const w = makeWorld(3, 'fork', { layout: 5, hazards: true });
+    place(w, 0, 260, 380);
+    place(w, 1, 1000, 380);
+    place(w, 2, 640, 150);
+    w.cleaver = { state: 'warn', x: 260, t: 0 };
+    run(w, 0.6);
+    expect(w.players[0].alive).toBe(true); // still warning
+    const ev = run(w, 0.8);
+    expect(ev.find(e => e.type === 'ko' && e.id === 0)).toMatchObject({ cause: 'chop' });
+    expect(w.players[1].alive && w.players[2].alive).toBe(true);
+  });
+
+  it('a chosen table is used for every round', () => {
+    const w = new World({ players: [{ name: 'a' }, { name: 'b' }], seed: 3, layouts: [4] });
+    for (let r = 0; r < 3; r++) {
+      expect(w.layout.name).toBe('Birthday Bash');
+      w.startRound();
+    }
+  });
+});
+
 describe('match flow', () => {
   it('first to the target wins the match', () => {
     const w = makeWorld();

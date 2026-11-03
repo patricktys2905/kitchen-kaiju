@@ -45,14 +45,29 @@ export const RULES = {
   handInterval: [8, 12] as [number, number],
   suddenDeathAt: 45,
   suddenDeathInterval: [3.5, 5] as [number, number],
+  // Birthday Bash: gusts of wind
+  windFirst: 6,
+  windInterval: [8, 11] as [number, number],
+  windWarn: 1.3,
+  windGust: 1.4,
+  windForce: 1150, // knockback acceleration while the gust blows
+  // Chef's Board: the cleaver
+  cleaverFirst: 5,
+  cleaverInterval: [5.5, 8] as [number, number],
+  cleaverSuddenDeath: [3, 4.5] as [number, number],
+  cleaverWarn: 1.2,
+  cleaverBand: 70,
+  cleaverShow: 0.5,
 };
 
-export const COLORS = [0xff5a7a, 0x4fd1ff, 0xffd24a, 0x8dff6a];
-export const COLOR_CSS = ['#ff5a7a', '#4fd1ff', '#ffd24a', '#8dff6a'];
-
+/** The kaiju roster. Each player picks a different one; its colour is that player's colour. */
 export const SPECIES = [
-  { name: 'GOBZILLA', full: 'Gobzilla Jr.' },
-  { name: 'SQUIDGEON', full: 'Squidgeon' },
-  { name: 'CRABBAGE', full: 'Crabbage' },
-  { name: 'BLOBLIN', full: 'Bloblin' },
+  { name: 'GOBZILLA', full: 'Gobzilla Jr.', color: 0xff5a7a, css: '#ff5a7a' },
+  { name: 'SQUIDGEON', full: 'Squidgeon', color: 0x4fd1ff, css: '#4fd1ff' },
+  { name: 'CRABBAGE', full: 'Crabbage', color: 0xffd24a, css: '#ffd24a' },
+  { name: 'BLOBLIN', full: 'Bloblin', color: 0x8dff6a, css: '#8dff6a' },
+  { name: 'MOTHBALL', full: 'Mothball', color: 0xb98cff, css: '#b98cff' },
+  { name: 'TOASTBAT', full: 'Toastbat', color: 0xff9a3c, css: '#ff9a3c' },
+  { name: 'DUMPLORD', full: 'Dumplord', color: 0xf3e3c3, css: '#f3e3c3' },
+  { name: 'NORIGON', full: 'Norigon', color: 0x21c7a8, css: '#21c7a8' },
 ];

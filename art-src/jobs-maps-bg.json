@@ -1,0 +1,15 @@
+[
+  {
+    "name": "bg-sushi",
+    "newChat": true,
+    "prompt": "Generate an image. A seamless game background texture for a top-down party game: a light pale BAMBOO SUSHI-BAR COUNTER surface seen from DIRECTLY ABOVE, filling the ENTIRE frame edge to edge, with thin horizontal bamboo slats and a few subtle grain marks. Style: clean painted cartoon game art with gentle cel shading (not a photo), even flat lighting, low contrast so game pieces on top stay readable. Completely EMPTY: no plates, no food, no conveyor, no objects, no text, no border, no vignette. Wide 16:9 landscape image."
+  },
+  {
+    "name": "bg-party",
+    "prompt": "Generate the next background in the same clean painted cartoon style, seen from DIRECTLY ABOVE, filling the ENTIRE frame edge to edge: a festive BIRTHDAY PARTY TABLECLOTH in soft pastel pink with white polka dots and a few scattered paper confetti pieces, even lighting, low contrast. Completely EMPTY otherwise: no cake, no plates, no objects, no text, no border. Wide 16:9 landscape image."
+  },
+  {
+    "name": "bg-board",
+    "prompt": "Generate the next background in the same clean painted cartoon style, seen from DIRECTLY ABOVE, filling the ENTIRE frame edge to edge: the surface of a giant chef's BUTCHER-BLOCK CHOPPING BOARD made of light and mid-brown wooden strips running horizontally, with a few faint knife scratch marks, even lighting, low contrast. Completely EMPTY: no food, no knives, no objects, no text, no border. Wide 16:9 landscape image."
+  }
+]

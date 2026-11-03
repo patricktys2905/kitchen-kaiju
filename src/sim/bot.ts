@@ -157,6 +157,23 @@ export class BotBrain {
       }
     }
 
+    // Brace against the wind: lean into it, and get away from the edge it blows towards.
+    if (w.wind) {
+      const wx = Math.cos(w.wind.dir), wy = Math.sin(w.wind.dir);
+      add(-wx, -wy, w.wind.state === 'gust' ? 3.5 : 2);
+    }
+
+    // Get out of the cleaver's lane.
+    if (w.cleaver && w.cleaver.state === 'warn') {
+      const gap = p.x - w.cleaver.x;
+      if (Math.abs(gap) < RULES.cleaverBand / 2 + p.r + 30) {
+        let dir = gap >= 0 ? 1 : -1;
+        if (p.x + dir * 120 > TABLE.x + TABLE.w || p.x + dir * 120 < TABLE.x) dir = -dir;
+        add(dir, 0, 4);
+        if (w.cleaver.t > RULES.cleaverWarn * 0.6 && p.dashCD <= 0 && this.rng.next() < T.dodge + 0.3) { mx = dir; my = 0; out.dash = !p.prev.dash; }
+      }
+    }
+
     out.mx = mx;
     out.my = my;
 

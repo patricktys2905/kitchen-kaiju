@@ -1,0 +1,48 @@
+[
+  {
+    "name": "ob-soy",
+    "newChat": true,
+    "refs": ["art-src/ref-props.png"],
+    "prompt": "Generate an image. The attached picture shows existing prop sprites from my top-down party game (a coffee cup, a soup bowl, a fork and a baguette, all seen from directly above). I need NEW props that match this art style EXACTLY: same bold chunky cartoon look, thick dark-brown outlines, flat bright colours, soft cel shading, one crisp white highlight, seen from DIRECTLY ABOVE (top-down, no perspective tilt). One object per image, centred, filling about 85% of the frame, solid flat magenta (#FF00FF) background, no shadow, no text, no border. Square 1:1. First new prop: a small round white ceramic SOY SAUCE DISH filled with dark soy sauce, seen from directly above."
+  },
+  {
+    "name": "ob-sushi",
+    "prompt": "Next new prop, same style as the reference, top-down from directly above, solid flat magenta (#FF00FF) background: a round SUSHI PLATE (dark blue rim) with salmon nigiri, tuna nigiri and two cucumber maki rolls arranged on it. Square 1:1."
+  },
+  {
+    "name": "ob-teapot",
+    "prompt": "Next new prop, same style, top-down from directly above, solid flat magenta (#FF00FF) background: a round green cast-iron JAPANESE TEAPOT with its lid and a short spout pointing right and a curved bamboo handle over the top. Square 1:1."
+  },
+  {
+    "name": "ob-cake",
+    "prompt": "Next new prop, same style, top-down from directly above, solid flat magenta (#FF00FF) background: a big round BIRTHDAY CAKE with pink frosting, rainbow sprinkles, white piped icing around the edge and five lit striped candles. Square 1:1."
+  },
+  {
+    "name": "ob-gift",
+    "prompt": "Next new prop, same style, top-down from directly above, solid flat magenta (#FF00FF) background: a square-ish GIFT BOX wrapped in blue paper with white polka dots, a red ribbon cross and a big red bow in the centre. Square 1:1."
+  },
+  {
+    "name": "ob-cupcake",
+    "prompt": "Next new prop, same style, top-down from directly above, solid flat magenta (#FF00FF) background: a round CUPCAKE with a swirl of mint-green frosting, sprinkles and a cherry on top. Square 1:1."
+  },
+  {
+    "name": "ob-tomato",
+    "prompt": "Next new prop, same style, top-down from directly above, solid flat magenta (#FF00FF) background: a big round shiny red TOMATO with its green leafy stem in the centre. Square 1:1."
+  },
+  {
+    "name": "ob-onion",
+    "prompt": "Next new prop, same style, top-down from directly above, solid flat magenta (#FF00FF) background: a red ONION cut in half, cut side up, showing purple and white rings. Square 1:1."
+  },
+  {
+    "name": "ob-carrot",
+    "prompt": "Next new prop, same style, top-down from directly above, solid flat magenta (#FF00FF) background: a fat orange CARROT lying perfectly HORIZONTAL, leafy green top on the LEFT, pointed tip on the RIGHT. Square 1:1 image with the carrot centred filling the width."
+  },
+  {
+    "name": "ob-garlic",
+    "prompt": "Next new prop, same style, top-down from directly above, solid flat magenta (#FF00FF) background: a single plump white GARLIC BULB with faint purple streaks. Square 1:1."
+  },
+  {
+    "name": "cleaver",
+    "prompt": "Next new prop, same style, top-down from directly above, solid flat magenta (#FF00FF) background: a huge MEAT CLEAVER lying perfectly VERTICAL, the wide rectangular shiny steel blade on top and the dark wooden handle at the bottom, a little hole in the blade corner. Square 1:1 image with the cleaver centred filling the height."
+  }
+]

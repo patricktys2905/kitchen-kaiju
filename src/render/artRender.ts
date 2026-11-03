@@ -1,13 +1,20 @@
 // Draws the match with Gemini sprites, falling back to the shape renderer per element when an image is missing.
 import type * as Phaser from 'phaser';
-import { COLORS, RULES, TABLE, VIEW } from '../sim/constants';
+import { RULES, TABLE, VIEW } from '../sim/constants';
 import type { Layout } from '../sim/layouts';
 import type { Cutlery, Player, World } from '../sim/world';
 import { CUTLERY_LEN, fitInside, hasArt, SpritePool } from './art';
 import {
-  cutleryAngle, drawCrumbs, drawCutlery, drawCutleryGlow, drawFloor, drawHand, drawKaiju, drawObstacle, drawObstacleShadow,
-  drawPlayerOver, drawPlayerUnder, drawTableRim, drawTableShadow, drawTableSurface, playerAlpha,
+  cutleryAngle, drawBelt, drawChopMark, drawCleaverBlade, drawCleaverWarn, drawCrumbs, drawCutlery, drawCutleryGlow, drawFloor,
+  drawHand, drawKaiju, drawObstacle, drawObstacleShadow, drawPlayerOver, drawPlayerUnder, drawTableRim, drawTableShadow,
+  drawTableSurface, drawWind, playerAlpha,
 } from './draw';
+
+/** Which kaiju each player is, and their colour. */
+export interface Looks {
+  species: number[];
+  colors: number[];
+}
 
 type G = Phaser.GameObjects.Graphics;
 
@@ -19,7 +26,7 @@ export class ArtRenderer {
   private statics: Phaser.GameObjects.Image[] = [];
   private facing: number[] = [];
 
-  constructor(private scene: Phaser.Scene, private baseG: G, private tableG: G) {
+  constructor(private scene: Phaser.Scene, private baseG: G, private tableG: G, private looks: Looks) {
     this.pool = new SpritePool(scene);
   }
 
@@ -35,10 +42,10 @@ export class ArtRenderer {
       drawFloor(this.baseG);
     }
     drawTableShadow(this.baseG);
-    if (hasArt('bg-table')) {
-      this.statics.push(this.scene.add.image(TABLE.x + TABLE.w / 2, TABLE.y + TABLE.h / 2, 'bg-table').setDisplaySize(TABLE.w, TABLE.h).setDepth(D.table));
+    if (hasArt(layout.table)) {
+      this.statics.push(this.scene.add.image(TABLE.x + TABLE.w / 2, TABLE.y + TABLE.h / 2, layout.table).setDisplaySize(TABLE.w, TABLE.h).setDepth(D.table));
     } else {
-      drawTableSurface(this.baseG);
+      drawTableSurface(this.baseG, layout.table);
     }
     drawTableRim(this.tableG);
     for (const o of layout.obstacles) {
@@ -60,6 +67,7 @@ export class ArtRenderer {
   /** Per-frame sprites. `under` = ground graphics, `over` = graphics drawn above sprites. */
   frame(w: World, t: number, under: G, over: G): void {
     this.pool.begin();
+    for (const b of w.layout.belts ?? []) drawBelt(under, b, t);
 
     for (const c of w.crumbs) {
       const key = `crumb-${c.variant}`;
@@ -70,6 +78,8 @@ export class ArtRenderer {
     }
 
     if (w.hand && w.hand.state === 'warn') drawHand(under, w.hand, t);
+    if (w.cleaver) (w.cleaver.state === 'warn' ? drawCleaverWarn : drawChopMark)(under, w.cleaver, t);
+    if (w.wind && w.wind.state === 'warn') drawWind(under, w.wind, t);
 
     for (const c of w.cutlery) {
       if (c.state === 'stuck' || c.state === 'returning') this.cutlery(under, over, c, t, D.loose);
@@ -93,24 +103,37 @@ export class ArtRenderer {
         img.setPosition(h.x + h.dir * 50 - (h.dir * dw) / 2, h.y);
       }
     }
+    if (w.wind && w.wind.state === 'gust') drawWind(over, w.wind, t);
+    if (w.cleaver && w.cleaver.state === 'chop') {
+      const c = w.cleaver, k = Math.min(1, c.t / 0.08); // slams down fast
+      if (!hasArt('cleaver')) {
+        drawCleaverBlade(over, c);
+      } else {
+        const img = this.pool.take('cleaver', D.hand);
+        // stretch the blade to exactly cover the lane it chops (width) and the table (height)
+        const grow = 1.25 - 0.25 * k;
+        img.setScale(((RULES.cleaverBand * 1.45) / img.width) * grow, ((TABLE.h * 0.95) / img.height) * grow);
+        img.setAlpha(Math.min(1, 1.6 - c.t / 0.5)).setPosition(c.x, TABLE.y + TABLE.h / 2 - (1 - k) * 40);
+      }
+    }
     this.pool.end();
   }
 
   private cutlery(under: G, over: G, c: Cutlery, t: number, depth: number): void {
     const key = `cut-${c.kind}`;
-    if (!hasArt(key)) { drawCutlery(over, c, COLORS, t); return; }
-    drawCutleryGlow(under, c, COLORS, t);
+    if (!hasArt(key)) { drawCutlery(over, c, this.looks.colors, t); return; }
+    drawCutleryGlow(under, c, this.looks.colors, t);
     const img = this.pool.take(key, depth);
     const s = (CUTLERY_LEN[c.kind] * (c.state === 'flying' ? 1.1 : 1)) / img.width;
     img.setScale(s).setRotation(cutleryAngle(c)).setPosition(c.x, c.y);
   }
 
   private player(w: World, p: Player, t: number, under: G, over: G): void {
-    const i = p.id, color = COLORS[i];
+    const i = p.id, color = this.looks.colors[i], sp = this.looks.species[i];
     drawPlayerUnder(under, p, color, t, true);
-    const base = `kaiju-${i}`;
+    const base = `kaiju-${sp}`;
     if (!hasArt(base)) {
-      drawKaiju(over, { x: p.x, y: p.y, r: p.r, aim: p.aim, kaiju: p.kaijuT > 0, species: i, color }, t, playerAlpha(p, t));
+      drawKaiju(over, { x: p.x, y: p.y, r: p.r, aim: p.aim, kaiju: p.kaijuT > 0, species: sp, color }, t, playerAlpha(p, t));
       drawPlayerOver(over, p, color, t);
       return;
     }
@@ -136,7 +159,7 @@ export class ArtRenderer {
     if (held) {
       const key = `cut-${held.kind}`;
       if (!hasArt(key)) {
-        drawCutlery(over, held, COLORS, t);
+        drawCutlery(over, held, this.looks.colors, t);
       } else {
         const hx = p.x + f * p.r * 0.8, hy = p.y - p.r * 0.35 - bob;
         const pull = p.charging ? -(p.charge / 0.6) * 6 : 0; // wind back while charging

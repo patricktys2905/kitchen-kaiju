@@ -5,7 +5,7 @@ import { CUTLERY_LEN, fitInside, hasArt } from '../render/art';
 import { ArtRenderer } from '../render/artRender';
 import { drawCutleryShape, drawKaiju, drawTableLive } from '../render/draw';
 import { BotBrain, type Difficulty } from '../sim/bot';
-import { COLORS, COLOR_CSS, P, SPECIES, TABLE, VIEW } from '../sim/constants';
+import { P, SPECIES, TABLE, VIEW } from '../sim/constants';
 import { CUTLERY } from '../sim/cutlery';
 import { angleDiff } from '../sim/math';
 import { World, type GameEvent, type PlayerInput } from '../sim/world';
@@ -23,6 +23,8 @@ interface Popup { text: Phaser.GameObjects.Text; vy: number; life: number }
 export interface GameData {
   slots: Slot[];
   difficulty: Difficulty;
+  species?: number[]; // which kaiju each slot picked
+  tables?: number[] | null; // table pool (null/empty = all)
   seed?: number;
 }
 
@@ -41,6 +43,10 @@ export class GameScene extends Phaser.Scene {
   private dynG!: Phaser.GameObjects.Graphics;
   private overG!: Phaser.GameObjects.Graphics;
   private art!: ArtRenderer;
+  private species: number[] = [];
+  private tables: number[] | null = null;
+  private colors: number[] = [];
+  private css: string[] = [];
   private hudIcons: (Phaser.GameObjects.Image | null)[] = [];
   private hudHeld: (Phaser.GameObjects.Image | null)[] = [];
   private fxG!: Phaser.GameObjects.Graphics;
@@ -66,7 +72,11 @@ export class GameScene extends Phaser.Scene {
     this.slots = data.slots;
     this.difficulty = data.difficulty;
     const seed = data.seed ?? Math.floor(Math.random() * 1e9);
-    this.world = new World({ players: this.slots.map((_, i) => ({ name: SPECIES[i].name })), seed });
+    this.species = this.slots.map((_, i) => data.species?.[i] ?? i);
+    this.tables = data.tables?.length ? data.tables : null;
+    this.colors = this.species.map(s => SPECIES[s].color);
+    this.css = this.species.map(s => SPECIES[s].css);
+    this.world = new World({ players: this.species.map(s => ({ name: SPECIES[s].name })), seed, layouts: this.tables ?? undefined });
     this.bots = this.slots.map((s, i) => (s.kind === 'bot' ? new BotBrain(i, this.difficulty, seed + i * 101) : null));
     this.acc = 0;
     this.t = 0;
@@ -85,16 +95,16 @@ export class GameScene extends Phaser.Scene {
     this.overG = this.add.graphics().setDepth(3.6);
     this.fxG = this.add.graphics().setDepth(3.8);
     this.hudG = this.add.graphics().setDepth(5);
-    this.art = new ArtRenderer(this, this.baseG, this.tableG);
+    this.art = new ArtRenderer(this, this.baseG, this.tableG, { species: this.species, colors: this.colors });
     this.art.setupTable(this.world.layout);
-    this.hudIcons = this.slots.map((_, i) => (hasArt(`kaiju-${i}`) ? fitInside(this.add.image(HUD_X(i) + 20, 40, `kaiju-${i}`), 40, 44).setDepth(6) : null));
+    this.hudIcons = this.species.map((sp, i) => (hasArt(`kaiju-${sp}`) ? fitInside(this.add.image(HUD_X(i) + 20, 40, `kaiju-${sp}`), 40, 44).setDepth(6) : null));
     this.hudHeld = this.slots.map((_, i) => (hasArt('cut-fork') ? this.add.image(HUD_X(i) + 206, 18, 'cut-fork').setDepth(6).setRotation(-0.35) : null));
 
     this.nameTexts = [];
     this.infoTexts = [];
     this.slots.forEach((s, i) => {
       const x = HUD_X(i);
-      this.nameTexts.push(this.add.text(x + 48, 8, SPECIES[i].name, { fontFamily: FONT, fontSize: '18px', color: COLOR_CSS[i], stroke: '#140b05', strokeThickness: 4 }).setDepth(6));
+      this.nameTexts.push(this.add.text(x + 48, 8, SPECIES[this.species[i]].name, { fontFamily: FONT, fontSize: '18px', color: this.css[i], stroke: '#140b05', strokeThickness: 4 }).setDepth(6));
       this.infoTexts.push(this.add.text(x + 48, 54, slotLabel(s), { fontFamily: 'Arial', fontSize: '13px', color: '#d9c7b3' }).setDepth(6));
     });
     this.roundText = this.add.text(VIEW.w - 16, 12, '', { fontFamily: FONT, fontSize: '14px', color: '#ffcf8a', align: 'right' }).setOrigin(1, 0).setDepth(6);
@@ -110,12 +120,12 @@ export class GameScene extends Phaser.Scene {
     const dt = Math.min(0.1, delta / 1000);
     this.t += dt;
 
-    if (consumeTap('Escape')) { this.scene.start('menu', { slots: this.slots, difficulty: this.difficulty }); return; }
+    if (consumeTap('Escape')) { this.scene.start('menu', { slots: this.slots, difficulty: this.difficulty, species: this.species, tables: this.tables }); return; }
     if (consumeTap('KeyP') && this.world.phase !== 'matchEnd') this.paused = !this.paused;
     const anyStart = this.slots.some(s => s.kind === 'pad' && readSlot(s).start);
     if (anyStart && !this.padPrevStart && this.world.phase !== 'matchEnd') this.paused = !this.paused;
     if (this.world.phase === 'matchEnd' && (consumeTap('Digit1') || (anyStart && !this.padPrevStart))) {
-      this.scene.restart({ slots: this.slots, difficulty: this.difficulty });
+      this.scene.restart({ slots: this.slots, difficulty: this.difficulty, species: this.species, tables: this.tables });
       return;
     }
     this.padPrevStart = anyStart;
@@ -186,12 +196,12 @@ export class GameScene extends Phaser.Scene {
         case 'vanish': this.burst(e.x, e.y, 0xffffff, 8, 80, 0.3); break;
         case 'bounce': sfx.clink(); this.burst(e.x, e.y, 0xffffff, 6, 160, 0.25); break;
         case 'pickup':
-          if (e.stolenFrom !== null) { sfx.steal(); this.popup(e.x, e.y - 20, 'STOLEN!', COLOR_CSS[e.id]); }
+          if (e.stolenFrom !== null) { sfx.steal(); this.popup(e.x, e.y - 20, 'STOLEN!', this.css[e.id]); }
           else sfx.pickup();
           break;
         case 'catch':
           sfx.catch();
-          if (e.from !== e.id) this.popup(e.x, e.y - 20, 'CAUGHT!', COLOR_CSS[e.id]);
+          if (e.from !== e.id) this.popup(e.x, e.y - 20, 'CAUGHT!', this.css[e.id]);
           break;
         case 'deflect': sfx.clink(); this.popup(e.x, e.y - 16, 'CLANK!', '#ffffff', 18); this.burst(e.x, e.y, 0xfff2a8, 12, 240, 0.3); break;
         case 'swipe': sfx.swipe(); break;
@@ -204,14 +214,14 @@ export class GameScene extends Phaser.Scene {
         case 'meterFull': {
           sfx.meterFull();
           const p = w.players[e.id];
-          this.popup(p.x, p.y - 34, 'STOMP READY!', COLOR_CSS[e.id], 18);
+          this.popup(p.x, p.y - 34, 'STOMP READY!', this.css[e.id], 18);
           break;
         }
         case 'kaiju':
           sfx.kaiju();
           this.shake(0.012, 350);
-          this.popup(e.x, e.y - 60, 'KAIJU!', COLOR_CSS[e.id], 40);
-          this.rings.push({ x: e.x, y: e.y, r: 0, t: 0, max: 160, color: COLORS[e.id] });
+          this.popup(e.x, e.y - 60, 'KAIJU!', this.css[e.id], 40);
+          this.rings.push({ x: e.x, y: e.y, r: 0, t: 0, max: 160, color: this.colors[e.id] });
           break;
         case 'stomp':
           sfx.stomp();
@@ -223,6 +233,10 @@ export class GameScene extends Phaser.Scene {
         case 'ko': this.onKO(e); break;
         case 'handWarn': sfx.handWarn(); break;
         case 'handSweep': sfx.handSweep(); this.shake(0.006, 400); break;
+        case 'windWarn': sfx.windWarn(); this.popup(640, 140, 'GUST INCOMING!', '#ffffff', 26); break;
+        case 'windGust': sfx.windGust(); this.shake(0.003, 1300); break;
+        case 'cleaverWarn': sfx.cleaverWarn(); break;
+        case 'cleaverChop': sfx.cleaverChop(); this.shake(0.014, 260); this.burst(e.x, 380, 0x8a5a32, 30, 300, 0.6); break;
         case 'spawnCutlery': sfx.spawn(); this.burst(e.x, e.y, 0xffffff, 14, 140, 0.5); break;
         case 'roundEnd':
           sfx.roundWin();
@@ -235,11 +249,12 @@ export class GameScene extends Phaser.Scene {
   }
 
   private onKO(e: Extract<GameEvent, { type: 'ko' }>): void {
-    const victim = SPECIES[e.id].name, killer = e.by !== null ? SPECIES[e.by].name : null;
+    const names = this.world.players.map(p => p.name);
+    const victim = names[e.id], killer = e.by !== null ? names[e.by] : null;
     const x = Phaser.Math.Clamp(e.x, TABLE.x, TABLE.x + TABLE.w), y = Phaser.Math.Clamp(e.y, TABLE.y, TABLE.y + TABLE.h);
-    if (e.cause === 'fall') sfx.fall(); else sfx.ko();
+    if (e.cause === 'fall' || e.cause === 'wind') sfx.fall(); else sfx.ko();
     this.shake(0.008, 180);
-    this.burst(x, y, COLORS[e.id], 36, 360, 0.9, 300);
+    this.burst(x, y, this.colors[e.id], 36, 360, 0.9, 300);
     this.burst(x, y, 0xffffff, 12, 260, 0.6, 300);
     this.burst(x, y, 0xe0b06a, 10, 200, 0.7, 300);
     let text: string;
@@ -249,9 +264,11 @@ export class GameScene extends Phaser.Scene {
       case 'squash': text = `${killer} SQUASHED ${victim}`; break;
       case 'fall': text = killer ? `${killer} shoved ${victim} off the table` : `${victim} fell off the table`; break;
       case 'hand': text = `${victim} got flicked by the GIANT HAND`; break;
+      case 'wind': text = `${victim} got blown off the table`; break;
+      case 'chop': text = `${victim} got CHOPPED by the cleaver`; break;
     }
     if (e.by === null && e.cause === 'cutlery') text = `${victim} skewered themselves`;
-    this.feed.unshift({ text, color: COLOR_CSS[e.by ?? e.id], t: 4 });
+    this.feed.unshift({ text, color: this.css[e.by ?? e.id], t: 4 });
     if (this.feed.length > 2) this.feed.pop();
   }
 
@@ -330,12 +347,12 @@ export class GameScene extends Phaser.Scene {
       g.fillStyle(0xffffff, p.alive ? 0.06 : 0.02);
       g.fillRoundedRect(x - 6, 6, 236, 68, 10);
       const icon = this.hudIcons[i];
-      if (icon) fitInside(icon.setAlpha(p.alive ? 1 : 0.35).setTexture(p.kaijuT > 0 && hasArt(`kaiju-${i}-rage`) ? `kaiju-${i}-rage` : `kaiju-${i}`), 40, 44);
-      else drawKaiju(g, { x: x + 20, y: 40, r: 17, aim: Math.PI / 2, kaiju: false, species: i, color: COLORS[i] }, t, p.alive ? 1 : 0.35);
+      if (icon) fitInside(icon.setAlpha(p.alive ? 1 : 0.35).setTexture(p.kaijuT > 0 && hasArt(`kaiju-${this.species[i]}-rage`) ? `kaiju-${this.species[i]}-rage` : `kaiju-${this.species[i]}`), 40, 44);
+      else drawKaiju(g, { x: x + 20, y: 40, r: 17, aim: Math.PI / 2, kaiju: false, species: this.species[i], color: this.colors[i] }, t, p.alive ? 1 : 0.35);
       // round stars (second row, right of the belly meter)
       for (let s = 0; s < w.opts.target; s++) {
         const sx = x + 160 + s * 14, sy = 41;
-        g.fillStyle(s < p.score ? COLORS[i] : 0x3a2c22, 1);
+        g.fillStyle(s < p.score ? this.colors[i] : 0x3a2c22, 1);
         const pts: { x: number; y: number }[] = [];
         for (let k = 0; k < 10; k++) {
           const r = k % 2 ? 2.8 : 6.5, a = (k / 10) * Math.PI * 2 - Math.PI / 2;
@@ -382,12 +399,12 @@ export class GameScene extends Phaser.Scene {
     } else if (w.phase === 'play' && this.bannerT > 0) {
       main = 'DIG IN!';
     } else if (w.phase === 'roundEnd') {
-      if (w.winner !== null) { main = `${SPECIES[w.winner].name} WINS THE ROUND`; color = COLOR_CSS[w.winner]; }
+      if (w.winner !== null) { main = `${w.players[w.winner].name} WINS THE ROUND`; color = this.css[w.winner]; }
       else { main = 'NOBODY SURVIVED DINNER'; }
       sub = w.players.map(p => `${p.name} ${'★'.repeat(p.score)}${'☆'.repeat(w.opts.target - p.score)}`).join('     ');
     } else if (w.phase === 'matchEnd' && w.winner !== null) {
-      main = `${SPECIES[w.winner].full.toUpperCase()}\nRULES THE TABLE`;
-      color = COLOR_CSS[w.winner];
+      main = `${SPECIES[this.species[w.winner]].full.toUpperCase()}\nRULES THE TABLE`;
+      color = this.css[w.winner];
       const ranked = w.players.slice().sort((a, b) => b.score - a.score || b.kos - a.kos);
       sub = ranked.map((p, i) => `${i + 1}. ${p.name}  ${p.score} rounds · ${p.kos} KOs`).join('\n') + '\n\n1 / START rematch · Esc menu';
     }

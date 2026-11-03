@@ -35,6 +35,16 @@ Tips: Android Chrome goes fullscreen on the first tap. On iPhone, use Share → 
 
 Menu: THROW joins, DASH leaves, B/N add/remove bot, D bot difficulty, 1 or START begins. In game: P pause, Esc menu.
 
+## Kaiju and tables
+
+8 kaiju to pick from (each player picks a different one; LEFT/RIGHT on your controller, or KAIJU ▶ on touch): Gobzilla Jr., Squidgeon, Crabbage, Bloblin, Mothball, Toastbat, Dumplord, Norigon. All play the same for now.
+
+6 tables (M / gamepad Y / TABLE button; default rotates through all):
+- Sunday Roast, Dinner for Four, Leftovers: the giant hand
+- Sushi Bar: a conveyor belt carries players, loose cutlery and crumbs sideways (plus the hand)
+- Birthday Bash: warned gusts of wind push everyone towards one edge; walk into the wind
+- Chef's Board: the cleaver chops a marked vertical lane
+
 ## Rules (phases 1–2)
 
 - Cutlery sticks where it lands. Anyone can pick up loose cutlery (stealing!). After 4s it slides back to its unarmed owner.
@@ -64,8 +74,8 @@ The game draws anything missing with the built-in shapes, so art can be added or
 3. `npm run art` removes backgrounds, trims, resizes and writes `public/art/` + the manifest.
    `node scripts/art-preview.mjs [regex]` makes `art-src/preview.png` to check cut-outs.
 
-Names the game looks for: `kaiju-0..3`, `kaiju-0..3-rage`, `cut-<fork|spoon|knife|chopstick|ladle|spork>`,
-`ob-<cup|shaker|bowl|candle|napkin|bread|gravy>`, `hand`, `crumb-0..2` (from `crumbs`), `bg-table`, `bg-floor`, `bg-menu`.
+Names the game looks for: `kaiju-0..7`, `kaiju-0..7-rage`, `cut-<fork|spoon|knife|chopstick|ladle|spork>`, `ob-<style>` for every obstacle style in `src/sim/layouts.ts`, `hand`, `cleaver`, `crumb-0..2` (from `crumbs`), table surfaces `bg-table|bg-sushi|bg-party|bg-board`, `bg-floor`, `bg-menu`.
+To keep new art consistent, `node scripts/ref-sheet.mjs out.png kaiju-0 kaiju-1 ...` builds a reference image; add it as `"refs"` in a job and it is pasted into Gemini with the prompt.
 
 ## Checks
 

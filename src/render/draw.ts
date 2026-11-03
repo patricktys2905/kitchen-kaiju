@@ -2,8 +2,8 @@
 import type * as Phaser from 'phaser';
 import { P, RULES, TABLE, VIEW } from '../sim/constants';
 import { CUTLERY } from '../sim/cutlery';
-import type { Layout, Obstacle } from '../sim/layouts';
-import type { Crumb, Cutlery, Hand, Player } from '../sim/world';
+import type { Belt, Layout, Obstacle } from '../sim/layouts';
+import type { Cleaver, Crumb, Cutlery, Hand, Player, Wind } from '../sim/world';
 
 type G = Phaser.GameObjects.Graphics;
 type Pt = [number, number];
@@ -58,8 +58,9 @@ export function drawTableShadow(g: G): void {
 }
 
 /** Wood planks + grain + linen runner (shape fallback for the painted table). */
-export function drawTableSurface(g: G): void {
-  g.fillStyle(0x9a6438, 1);
+const SURFACE: Record<Layout['table'], number> = { 'bg-table': 0x9a6438, 'bg-sushi': 0xd9c08a, 'bg-party': 0xf3b6cc, 'bg-board': 0xb88452 };
+export function drawTableSurface(g: G, table: Layout['table'] = 'bg-table'): void {
+  g.fillStyle(SURFACE[table], 1);
   g.fillRoundedRect(TABLE.x, TABLE.y, TABLE.w, TABLE.h, 22);
   g.lineStyle(2, 0x84522c, 1);
   for (let y = TABLE.y + 72; y < TABLE.y + TABLE.h - 10; y += 72) g.lineBetween(TABLE.x + 6, y, TABLE.x + TABLE.w - 6, y);
@@ -86,6 +87,11 @@ export function drawObstacleShadow(g: G, o: Obstacle): void {
   if (o.style === 'gravy') { g.fillEllipse(o.x + o.w / 2 + 6, o.y + o.h / 2 + 8, o.w * 0.95, o.h * 0.75); return; }
   g.fillRoundedRect(o.x + 5, o.y + 7, o.w, o.h, Math.min(o.w, o.h) * (o.style === 'bread' ? 0.5 : 0.15));
 }
+
+const FALLBACK_COLORS: Partial<Record<Obstacle['style'], number>> = {
+  soy: 0x3a2214, sushi: 0x24407a, teapot: 0x3f6b3a, cake: 0xff9ec4, gift: 0x4f8fe0, cupcake: 0x9ff0d0,
+  tomato: 0xe8392f, onion: 0xa04a8c, carrot: 0xff8a2a, garlic: 0xf2ece0,
+};
 
 export function drawObstacle(g: G, o: Obstacle): void {
   if (o.shape === 'circle') {
@@ -115,8 +121,12 @@ export function drawObstacle(g: G, o: Obstacle): void {
         g.fillStyle(0xfff3c4, 1); g.fillCircle(o.x, o.y, o.r * 0.65);
         g.fillStyle(0x333333, 1); g.fillCircle(o.x, o.y, 2.5);
         break;
-      default:
-        g.fillStyle(0xcccccc, 1); g.fillCircle(o.x, o.y, o.r);
+      default: {
+        const c = FALLBACK_COLORS[o.style] ?? 0xcccccc;
+        g.fillStyle(shade(c, 0.7), 1); g.fillCircle(o.x, o.y, o.r);
+        g.fillStyle(c, 1); g.fillCircle(o.x, o.y, o.r * 0.82);
+        g.fillStyle(0xffffff, 0.35); g.fillCircle(o.x - o.r * 0.3, o.y - o.r * 0.3, o.r * 0.25);
+      }
     }
   } else {
     g.fillStyle(0x000000, 0.3);
@@ -137,8 +147,10 @@ export function drawObstacle(g: G, o: Obstacle): void {
         g.lineStyle(2, 0xa86f33, 1);
         for (let y = o.y + 25; y < o.y + o.h - 10; y += 30) g.lineBetween(o.x + 8, y, o.x + o.w - 8, y - 8);
         break;
-      default:
-        g.fillStyle(0xcccccc, 1); g.fillRoundedRect(o.x, o.y, o.w, o.h, 6);
+      default: {
+        const c = FALLBACK_COLORS[o.style] ?? 0xcccccc;
+        g.fillStyle(c, 1); g.fillRoundedRect(o.x, o.y, o.w, o.h, Math.min(o.w, o.h) / 3);
+      }
     }
   }
 }
@@ -262,7 +274,8 @@ export interface KaijuLook {
   color: number;
 }
 
-export function drawKaiju(g: G, k: KaijuLook, t: number, alpha = 1): void {
+export function drawKaiju(g: G, look: KaijuLook, t: number, alpha = 1): void {
+  const k = { ...look, species: look.species % 4 }; // shape fallback has 4 body types
   const { x, y, r, aim, color } = k;
   const dark = shade(color, 0.6), light = shade(color, 1.35);
   const back = aim + Math.PI;
@@ -467,4 +480,87 @@ export function drawHand(g: G, h: Hand, t: number): void {
   g.fillRoundedRect(x0 + W * 0.3, top - 22, W * 0.45, 30, 14); // thumb
   g.lineStyle(2, SKIN_DARK, 1);
   g.lineBetween(x0 + W * 0.5 - 20 * d, top + 30, x0 + W * 0.5 + 20 * d, top + band - 30);
+}
+
+// ------------------------------------------------------------------ table hazards
+/** Sushi Bar conveyor: dark belt with chevrons scrolling in its direction. */
+export function drawBelt(g: G, b: Belt, t: number): void {
+  g.fillStyle(0x2d3138, 0.92);
+  g.fillRect(b.x, b.y, b.w, b.h);
+  g.fillStyle(0x8a93a0, 1);
+  g.fillRect(b.x, b.y - 4, b.w, 5);
+  g.fillRect(b.x, b.y + b.h - 1, b.w, 5);
+  const dir = Math.sign(b.vx) || 1, gap = 70, off = ((t * b.vx) % gap + gap) % gap;
+  g.fillStyle(0x4a515c, 1);
+  for (let x = b.x - gap + off; x < b.x + b.w + gap; x += gap) {
+    if (x < b.x + 10 || x > b.x + b.w - 30) continue;
+    const cy = b.y + b.h / 2;
+    g.fillTriangle(x, cy - 16, x + 18 * dir, cy, x, cy + 16);
+    g.fillTriangle(x - 12 * dir, cy - 16, x + 6 * dir, cy, x - 12 * dir, cy + 16);
+  }
+}
+
+/** Birthday Bash wind: arrows while it builds, streaks while it blows. */
+export function drawWind(g: G, w: Wind, t: number): void {
+  const cx = Math.cos(w.dir), cy = Math.sin(w.dir);
+  if (w.state === 'warn') {
+    const k = w.t / RULES.windWarn;
+    // the edge it will push towards glows red
+    g.fillStyle(0xff3b3b, 0.15 + 0.25 * k);
+    if (cx > 0.5) g.fillRect(TABLE.x + TABLE.w - 26, TABLE.y, 26, TABLE.h);
+    if (cx < -0.5) g.fillRect(TABLE.x, TABLE.y, 26, TABLE.h);
+    if (cy > 0.5) g.fillRect(TABLE.x, TABLE.y + TABLE.h - 26, TABLE.w, 26);
+    if (cy < -0.5) g.fillRect(TABLE.x, TABLE.y, TABLE.w, 26);
+    g.fillStyle(0x3a1f10, 0.3 + 0.25 * Math.abs(Math.sin(t * 10))); // dark so it reads on pink, wood and bamboo
+    for (let ix = 0; ix < 5; ix++) {
+      for (let iy = 0; iy < 3; iy++) {
+        const x = TABLE.x + TABLE.w * (0.12 + ix * 0.19), y = TABLE.y + TABLE.h * (0.2 + iy * 0.3);
+        const px = -cy, py = cx;
+        g.fillTriangle(x + cx * 30, y + cy * 30, x - cx * 14 + px * 22, y - cy * 14 + py * 22, x - cx * 14 - px * 22, y - cy * 14 - py * 22);
+      }
+    }
+    return;
+  }
+  g.lineStyle(3, 0xffffff, 0.45);
+  for (let i = 0; i < 26; i++) {
+    const seed = i * 97.31;
+    const len = 60 + (i % 5) * 18;
+    const span = cx !== 0 ? TABLE.w : TABLE.h;
+    const along = ((t * 900 + seed * 13) % (span + 200)) - 100;
+    const across = (seed * 7.7) % (cx !== 0 ? TABLE.h : TABLE.w);
+    let x: number, y: number;
+    if (Math.abs(cx) > 0.5) { x = cx > 0 ? TABLE.x + along : TABLE.x + TABLE.w - along; y = TABLE.y + across; }
+    else { y = cy > 0 ? TABLE.y + along : TABLE.y + TABLE.h - along; x = TABLE.x + across; }
+    g.lineBetween(x, y, x - cx * len, y - cy * len);
+  }
+}
+
+/** Chef's Board cleaver: red lane while warning; a blade (shape fallback) when it chops. */
+export function drawCleaverWarn(g: G, c: Cleaver, t: number): void {
+  const band = RULES.cleaverBand, k = c.t / RULES.cleaverWarn;
+  g.fillStyle(0xff2a2a, 0.12 + 0.15 * k + 0.08 * Math.sin(t * 22));
+  g.fillRect(c.x - band / 2, TABLE.y, band, TABLE.h);
+  g.lineStyle(3, 0xff3b3b, 0.85);
+  for (let y = TABLE.y; y < TABLE.y + TABLE.h; y += 26) {
+    g.lineBetween(c.x - band / 2, y, c.x - band / 2, y + 14);
+    g.lineBetween(c.x + band / 2, y, c.x + band / 2, y + 14);
+  }
+  g.fillStyle(0x000000, 0.3 * k);
+  g.fillRect(c.x - band / 2 + 10, TABLE.y, band, TABLE.h);
+}
+
+export function drawCleaverBlade(g: G, c: Cleaver): void {
+  const band = RULES.cleaverBand;
+  g.fillStyle(0x000000, 0.3);
+  g.fillRect(c.x - band / 2 + 10, TABLE.y + 10, band, TABLE.h * 0.75);
+  g.fillStyle(0xc9d1d9, 1);
+  g.fillRect(c.x - band / 2, TABLE.y, band, TABLE.h * 0.72);
+  g.fillStyle(0x5a3a22, 1);
+  g.fillRoundedRect(c.x - 12, TABLE.y + TABLE.h * 0.72, 24, TABLE.h * 0.25, 8);
+}
+
+/** Scar left on the table after a chop. */
+export function drawChopMark(g: G, c: Cleaver): void {
+  g.lineStyle(4, 0x3a2414, 0.6 * (1 - c.t / RULES.cleaverShow));
+  g.lineBetween(c.x, TABLE.y + 8, c.x, TABLE.y + TABLE.h - 8);
 }

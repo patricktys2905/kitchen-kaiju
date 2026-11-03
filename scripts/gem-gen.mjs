@@ -38,6 +38,18 @@ for (const job of jobs.slice(start, start + count)) {
   const before = (await genImages()).length;
   const editor = page.locator(EDITOR).first();
   await editor.click();
+  // Optional reference images (job.refs: paths relative to the project) are pasted into the prompt box.
+  for (const ref of job.refs ?? []) {
+    const b64 = fs.readFileSync(ref).toString('base64');
+    await page.evaluate(({ b64, name, sel }) => {
+      const bin = Uint8Array.from(atob(b64), c => c.charCodeAt(0));
+      const dt = new DataTransfer();
+      dt.items.add(new File([bin], name, { type: 'image/png' }));
+      document.querySelector(sel).dispatchEvent(new ClipboardEvent('paste', { clipboardData: dt, bubbles: true, cancelable: true }));
+    }, { b64, name: ref.split('/').pop(), sel: EDITOR });
+    await page.waitForTimeout(4000); // let the upload finish
+    console.log(`  pasted reference ${ref}`);
+  }
   await page.keyboard.insertText(job.prompt);
   await page.waitForTimeout(400);
   await page.keyboard.press('Enter');
