@@ -1,12 +1,13 @@
 export type ObstacleStyle =
   | 'cup' | 'shaker' | 'bowl' | 'candle' | 'napkin' | 'bread' | 'gravy'
-  | 'soy' | 'sushi' | 'teapot' | 'cake' | 'gift' | 'cupcake' | 'tomato' | 'onion' | 'carrot' | 'garlic';
+  | 'soy' | 'sushi' | 'teapot' | 'cake' | 'gift' | 'cupcake' | 'tomato' | 'onion' | 'carrot' | 'garlic'
+  | 'ketchup' | 'mustard' | 'pancakes' | 'egg' | 'sundae' | 'shake' | 'cone' | 'basket' | 'melon' | 'lemonade' | 'sandwich';
 
 export type Obstacle =
   | { shape: 'circle'; x: number; y: number; r: number; style: ObstacleStyle }
   | { shape: 'rect'; x: number; y: number; w: number; h: number; style: ObstacleStyle };
 
-export type HazardKind = 'hand' | 'wind' | 'cleaver';
+export type HazardKind = 'hand' | 'wind' | 'cleaver' | 'burner';
 
 /** A conveyor strip: anything sitting on it is carried sideways at vx px/s. */
 export interface Belt {
@@ -15,14 +16,24 @@ export interface Belt {
   w: number;
   h: number;
   vx: number;
+  vy?: number; // vertical belts (the picnic ant trail)
+}
+
+/** A circular zone (Ice Cream Parlour puddles, Diner Griddle burners). */
+export interface Zone {
+  x: number;
+  y: number;
+  r: number;
 }
 
 export interface Layout {
   name: string;
   /** Art key of the table surface. */
-  table: 'bg-table' | 'bg-sushi' | 'bg-party' | 'bg-board';
+  table: 'bg-table' | 'bg-sushi' | 'bg-party' | 'bg-board' | 'bg-griddle' | 'bg-parlour' | 'bg-picnic';
   hazards: HazardKind[];
   belts?: Belt[];
+  spills?: Zone[]; // slippery: you slide instead of stopping
+  burners?: Zone[]; // Diner Griddle burners (hazard 'burner')
   obstacles: Obstacle[];
   spawns: [number, number][];
   blurb: string;
@@ -118,5 +129,49 @@ export const LAYOUTS: Layout[] = [
       { shape: 'circle', x: 380, y: 520, r: 18, style: 'garlic' },
     ],
     spawns: [[170, 160], [1110, 605], [1110, 160], [170, 605]],
+  },
+  {
+    name: 'Diner Griddle',
+    table: 'bg-griddle',
+    hazards: ['burner'],
+    blurb: 'Burners glow, then FLARE. Do not be standing on one.',
+    burners: [{ x: 385, y: 255, r: 60 }, { x: 895, y: 255, r: 60 }, { x: 385, y: 510, r: 60 }, { x: 895, y: 510, r: 60 }],
+    obstacles: [
+      { shape: 'circle', x: 640, y: 382, r: 46, style: 'pancakes' },
+      { shape: 'rect', x: 585, y: 150, w: 110, h: 36, style: 'ketchup' },
+      { shape: 'rect', x: 585, y: 580, w: 110, h: 36, style: 'mustard' },
+      { shape: 'circle', x: 195, y: 382, r: 28, style: 'egg' },
+      { shape: 'circle', x: 1085, y: 382, r: 28, style: 'egg' },
+    ],
+    spawns: [[170, 150], [1110, 615], [1110, 150], [170, 615]],
+  },
+  {
+    name: 'Ice Cream Parlour',
+    table: 'bg-parlour',
+    hazards: ['hand'],
+    blurb: 'Melted puddles are slippery: you slide right off them.',
+    spills: [{ x: 420, y: 300, r: 72 }, { x: 860, y: 470, r: 72 }, { x: 640, y: 585, r: 52 }, { x: 640, y: 175, r: 52 }],
+    obstacles: [
+      { shape: 'circle', x: 640, y: 382, r: 40, style: 'sundae' },
+      { shape: 'circle', x: 300, y: 520, r: 26, style: 'shake' },
+      { shape: 'circle', x: 980, y: 245, r: 26, style: 'shake' },
+      { shape: 'rect', x: 240, y: 205, w: 120, h: 40, style: 'cone' },
+      { shape: 'rect', x: 920, y: 530, w: 120, h: 40, style: 'cone' },
+    ],
+    spawns: [[170, 150], [1110, 615], [1110, 150], [170, 615]],
+  },
+  {
+    name: 'Picnic Blanket',
+    table: 'bg-picnic',
+    hazards: ['hand'],
+    blurb: 'An ant trail marches down the middle, carrying everything with it.',
+    belts: [{ x: 598, y: 95, w: 84, h: 575, vx: 0, vy: 115 }],
+    obstacles: [
+      { shape: 'rect', x: 250, y: 300, w: 130, h: 90, style: 'basket' },
+      { shape: 'circle', x: 1000, y: 255, r: 44, style: 'melon' },
+      { shape: 'circle', x: 975, y: 540, r: 30, style: 'lemonade' },
+      { shape: 'rect', x: 330, y: 540, w: 64, h: 64, style: 'sandwich' },
+    ],
+    spawns: [[170, 150], [1110, 615], [1110, 150], [170, 615]],
   },
 ];

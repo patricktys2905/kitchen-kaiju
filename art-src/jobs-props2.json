@@ -1,0 +1,62 @@
+[
+  {
+    "name": "ob-ketchup",
+    "newChat": true,
+    "refs": [
+      "art-src/ref-props.png"
+    ],
+    "prompt": "Generate an image. The attached picture shows prop sprites from my top-down party game. Draw a NEW prop seen from DIRECTLY ABOVE (top-down, flat), in exactly the art style of the attached reference props (bold chunky cartoon, thick dark-brown outlines, flat colours, soft cel shading, one white highlight). One object, centred, filling about 85% of the frame, solid flat magenta (#FF00FF) background, no shadow, no text. Square 1:1. Prop: a red KETCHUP squeeze bottle lying on its side, horizontal, cap on the right."
+  },
+  {
+    "name": "ob-mustard",
+    "prompt": "Next new prop, same style, seen from DIRECTLY ABOVE (top-down, flat), in exactly the art style of the attached reference props (bold chunky cartoon, thick dark-brown outlines, flat colours, soft cel shading, one white highlight). One object, centred, filling about 85% of the frame, solid flat magenta (#FF00FF) background, no shadow, no text. Square 1:1. Prop: a yellow MUSTARD squeeze bottle lying on its side, horizontal, cap on the right."
+  },
+  {
+    "name": "ob-pancakes",
+    "prompt": "Next new prop, same style, seen from DIRECTLY ABOVE (top-down, flat), in exactly the art style of the attached reference props (bold chunky cartoon, thick dark-brown outlines, flat colours, soft cel shading, one white highlight). One object, centred, filling about 85% of the frame, solid flat magenta (#FF00FF) background, no shadow, no text. Square 1:1. Prop: a round stack of fluffy PANCAKES with a pat of butter and maple syrup dripping, on a white plate."
+  },
+  {
+    "name": "ob-egg",
+    "prompt": "Next new prop, same style, seen from DIRECTLY ABOVE (top-down, flat), in exactly the art style of the attached reference props (bold chunky cartoon, thick dark-brown outlines, flat colours, soft cel shading, one white highlight). One object, centred, filling about 85% of the frame, solid flat magenta (#FF00FF) background, no shadow, no text. Square 1:1. Prop: a big FRIED EGG, sunny side up, with a round golden yolk."
+  },
+  {
+    "name": "ob-sundae",
+    "prompt": "Next new prop, same style, seen from DIRECTLY ABOVE (top-down, flat), in exactly the art style of the attached reference props (bold chunky cartoon, thick dark-brown outlines, flat colours, soft cel shading, one white highlight). One object, centred, filling about 85% of the frame, solid flat magenta (#FF00FF) background, no shadow, no text. Square 1:1. Prop: a round glass ICE CREAM SUNDAE bowl with three scoops, whipped cream, chocolate sauce and a cherry."
+  },
+  {
+    "name": "ob-shake",
+    "prompt": "Next new prop, same style, seen from DIRECTLY ABOVE (top-down, flat), in exactly the art style of the attached reference props (bold chunky cartoon, thick dark-brown outlines, flat colours, soft cel shading, one white highlight). One object, centred, filling about 85% of the frame, solid flat magenta (#FF00FF) background, no shadow, no text. Square 1:1. Prop: a tall round MILKSHAKE glass seen from above: pink strawberry shake with whipped cream and a striped straw."
+  },
+  {
+    "name": "ob-cone",
+    "prompt": "Next new prop, same style, seen from DIRECTLY ABOVE (top-down, flat), in exactly the art style of the attached reference props (bold chunky cartoon, thick dark-brown outlines, flat colours, soft cel shading, one white highlight). One object, centred, filling about 85% of the frame, solid flat magenta (#FF00FF) background, no shadow, no text. Square 1:1. Prop: a waffle ICE CREAM CONE lying on its side, horizontal, with a scoop of mint chocolate-chip ice cream on the right."
+  },
+  {
+    "name": "ob-basket",
+    "prompt": "Next new prop, same style, seen from DIRECTLY ABOVE (top-down, flat), in exactly the art style of the attached reference props (bold chunky cartoon, thick dark-brown outlines, flat colours, soft cel shading, one white highlight). One object, centred, filling about 85% of the frame, solid flat magenta (#FF00FF) background, no shadow, no text. Square 1:1. Prop: a closed wicker PICNIC BASKET with two wooden handle hinges and a red gingham cloth peeking out, rectangular, wider than tall."
+  },
+  {
+    "name": "ob-melon",
+    "prompt": "Next new prop, same style, seen from DIRECTLY ABOVE (top-down, flat), in exactly the art style of the attached reference props (bold chunky cartoon, thick dark-brown outlines, flat colours, soft cel shading, one white highlight). One object, centred, filling about 85% of the frame, solid flat magenta (#FF00FF) background, no shadow, no text. Square 1:1. Prop: a round WATERMELON cut in half, showing red flesh and black seeds with a green rind."
+  },
+  {
+    "name": "ob-lemonade",
+    "prompt": "Next new prop, same style, seen from DIRECTLY ABOVE (top-down, flat), in exactly the art style of the attached reference props (bold chunky cartoon, thick dark-brown outlines, flat colours, soft cel shading, one white highlight). One object, centred, filling about 85% of the frame, solid flat magenta (#FF00FF) background, no shadow, no text. Square 1:1. Prop: a round glass jug of LEMONADE with lemon slices and ice cubes."
+  },
+  {
+    "name": "ob-sandwich",
+    "prompt": "Next new prop, same style, seen from DIRECTLY ABOVE (top-down, flat), in exactly the art style of the attached reference props (bold chunky cartoon, thick dark-brown outlines, flat colours, soft cel shading, one white highlight). One object, centred, filling about 85% of the frame, solid flat magenta (#FF00FF) background, no shadow, no text. Square 1:1. Prop: a square SANDWICH cut diagonally with lettuce, tomato and cheese peeking out."
+  },
+  {
+    "name": "mat-griddle",
+    "prompt": "Next new prop, same style, seen from DIRECTLY ABOVE (top-down, flat), in exactly the art style of the attached reference props (bold chunky cartoon, thick dark-brown outlines, flat colours, soft cel shading, one white highlight). One object, centred, filling about 85% of the frame, solid flat magenta (#FF00FF) background, no shadow, no text. Square 1:1. Prop: a rectangular red-and-white checked DINER PLACEMAT with a paper menu pattern, wider than tall (4:3)."
+  },
+  {
+    "name": "mat-parlour",
+    "prompt": "Next new prop, same style, seen from DIRECTLY ABOVE (top-down, flat), in exactly the art style of the attached reference props (bold chunky cartoon, thick dark-brown outlines, flat colours, soft cel shading, one white highlight). One object, centred, filling about 85% of the frame, solid flat magenta (#FF00FF) background, no shadow, no text. Square 1:1. Prop: a rectangular mint-green paper DOILY PLACEMAT with a lacy scalloped edge, wider than tall (4:3)."
+  },
+  {
+    "name": "mat-picnic",
+    "prompt": "Next new prop, same style, seen from DIRECTLY ABOVE (top-down, flat), in exactly the art style of the attached reference props (bold chunky cartoon, thick dark-brown outlines, flat colours, soft cel shading, one white highlight). One object, centred, filling about 85% of the frame, solid flat magenta (#FF00FF) background, no shadow, no text. Square 1:1. Prop: a rectangular folded yellow PAPER NAPKIN placemat with a little flower print, wider than tall (4:3)."
+  }
+]

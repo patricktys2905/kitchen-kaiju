@@ -1,0 +1,38 @@
+[
+  {
+    "name": "kaiju-8",
+    "newChat": true,
+    "refs": [
+      "art-src/ref-style.png"
+    ],
+    "prompt": "Generate an image. The attached picture shows character sprites from my party game Kitchen Kaiju. Keep this EXACT art style: bold chunky cartoon, thick dark-brown outlines, flat bright colours with soft cel shading and one crisp white highlight, cheeky (not babyish) expressions, same size and proportions. Each kaiju is MADE OF FOOD (an edible thing come alive). Framing: one full-body character, three-quarter view facing RIGHT, standing, centred, filling about 80% of the frame, solid flat magenta (#FF00FF) background, no ground shadow, no text, no props. Square 1:1. New kaiju: CHOCOMUNCH, a chunky golem kaiju built from a bar of milk CHOCOLATE (#a0652e) with square segmented chocolate blocks for its body and limbs, a bite taken out of one shoulder, a smug grin."
+  },
+  {
+    "name": "kaiju-9",
+    "prompt": "Next NEW kaiju in exactly the same style, framing (three-quarter view facing RIGHT) and solid flat magenta (#FF00FF) background, made of food: BUBBLEGUMBO, a round bubblegum-pink (#ff7ad9) elephant kaiju made of chewed BUBBLEGUM, glossy and stretchy, its trunk blowing a big pink bubble, a cheeky grin. No text, no props. Square 1:1."
+  },
+  {
+    "name": "kaiju-10",
+    "prompt": "Next NEW kaiju in exactly the same style, framing (three-quarter view facing RIGHT) and solid flat magenta (#FF00FF) background, made of food: BLUEBEARY, a stout bear kaiju made of a BLUEBERRY MUFFIN: a golden paper-cup base as its lower body, a domed muffin top dotted with royal-blue (#4a6cff) blueberries as its head and shoulders, round bear ears, a mischievous smile. No text, no props. Square 1:1."
+  },
+  {
+    "name": "kaiju-11",
+    "prompt": "Next NEW kaiju in exactly the same style, framing (three-quarter view facing RIGHT) and solid flat magenta (#FF00FF) background, made of food: PIZZARAPTOR, a raptor dinosaur kaiju made of a PIZZA SLICE: tomato-red (#e03a2a) sauce body with melted cheese drips and pepperoni spots, a golden crust as its back and tail, sharp grin, little arms. No text, no props. Square 1:1."
+  },
+  {
+    "name": "kaiju-8-rage",
+    "prompt": "Now CHOCOMUNCH in KAIJU MODE: exactly the same design and colours, same style, framing (facing RIGHT) and magenta background, but roaring furiously with mouth wide open, arms raised, angry eyebrows, bits of its food flying off. No text. Square 1:1."
+  },
+  {
+    "name": "kaiju-9-rage",
+    "prompt": "Now BUBBLEGUMBO in KAIJU MODE: exactly the same design and colours, same style, framing (facing RIGHT) and magenta background, but roaring furiously with mouth wide open, arms raised, angry eyebrows, bits of its food flying off. No text. Square 1:1."
+  },
+  {
+    "name": "kaiju-10-rage",
+    "prompt": "Now BLUEBEARY in KAIJU MODE: exactly the same design and colours, same style, framing (facing RIGHT) and magenta background, but roaring furiously with mouth wide open, arms raised, angry eyebrows, bits of its food flying off. No text. Square 1:1."
+  },
+  {
+    "name": "kaiju-11-rage",
+    "prompt": "Now PIZZARAPTOR in KAIJU MODE: exactly the same design and colours, same style, framing (facing RIGHT) and magenta background, but roaring furiously with mouth wide open, arms raised, angry eyebrows, bits of its food flying off. No text. Square 1:1."
+  }
+]

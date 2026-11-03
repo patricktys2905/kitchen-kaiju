@@ -15,15 +15,15 @@ const OUT = path.resolve('public/art');
 
 // name pattern -> max output size (longest side) for sprites
 const SPRITES = [
-  [/^kaiju-\d$/, 320],
-  [/^kaiju-\d-rage$/, 360],
+  [/^kaiju-\d+$/, 320],
+  [/^kaiju-\d+-rage$/, 360],
   [/^cut-[a-z]+$/, 160],
   [/^ob-[a-z]+$/, 320],
   [/^hand$/, 640],
   [/^cleaver$/, 640],
   [/^mat-[a-z]+$/, 320],
 ];
-const TABLES = ['bg-table', 'bg-sushi', 'bg-party', 'bg-board']; // table surfaces get rounded corners
+const TABLES = ['bg-table', 'bg-sushi', 'bg-party', 'bg-board', 'bg-griddle', 'bg-parlour', 'bg-picnic']; // table surfaces get rounded corners
 const BACKGROUNDS = { 'bg-floor': [1280, 720], 'bg-menu': [1280, 720], ...Object.fromEntries(TABLES.map(t => [t, [1080, 575]])) };
 
 fs.mkdirSync(OUT, { recursive: true });

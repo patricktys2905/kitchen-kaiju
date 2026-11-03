@@ -58,6 +58,14 @@ export const RULES = {
   cleaverWarn: 1.2,
   cleaverBand: 70,
   cleaverShow: 0.5,
+  // Diner Griddle: burners glow, then flare
+  burnerFirst: 4,
+  burnerInterval: [3.5, 5.5] as [number, number],
+  burnerSuddenDeath: [2, 3] as [number, number],
+  burnerWarn: 1.3,
+  burnerFlare: 0.7,
+  // Ice Cream Parlour: how quickly you regain grip on a melted puddle (normal is 14)
+  spillGrip: 2.2,
 };
 
 /** The kaiju roster. Each player picks a different one; its colour is that player's colour. */
@@ -70,4 +78,8 @@ export const SPECIES = [
   { name: 'TOASTBAT', full: 'Toastbat', food: 'toast bat', color: 0xff9a3c, css: '#ff9a3c' },
   { name: 'DUMPLORD', full: 'Dumplord', food: 'dumpling lord', color: 0xf3e3c3, css: '#f3e3c3' },
   { name: 'NORIGON', full: 'Norigon', food: 'sushi dragon', color: 0x21c7a8, css: '#21c7a8' },
+  { name: 'CHOCOMUNCH', full: 'Chocomunch', food: 'chocolate golem', color: 0xa0652e, css: '#c8834a' },
+  { name: 'BUBBLEGUMBO', full: 'Bubblegumbo', food: 'bubblegum elephant', color: 0xff7ad9, css: '#ff7ad9' },
+  { name: 'BLUEBEARY', full: 'Bluebeary', food: 'blueberry muffin bear', color: 0x4a6cff, css: '#7a93ff' },
+  { name: 'PIZZARAPTOR', full: 'Pizzaraptor', food: 'pizza raptor', color: 0xe03a2a, css: '#ff6a4a' },
 ];

@@ -168,6 +168,25 @@ export class BotBrain {
       add(-wx, -wy, w.wind.state === 'gust' ? 3.5 : 2);
     }
 
+    // Step off a burner that's heating up.
+    if (w.burner) {
+      const z = w.layout.burners?.[w.burner.i];
+      if (z) {
+        const dx = p.x - z.x, dy = p.y - z.y, d = Math.hypot(dx, dy) || 1;
+        if (d < z.r + p.r + 30) {
+          add(dx / d, dy / d, 4);
+          if ((w.burner.state === 'flare' || w.burner.t > RULES.burnerWarn * 0.6) && p.dashCD <= 0 && this.rng.next() < T.dodge + 0.3) {
+            mx = dx / d; my = dy / d; out.dash = !p.prev.dash;
+          }
+        }
+      }
+    }
+    // Melted puddles are slippery: give them a little berth.
+    for (const z of w.layout.spills ?? []) {
+      const dx = p.x - z.x, dy = p.y - z.y, d = Math.hypot(dx, dy) || 1;
+      if (d < z.r + 30) add(dx / d, dy / d, 0.6);
+    }
+
     // Get out of the cleaver's lane.
     if (w.cleaver && w.cleaver.state === 'warn') {
       const gap = p.x - w.cleaver.x;

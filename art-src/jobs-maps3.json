@@ -1,0 +1,15 @@
+[
+  {
+    "name": "bg-griddle",
+    "newChat": true,
+    "prompt": "Generate an image. A game background texture for a top-down party game: the brushed-steel surface of a retro DINER GRIDDLE COUNTER seen from DIRECTLY ABOVE, warm grey steel with soft scratches and a faint grease sheen, filling the ENTIRE frame. Style: clean painted cartoon game art with gentle cel shading (not a photo), even flat lighting, low contrast so game pieces on top stay readable. Completely EMPTY: no objects, no food, no text, no border, no vignette. Wide 16:9 landscape image."
+  },
+  {
+    "name": "bg-parlour",
+    "prompt": "Next, same style: A game background texture for a top-down party game: a retro ICE CREAM PARLOUR counter seen from DIRECTLY ABOVE: mint-green and cream checkerboard tiles with a soft marble sheen, filling the ENTIRE frame. Style: clean painted cartoon game art with gentle cel shading (not a photo), even flat lighting, low contrast so game pieces on top stay readable. Completely EMPTY: no objects, no food, no text, no border, no vignette. Wide 16:9 landscape image."
+  },
+  {
+    "name": "bg-picnic",
+    "prompt": "Next, same style: A game background texture for a top-down party game: a red-and-white GINGHAM PICNIC BLANKET spread flat, seen from DIRECTLY ABOVE, filling the ENTIRE frame edge to edge, soft fabric folds. Style: clean painted cartoon game art with gentle cel shading (not a photo), even flat lighting, low contrast so game pieces on top stay readable. Completely EMPTY: no objects, no food, no text, no border, no vignette. Wide 16:9 landscape image."
+  }
+]

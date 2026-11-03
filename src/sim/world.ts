@@ -20,7 +20,7 @@ const BOOMERANG_TURN = 10; // rad/s (turn radius = speed / turn)
 
 export const NO_INPUT: PlayerInput = { mx: 0, my: 0, throw: false, swipe: false, dash: false, stomp: false };
 
-export type KOCause = 'cutlery' | 'swipe' | 'squash' | 'fall' | 'hand' | 'wind' | 'chop';
+export type KOCause = 'cutlery' | 'swipe' | 'squash' | 'fall' | 'hand' | 'wind' | 'chop' | 'burn';
 
 export type GameEvent =
   | { type: 'throw'; id: number; kind: CutleryKind; x: number; y: number }
@@ -45,6 +45,8 @@ export type GameEvent =
   | { type: 'windGust'; dir: number }
   | { type: 'cleaverWarn'; x: number }
   | { type: 'cleaverChop'; x: number }
+  | { type: 'burnerWarn'; i: number; x: number; y: number }
+  | { type: 'burnerFlare'; i: number; x: number; y: number }
   | { type: 'spawnCutlery'; kind: CutleryKind; x: number; y: number }
   | { type: 'countdown'; n: number }
   | { type: 'go' }
@@ -147,6 +149,13 @@ export interface Wind {
   t: number;
 }
 
+/** Diner Griddle: one burner (index into layout.burners) glowing or flaring. */
+export interface Burner {
+  state: 'warn' | 'flare';
+  i: number;
+  t: number;
+}
+
 /** Chef's Board cleaver: a vertical lane at x. */
 export interface Cleaver {
   state: 'warn' | 'chop';
@@ -163,6 +172,7 @@ export class World {
   hand: Hand | null = null;
   wind: Wind | null = null;
   cleaver: Cleaver | null = null;
+  burner: Burner | null = null;
   layout: Layout = LAYOUTS[0];
   phase: Phase = 'countdown';
   phaseT = 0;
@@ -174,6 +184,7 @@ export class World {
   private handTimer = 0;
   private windTimer = 0;
   private cleaverTimer = 0;
+  private burnerTimer = 0;
   private crumbTimer = 0;
   private pickupTimer = 0;
   private lastCount = 0;
@@ -222,6 +233,8 @@ export class World {
     this.cleaver = null;
     this.windTimer = RULES.windFirst;
     this.cleaverTimer = RULES.cleaverFirst;
+    this.burner = null;
+    this.burnerTimer = RULES.burnerFirst;
     this.crumbTimer = 0;
     this.pickupTimer = RULES.pickupEvery;
     this.phase = 'countdown';
@@ -300,11 +313,12 @@ export class World {
     this.resolvePlayerContacts();
     this.updateCutlery(dt);
     this.eatCrumbs();
-    if (this.phase === 'play' || this.hand || this.wind || this.cleaver) {
+    if (this.phase === 'play' || this.hand || this.wind || this.cleaver || this.burner) {
       if (this.phase === 'play') this.spawnTimers(dt);
       this.updateHand(dt);
       this.updateWind(dt);
       this.updateCleaver(dt);
+      this.updateBurner(dt);
     }
     this.cutlery = this.cutlery.filter(c => !c.dead);
     this.checkRound();
@@ -378,7 +392,7 @@ export class World {
     if (p.dashT > 0) {
       p.dashT -= dt;
     } else {
-      const k = Math.min(1, dt * 14);
+      const k = Math.min(1, dt * (this.onSpill(p.x, p.y) ? RULES.spillGrip : 14));
       p.vx += (mx * spd - p.vx) * k;
       p.vy += (my * spd - p.vy) * k;
     }
@@ -389,7 +403,7 @@ export class World {
     p.y += (p.vy + p.ky) * dt;
 
     for (const b of this.layout.belts ?? []) {
-      if (p.x > b.x && p.x < b.x + b.w && p.y > b.y && p.y < b.y + b.h) p.x += b.vx * dt;
+      if (p.x > b.x && p.x < b.x + b.w && p.y > b.y && p.y < b.y + b.h) { p.x += b.vx * dt; p.y += (b.vy ?? 0) * dt; }
     }
     this.pushOutOfObstacles(p);
 
@@ -624,7 +638,10 @@ export class World {
       }
       if (c.state === 'stuck') {
         for (const b of this.layout.belts ?? []) {
-          if (c.x > b.x && c.x < b.x + b.w && c.y > b.y && c.y < b.y + b.h) c.x = clamp(c.x + b.vx * dt, TABLE.x + 8, TABLE.x + TABLE.w - 8);
+          if (c.x > b.x && c.x < b.x + b.w && c.y > b.y && c.y < b.y + b.h) {
+            c.x = clamp(c.x + b.vx * dt, TABLE.x + 8, TABLE.x + TABLE.w - 8);
+            c.y = clamp(c.y + (b.vy ?? 0) * dt, TABLE.y + 8, TABLE.y + TABLE.h - 8);
+          }
         }
       }
       if (c.state === 'stuck' || c.state === 'returning') this.tryPickup(c);
@@ -832,7 +849,7 @@ export class World {
   }
 
   // ---------------------------------------------------------------- hazards
-  private hazardOn(k: 'hand' | 'wind' | 'cleaver'): boolean {
+  private hazardOn(k: 'hand' | 'wind' | 'cleaver' | 'burner'): boolean {
     return this.opts.hazards && this.layout.hazards.includes(k);
   }
 
@@ -840,9 +857,10 @@ export class World {
     const belts = this.layout.belts;
     if (!belts?.length) return;
     for (const c of this.crumbs) {
-      for (const b of belts) if (c.x > b.x && c.x < b.x + b.w && c.y > b.y && c.y < b.y + b.h) c.x += b.vx * dt;
+      for (const b of belts) if (c.x > b.x && c.x < b.x + b.w && c.y > b.y && c.y < b.y + b.h) { c.x += b.vx * dt; c.y += (b.vy ?? 0) * dt; }
     }
-    this.crumbs = this.crumbs.filter(c => c.x > TABLE.x + 6 && c.x < TABLE.x + TABLE.w - 6); // fall off the end
+    // carried off the end of the belt
+    this.crumbs = this.crumbs.filter(c => c.x > TABLE.x + 6 && c.x < TABLE.x + TABLE.w - 6 && c.y > TABLE.y + 6 && c.y < TABLE.y + TABLE.h - 6);
   }
 
   private updateWind(dt: number): void {
@@ -876,6 +894,45 @@ export class World {
       this.wind = null;
       const iv = this.roundT > RULES.suddenDeathAt ? RULES.suddenDeathInterval : RULES.windInterval;
       this.windTimer = this.rng.range(iv[0], iv[1]);
+    }
+  }
+
+  onSpill(x: number, y: number): boolean {
+    for (const z of this.layout.spills ?? []) if (Math.hypot(x - z.x, y - z.y) < z.r) return true;
+    return false;
+  }
+
+  private updateBurner(dt: number): void {
+    const list = this.layout.burners ?? [];
+    if (!this.hazardOn('burner') || !list.length) return;
+    if (!this.burner) {
+      if (this.phase !== 'play') return;
+      this.burnerTimer -= dt;
+      if (this.burnerTimer > 0) return;
+      // heat up the burner closest to a random kaiju, so it always matters
+      const alive = this.alivePlayers();
+      if (!alive.length) return;
+      const t = this.rng.pick(alive);
+      let i = 0, best = Infinity;
+      list.forEach((z, k) => { const d = Math.hypot(z.x - t.x, z.y - t.y); if (d < best) { best = d; i = k; } });
+      this.burner = { state: 'warn', i, t: 0 };
+      this.emit({ type: 'burnerWarn', i, x: list[i].x, y: list[i].y });
+      return;
+    }
+    const b = this.burner, z = list[b.i];
+    b.t += dt;
+    if (b.state === 'warn') {
+      if (b.t >= RULES.burnerWarn) { b.state = 'flare'; b.t = 0; this.emit({ type: 'burnerFlare', i: b.i, x: z.x, y: z.y }); }
+      return;
+    }
+    for (const p of this.players) {
+      if (p.alive && Math.hypot(p.x - z.x, p.y - z.y) < z.r + p.r * 0.3) this.ko(p, null, 'burn');
+    }
+    this.crumbs = this.crumbs.filter(c => Math.hypot(c.x - z.x, c.y - z.y) > z.r);
+    if (b.t >= RULES.burnerFlare) {
+      this.burner = null;
+      const iv = this.roundT > RULES.suddenDeathAt ? RULES.burnerSuddenDeath : RULES.burnerInterval;
+      this.burnerTimer = this.rng.range(iv[0], iv[1]);
     }
   }
 

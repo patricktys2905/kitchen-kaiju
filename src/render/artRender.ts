@@ -5,7 +5,7 @@ import type { Layout } from '../sim/layouts';
 import type { Cutlery, Player, World } from '../sim/world';
 import { CUTLERY_LEN, fitInside, hasArt, SpritePool } from './art';
 import {
-  cutleryAngle, drawBelt, drawChopMark, drawCleaverBlade, drawCleaverWarn, drawCrumbs, drawCutlery, drawCutleryGlow, drawFloor,
+  cutleryAngle, drawBelt, drawBurner, drawSpill, drawChopMark, drawCleaverBlade, drawCleaverWarn, drawCrumbs, drawCutlery, drawCutleryGlow, drawFloor,
   drawHand, drawKaiju, drawObstacle, drawObstacleShadow, drawMat, drawPlayerOver, drawPlayerUnder, drawTableFrame, drawTableRim,
   drawTableSurface, drawWind, playerAlpha,
 } from './draw';
@@ -120,6 +120,8 @@ export class ArtRenderer {
   frame(w: World, t: number, under: G, over: G): void {
     this.pool.begin();
     for (const b of w.layout.belts ?? []) drawBelt(under, b, t);
+    (w.layout.spills ?? []).forEach((z, i) => drawSpill(under, z, i, t));
+    (w.layout.burners ?? []).forEach((z, i) => drawBurner(under, z, w.burner, i, t));
 
     for (const c of w.crumbs) {
       const key = `crumb-${c.variant}`;

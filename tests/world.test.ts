@@ -255,6 +255,43 @@ describe('new tables', () => {
     expect(w.players[1].alive && w.players[2].alive).toBe(true);
   });
 
+  it('Diner Griddle: a burner glows first, then grills anyone standing on it', () => {
+    const w = makeWorld(3, 'fork', { layout: 6, hazards: true });
+    expect(w.layout.name).toBe('Diner Griddle');
+    const z = w.layout.burners![0];
+    place(w, 0, z.x, z.y);
+    place(w, 1, 1100, 380);
+    place(w, 2, 640, 150);
+    w.burner = { state: 'warn', i: 0, t: 0 };
+    run(w, 1.0);
+    expect(w.players[0].alive).toBe(true); // still only glowing
+    const ev = run(w, 0.6);
+    expect(ev.find(e => e.type === 'ko' && e.id === 0)).toMatchObject({ cause: 'burn' });
+    expect(w.players[1].alive && w.players[2].alive).toBe(true);
+  });
+
+  it('Ice Cream Parlour: on a melted puddle you keep sliding after letting go', () => {
+    const slideFrom = (x: number, y: number) => {
+      const w = makeWorld(2, 'fork', { layout: 7 });
+      place(w, 0, x, y);
+      place(w, 1, 1100, 620);
+      w.players[0].vx = 260; // running at full speed, then let go
+      run(w, 0.4);
+      return w.players[0].x - x;
+    };
+    const z = makeWorld(2, 'fork', { layout: 7 }).layout.spills![0];
+    expect(slideFrom(z.x - 50, z.y)).toBeGreaterThan(slideFrom(640, 470) * 3);
+  });
+
+  it('Picnic Blanket: the ant trail carries players down the blanket', () => {
+    const w = makeWorld(2, 'fork', { layout: 8 });
+    expect(w.layout.name).toBe('Picnic Blanket');
+    place(w, 0, 640, 200);
+    place(w, 1, 1100, 620);
+    run(w, 1);
+    expect(w.players[0].y).toBeGreaterThan(290);
+  });
+
   it('a chosen table is used for every round', () => {
     const w = new World({ players: [{ name: 'a' }, { name: 'b' }], seed: 3, layouts: [4] });
     for (let r = 0; r < 3; r++) {

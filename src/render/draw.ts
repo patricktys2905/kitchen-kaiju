@@ -2,8 +2,8 @@
 import type * as Phaser from 'phaser';
 import { P, RULES, TABLE, VIEW } from '../sim/constants';
 import { CUTLERY } from '../sim/cutlery';
-import type { Belt, Layout, Obstacle } from '../sim/layouts';
-import type { Cleaver, Crumb, Cutlery, Hand, Player, Wind } from '../sim/world';
+import type { Belt, Layout, Obstacle, Zone } from '../sim/layouts';
+import type { Burner, Cleaver, Crumb, Cutlery, Hand, Player, Wind } from '../sim/world';
 
 type G = Phaser.GameObjects.Graphics;
 type Pt = [number, number];
@@ -58,7 +58,10 @@ export function drawTableShadow(g: G): void {
 }
 
 /** Wood planks + grain + linen runner (shape fallback for the painted table). */
-const SURFACE: Record<Layout['table'], number> = { 'bg-table': 0x9a6438, 'bg-sushi': 0xd9c08a, 'bg-party': 0xf3b6cc, 'bg-board': 0xb88452 };
+const SURFACE: Record<Layout['table'], number> = {
+  'bg-table': 0x9a6438, 'bg-sushi': 0xd9c08a, 'bg-party': 0xf3b6cc, 'bg-board': 0xb88452,
+  'bg-griddle': 0x8d939b, 'bg-parlour': 0xbfe8d6, 'bg-picnic': 0xe8a0a0,
+};
 export function drawTableSurface(g: G, table: Layout['table'] = 'bg-table'): void {
   g.fillStyle(SURFACE[table], 1);
   g.fillRoundedRect(TABLE.x, TABLE.y, TABLE.w, TABLE.h, 22);
@@ -87,6 +90,9 @@ const FRAMES: Record<Layout['table'], FrameStyle> = {
   'bg-sushi': { frame: 0xc9a46a, hi: 0xeed6a4, lip: 0x8a6838, depth: 14 },
   'bg-party': { frame: 0xf0a6c0, hi: 0xffd6e4, lip: 0xc7708f, depth: 18 },
   'bg-board': { frame: 0x9b6a3c, hi: 0xcf9a62, lip: 0x5e3b1f, depth: 22 },
+  'bg-griddle': { frame: 0x3d4248, hi: 0x9aa3ad, lip: 0x22262a, depth: 18 },
+  'bg-parlour': { frame: 0xff9ec4, hi: 0xffd6e6, lip: 0xc96a91, depth: 14 },
+  'bg-picnic': { frame: 0x6fae4a, hi: 0x9fd46e, lip: 0x4a7e2e, depth: 8 },
 };
 
 /** Soft floor shadow, the table's 3D front lip and its frame, styled per table. */
@@ -123,7 +129,10 @@ export function drawTableFrame(g: G, table: Layout['table']): void {
 
 /** Place mat under a player's starting spot (shape fallback), rimmed in their colour. */
 export function drawMat(g: G, x: number, y: number, color: number, table: Layout['table']): void {
-  const fill: Record<Layout['table'], number> = { 'bg-table': 0xd9b878, 'bg-sushi': 0x9fc26a, 'bg-party': 0xfff1f6, 'bg-board': 0x4a4e57 };
+  const fill: Record<Layout['table'], number> = {
+    'bg-table': 0xd9b878, 'bg-sushi': 0x9fc26a, 'bg-party': 0xfff1f6, 'bg-board': 0x4a4e57,
+    'bg-griddle': 0xf4f0e6, 'bg-parlour': 0xe8fff4, 'bg-picnic': 0xfff3a8,
+  };
   g.fillStyle(0x000000, 0.18); g.fillRoundedRect(x - 54, y - 38, 112, 82, 12);
   g.fillStyle(fill[table], 0.9); g.fillRoundedRect(x - 56, y - 41, 112, 82, 12);
   g.lineStyle(3, color, 0.85); g.strokeRoundedRect(x - 56, y - 41, 112, 82, 12);
@@ -134,12 +143,21 @@ export function drawObstacleShadow(g: G, o: Obstacle): void {
   g.fillStyle(0x000000, 0.28);
   if (o.shape === 'circle') { g.fillCircle(o.x + 5, o.y + 7, o.r); return; }
   if (o.style === 'gravy') { g.fillEllipse(o.x + o.w / 2 + 6, o.y + o.h / 2 + 8, o.w * 0.95, o.h * 0.75); return; }
-  g.fillRoundedRect(o.x + 5, o.y + 7, o.w, o.h, Math.min(o.w, o.h) * (o.style === 'bread' ? 0.5 : 0.15));
+  // long thin things (bottles, cones, carrots, bread) get a pill-shaped shadow
+  const pill = ['bread', 'cone', 'ketchup', 'mustard', 'carrot'].includes(o.style);
+  if (pill) {
+    if (o.h > o.w) g.fillRoundedRect(o.x + o.w * 0.12 + 5, o.y + 8, o.w * 0.8, o.h - 6, (o.w * 0.8) / 2); // vertical (bread)
+    else g.fillRoundedRect(o.x + 8, o.y + o.h * 0.15 + 6, o.w - 10, o.h * 0.75, (o.h * 0.75) / 2);
+    return;
+  }
+  g.fillRoundedRect(o.x + 5, o.y + 7, o.w, o.h, Math.min(o.w, o.h) * 0.15);
 }
 
 const FALLBACK_COLORS: Partial<Record<Obstacle['style'], number>> = {
   soy: 0x3a2214, sushi: 0x24407a, teapot: 0x3f6b3a, cake: 0xff9ec4, gift: 0x4f8fe0, cupcake: 0x9ff0d0,
   tomato: 0xe8392f, onion: 0xa04a8c, carrot: 0xff8a2a, garlic: 0xf2ece0,
+  ketchup: 0xd8281e, mustard: 0xf2c418, pancakes: 0xd99a4e, egg: 0xfff8e8, sundae: 0xffc4dc, shake: 0xff9ec4, cone: 0xd8a35a,
+  basket: 0xb07a3e, melon: 0x4caf50, lemonade: 0xfff176, sandwich: 0xe8c27a,
 };
 
 export function drawObstacle(g: G, o: Obstacle): void {
@@ -532,8 +550,29 @@ export function drawHand(g: G, h: Hand, t: number): void {
 }
 
 // ------------------------------------------------------------------ table hazards
-/** Sushi Bar conveyor: dark belt with chevrons scrolling in its direction. */
+/** Picnic ant trail: a dirt path with two lines of marching ants. */
+function drawAntTrail(g: G, b: Belt, t: number): void {
+  g.fillStyle(0x8a5a2e, 0.35);
+  g.fillRoundedRect(b.x + 8, b.y, b.w - 16, b.h, 20);
+  const vy = b.vy ?? 0, gap = 30, off = ((t * vy) % gap + gap) % gap;
+  for (const lane of [b.x + b.w * 0.32, b.x + b.w * 0.68]) {
+    for (let y = b.y - gap + off; y < b.y + b.h; y += gap) {
+      if (y < b.y + 4) continue;
+      const wob = Math.sin(t * 12 + y * 0.3) * 1.5;
+      g.fillStyle(0x1a0f08, 1);
+      g.fillEllipse(lane + wob, y, 7, 6);
+      g.fillEllipse(lane + wob, y + 6, 6, 5);
+      g.fillEllipse(lane + wob, y + 12, 8, 7);
+      g.lineStyle(1, 0x1a0f08, 1);
+      g.lineBetween(lane + wob - 6, y + 4, lane + wob + 6, y + 8);
+      g.lineBetween(lane + wob + 6, y + 4, lane + wob - 6, y + 8);
+    }
+  }
+}
+
+/** Sushi Bar conveyor: dark belt with chevrons scrolling in its direction (vertical belts are ant trails). */
 export function drawBelt(g: G, b: Belt, t: number): void {
+  if (b.vy && !b.vx) { drawAntTrail(g, b, t); return; }
   g.fillStyle(0x2d3138, 0.92);
   g.fillRect(b.x, b.y, b.w, b.h);
   g.fillStyle(0x8a93a0, 1);
@@ -612,4 +651,49 @@ export function drawCleaverBlade(g: G, c: Cleaver): void {
 export function drawChopMark(g: G, c: Cleaver): void {
   g.lineStyle(4, 0x3a2414, 0.6 * (1 - c.t / RULES.cleaverShow));
   g.lineBetween(c.x, TABLE.y + 8, c.x, TABLE.y + TABLE.h - 8);
+}
+
+/** Ice Cream Parlour: a melted, slippery puddle (colour varies per puddle). */
+const SPILL_COLORS = [0xffb3cf, 0xbff5dc, 0xfff0b3, 0xd9c2ff];
+export function drawSpill(g: G, z: Zone, i: number, t: number): void {
+  const c = SPILL_COLORS[i % SPILL_COLORS.length];
+  g.fillStyle(shade(c, 0.85), 0.9);
+  g.fillCircle(z.x + 3, z.y + 4, z.r);
+  g.fillStyle(c, 0.95);
+  g.fillCircle(z.x, z.y, z.r);
+  for (let k = 0; k < 5; k++) {
+    const a = k * 1.3 + i, rr = z.r * (0.75 + 0.15 * Math.sin(k * 2.1 + i));
+    g.fillCircle(z.x + Math.cos(a) * rr, z.y + Math.sin(a) * rr, z.r * 0.32);
+  }
+  g.fillStyle(0xffffff, 0.45 + 0.1 * Math.sin(t * 2 + i));
+  g.fillEllipse(z.x - z.r * 0.35, z.y - z.r * 0.35, z.r * 0.5, z.r * 0.22);
+  g.fillEllipse(z.x + z.r * 0.2, z.y + z.r * 0.3, z.r * 0.18, z.r * 0.1);
+}
+
+/** Diner Griddle burner: dark coils at rest, glowing while it warns, roaring flames when it flares. */
+export function drawBurner(g: G, z: Zone, state: Burner | null, i: number, t: number): void {
+  const mine = state && state.i === i ? state : null;
+  const heat = !mine ? 0 : mine.state === 'warn' ? mine.t / RULES.burnerWarn : 1;
+  g.fillStyle(0x1f2226, 0.85);
+  g.fillCircle(z.x, z.y, z.r);
+  for (let k = 0; k < 4; k++) {
+    const r = z.r * (0.28 + k * 0.2);
+    const glow = heat > 0 ? Math.min(1, heat * 1.2) * (0.6 + 0.4 * Math.sin(t * 18 + k)) : 0;
+    g.lineStyle(5, glow > 0 ? 0xff5a1f : 0x4a4f56, glow > 0 ? 0.4 + glow * 0.6 : 1);
+    g.strokeCircle(z.x, z.y, r);
+  }
+  if (mine && mine.state === 'warn') {
+    g.lineStyle(3, 0xff3b3b, 0.5 + 0.5 * Math.abs(Math.sin(t * 14)));
+    g.strokeCircle(z.x, z.y, z.r + 4);
+  }
+  if (mine && mine.state === 'flare') {
+    for (let k = 0; k < 14; k++) {
+      const a = (k / 14) * Math.PI * 2 + t * 3, rr = z.r * (0.3 + 0.6 * ((k * 37) % 10) / 10);
+      const fl = 10 + 8 * Math.abs(Math.sin(t * 25 + k));
+      g.fillStyle(k % 2 ? 0xffb020 : 0xff4a1a, 0.85);
+      g.fillCircle(z.x + Math.cos(a) * rr, z.y + Math.sin(a) * rr, fl);
+    }
+    g.fillStyle(0xfff3b0, 0.8);
+    g.fillCircle(z.x, z.y, z.r * 0.35);
+  }
 }
