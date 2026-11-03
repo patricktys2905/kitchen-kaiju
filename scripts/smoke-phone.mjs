@@ -29,7 +29,7 @@ try {
   const tapEl = async sel => { const c = await center(sel); await touch('touchStart', [{ x: c.x, y: c.y, id: 9 }]); await wait(60); await touch('touchEnd', []); await wait(120); };
   const world = () => page.evaluate(() => {
     const w = window.__game.scene.getScene('game').world;
-    return { phase: w.phase, p0: { x: w.players[0].x, y: w.players[0].y, holding: w.players[0].holding, dashCD: w.players[0].dashCD }, n: w.players.length,
+    return { phase: w.phase, p0: { x: w.players[0].x, y: w.players[0].y, holding: w.players[0].holding, dashCD: w.players[0].dashCD, alive: w.players[0].alive }, n: w.players.length,
       flying: w.cutlery.filter(c => c.state === 'flying' && c.owner === 0).length };
   });
 
@@ -57,28 +57,54 @@ try {
   let s = await world();
   check(s.n === 3 && s.phase === 'play', 'match started from touch buttons with 2 bots');
   check(await page.locator('#b-throw').isVisible(), 'touch controls visible in game');
+  // This test is about touch controls, not combat: keep the touch player safe from bots and hazards.
+  const protect = () => page.evaluate(() => {
+    const w = window.__game.scene.getScene('game').world;
+    w.opts.hazards = false;
+    w.players[0].invT = 1e9;
+  });
+  await protect();
 
-  // Joystick: drag right for 0.6s.
+  // Joystick: drag towards the middle of the table for 0.6s (needs a live player; bots play for real).
+  for (let tries = 0; tries < 4 && !(s.p0.alive && s.phase === 'play'); tries++) {
+    await page.evaluate(() => window.__game.scene.getScene('game').scene.restart());
+    await wait(2400);
+    await protect();
+    s = await world();
+  }
   const before = s.p0;
+  const dir = before.x < 640 ? 1 : -1;
   await touch('touchStart', [{ x: 120, y: 260, id: 1 }]);
-  for (let i = 1; i <= 6; i++) { await touch('touchMove', [{ x: 120 + i * 12, y: 260, id: 1 }]); await wait(16); }
+  for (let i = 1; i <= 6; i++) { await touch('touchMove', [{ x: 120 + dir * i * 12, y: 260, id: 1 }]); await wait(16); }
   await wait(500);
   s = await world();
-  check(s.p0.x - before.x > 40 || !s.p0, `joystick moved player right (dx=${(s.p0.x - before.x).toFixed(0)})`);
+  check((s.p0.x - before.x) * dir > 40 || !s.p0.alive, `joystick moved the player (dx=${(s.p0.x - before.x).toFixed(0)})`);
 
   // While still holding the joystick, press DASH with a second finger (multi-touch).
   const dash = await center('#b-dash');
-  await touch('touchStart', [{ x: 192, y: 260, id: 1 }, { x: dash.x, y: dash.y, id: 2 }]);
+  await touch('touchStart', [{ x: 120 + dir * 72, y: 260, id: 1 }, { x: dash.x, y: dash.y, id: 2 }]);
   await wait(80);
   s = await world();
   check(s.p0.dashCD > 0, 'dash fired while moving (two fingers)');
-  await touch('touchEnd', [{ x: 192, y: 260, id: 1 }]);
+  await touch('touchEnd', [{ x: 120 + dir * 72, y: 260, id: 1 }]);
   await touch('touchEnd', []);
   await wait(200);
 
   // Throw: press THROW, drag up-left to aim, release.
-  s = await world();
-  if (s.p0.holding === null) { await wait(1500); s = await world(); }
+  // Bots play for real, so the touch player may have been knocked out or be unarmed by now.
+  // Get a fresh, armed player in an active round before testing the throw.
+  for (let tries = 0; tries < 4; tries++) {
+    s = await world();
+    if (s.p0.alive && s.p0.holding !== null && s.phase === 'play') break;
+    if (!s.p0.alive || s.phase !== 'play') {
+      await page.evaluate(() => window.__game.scene.getScene('game').scene.restart());
+      await wait(2400);
+      await protect();
+    } else {
+      await wait(1500);
+    }
+  }
+  check(s.p0.alive && s.p0.holding !== null, 'touch player armed and ready for the throw test');
   const thr = await center('#b-throw');
   await touch('touchStart', [{ x: thr.x, y: thr.y, id: 3 }]);
   await wait(150);
