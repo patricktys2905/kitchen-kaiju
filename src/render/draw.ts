@@ -1,0 +1,427 @@
+// Shapes-first art. Everything is drawn with Phaser Graphics so real sprites can replace it piece by piece later.
+import type * as Phaser from 'phaser';
+import { P, RULES, TABLE, VIEW } from '../sim/constants';
+import { CUTLERY } from '../sim/cutlery';
+import type { Layout, Obstacle } from '../sim/layouts';
+import type { Crumb, Cutlery, Hand, Player } from '../sim/world';
+
+type G = Phaser.GameObjects.Graphics;
+type Pt = [number, number];
+
+export function shade(color: number, f: number): number {
+  const r = (color >> 16) & 255, g = (color >> 8) & 255, b = color & 255;
+  const m = (v: number) => Math.max(0, Math.min(255, Math.round(f >= 1 ? v + (255 - v) * (f - 1) : v * f)));
+  return (m(r) << 16) | (m(g) << 8) | m(b);
+}
+
+function poly(g: G, pts: Pt[], x: number, y: number, a: number, s = 1): void {
+  const c = Math.cos(a), si = Math.sin(a);
+  const out = pts.map(([px, py]) => ({ x: x + (px * c - py * si) * s, y: y + (px * si + py * c) * s }));
+  g.fillPoints(out as unknown as Phaser.Math.Vector2[], true); // runtime only reads x/y
+}
+
+function ellipse(cx: number, cy: number, rx: number, ry: number, n = 14): Pt[] {
+  const out: Pt[] = [];
+  for (let i = 0; i < n; i++) {
+    const a = (i / n) * Math.PI * 2;
+    out.push([cx + Math.cos(a) * rx, cy + Math.sin(a) * ry]);
+  }
+  return out;
+}
+
+// ------------------------------------------------------------------ table
+export function drawFloor(g: G): void {
+  g.fillStyle(0x1a120d, 1);
+  g.fillRect(0, 0, VIEW.w, VIEW.h);
+  for (let y = 0; y < VIEW.h; y += 80) {
+    for (let x = 0; x < VIEW.w; x += 80) {
+      if (((x + y) / 80) % 2 === 0) {
+        g.fillStyle(0x221813, 1);
+        g.fillRect(x, y, 80, 80);
+      }
+    }
+  }
+}
+
+export function drawTable(g: G, layout: Layout): void {
+  g.clear();
+  drawFloor(g);
+  g.fillStyle(0x000000, 0.45);
+  g.fillRoundedRect(TABLE.x + 10, TABLE.y + 16, TABLE.w, TABLE.h, 22);
+  g.fillStyle(0x9a6438, 1);
+  g.fillRoundedRect(TABLE.x, TABLE.y, TABLE.w, TABLE.h, 22);
+  // planks + grain
+  g.lineStyle(2, 0x84522c, 1);
+  for (let y = TABLE.y + 72; y < TABLE.y + TABLE.h - 10; y += 72) g.lineBetween(TABLE.x + 6, y, TABLE.x + TABLE.w - 6, y);
+  g.lineStyle(1, 0x8c5a32, 0.8);
+  for (let i = 0; i < 70; i++) {
+    const x = TABLE.x + 20 + ((i * 157) % (TABLE.w - 80)), y = TABLE.y + 14 + ((i * 89) % (TABLE.h - 28));
+    g.lineBetween(x, y, x + 30 + (i % 4) * 12, y);
+  }
+  // linen runner
+  g.fillStyle(0xf3e6cc, 0.12);
+  g.fillRect(TABLE.x, TABLE.y + TABLE.h / 2 - 90, TABLE.w, 180);
+  g.lineStyle(5, 0xc48b57, 1);
+  g.strokeRoundedRect(TABLE.x, TABLE.y, TABLE.w, TABLE.h, 22);
+  g.lineStyle(2, 0x5b351c, 0.8);
+  g.strokeRoundedRect(TABLE.x - 3, TABLE.y - 3, TABLE.w + 6, TABLE.h + 6, 24);
+  for (const o of layout.obstacles) drawObstacle(g, o);
+}
+
+function drawObstacle(g: G, o: Obstacle): void {
+  if (o.shape === 'circle') {
+    g.fillStyle(0x000000, 0.3);
+    g.fillCircle(o.x + 5, o.y + 7, o.r);
+    switch (o.style) {
+      case 'cup':
+        g.fillStyle(0xeee9de, 1); g.fillCircle(o.x, o.y, o.r);
+        g.fillStyle(0xd8d1c2, 1); g.fillRoundedRect(o.x + o.r - 4, o.y - 6, 16, 12, 5);
+        g.fillStyle(0x5a3018, 1); g.fillCircle(o.x, o.y, o.r * 0.75);
+        g.fillStyle(0x7a4526, 1); g.fillCircle(o.x - o.r * 0.2, o.y - o.r * 0.2, o.r * 0.3);
+        break;
+      case 'shaker':
+        g.fillStyle(0xdedede, 1); g.fillCircle(o.x, o.y, o.r);
+        g.fillStyle(0x9a9a9a, 1); g.fillCircle(o.x, o.y, o.r * 0.7);
+        g.fillStyle(0x333333, 1);
+        for (let i = 0; i < 5; i++) { const a = (i / 5) * Math.PI * 2; g.fillCircle(o.x + Math.cos(a) * o.r * 0.35, o.y + Math.sin(a) * o.r * 0.35, 1.8); }
+        break;
+      case 'bowl':
+        g.fillStyle(0xf4f0e6, 1); g.fillCircle(o.x, o.y, o.r);
+        g.fillStyle(0xd06a2a, 1); g.fillCircle(o.x, o.y, o.r * 0.8);
+        g.fillStyle(0xe58a3f, 1); g.fillCircle(o.x - 12, o.y - 10, 10); g.fillCircle(o.x + 15, o.y + 8, 7);
+        g.fillStyle(0x6f9e3b, 1); g.fillCircle(o.x + 5, o.y - 18, 5); g.fillCircle(o.x - 18, o.y + 14, 4);
+        break;
+      case 'candle':
+        g.fillStyle(0xbfa16a, 1); g.fillCircle(o.x, o.y, o.r);
+        g.fillStyle(0xfff3c4, 1); g.fillCircle(o.x, o.y, o.r * 0.65);
+        g.fillStyle(0x333333, 1); g.fillCircle(o.x, o.y, 2.5);
+        break;
+      default:
+        g.fillStyle(0xcccccc, 1); g.fillCircle(o.x, o.y, o.r);
+    }
+  } else {
+    g.fillStyle(0x000000, 0.3);
+    g.fillRoundedRect(o.x + 5, o.y + 7, o.w, o.h, 8);
+    switch (o.style) {
+      case 'gravy':
+        g.fillStyle(0xeee9de, 1); g.fillRoundedRect(o.x, o.y, o.w, o.h, 30);
+        g.fillStyle(0x6b3b1c, 1); g.fillRoundedRect(o.x + 10, o.y + 10, o.w - 20, o.h - 20, 22);
+        g.fillStyle(0x8a5228, 1); g.fillEllipse(o.x + o.w * 0.4, o.y + o.h * 0.4, 30, 12);
+        break;
+      case 'napkin':
+        g.fillStyle(0xdce8f2, 1); g.fillRoundedRect(o.x, o.y, o.w, o.h, 4);
+        g.lineStyle(2, 0xaec3d6, 1); g.lineBetween(o.x, o.y, o.x + o.w, o.y + o.h); g.lineBetween(o.x + o.w / 2, o.y, o.x + o.w / 2, o.y + o.h);
+        break;
+      case 'bread':
+        g.fillStyle(0x8a5a2b, 1); g.fillRoundedRect(o.x, o.y, o.w, o.h, 14);
+        g.fillStyle(0xd59a52, 1); g.fillRoundedRect(o.x + 4, o.y + 4, o.w - 8, o.h - 8, 12);
+        g.lineStyle(2, 0xa86f33, 1);
+        for (let y = o.y + 25; y < o.y + o.h - 10; y += 30) g.lineBetween(o.x + 8, y, o.x + o.w - 8, y - 8);
+        break;
+      default:
+        g.fillStyle(0xcccccc, 1); g.fillRoundedRect(o.x, o.y, o.w, o.h, 6);
+    }
+  }
+}
+
+/** Animated bits of the table (candle flame), drawn every frame. */
+export function drawTableLive(g: G, layout: Layout, t: number): void {
+  for (const o of layout.obstacles) {
+    if (o.style === 'candle' && o.shape === 'circle') {
+      const f = 1 + Math.sin(t * 17) * 0.15 + Math.sin(t * 7) * 0.1;
+      g.fillStyle(0xffa630, 0.25); g.fillCircle(o.x, o.y - 2, 22 * f);
+      g.fillStyle(0xffc84a, 1); g.fillCircle(o.x, o.y - 2, 7 * f);
+      g.fillStyle(0xfff6d0, 1); g.fillCircle(o.x, o.y - 2, 3.5 * f);
+    }
+  }
+}
+
+// ------------------------------------------------------------------ crumbs
+const CRUMB_COLORS = [0xe0b06a, 0x7fbf4a, 0xf5f1e3];
+export function drawCrumbs(g: G, crumbs: Crumb[], t: number): void {
+  for (const c of crumbs) {
+    const bob = Math.sin(t * 3 + c.id) * 0.6;
+    g.fillStyle(0x000000, 0.25);
+    g.fillCircle(c.x + 1.5, c.y + 2, 4.5);
+    g.fillStyle(CRUMB_COLORS[c.variant], 1);
+    if (c.variant === 2) g.fillEllipse(c.x, c.y + bob, 9, 5);
+    else g.fillCircle(c.x, c.y + bob, c.variant === 1 ? 4.5 : 4);
+  }
+}
+
+// ------------------------------------------------------------------ cutlery
+const SILVER = 0xd5dce3, SILVER_DARK = 0x8d98a3;
+
+export function drawCutleryShape(g: G, kind: Cutlery['kind'], x: number, y: number, a: number, s = 1): void {
+  switch (kind) {
+    case 'fork':
+      g.fillStyle(SILVER, 1);
+      poly(g, [[-16, -2], [8, -2.4], [8, 2.4], [-16, 2]], x, y, a, s);
+      poly(g, [[8, -5.5], [13, -5.5], [13, 5.5], [8, 5.5]], x, y, a, s);
+      for (const o of [-4.6, -1.2, 2.2]) poly(g, [[13, o], [23, o], [23, o + 2.4], [13, o + 2.4]], x, y, a, s);
+      break;
+    case 'spoon':
+      g.fillStyle(SILVER, 1);
+      poly(g, [[-16, -2], [6, -2], [6, 2], [-16, 2]], x, y, a, s);
+      poly(g, ellipse(14, 0, 9, 6.5), x, y, a, s);
+      g.fillStyle(SILVER_DARK, 1);
+      poly(g, ellipse(14, 0, 5.5, 3.5, 10), x, y, a, s);
+      break;
+    case 'knife':
+      g.fillStyle(0x4a3628, 1);
+      poly(g, [[-16, -3], [0, -3], [0, 3], [-16, 3]], x, y, a, s);
+      g.fillStyle(SILVER, 1);
+      poly(g, [[0, -3.5], [18, -2.5], [23, 1], [18, 3.5], [0, 3.5]], x, y, a, s);
+      break;
+    case 'chopstick':
+      g.fillStyle(0xc9935a, 1);
+      poly(g, [[-21, -1.8], [21, -1], [21, 1], [-21, 1.8]], x, y, a, s);
+      g.fillStyle(0xa8352b, 1);
+      poly(g, [[-21, -1.8], [-14, -1.7], [-14, 1.7], [-21, 1.8]], x, y, a, s);
+      break;
+    case 'ladle':
+      g.fillStyle(SILVER, 1);
+      poly(g, [[-24, -2.4], [4, -2.4], [4, 2.4], [-24, 2.4]], x, y, a, s);
+      poly(g, ellipse(15, 0, 12, 12, 16), x, y, a, s);
+      g.fillStyle(SILVER_DARK, 1);
+      poly(g, ellipse(15, 0, 8, 8, 12), x, y, a, s);
+      break;
+    case 'spork':
+      g.fillStyle(0xffcf5a, 1);
+      poly(g, [[-16, -2], [6, -2], [6, 2], [-16, 2]], x, y, a, s);
+      poly(g, ellipse(14, 0, 9, 6.5), x, y, a, s);
+      g.fillStyle(0x9a6b10, 1);
+      for (const o of [-3.2, 0, 3.2]) poly(g, [[18, o - 0.8], [23.5, o - 0.8], [23.5, o + 0.8], [18, o + 0.8]], x, y, a, s);
+      break;
+  }
+}
+
+export function drawCutlery(g: G, c: Cutlery, colors: number[], t: number): void {
+  const owner = c.owner === null ? null : colors[c.owner];
+  const a = c.angle + (CUTLERY[c.kind].spin ? c.spin : 0);
+  if (c.state === 'flying') {
+    g.fillStyle(owner ?? 0xffffff, 0.3);
+    g.fillCircle(c.x, c.y, 15);
+    g.lineStyle(3, owner ?? 0xffffff, 0.25);
+    g.lineBetween(c.x, c.y, c.x - c.vx * 0.04, c.y - c.vy * 0.04);
+  } else if (c.state === 'stuck' || c.state === 'returning') {
+    const pulse = 0.5 + 0.5 * Math.sin(t * 5 + c.id);
+    if (owner === null) {
+      g.fillStyle(0xffffff, 0.12 + 0.12 * pulse); g.fillCircle(c.x, c.y, 20);
+    } else {
+      g.lineStyle(2, owner, 0.35 + 0.25 * pulse); g.strokeCircle(c.x, c.y, 17);
+    }
+    g.fillStyle(0x000000, 0.3);
+    g.fillEllipse(c.x + 2, c.y + 3, 30, 8);
+  }
+  if (c.kind === 'chopstick' && c.state === 'held') {
+    const ox = Math.cos(a + Math.PI / 2) * 3, oy = Math.sin(a + Math.PI / 2) * 3;
+    drawCutleryShape(g, c.kind, c.x - ox, c.y - oy, a, 0.8);
+    drawCutleryShape(g, c.kind, c.x + ox, c.y + oy, a, 0.8);
+  } else {
+    drawCutleryShape(g, c.kind, c.x, c.y, a, c.state === 'held' ? 0.8 : 1);
+  }
+}
+
+// ------------------------------------------------------------------ kaiju
+export interface KaijuLook {
+  x: number;
+  y: number;
+  r: number;
+  aim: number;
+  kaiju: boolean;
+  species: number;
+  color: number;
+}
+
+export function drawKaiju(g: G, k: KaijuLook, t: number, alpha = 1): void {
+  const { x, y, r, aim, color } = k;
+  const dark = shade(color, 0.6), light = shade(color, 1.35);
+  const back = aim + Math.PI;
+  g.fillStyle(0x000000, 0.28 * alpha);
+  g.fillEllipse(x + 3, y + r * 0.35, r * 2.3, r * 1.7);
+
+  // Behind-the-body features
+  g.fillStyle(dark, alpha);
+  if (k.species === 0) {
+    for (const o of [-0.55, 0, 0.55]) {
+      const a = back + o;
+      const bx = x + Math.cos(a) * r * 0.75, by = y + Math.sin(a) * r * 0.75;
+      const tx = x + Math.cos(a) * r * 1.5, ty = y + Math.sin(a) * r * 1.5;
+      const px = Math.cos(a + Math.PI / 2) * r * 0.28, py = Math.sin(a + Math.PI / 2) * r * 0.28;
+      g.fillTriangle(bx - px, by - py, bx + px, by + py, tx, ty);
+    }
+    // tail
+    const ta = back + Math.sin(t * 5) * 0.3;
+    g.fillCircle(x + Math.cos(ta) * r * 1.25, y + Math.sin(ta) * r * 1.25, r * 0.32);
+  } else if (k.species === 1) {
+    for (let i = -2; i <= 2; i++) {
+      const a = back + i * 0.38 + Math.sin(t * 6 + i) * 0.08;
+      const rr = r * (0.95 + 0.08 * Math.sin(t * 8 + i * 2));
+      g.fillCircle(x + Math.cos(a) * rr, y + Math.sin(a) * rr, r * 0.36);
+    }
+  } else if (k.species === 2) {
+    for (const side of [-1, 1]) {
+      const a = aim + side * 0.85;
+      const cx = x + Math.cos(a) * r * 1.1, cy = y + Math.sin(a) * r * 1.1;
+      g.fillCircle(cx, cy, r * 0.45);
+      g.fillStyle(0x2a1a10, alpha);
+      const na = aim + side * 0.25;
+      g.fillTriangle(cx, cy, cx + Math.cos(na - 0.3) * r * 0.5, cy + Math.sin(na - 0.3) * r * 0.5, cx + Math.cos(na + 0.3) * r * 0.5, cy + Math.sin(na + 0.3) * r * 0.5);
+      g.fillStyle(dark, alpha);
+    }
+  }
+
+  // Body
+  g.fillStyle(color, alpha);
+  if (k.species === 3) {
+    const pts: Pt[] = [];
+    for (let i = 0; i < 18; i++) {
+      const a = (i / 18) * Math.PI * 2;
+      const rr = r * (1 + 0.07 * Math.sin(t * 6 + i * 1.7) + 0.05 * Math.sin(t * 3.3 + i));
+      pts.push([Math.cos(a) * rr, Math.sin(a) * rr]);
+    }
+    poly(g, pts, x, y, 0);
+    g.fillStyle(light, 0.6 * alpha);
+    g.fillCircle(x + Math.cos(back) * r * 0.75, y + Math.sin(back) * r * 0.75 + Math.sin(t * 4) * 2, r * 0.22);
+  } else {
+    g.fillCircle(x, y, r);
+  }
+  g.fillStyle(light, 0.5 * alpha);
+  g.fillCircle(x - r * 0.3, y - r * 0.35, r * 0.38);
+
+  // Species hats
+  if (k.species === 1) {
+    const hx = x + Math.cos(back) * r * 0.2, hy = y + Math.sin(back) * r * 0.2;
+    g.fillStyle(0xf5f1e8, alpha); g.fillCircle(hx, hy, r * 0.5);
+    g.fillStyle(0xc47a3a, alpha); g.fillCircle(hx, hy, r * 0.34);
+    const ha = aim + Math.PI / 2;
+    g.fillStyle(0xf5f1e8, alpha); g.fillCircle(hx + Math.cos(ha) * r * 0.55, hy + Math.sin(ha) * r * 0.55, r * 0.15);
+  } else if (k.species === 2) {
+    g.lineStyle(Math.max(1.5, r * 0.08), 0x4f8a2a, alpha);
+    for (const o of [-0.5, 0, 0.5]) {
+      const a = back + o;
+      g.lineBetween(x, y, x + Math.cos(a) * r * 0.85, y + Math.sin(a) * r * 0.85);
+    }
+  }
+
+  // Eyes
+  for (const side of [-1, 1]) {
+    const a = aim + side * 0.48;
+    const ex = x + Math.cos(a) * r * 0.55, ey = y + Math.sin(a) * r * 0.55;
+    g.fillStyle(0xffffff, alpha);
+    g.fillCircle(ex, ey, r * 0.27);
+    g.fillStyle(0x111111, alpha);
+    g.fillCircle(ex + Math.cos(aim) * r * 0.1, ey + Math.sin(aim) * r * 0.1, r * 0.13);
+    if (k.kaiju) {
+      g.lineStyle(Math.max(2, r * 0.08), 0x111111, alpha);
+      const bx = Math.cos(aim) * r * 0.3, by = Math.sin(aim) * r * 0.3;
+      const px = Math.cos(a + Math.PI / 2) * r * 0.22 * side, py = Math.sin(a + Math.PI / 2) * r * 0.22 * side;
+      g.lineBetween(ex - px, ey - py, ex + px + bx * 0.6, ey + py + by * 0.6);
+    }
+  }
+  if (k.kaiju) {
+    const mx = x + Math.cos(aim) * r * 0.8, my = y + Math.sin(aim) * r * 0.8;
+    g.fillStyle(0x3a0d0d, alpha);
+    g.fillCircle(mx, my, r * 0.22 + Math.sin(t * 20) * 1.5);
+    g.fillStyle(0xffffff, alpha);
+    g.fillTriangle(mx - 3, my - 3, mx + 3, my - 3, mx, my + 3);
+  }
+}
+
+export function drawPlayer(g: G, p: Player, species: number, color: number, t: number): void {
+  if (!p.alive) return;
+  const blink = p.invT > 0 && Math.floor(t * 20) % 2 === 0;
+  const alpha = blink ? 0.45 : 1;
+  // colour ring
+  g.lineStyle(3, color, 0.9 * alpha);
+  g.strokeCircle(p.x, p.y, p.r + 6);
+  if (p.kaijuT > 0) {
+    g.lineStyle(4, 0xff3b3b, 0.5 + 0.4 * Math.sin(t * 14));
+    g.strokeCircle(p.x, p.y, p.r + 12);
+    // timer arc
+    g.lineStyle(4, 0xffffff, 0.8);
+    g.beginPath();
+    g.arc(p.x, p.y, p.r + 18, -Math.PI / 2, -Math.PI / 2 + (p.kaijuT / P.kaijuTime) * Math.PI * 2, false);
+    g.strokePath();
+  }
+  if (p.charging) {
+    const len = 50 + (p.charge / P.maxCharge) * 120;
+    const steps = Math.floor(len / 14);
+    g.fillStyle(color, 0.8);
+    for (let i = 1; i <= steps; i++) {
+      const d = p.r + i * 14;
+      g.fillCircle(p.x + Math.cos(p.aim) * d, p.y + Math.sin(p.aim) * d, 2.8);
+    }
+  }
+  if (p.dashT > 0) {
+    g.fillStyle(color, 0.25);
+    g.fillCircle(p.x - p.vx * 0.03, p.y - p.vy * 0.03, p.r * 0.9);
+    g.fillCircle(p.x - p.vx * 0.06, p.y - p.vy * 0.06, p.r * 0.7);
+  }
+  drawKaiju(g, { x: p.x, y: p.y, r: p.r, aim: p.aim, kaiju: p.kaijuT > 0, species, color }, t, alpha);
+  if (p.swipeT > P.swipeTime) {
+    // wind-up telegraph: outline of the incoming arc
+    g.lineStyle(2, color, 0.8);
+    g.beginPath();
+    g.slice(p.x, p.y, p.r + P.swipeReach, p.aim - P.swipeArc, p.aim + P.swipeArc, false);
+    g.strokePath();
+  } else if (p.swipeT > 0) {
+    const k = p.swipeT / P.swipeTime;
+    g.fillStyle(0xffffff, 0.55 * k);
+    g.beginPath();
+    g.slice(p.x, p.y, p.r + P.swipeReach, p.aim - P.swipeArc, p.aim + P.swipeArc, false);
+    g.fillPath();
+  }
+  // meter pip under the kaiju
+  if (p.kaijuT <= 0) {
+    const w = 34, h = 5, bx = p.x - w / 2, by = p.y + p.r + 10;
+    g.fillStyle(0x000000, 0.5); g.fillRect(bx - 1, by - 1, w + 2, h + 2);
+    g.fillStyle(p.meter >= 100 ? (Math.floor(t * 8) % 2 ? 0xffffff : 0xff3b3b) : 0xffb347, 1);
+    g.fillRect(bx, by, (w * p.meter) / 100, h);
+  }
+}
+
+// ------------------------------------------------------------------ giant hand
+const SKIN = 0xf0c39b, SKIN_DARK = 0xc8946a;
+export function drawHand(g: G, h: Hand, t: number): void {
+  const band = RULES.handBand, top = h.y - band / 2;
+  if (h.state === 'warn') {
+    const k = h.t / RULES.handWarn;
+    g.fillStyle(0xff2a2a, 0.1 + 0.12 * k + 0.08 * Math.sin(t * 20));
+    g.fillRect(TABLE.x, top, TABLE.w, band);
+    g.lineStyle(3, 0xff3b3b, 0.8);
+    g.lineBetween(TABLE.x, top, TABLE.x + TABLE.w, top);
+    g.lineBetween(TABLE.x, top + band, TABLE.x + TABLE.w, top + band);
+    g.fillStyle(0xff5050, 0.55 + 0.3 * Math.sin(t * 12));
+    const off = ((t * 300) % 120) * h.dir;
+    for (let x = TABLE.x - 120; x < TABLE.x + TABLE.w + 120; x += 120) {
+      const cx = x + off;
+      if (cx < TABLE.x + 20 || cx > TABLE.x + TABLE.w - 20) continue;
+      g.fillTriangle(cx - 16 * h.dir, h.y - 22, cx + 16 * h.dir, h.y, cx - 16 * h.dir, h.y + 22);
+    }
+    // looming shadow from the side it'll come from
+    const sx = h.dir > 0 ? TABLE.x : TABLE.x + TABLE.w;
+    g.fillStyle(0x000000, 0.35 * k);
+    g.fillRect(h.dir > 0 ? sx : sx - 160 * k, top, 160 * k, band);
+    return;
+  }
+  const W = RULES.handWidth, x0 = h.dir > 0 ? h.x - W : h.x, d = h.dir;
+  g.fillStyle(0x000000, 0.3);
+  g.fillRoundedRect(x0 + 10, top + 14, W, band, 30);
+  g.fillStyle(SKIN, 1);
+  g.fillRoundedRect(x0, top, W, band, 30);
+  // fingers stick out ahead of the palm
+  const fx = h.dir > 0 ? h.x - 20 : h.x - 50;
+  for (let i = 0; i < 4; i++) {
+    const fy = top + 8 + i * ((band - 16) / 4);
+    g.fillStyle(SKIN, 1);
+    g.fillRoundedRect(fx, fy, 70, (band - 16) / 4 - 4, 12);
+    g.fillStyle(0xf7e0cc, 1);
+    g.fillRoundedRect(h.dir > 0 ? fx + 52 : fx + 4, fy + 4, 14, (band - 16) / 4 - 12, 5);
+  }
+  g.fillStyle(SKIN_DARK, 1);
+  g.fillRoundedRect(x0 + W * 0.3, top - 22, W * 0.45, 30, 14); // thumb
+  g.lineStyle(2, SKIN_DARK, 1);
+  g.lineBetween(x0 + W * 0.5 - 20 * d, top + 30, x0 + W * 0.5 + 20 * d, top + band - 30);
+}

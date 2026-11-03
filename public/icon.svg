@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="96" fill="#9a6438"/>
+  <g stroke="#84522c" stroke-width="6">
+    <line x1="0" y1="128" x2="512" y2="128"/><line x1="0" y1="256" x2="512" y2="256"/><line x1="0" y1="384" x2="512" y2="384"/>
+  </g>
+  <!-- fork -->
+  <g transform="rotate(-35 380 150)" fill="#d5dce3">
+    <rect x="300" y="142" width="130" height="16" rx="8"/>
+    <rect x="424" y="128" width="20" height="44" rx="4"/>
+    <rect x="440" y="128" width="46" height="9" rx="4"/><rect x="440" y="145" width="46" height="9" rx="4"/><rect x="440" y="162" width="46" height="9" rx="4"/>
+  </g>
+  <!-- kaiju -->
+  <ellipse cx="262" cy="350" rx="150" ry="112" fill="#000" opacity="0.28"/>
+  <g fill="#b33a52">
+    <polygon points="150,250 110,190 190,215"/><polygon points="175,200 160,130 230,175"/><polygon points="240,175 250,105 295,170"/>
+  </g>
+  <circle cx="256" cy="290" r="140" fill="#ff5a7a"/>
+  <circle cx="205" cy="235" r="52" fill="#ff9db0" opacity="0.6"/>
+  <circle cx="200" cy="300" r="40" fill="#fff"/><circle cx="312" cy="300" r="40" fill="#fff"/>
+  <circle cx="212" cy="312" r="19" fill="#111"/><circle cx="324" cy="312" r="19" fill="#111"/>
+  <path d="M215 370 Q256 405 297 370" stroke="#3a0d0d" stroke-width="12" fill="none" stroke-linecap="round"/>
+  <polygon points="240,374 252,374 246,392" fill="#fff"/><polygon points="262,374 274,374 268,392" fill="#fff"/>
+</svg>
