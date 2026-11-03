@@ -73,6 +73,7 @@ Names the game looks for: `kaiju-0..3`, `kaiju-0..3-rage`, `cut-<fork|spoon|knif
 npm test          # rules tests incl. full 4-bot matches
 npm run build     # typecheck + production build
 npm run smoke     # headless browser playthrough + screenshots (needs Edge/Chrome)
+npm run update-check # installed copy picks up a newly deployed version on the menu
 npm run smoke:phone  # emulated phone with multi-touch: menu, joystick, aim-drag throw, dash, rotate prompt
 npm run balance   # simulate 12 bot matches: pacing + KO-cause mix  (args: easy|normal|hard, players)
 npx vite-node scripts/accuracy.ts   # how hard each bot level is to survive against

@@ -83,7 +83,7 @@ export class MenuScene extends Phaser.Scene {
         { ...BODY, fontSize: '16px', color: '#ffffff' }).setOrigin(0.5);
     }
     setTouchMode('menu');
-    applyPendingUpdate();
+    this.add.text(1272, 712, `v${__APP_VERSION__}`, { ...BODY, fontSize: '11px', color: '#8a7a6a' }).setOrigin(1, 1).setDepth(5);
     // First visit on a phone: seat the touch player straight away.
     if (isTouchDevice && !this.registry.get('touchSeeded')) {
       this.registry.set('touchSeeded', true);
@@ -106,6 +106,7 @@ export class MenuScene extends Phaser.Scene {
 
   update(_time: number, delta: number): void {
     this.t += delta / 1000;
+    applyPendingUpdate();
     this.pollDevices();
     if (consumeTap('KeyB') && this.slots.length < 4) { this.slots.push({ kind: 'bot', index: this.slots.length }); sfx.join(this.slots.length); }
     if (consumeTap('KeyN')) {

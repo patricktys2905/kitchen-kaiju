@@ -1,9 +1,16 @@
+import { execSync } from 'node:child_process';
 import { defineConfig } from 'vite';
+
+// Version shown in the menu corner: build date + commit, so you can tell which build a phone is running.
+let commit = 'dev';
+try { commit = execSync('git rev-parse --short HEAD').toString().trim(); } catch { /* not a git checkout */ }
+const VERSION = process.env.KK_VERSION ?? `${new Date().toISOString().slice(0, 10)}-${commit}`;
 import { VitePWA } from 'vite-plugin-pwa';
 
 export default defineConfig({
   // Relative base so the build works from any static host path (e.g. GitHub Pages /kitchen-kaiju/).
   base: './',
+  define: { __APP_VERSION__: JSON.stringify(VERSION) },
   // host: true exposes the dev server on your Wi-Fi so phones/tablets on the same network can play.
   server: { port: 5180, host: true, open: false },
   preview: { host: true },
