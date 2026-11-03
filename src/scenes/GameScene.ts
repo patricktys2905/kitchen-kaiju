@@ -1,7 +1,9 @@
 import * as Phaser from 'phaser';
 import { sfx } from '../audio';
 import { clearTaps, consumeTap, readSlot, slotLabel, type Slot } from '../input';
-import { drawCrumbs, drawCutlery, drawCutleryShape, drawHand, drawKaiju, drawPlayer, drawTable, drawTableLive } from '../render/draw';
+import { CUTLERY_LEN, fitInside, hasArt } from '../render/art';
+import { ArtRenderer } from '../render/artRender';
+import { drawCutleryShape, drawKaiju, drawTableLive } from '../render/draw';
 import { BotBrain, type Difficulty } from '../sim/bot';
 import { COLORS, COLOR_CSS, P, SPECIES, TABLE, VIEW } from '../sim/constants';
 import { CUTLERY } from '../sim/cutlery';
@@ -34,8 +36,13 @@ export class GameScene extends Phaser.Scene {
   private paused = false;
   private padPrevStart = false;
 
+  private baseG!: Phaser.GameObjects.Graphics;
   private tableG!: Phaser.GameObjects.Graphics;
   private dynG!: Phaser.GameObjects.Graphics;
+  private overG!: Phaser.GameObjects.Graphics;
+  private art!: ArtRenderer;
+  private hudIcons: (Phaser.GameObjects.Image | null)[] = [];
+  private hudHeld: (Phaser.GameObjects.Image | null)[] = [];
   private fxG!: Phaser.GameObjects.Graphics;
   private hudG!: Phaser.GameObjects.Graphics;
   private nameTexts: Phaser.GameObjects.Text[] = [];
@@ -72,22 +79,27 @@ export class GameScene extends Phaser.Scene {
 
   create(): void {
     clearTaps();
-    this.tableG = this.add.graphics().setDepth(0);
-    this.dynG = this.add.graphics().setDepth(1);
-    this.fxG = this.add.graphics().setDepth(2);
-    this.hudG = this.add.graphics().setDepth(3);
-    drawTable(this.tableG, this.world.layout);
+    this.baseG = this.add.graphics().setDepth(-2.5);
+    this.tableG = this.add.graphics().setDepth(-1);
+    this.dynG = this.add.graphics().setDepth(0);
+    this.overG = this.add.graphics().setDepth(3.6);
+    this.fxG = this.add.graphics().setDepth(3.8);
+    this.hudG = this.add.graphics().setDepth(5);
+    this.art = new ArtRenderer(this, this.baseG, this.tableG);
+    this.art.setupTable(this.world.layout);
+    this.hudIcons = this.slots.map((_, i) => (hasArt(`kaiju-${i}`) ? fitInside(this.add.image(HUD_X(i) + 20, 40, `kaiju-${i}`), 40, 44).setDepth(6) : null));
+    this.hudHeld = this.slots.map((_, i) => (hasArt('cut-fork') ? this.add.image(HUD_X(i) + 206, 18, 'cut-fork').setDepth(6).setRotation(-0.35) : null));
 
     this.nameTexts = [];
     this.infoTexts = [];
     this.slots.forEach((s, i) => {
       const x = HUD_X(i);
-      this.nameTexts.push(this.add.text(x + 48, 8, SPECIES[i].name, { fontFamily: FONT, fontSize: '18px', color: COLOR_CSS[i], stroke: '#140b05', strokeThickness: 4 }).setDepth(4));
-      this.infoTexts.push(this.add.text(x + 48, 54, slotLabel(s), { fontFamily: 'Arial', fontSize: '13px', color: '#d9c7b3' }).setDepth(4));
+      this.nameTexts.push(this.add.text(x + 48, 8, SPECIES[i].name, { fontFamily: FONT, fontSize: '18px', color: COLOR_CSS[i], stroke: '#140b05', strokeThickness: 4 }).setDepth(6));
+      this.infoTexts.push(this.add.text(x + 48, 54, slotLabel(s), { fontFamily: 'Arial', fontSize: '13px', color: '#d9c7b3' }).setDepth(6));
     });
-    this.roundText = this.add.text(VIEW.w - 16, 12, '', { fontFamily: FONT, fontSize: '14px', color: '#ffcf8a', align: 'right' }).setOrigin(1, 0).setDepth(4);
-    if (!isTouchDevice) this.add.text(VIEW.w - 16, 34, 'P pause · Esc menu', { fontFamily: 'Arial', fontSize: '12px', color: '#9c8a78' }).setOrigin(1, 0).setDepth(4);
-    this.feedTexts = [0, 1].map(i => this.add.text(VIEW.w / 2, 682 + i * 19, '', { fontFamily: FONT, fontSize: '15px', color: '#fff', stroke: '#140b05', strokeThickness: 4 }).setOrigin(0.5, 0).setDepth(4));
+    this.roundText = this.add.text(VIEW.w - 16, 12, '', { fontFamily: FONT, fontSize: '14px', color: '#ffcf8a', align: 'right' }).setOrigin(1, 0).setDepth(6);
+    if (!isTouchDevice) this.add.text(VIEW.w - 16, 34, 'P pause · Esc menu', { fontFamily: 'Arial', fontSize: '12px', color: '#9c8a78' }).setOrigin(1, 0).setDepth(6);
+    this.feedTexts = [0, 1].map(i => this.add.text(VIEW.w / 2, 682 + i * 19, '', { fontFamily: FONT, fontSize: '15px', color: '#fff', stroke: '#140b05', strokeThickness: 4 }).setOrigin(0.5, 0).setDepth(6));
     this.banner = this.add.text(VIEW.w / 2, VIEW.h / 2 - 20, '', { fontFamily: FONT, fontSize: '84px', color: '#ffe9c7', stroke: '#2a1408', strokeThickness: 12, align: 'center' }).setOrigin(0.5).setDepth(10);
     this.bannerSub = this.add.text(VIEW.w / 2, VIEW.h / 2 + 50, '', { fontFamily: 'Arial', fontSize: '22px', color: '#ffffff', stroke: '#2a1408', strokeThickness: 5, align: 'center' }).setOrigin(0.5).setDepth(10);
     this.handleEvents(this.world.drainEvents());
@@ -163,7 +175,7 @@ export class GameScene extends Phaser.Scene {
     for (const e of events) {
       switch (e.type) {
         case 'roundStart':
-          drawTable(this.tableG, w.layout);
+          this.art.setupTable(w.layout);
           this.parts = [];
           this.rings = [];
           break;
@@ -252,7 +264,7 @@ export class GameScene extends Phaser.Scene {
   }
 
   private popup(x: number, y: number, text: string, color: string, size = 22): void {
-    const t = this.add.text(x, y, text, { fontFamily: FONT, fontSize: `${size}px`, color, stroke: '#140b05', strokeThickness: 5 }).setOrigin(0.5).setDepth(6);
+    const t = this.add.text(x, y, text, { fontFamily: FONT, fontSize: `${size}px`, color, stroke: '#140b05', strokeThickness: 5 }).setOrigin(0.5).setDepth(7);
     this.popups.push({ text: t, vy: -50, life: 1 });
   }
 
@@ -290,18 +302,9 @@ export class GameScene extends Phaser.Scene {
   private render(): void {
     const w = this.world, g = this.dynG, t = this.t;
     g.clear();
-    drawTableLive(g, w.layout, t);
-    drawCrumbs(g, w.crumbs, t);
-    if (w.hand && w.hand.state === 'warn') drawHand(g, w.hand, t);
-    for (const c of w.cutlery) if (c.state !== 'held' && c.state !== 'flying') drawCutlery(g, c, COLORS, t);
-    const order = w.players.slice().sort((a, b) => a.r - b.r);
-    for (const p of order) {
-      drawPlayer(g, p, p.id, COLORS[p.id], t);
-      const held = w.cutleryById(p.holding);
-      if (held && p.alive) drawCutlery(g, held, COLORS, t);
-    }
-    for (const c of w.cutlery) if (c.state === 'flying') drawCutlery(g, c, COLORS, t);
-    if (w.hand && w.hand.state === 'sweep') drawHand(g, w.hand, t);
+    this.overG.clear();
+    if (!hasArt('ob-candle')) drawTableLive(g, w.layout, t);
+    this.art.frame(w, t, g, this.overG);
 
     const fx = this.fxG;
     fx.clear();
@@ -326,7 +329,9 @@ export class GameScene extends Phaser.Scene {
       const x = HUD_X(i);
       g.fillStyle(0xffffff, p.alive ? 0.06 : 0.02);
       g.fillRoundedRect(x - 6, 6, 236, 68, 10);
-      drawKaiju(g, { x: x + 20, y: 40, r: 17, aim: Math.PI / 2, kaiju: false, species: i, color: COLORS[i] }, t, p.alive ? 1 : 0.35);
+      const icon = this.hudIcons[i];
+      if (icon) fitInside(icon.setAlpha(p.alive ? 1 : 0.35).setTexture(p.kaijuT > 0 && hasArt(`kaiju-${i}-rage`) ? `kaiju-${i}-rage` : `kaiju-${i}`), 40, 44);
+      else drawKaiju(g, { x: x + 20, y: 40, r: 17, aim: Math.PI / 2, kaiju: false, species: i, color: COLORS[i] }, t, p.alive ? 1 : 0.35);
       // round stars (second row, right of the belly meter)
       for (let s = 0; s < w.opts.target; s++) {
         const sx = x + 160 + s * 14, sy = 41;
@@ -346,7 +351,12 @@ export class GameScene extends Phaser.Scene {
       g.fillRect(bx, by, p.kaijuT > 0 ? (bw * p.kaijuT) / P.kaijuTime : (bw * p.meter) / 100, 10);
       // held cutlery icon
       const held = w.cutleryById(p.holding);
-      if (held && p.alive) drawCutleryShape(g, held.kind, x + 206, 18, -0.35, 0.85);
+      const hi = this.hudHeld[i];
+      if (hi) {
+        const show = !!held && p.alive && hasArt(`cut-${held.kind}`);
+        hi.setVisible(show);
+        if (show && held) { hi.setTexture(`cut-${held.kind}`); hi.setScale((CUTLERY_LEN[held.kind] * 0.85) / hi.width); }
+      } else if (held && p.alive) drawCutleryShape(g, held.kind, x + 206, 18, -0.35, 0.85);
       this.nameTexts[i].setAlpha(p.alive ? 1 : 0.4);
       const status = !p.alive ? 'KNOCKED OUT' : p.kaijuT > 0 ? 'KAIJU MODE!' : full ? 'STOMP READY!' : held ? CUTLERY[held.kind].name : 'unarmed';
       this.infoTexts[i].setText(`${status} · KOs ${p.kos}`);

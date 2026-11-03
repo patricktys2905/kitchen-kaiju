@@ -1,0 +1,63 @@
+[
+  {
+    "name": "cut-fork",
+    "newChat": true,
+    "prompt": "Generate an image. I'm making prop sprites for a top-down party game played on a dinner table. Every object is viewed from DIRECTLY ABOVE (top-down, bird's-eye view, flat, no perspective tilt). One object per image, all in exactly the same art style: bold chunky cartoon game art, thick dark-brown outlines, flat bright colours with soft cel shading and one crisp white highlight, very readable at small size. Object centred, filling about 85% of the frame, solid flat magenta (#FF00FF) background, no shadow, no text, no border, nothing else. Square 1:1 image. First: a shiny silver dinner FORK lying flat, seen from directly above, perfectly horizontal, handle on the LEFT and the four tines pointing to the RIGHT."
+  },
+  {
+    "name": "cut-spoon",
+    "prompt": "Next prop, exactly the same style, top-down view, framing and solid flat magenta (#FF00FF) background: a shiny silver SPOON lying flat, perfectly horizontal, handle on the LEFT, bowl on the RIGHT. Square 1:1."
+  },
+  {
+    "name": "cut-knife",
+    "prompt": "Next prop, exactly the same style, top-down view, framing and solid flat magenta (#FF00FF) background: a BUTTER KNIFE with a dark wooden handle on the LEFT and a rounded silver blade pointing RIGHT, lying flat, perfectly horizontal. Square 1:1."
+  },
+  {
+    "name": "cut-chopstick",
+    "prompt": "Next prop, exactly the same style, top-down view, framing and solid flat magenta (#FF00FF) background: ONE single light wooden CHOPSTICK lying flat, perfectly horizontal, thick red lacquered end on the LEFT, tapering to a point on the RIGHT. Only one chopstick. Square 1:1."
+  },
+  {
+    "name": "cut-ladle",
+    "prompt": "Next prop, exactly the same style, top-down view, framing and solid flat magenta (#FF00FF) background: a big silver soup LADLE lying flat, perfectly horizontal, long handle on the LEFT and the deep round bowl on the RIGHT. Square 1:1."
+  },
+  {
+    "name": "cut-spork",
+    "prompt": "Next prop, exactly the same style, top-down view, framing and solid flat magenta (#FF00FF) background: a shiny GOLDEN plastic SPORK lying flat, perfectly horizontal, handle on the LEFT, the spoon bowl with three little tines on the RIGHT. Square 1:1."
+  },
+  {
+    "name": "ob-cup",
+    "prompt": "Next prop, exactly the same style, top-down view from directly above, framing and solid flat magenta (#FF00FF) background: a round white porcelain COFFEE CUP full of dark coffee with a little foam swirl, its handle sticking out to the RIGHT. Square 1:1."
+  },
+  {
+    "name": "ob-shaker",
+    "prompt": "Next prop, exactly the same style, top-down view from directly above, framing and solid flat magenta (#FF00FF) background: a round SALT SHAKER seen from directly above, a silver metal cap with a ring of little holes. Square 1:1."
+  },
+  {
+    "name": "ob-bowl",
+    "prompt": "Next prop, exactly the same style, top-down view from directly above, framing and solid flat magenta (#FF00FF) background: a round white SOUP BOWL full of orange tomato soup with a few croutons, a swirl of cream and a basil leaf. Square 1:1."
+  },
+  {
+    "name": "ob-candle",
+    "prompt": "Next prop, exactly the same style, top-down view from directly above, framing and solid flat magenta (#FF00FF) background: a fat round cream CANDLE in a small brass holder, seen from directly above, with a small lit flame and a soft warm glow in the centre. Square 1:1."
+  },
+  {
+    "name": "ob-napkin",
+    "prompt": "Next prop, exactly the same style, top-down view from directly above, framing and solid flat magenta (#FF00FF) background: a neatly folded pale-blue cloth NAPKIN, a tall rectangle (taller than wide, about 5:7), with a diagonal fold line. Square 1:1 image with the napkin centred."
+  },
+  {
+    "name": "ob-bread",
+    "prompt": "Next prop, exactly the same style, top-down view from directly above, framing and solid flat magenta (#FF00FF) background: a golden crusty BAGUETTE lying perfectly VERTICAL (long side running top to bottom), with diagonal scored cuts. Square 1:1 image with the baguette centred and filling the height."
+  },
+  {
+    "name": "ob-gravy",
+    "prompt": "Next prop, exactly the same style, top-down view from directly above, framing and solid flat magenta (#FF00FF) background: a white porcelain GRAVY BOAT full of rich brown gravy, long side running HORIZONTALLY, the pouring spout pointing RIGHT and a curved handle on the LEFT. Square 1:1."
+  },
+  {
+    "name": "hand",
+    "prompt": "Next prop, exactly the same style, top-down view from directly above, framing and solid flat magenta (#FF00FF) background: a GIANT cartoon human HAND seen from directly above, palm down, flat on a table, fingers together pointing to the RIGHT, thumb at the top, the wrist and a bit of a shirt cuff at the LEFT edge, as if sweeping across the table. Friendly cartoon proportions, warm skin tone. Wide 16:9 image."
+  },
+  {
+    "name": "crumbs",
+    "prompt": "Next prop sheet, exactly the same style, top-down view from directly above and solid flat magenta (#FF00FF) background: three small food bits spaced well apart in a row from left to right: a golden BREAD CRUMB, a bright green PEA, and a white grain of RICE. Wide 3:1 image."
+  }
+]

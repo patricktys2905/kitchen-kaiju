@@ -46,11 +46,21 @@ export function drawFloor(g: G): void {
 export function drawTable(g: G, layout: Layout): void {
   g.clear();
   drawFloor(g);
+  drawTableShadow(g);
+  drawTableSurface(g);
+  drawTableRim(g);
+  for (const o of layout.obstacles) drawObstacle(g, o);
+}
+
+export function drawTableShadow(g: G): void {
   g.fillStyle(0x000000, 0.45);
   g.fillRoundedRect(TABLE.x + 10, TABLE.y + 16, TABLE.w, TABLE.h, 22);
+}
+
+/** Wood planks + grain + linen runner (shape fallback for the painted table). */
+export function drawTableSurface(g: G): void {
   g.fillStyle(0x9a6438, 1);
   g.fillRoundedRect(TABLE.x, TABLE.y, TABLE.w, TABLE.h, 22);
-  // planks + grain
   g.lineStyle(2, 0x84522c, 1);
   for (let y = TABLE.y + 72; y < TABLE.y + TABLE.h - 10; y += 72) g.lineBetween(TABLE.x + 6, y, TABLE.x + TABLE.w - 6, y);
   g.lineStyle(1, 0x8c5a32, 0.8);
@@ -58,17 +68,26 @@ export function drawTable(g: G, layout: Layout): void {
     const x = TABLE.x + 20 + ((i * 157) % (TABLE.w - 80)), y = TABLE.y + 14 + ((i * 89) % (TABLE.h - 28));
     g.lineBetween(x, y, x + 30 + (i % 4) * 12, y);
   }
-  // linen runner
   g.fillStyle(0xf3e6cc, 0.12);
   g.fillRect(TABLE.x, TABLE.y + TABLE.h / 2 - 90, TABLE.w, 180);
+}
+
+export function drawTableRim(g: G): void {
   g.lineStyle(5, 0xc48b57, 1);
   g.strokeRoundedRect(TABLE.x, TABLE.y, TABLE.w, TABLE.h, 22);
   g.lineStyle(2, 0x5b351c, 0.8);
   g.strokeRoundedRect(TABLE.x - 3, TABLE.y - 3, TABLE.w + 6, TABLE.h + 6, 24);
-  for (const o of layout.obstacles) drawObstacle(g, o);
 }
 
-function drawObstacle(g: G, o: Obstacle): void {
+/** Soft drop shadow under an obstacle sprite (rounded to follow the painted shapes). */
+export function drawObstacleShadow(g: G, o: Obstacle): void {
+  g.fillStyle(0x000000, 0.28);
+  if (o.shape === 'circle') { g.fillCircle(o.x + 5, o.y + 7, o.r); return; }
+  if (o.style === 'gravy') { g.fillEllipse(o.x + o.w / 2 + 6, o.y + o.h / 2 + 8, o.w * 0.95, o.h * 0.75); return; }
+  g.fillRoundedRect(o.x + 5, o.y + 7, o.w, o.h, Math.min(o.w, o.h) * (o.style === 'bread' ? 0.5 : 0.15));
+}
+
+export function drawObstacle(g: G, o: Obstacle): void {
   if (o.shape === 'circle') {
     g.fillStyle(0x000000, 0.3);
     g.fillCircle(o.x + 5, o.y + 7, o.r);
@@ -196,9 +215,9 @@ export function drawCutleryShape(g: G, kind: Cutlery['kind'], x: number, y: numb
   }
 }
 
-export function drawCutlery(g: G, c: Cutlery, colors: number[], t: number): void {
+/** Owner-coloured glow / ground shadow under a piece of cutlery. */
+export function drawCutleryGlow(g: G, c: Cutlery, colors: number[], t: number): void {
   const owner = c.owner === null ? null : colors[c.owner];
-  const a = c.angle + (CUTLERY[c.kind].spin ? c.spin : 0);
   if (c.state === 'flying') {
     g.fillStyle(owner ?? 0xffffff, 0.3);
     g.fillCircle(c.x, c.y, 15);
@@ -214,6 +233,15 @@ export function drawCutlery(g: G, c: Cutlery, colors: number[], t: number): void
     g.fillStyle(0x000000, 0.3);
     g.fillEllipse(c.x + 2, c.y + 3, 30, 8);
   }
+}
+
+export function cutleryAngle(c: Cutlery): number {
+  return c.angle + (CUTLERY[c.kind].spin ? c.spin : 0);
+}
+
+export function drawCutlery(g: G, c: Cutlery, colors: number[], t: number): void {
+  drawCutleryGlow(g, c, colors, t);
+  const a = cutleryAngle(c);
   if (c.kind === 'chopstick' && c.state === 'held') {
     const ox = Math.cos(a + Math.PI / 2) * 3, oy = Math.sin(a + Math.PI / 2) * 3;
     drawCutleryShape(g, c.kind, c.x - ox, c.y - oy, a, 0.8);
@@ -329,10 +357,22 @@ export function drawKaiju(g: G, k: KaijuLook, t: number, alpha = 1): void {
   }
 }
 
+export const playerAlpha = (p: Player, t: number) => (p.invT > 0 && Math.floor(t * 20) % 2 === 0 ? 0.45 : 1);
+
 export function drawPlayer(g: G, p: Player, species: number, color: number, t: number): void {
   if (!p.alive) return;
-  const blink = p.invT > 0 && Math.floor(t * 20) % 2 === 0;
-  const alpha = blink ? 0.45 : 1;
+  drawPlayerUnder(g, p, color, t);
+  drawKaiju(g, { x: p.x, y: p.y, r: p.r, aim: p.aim, kaiju: p.kaijuT > 0, species, color }, t, playerAlpha(p, t));
+  drawPlayerOver(g, p, color, t);
+}
+
+/** Ground layer: shadow, colour ring, kaiju aura, charge aim dots, dash ghosts. */
+export function drawPlayerUnder(g: G, p: Player, color: number, t: number, shadow = false): void {
+  const alpha = playerAlpha(p, t);
+  if (shadow) {
+    g.fillStyle(0x000000, 0.3 * alpha);
+    g.fillEllipse(p.x + 2, p.y + p.r * 0.55, p.r * 2.2, p.r * 0.9);
+  }
   // colour ring
   g.lineStyle(3, color, 0.9 * alpha);
   g.strokeCircle(p.x, p.y, p.r + 6);
@@ -359,7 +399,10 @@ export function drawPlayer(g: G, p: Player, species: number, color: number, t: n
     g.fillCircle(p.x - p.vx * 0.03, p.y - p.vy * 0.03, p.r * 0.9);
     g.fillCircle(p.x - p.vx * 0.06, p.y - p.vy * 0.06, p.r * 0.7);
   }
-  drawKaiju(g, { x: p.x, y: p.y, r: p.r, aim: p.aim, kaiju: p.kaijuT > 0, species, color }, t, alpha);
+}
+
+/** Top layer: swipe arc and the belly-meter pip. */
+export function drawPlayerOver(g: G, p: Player, color: number, t: number): void {
   if (p.swipeT > P.swipeTime) {
     // wind-up telegraph: outline of the incoming arc
     g.lineStyle(2, color, 0.8);

@@ -1,0 +1,11 @@
+[
+  {
+    "name": "bg-table",
+    "newChat": true,
+    "prompt": "Generate an image. A seamless game background texture for a top-down party game: the surface of a warm honey-brown WOODEN DINING TABLE seen from DIRECTLY ABOVE, filling the ENTIRE frame edge to edge, wide wood planks running horizontally with soft grain, a cream linen table runner running horizontally across the middle third. Style: clean painted cartoon game art with gentle cel shading (not a photo), even flat lighting, low contrast so game pieces on top stay readable. Completely EMPTY: no plates, no cutlery, no food, no objects, no text, no border, no vignette. Wide 16:9 landscape image."
+  },
+  {
+    "name": "bg-floor",
+    "prompt": "Generate the next background in the same clean painted cartoon style, seen from DIRECTLY ABOVE, filling the ENTIRE frame: a cosy KITCHEN FLOOR of large dark warm-brown and charcoal checkerboard tiles, slightly worn, dim and low contrast so it stays in the background. No objects, no text, no border. Wide 16:9 landscape image."
+  }
+]

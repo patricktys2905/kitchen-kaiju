@@ -1,0 +1,35 @@
+[
+  {
+    "name": "kaiju-0",
+    "newChat": true,
+    "prompt": "Generate an image. I'm making 4 matching character sprites for a party brawler game called Kitchen Kaiju, where tiny monsters fight on a giant dinner table by throwing cutlery. One image at a time, all in exactly the same art style, size and framing. Style: bold, chunky cartoon game art like a modern indie party game, thick dark-brown outlines, flat bright colours with soft cel shading and one crisp white highlight, playful and cheeky but NOT babyish, very readable at small size. Framing: one full-body character, three-quarter view turned to face the RIGHT, standing, centred, filling about 80% of the frame. Solid flat magenta (#FF00FF) background, no ground shadow, no text, no border, no props, nothing else. Square 1:1 image. Character 1: GOBZILLA JR., a stubby little pink-red (#ff5a7a) lizard kaiju with a round chunky body, three darker red dorsal spikes down its back, a short thick tail, big round eyes, and a smug grin showing one tiny fang."
+  },
+  {
+    "name": "kaiju-1",
+    "prompt": "Generate the next character in exactly the same style, size, framing (three-quarter view facing RIGHT) and solid flat magenta (#FF00FF) background: SQUIDGEON, a round sky-blue (#4fd1ff) octopus kaiju standing on stubby curled tentacles, wearing a small white porcelain teacup upside-down as a helmet, big curious eyes, a mischievous smirk. No text, no props. Square 1:1."
+  },
+  {
+    "name": "kaiju-2",
+    "prompt": "Generate the next character in exactly the same style, size, framing (three-quarter view facing RIGHT) and solid flat magenta (#FF00FF) background: CRABBAGE, a sunny yellow (#ffd24a) crab kaiju with two oversized claws raised proudly, a crinkly green cabbage-leaf shell on its back, eyes on short stalks, a determined grin. No text, no props. Square 1:1."
+  },
+  {
+    "name": "kaiju-3",
+    "prompt": "Generate the next character in exactly the same style, size, framing (three-quarter view facing RIGHT) and solid flat magenta (#FF00FF) background: BLOBLIN, a bright lime-green (#8dff6a) jelly slime kaiju with a wobbly glossy body, a couple of tiny peas floating inside it, a little drip on top of its head, stubby arms, and a wide gleeful grin. No text, no props. Square 1:1."
+  },
+  {
+    "name": "kaiju-0-rage",
+    "prompt": "Now GOBZILLA JR. in KAIJU MODE: exactly the same character design, colours, style, framing (three-quarter view facing RIGHT) and solid flat magenta (#FF00FF) background, but roaring furiously with its mouth wide open, little arms raised, angry eyebrows, spikes glowing, small puffs of steam. No text. Square 1:1."
+  },
+  {
+    "name": "kaiju-1-rage",
+    "prompt": "Now SQUIDGEON in KAIJU MODE: exactly the same character design (sky-blue octopus with the white teacup helmet), style, framing (facing RIGHT) and solid flat magenta (#FF00FF) background, but roaring furiously with mouth wide open, tentacles flailing upward, angry eyebrows, small puffs of steam. No text. Square 1:1."
+  },
+  {
+    "name": "kaiju-2-rage",
+    "prompt": "Now CRABBAGE in KAIJU MODE: exactly the same character design (yellow crab with the cabbage-leaf shell), style, framing (facing RIGHT) and solid flat magenta (#FF00FF) background, but roaring furiously with mouth wide open, both giant claws snapping high, angry eyebrows, small puffs of steam. No text. Square 1:1."
+  },
+  {
+    "name": "kaiju-3-rage",
+    "prompt": "Now BLOBLIN in KAIJU MODE: exactly the same character design (lime-green jelly slime), style, framing (facing RIGHT) and solid flat magenta (#FF00FF) background, but roaring furiously with a huge open mouth, body bulging and wobbling, angry eyebrows, small puffs of steam. No text. Square 1:1."
+  }
+]

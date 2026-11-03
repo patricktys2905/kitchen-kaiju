@@ -52,6 +52,21 @@ Menu: THROW joins, DASH leaves, B/N add/remove bot, D bot difficulty, 1 or START
 - `src/scenes/` — Phaser menu + game scenes (HUD, effects, sound hooks).
 - `src/input.ts`, `src/audio.ts` — keyboard/gamepad and synth SFX.
 
+## Art (Gemini)
+
+All sprites and backgrounds were generated with Gemini and live in `public/art/` (WebP + `manifest.json`).
+The game draws anything missing with the built-in shapes, so art can be added or replaced piece by piece.
+
+1. Prompts are in `art-src/jobs-*.json` (one Gemini chat per file keeps a set consistent). Sprites use a flat
+   magenta background; characters face right; props are top-down.
+2. Start Chrome with `--remote-debugging-port=9333 --user-data-dir=C:\Users\Pat\ff-qa\gemini-profile` (signed in to Gemini),
+   then `npm run art:gen -- art-src/jobs-props.json [start] [count]` → raw images in `art-src/raw/`.
+3. `npm run art` removes backgrounds, trims, resizes and writes `public/art/` + the manifest.
+   `node scripts/art-preview.mjs [regex]` makes `art-src/preview.png` to check cut-outs.
+
+Names the game looks for: `kaiju-0..3`, `kaiju-0..3-rage`, `cut-<fork|spoon|knife|chopstick|ladle|spork>`,
+`ob-<cup|shaker|bowl|candle|napkin|bread|gravy>`, `hand`, `crumb-0..2` (from `crumbs`), `bg-table`, `bg-floor`, `bg-menu`.
+
 ## Checks
 
 ```

@@ -1,6 +1,7 @@
 import * as Phaser from 'phaser';
 import { sfx } from '../audio';
 import { clearTaps, consumeTap, KEYMAPS, listDevices, readSlot, sameDevice, slotLabel, type Slot } from '../input';
+import { CUTLERY_LEN, fitInside, hasArt } from '../render/art';
 import { drawCutleryShape, drawFloor, drawKaiju } from '../render/draw';
 import { DIFFICULTIES, type Difficulty } from '../sim/bot';
 import { COLORS, COLOR_CSS, SPECIES } from '../sim/constants';
@@ -24,6 +25,8 @@ export class MenuScene extends Phaser.Scene {
   private diffText!: Phaser.GameObjects.Text;
   private devPrev = new Map<string, { throw: boolean; dash: boolean; start: boolean }>();
   private t = 0;
+  private cardImgs: (Phaser.GameObjects.Image | null)[] = [];
+  private decoImgs: Phaser.GameObjects.Image[] = [];
 
   constructor() {
     super('menu');
@@ -37,7 +40,12 @@ export class MenuScene extends Phaser.Scene {
 
   create(): void {
     clearTaps();
+    if (hasArt('bg-menu')) this.add.image(640, 360, 'bg-menu').setDisplaySize(1280, 720).setDepth(-2);
     this.g = this.add.graphics();
+    this.cardImgs = [0, 1, 2, 3].map(i => (hasArt(`kaiju-${i}`) ? this.add.image(205 + i * 290, 250, `kaiju-${i}`).setDepth(1) : null));
+    this.decoImgs = (['fork', 'spoon', 'knife', 'chopstick', 'ladle', 'spork'] as const)
+      .filter(k => hasArt(`cut-${k}`))
+      .map(k => this.add.image(0, 0, `cut-${k}`).setDepth(1).setScale((CUTLERY_LEN[k] * 1.5) / this.textures.get(`cut-${k}`).getSourceImage().width));
     this.add.text(640, 62, 'KITCHEN KAIJU', { ...TITLE, fontSize: '78px' }).setOrigin(0.5);
     this.add.text(640, 120, 'Tiny monsters. Giant dinner. Sharp cutlery.', { ...BODY, fontSize: '22px', color: '#ffcf8a' }).setOrigin(0.5);
 
@@ -137,25 +145,45 @@ export class MenuScene extends Phaser.Scene {
   private draw(): void {
     const g = this.g, t = this.t;
     g.clear();
-    drawFloor(g);
+    if (hasArt('bg-menu')) {
+      // keep the key art visible up top, calmer behind the seat cards and text
+      g.fillStyle(0x0d0805, 0.2); g.fillRect(0, 0, 1280, 150);
+      g.fillStyle(0x0d0805, 0.62); g.fillRect(0, 150, 1280, 570);
+    } else {
+      drawFloor(g);
+    }
     // flying cutlery decoration
     const kinds = ['fork', 'spoon', 'knife', 'chopstick', 'ladle', 'spork'] as const;
-    kinds.forEach((k, i) => {
-      const a = t * 0.6 + (i / kinds.length) * Math.PI * 2;
-      drawCutleryShape(g, k, 640 + Math.cos(a) * 520, 92 + Math.sin(a) * 40, a * 3, 1.4);
-    });
+    if (this.decoImgs.length) {
+      this.decoImgs.forEach((img, i) => {
+        const a = t * 0.6 + (i / this.decoImgs.length) * Math.PI * 2;
+        img.setPosition(640 + Math.cos(a) * 520, 92 + Math.sin(a) * 40).setRotation(a * 3);
+      });
+    } else {
+      kinds.forEach((k, i) => {
+        const a = t * 0.6 + (i / kinds.length) * Math.PI * 2;
+        drawCutleryShape(g, k, 640 + Math.cos(a) * 520, 92 + Math.sin(a) * 40, a * 3, 1.4);
+      });
+    }
     for (let i = 0; i < 4; i++) {
       const x = 205 + i * 290, s = this.slots[i];
-      g.fillStyle(0x000000, 0.35);
+      g.fillStyle(0x000000, 0.5);
       g.fillRoundedRect(x - 128, 168, 256, 216, 18);
       g.lineStyle(3, s ? COLORS[i] : 0x4a3a2e, 1);
       g.strokeRoundedRect(x - 128, 168, 256, 216, 18);
       if (s) {
         const aim = Math.sin(t * 1.5 + i) * 0.8 + Math.PI / 2;
-        drawKaiju(g, { x, y: 250 + Math.sin(t * 4 + i) * 4, r: 44, aim, kaiju: false, species: i, color: COLORS[i] }, t);
+        const img = this.cardImgs[i];
+        if (img) {
+          g.fillStyle(0x000000, 0.35); g.fillEllipse(x, 296, 110, 18);
+          fitInside(img.setVisible(true), 130, 120).setOrigin(0.5, 1).setPosition(x, 300 - Math.abs(Math.sin(t * 3 + i)) * 6);
+        } else {
+          drawKaiju(g, { x, y: 250 + Math.sin(t * 4 + i) * 4, r: 44, aim, kaiju: false, species: i, color: COLORS[i] }, t);
+        }
         this.slotTexts[i].setText(SPECIES[i].full.toUpperCase());
         this.slotSub[i].setText(s.kind === 'bot' ? `Bot (${this.difficulty})` : slotLabel(s));
       } else {
+        this.cardImgs[i]?.setVisible(false);
         g.fillStyle(0xffffff, 0.06 + 0.04 * Math.sin(t * 3 + i));
         g.fillCircle(x, 250, 44);
         this.slotTexts[i].setText('');
