@@ -39,6 +39,17 @@ try {
   const slots = await page.evaluate(() => window.__game.scene.getScene('menu').slots.map(s => s.kind));
   check(slots[0] === 'touch', 'touch player auto-seated on first visit');
 
+  // Every menu button must do its job (regression: BOTS was swallowed by the kaiju picker).
+  const menuState = () => page.evaluate(() => { const m = window.__game.scene.getScene('menu'); return { diff: m.difficulty, table: m.table, pick: m.picks[0] }; });
+  let m0 = await menuState();
+  await tapEl(page.getByText(/^BOTS:/));
+  check((await menuState()).diff !== m0.diff, 'BOTS button changes bot difficulty');
+  m0 = await menuState();
+  await tapEl(page.getByText(/^TABLE:/));
+  check((await menuState()).table !== m0.table, 'TABLE button changes the table');
+  m0 = await menuState();
+  await tapEl(page.getByText('KAIJU ▶'));
+  check((await menuState()).pick !== m0.pick, 'KAIJU button changes your kaiju');
   await tapEl(page.getByText('+ BOT')); // add 2 bots
   await tapEl(page.getByText('+ BOT'));
   await tapEl(page.getByText('▶ PLAY'));

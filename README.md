@@ -33,7 +33,7 @@ Tips: Android Chrome goes fullscreen on the first tap. On iPhone, use Share → 
 | Dash | Left Shift | Right Shift / Numpad 2 | B / RB |
 | Stomp (meter full) | E | . / Numpad 3 | Y / LB |
 
-Menu: THROW joins, DASH leaves, B/N add/remove bot, D bot difficulty, 1 or START begins. In game: P pause, Esc menu.
+Menu: THROW joins, DASH leaves, B/N add/remove bot, 2 bot difficulty, 1 or START begins. In game: P pause, Esc menu.
 
 ## Kaiju and tables
 

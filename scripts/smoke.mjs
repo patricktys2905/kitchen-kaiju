@@ -48,6 +48,17 @@ try {
   await wait(100);
   await page.keyboard.press('KeyB');
   await wait(300);
+  const menu = () => page.evaluate(() => { const m = window.__game.scene.getScene('menu'); return { diff: m.difficulty, pick: m.picks[0] }; });
+  const d0 = await menu();
+  await page.keyboard.press('Digit2');
+  await wait(100);
+  const d1 = await menu();
+  console.log('difficulty key check:', d0.diff, '->', d1.diff);
+  if (d1.diff === d0.diff) throw new Error('2 did not change bot difficulty');
+  await page.keyboard.press('KeyD');
+  await wait(100);
+  if ((await menu()).pick === d1.pick) throw new Error('D did not change the kaiju');
+  if ((await menu()).diff !== d1.diff) throw new Error('D changed difficulty instead of the kaiju');
   await page.screenshot({ path: 'smoke-1-menu.png' });
   await page.keyboard.press('Digit1');
   await wait(2200); // countdown

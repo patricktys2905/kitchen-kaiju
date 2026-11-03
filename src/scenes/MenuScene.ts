@@ -140,7 +140,7 @@ export class MenuScene extends Phaser.Scene {
     if (!isTouchDevice) {
       this.add.text(640, 640, 'THROW on any controller to join · LEFT/RIGHT to pick your kaiju · DASH to leave',
         { ...BODY, fontSize: '16px', color: '#ffffff' }).setOrigin(0.5).setDepth(2);
-      this.add.text(640, 668, 'B add bot · N remove bot · D bot difficulty · M (or gamepad Y) change table · 1 or START to play',
+      this.add.text(640, 668, 'B add bot · N remove bot · 2 bot difficulty · M (or gamepad Y) change table · 1 or START to play',
         { ...BODY, fontSize: '16px', color: '#ffffff' }).setOrigin(0.5).setDepth(2);
     }
     setTouchMode('menu');
@@ -181,7 +181,8 @@ export class MenuScene extends Phaser.Scene {
     if (consumeTap('KeyN')) {
       for (let i = this.slots.length - 1; i >= 0; i--) if (this.slots[i].kind === 'bot') { this.removeSlot(i); break; }
     }
-    if (consumeTap('KeyD')) { this.difficulty = DIFFICULTIES[(DIFFICULTIES.indexOf(this.difficulty) + 1) % DIFFICULTIES.length]; sfx.pickup(); }
+    // Bot difficulty: '2' on a keyboard (D is the left player's "next kaiju"), or the BOTS button on touch.
+    if (consumeTap('Digit2') || consumeTap('TouchDiff')) { this.difficulty = DIFFICULTIES[(DIFFICULTIES.indexOf(this.difficulty) + 1) % DIFFICULTIES.length]; sfx.pickup(); }
     if (consumeTap('KeyM')) this.cycleTable();
     if (consumeTap('TouchJoin')) {
       const j = this.slots.findIndex(s => s.kind === 'touch');

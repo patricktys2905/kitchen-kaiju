@@ -220,7 +220,7 @@ export function initTouch(injectTap: (code: string) => void): void {
   tapButton(el('div', row, { class: 'pill' }, '+ BOT'), 'KeyB');
   tapButton(el('div', row, { class: 'pill' }, '− BOT'), 'KeyN');
   diffPill = el('div', row, { class: 'pill' }, 'BOTS: NORMAL');
-  tapButton(diffPill, 'KeyD');
+  tapButton(diffPill, 'TouchDiff'); // own code: 'KeyD' is also "next kaiju" for Keyboard Left
   tablePill = el('div', row, { class: 'pill' }, 'TABLE: ALL');
   tapButton(tablePill, 'KeyM');
   tapButton(el('div', row, { class: 'pill go' }, '▶ PLAY'), 'Digit1');
