@@ -8,10 +8,25 @@ import { NO_INPUT, type Player, type PlayerInput, type World } from './world';
 export type Difficulty = 'easy' | 'normal' | 'hard';
 export const DIFFICULTIES: Difficulty[] = ['easy', 'normal', 'hard'];
 
-const TUNING: Record<Difficulty, { aimErr: number; throwRate: number; dodge: number; react: number; swipe: number; greed: number }> = {
-  easy:   { aimErr: 0.3,  throwRate: 1.4, dodge: 0.2,  react: 120, swipe: 1.2,  greed: 0.6 },
-  normal: { aimErr: 0.14, throwRate: 2.4, dodge: 0.45, react: 160, swipe: 2.5,  greed: 0.9 },
-  hard:   { aimErr: 0.06, throwRate: 3.2, dodge: 0.75, react: 200, swipe: 5,    greed: 1.1 },
+interface Tuning {
+  aimErr: number; // radians, rolled once per throw
+  lead: number; // 0 = aims where you are, 1 = predicts where you'll be
+  lag: number; // seconds: sees targets where they were this long ago
+  turn: number; // rad/s the aim can swing while lining up
+  throwRate: number; // throw attempts per second when a shot is open
+  hold: [number, number]; // charge time range (longer = more visible telegraph)
+  range: number; // only throws inside this distance
+  dodge: number; // chance to dash away from close cutlery
+  react: number; // distance it notices incoming cutlery
+  swipe: number; // swipes per second while in reach
+  shove: number; // chance per second to dash-shove a rival near the edge
+  greed: number; // pull towards crumbs
+}
+
+const TUNING: Record<Difficulty, Tuning> = {
+  easy:   { aimErr: 0.6,  lead: 0,   lag: 0.45, turn: 1.8, throwRate: 0.45, hold: [0.4, 0.75], range: 340, dodge: 0.15, react: 110, swipe: 0.5, shove: 0.4, greed: 0.6 },
+  normal: { aimErr: 0.18, lead: 0.6, lag: 0.15, turn: 5,   throwRate: 1.5,  hold: [0.15, 0.5], range: 440, dodge: 0.4,  react: 150, swipe: 1.8, shove: 1.5, greed: 0.9 },
+  hard:   { aimErr: 0.06, lead: 1,   lag: 0,    turn: 14,  throwRate: 3.2,  hold: [0.06, 0.4], range: 520, dodge: 0.75, react: 200, swipe: 5,   shove: 6,   greed: 1.1 },
 };
 
 export class BotBrain {
@@ -19,6 +34,10 @@ export class BotBrain {
   private hold = 0;
   private strafe = 1;
   private think = 0;
+  private aimA = 0;
+  private aimOffset = 0;
+  private time = 0;
+  private history: { t: number; pos: { x: number; y: number; vx: number; vy: number }[] }[] = [];
 
   constructor(readonly id: number, public difficulty: Difficulty, seed: number) {
     this.rng = new Rng(seed);
@@ -27,10 +46,16 @@ export class BotBrain {
   decide(w: World, dt: number): PlayerInput {
     const p = w.players[this.id];
     const out: PlayerInput = { ...NO_INPUT };
-    if (!p || !p.alive || w.phase !== 'play') { this.hold = 0; return out; }
+    if (!p || !p.alive || w.phase !== 'play') { this.hold = 0; this.history = []; this.aimA = p?.aim ?? 0; return out; }
     const T = TUNING[this.difficulty];
     const foes = w.players.filter(o => o !== p && o.alive);
     if (!foes.length) return out;
+
+    // Perception lag: remember recent positions and act on a slightly stale view.
+    this.time += dt;
+    this.history.push({ t: this.time, pos: w.players.map(q => ({ x: q.x, y: q.y, vx: q.vx, vy: q.vy })) });
+    while (this.history.length > 2 && this.history[1].t <= this.time - T.lag) this.history.shift();
+    const seen = this.history[0].pos;
 
     let tgt = foes[0], td = Infinity;
     for (const f of foes) {
@@ -70,7 +95,7 @@ export class BotBrain {
         const edgeGap = Math.min(tgt.x - TABLE.x, TABLE.x + TABLE.w - tgt.x, tgt.y - TABLE.y, TABLE.y + TABLE.h - tgt.y);
         if (edgeGap < 90 && d < 170 && tgt.kaijuT <= 0) {
           add(ux, uy, 3);
-          if (p.dashCD <= 0 && d < 110) out.dash = !p.prev.dash;
+          if (p.dashCD <= 0 && d < 110 && this.rng.next() < dt * T.shove) out.dash = !p.prev.dash;
         }
       } else {
         const want = 230;
@@ -135,21 +160,25 @@ export class BotBrain {
     out.mx = mx;
     out.my = my;
 
-    // Aim with lead + error.
+    // Aim: at the (possibly stale) target, with partial lead, a per-throw error, and a limited turn speed.
     const held = w.cutleryById(p.holding);
     const spd = held ? CUTLERY[held.kind].speed : 760;
-    const lead = d / spd;
-    const ax = tgt.x + tgt.vx * lead - p.x, ay = tgt.y + tgt.vy * lead - p.y;
-    const a = Math.atan2(ay, ax) + (this.rng.next() - 0.5) * 2 * T.aimErr;
-    out.aimX = Math.cos(a);
-    out.aimY = Math.sin(a);
+    const s = seen[tgt.id] ?? tgt;
+    const lead = (d / spd) * T.lead;
+    const want = Math.atan2(s.y + s.vy * lead - p.y, s.x + s.vx * lead - p.x) + this.aimOffset;
+    let diff = want - this.aimA;
+    diff = Math.atan2(Math.sin(diff), Math.cos(diff));
+    this.aimA += Math.max(-T.turn * dt, Math.min(T.turn * dt, diff));
+    out.aimX = Math.cos(this.aimA);
+    out.aimY = Math.sin(this.aimA);
 
-    // Throw: hold for a random charge, then release.
+    // Throw: hold for a random charge (the visible telegraph), then release.
     if (this.hold > 0) {
       this.hold -= dt;
       out.throw = this.hold > 0;
-    } else if (p.holding !== null && p.kaijuT <= 0 && d < 440 && tgt.kaijuT <= 0 && clearShot(w, p, tgt) && this.rng.next() < dt * T.throwRate) {
-      this.hold = this.rng.range(0.06, 0.5);
+    } else if (p.holding !== null && p.kaijuT <= 0 && d < T.range && tgt.kaijuT <= 0 && clearShot(w, p, tgt) && this.rng.next() < dt * T.throwRate) {
+      this.hold = this.rng.range(T.hold[0], T.hold[1]);
+      this.aimOffset = (this.rng.next() - 0.5) * 2 * T.aimErr;
       out.throw = true;
     }
     return out;

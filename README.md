@@ -60,4 +60,5 @@ npm run build     # typecheck + production build
 npm run smoke     # headless browser playthrough + screenshots (needs Edge/Chrome)
 npm run smoke:phone  # emulated phone with multi-touch: menu, joystick, aim-drag throw, dash, rotate prompt
 npm run balance   # simulate 12 bot matches: pacing + KO-cause mix  (args: easy|normal|hard, players)
+npx vite-node scripts/accuracy.ts   # how hard each bot level is to survive against
 ```
