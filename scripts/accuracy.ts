@@ -1,15 +1,15 @@
 // Per-difficulty bot report from mixed matches: throw hit rate, KOs dealt, round wins.
 // Seat 0 is a "human stand-in" (normal bot) so we see how hard each bot level is to survive against.
-import { BotBrain, type Difficulty } from '../src/sim/bot';
+import { BotBrain, type BotLevel } from '../src/sim/bot';
 import { World } from '../src/sim/world';
 const DT = 1 / 120;
-const lineup: Difficulty[] = ['normal', 'easy', 'easy', 'easy'];
-const levels = (process.argv[2] ?? 'easy,normal,hard').split(',') as Difficulty[];
+const lineup: BotLevel[] = ['reference', 'easy', 'easy', 'easy']; // seat 0 = fixed yardstick
+const levels = (process.argv[2] ?? 'easy,normal,hard').split(',') as BotLevel[];
 for (const lvl of levels) {
   lineup[1] = lineup[2] = lineup[3] = lvl;
   let throws = 0, hits = 0, deaths0 = 0, rounds = 0, wins0 = 0, cutleryDeaths0 = 0;
   const causes0: Record<string, number> = {};
-  for (let seed = 1; seed <= 10; seed++) {
+  for (let seed = 1; seed <= Number(process.env.SEEDS ?? 10); seed++) {
     const w = new World({ players: lineup.map((_, i) => ({ name: 'P' + i })), seed });
     const bots = lineup.map((d, i) => new BotBrain(i, d, seed * 17 + i));
     let t = 0;

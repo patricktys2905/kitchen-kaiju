@@ -21,12 +21,17 @@ interface Tuning {
   swipe: number; // swipes per second while in reach
   shove: number; // chance per second to dash-shove a rival near the edge
   greed: number; // pull towards crumbs
+  pace: number; // movement speed multiplier (1 = full speed)
 }
 
-const TUNING: Record<Difficulty, Tuning> = {
-  easy:   { aimErr: 0.6,  lead: 0,   lag: 0.45, turn: 1.8, throwRate: 0.45, hold: [0.4, 0.75], range: 340, dodge: 0.15, react: 110, swipe: 0.5, shove: 0.4, greed: 0.6 },
-  normal: { aimErr: 0.18, lead: 0.6, lag: 0.15, turn: 5,   throwRate: 1.5,  hold: [0.15, 0.5], range: 440, dodge: 0.4,  react: 150, swipe: 1.8, shove: 1.5, greed: 0.9 },
-  hard:   { aimErr: 0.06, lead: 1,   lag: 0,    turn: 14,  throwRate: 3.2,  hold: [0.06, 0.4], range: 520, dodge: 0.75, react: 200, swipe: 5,   shove: 6,   greed: 1.1 },
+/** Fixed yardstick for scripts/accuracy.ts (never shown in the menu). Don't retune it. */
+export type BotLevel = Difficulty | 'reference';
+
+const TUNING: Record<BotLevel, Tuning> = {
+  reference: { aimErr: 0.18, lead: 0.6, lag: 0.15, turn: 5, throwRate: 1.5, hold: [0.15, 0.5], range: 440, dodge: 0.4, react: 150, swipe: 1.8, shove: 1.5, greed: 0.9, pace: 1 },
+  easy:   { aimErr: 0.85, lead: 0,   lag: 0.6,  turn: 1.3, throwRate: 0.28, hold: [0.5, 0.9],  range: 300, dodge: 0.05, react: 90,  swipe: 0.25, shove: 0.12, greed: 0.45, pace: 0.78 },
+  normal: { aimErr: 0.52, lead: 0.15, lag: 0.41, turn: 2.15, throwRate: 0.58, hold: [0.35, 0.7], range: 355, dodge: 0.16, react: 118, swipe: 0.62, shove: 0.45, greed: 0.62, pace: 0.87 },
+  hard:   { aimErr: 0.23, lead: 0.52, lag: 0.19, turn: 4.7, throwRate: 1.35, hold: [0.19, 0.52], range: 435, dodge: 0.42, react: 150, swipe: 1.6,  shove: 1.4,  greed: 0.85, pace: 0.97 },
 };
 
 export class BotBrain {
@@ -39,7 +44,7 @@ export class BotBrain {
   private time = 0;
   private history: { t: number; pos: { x: number; y: number; vx: number; vy: number }[] }[] = [];
 
-  constructor(readonly id: number, public difficulty: Difficulty, seed: number) {
+  constructor(readonly id: number, public difficulty: BotLevel, seed: number) {
     this.rng = new Rng(seed);
   }
 
@@ -174,8 +179,11 @@ export class BotBrain {
       }
     }
 
-    out.mx = mx;
-    out.my = my;
+    // Slower bots on lower levels: scale the (possibly >1) steering vector down to the level's pace.
+    const ml = Math.hypot(mx, my);
+    const k = ml > 1 ? T.pace / ml : T.pace;
+    out.mx = mx * k;
+    out.my = my * k;
 
     // Aim: at the (possibly stale) target, with partial lead, a per-throw error, and a limited turn speed.
     const held = w.cutleryById(p.holding);
