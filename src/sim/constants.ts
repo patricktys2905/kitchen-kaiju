@@ -62,12 +62,12 @@ export const RULES = {
 
 /** The kaiju roster. Each player picks a different one; its colour is that player's colour. */
 export const SPECIES = [
-  { name: 'GOBZILLA', full: 'Gobzilla Jr.', color: 0xff5a7a, css: '#ff5a7a' },
-  { name: 'SQUIDGEON', full: 'Squidgeon', color: 0x4fd1ff, css: '#4fd1ff' },
-  { name: 'CRABBAGE', full: 'Crabbage', color: 0xffd24a, css: '#ffd24a' },
-  { name: 'BLOBLIN', full: 'Bloblin', color: 0x8dff6a, css: '#8dff6a' },
-  { name: 'MOTHBALL', full: 'Mothball', color: 0xb98cff, css: '#b98cff' },
-  { name: 'TOASTBAT', full: 'Toastbat', color: 0xff9a3c, css: '#ff9a3c' },
-  { name: 'DUMPLORD', full: 'Dumplord', color: 0xf3e3c3, css: '#f3e3c3' },
-  { name: 'NORIGON', full: 'Norigon', color: 0x21c7a8, css: '#21c7a8' },
+  { name: 'GOBZILLA', full: 'Gobzilla Jr.', food: 'strawberry lizard', color: 0xff5a7a, css: '#ff5a7a' },
+  { name: 'SQUIDGEON', full: 'Squidgeon', food: 'jelly octopus', color: 0x4fd1ff, css: '#4fd1ff' },
+  { name: 'CRABBAGE', full: 'Crabbage', food: 'cheese crab', color: 0xffd24a, css: '#ffd24a' },
+  { name: 'BLOBLIN', full: 'Bloblin', food: 'lime jelly', color: 0x8dff6a, css: '#8dff6a' },
+  { name: 'MOTHBALL', full: 'Mothball', food: 'marshmallow moth', color: 0xb98cff, css: '#b98cff' },
+  { name: 'TOASTBAT', full: 'Toastbat', food: 'toast bat', color: 0xff9a3c, css: '#ff9a3c' },
+  { name: 'DUMPLORD', full: 'Dumplord', food: 'dumpling lord', color: 0xf3e3c3, css: '#f3e3c3' },
+  { name: 'NORIGON', full: 'Norigon', food: 'sushi dragon', color: 0x21c7a8, css: '#21c7a8' },
 ];

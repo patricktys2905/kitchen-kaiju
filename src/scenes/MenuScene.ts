@@ -28,6 +28,7 @@ export class MenuScene extends Phaser.Scene {
   private g!: Phaser.GameObjects.Graphics;
   private slotTexts: Phaser.GameObjects.Text[] = [];
   private slotSub: Phaser.GameObjects.Text[] = [];
+  private slotFood: Phaser.GameObjects.Text[] = [];
   private infoText!: Phaser.GameObjects.Text;
   private tableText!: Phaser.GameObjects.Text;
   private tableThumb: Phaser.GameObjects.Image | null = null;
@@ -110,9 +111,11 @@ export class MenuScene extends Phaser.Scene {
 
     this.slotTexts = [];
     this.slotSub = [];
+    this.slotFood = [];
     for (let i = 0; i < 4; i++) {
-      this.slotTexts.push(this.add.text(CARD_X(i), 330, '', { ...TITLE, fontSize: '24px', strokeThickness: 6 }).setOrigin(0.5).setDepth(2));
-      this.slotSub.push(this.add.text(CARD_X(i), 362, '', { ...BODY, fontSize: '15px', align: 'center' }).setOrigin(0.5).setDepth(2));
+      this.slotTexts.push(this.add.text(CARD_X(i), 324, '', { ...TITLE, fontSize: '24px', strokeThickness: 6 }).setOrigin(0.5).setDepth(2));
+      this.slotFood.push(this.add.text(CARD_X(i), 348, '', { ...BODY, fontSize: '13px', fontStyle: 'italic', color: '#ffcf8a' }).setOrigin(0.5).setDepth(2));
+      this.slotSub.push(this.add.text(CARD_X(i), 368, '', { ...BODY, fontSize: '14px', align: 'center' }).setOrigin(0.5).setDepth(2));
     }
     this.infoText = this.add.text(640, 404, '', { ...BODY, fontSize: '17px', color: '#ffcf8a' }).setOrigin(0.5).setDepth(2);
     this.tableText = this.add.text(640, 434, '', { ...BODY, fontSize: '16px', color: '#ffffff', align: 'center' }).setOrigin(0.5).setDepth(2);
@@ -271,6 +274,7 @@ export class MenuScene extends Phaser.Scene {
           drawKaiju(g, { x, y: 250 + Math.sin(t * 4 + i) * 4, r: 44 * pop, aim: Math.sin(t * 1.5 + i) * 0.8 + Math.PI / 2, kaiju: false, species: sp, color: col }, t);
         }
         this.slotTexts[i].setText(SPECIES[sp].full.toUpperCase()).setColor(SPECIES[sp].css);
+        this.slotFood[i].setText(SPECIES[sp].food);
         const how = s.kind === 'kb' ? `${slotLabel(s)} · ${s.index === 0 ? 'A / D' : '← / →'} to change`
           : s.kind === 'pad' ? `${slotLabel(s)} · ◀ ▶ to change`
           : s.kind === 'touch' ? 'Touch · KAIJU ▶ to change' : `Bot (${this.difficulty})`;
@@ -280,6 +284,7 @@ export class MenuScene extends Phaser.Scene {
         g.fillStyle(0xffffff, 0.06 + 0.04 * Math.sin(t * 3 + i));
         g.fillCircle(x, 250, 44);
         this.slotTexts[i].setText('');
+        this.slotFood[i].setText('');
         this.slotSub[i].setText(isTouchDevice ? 'empty seat (+ BOT fills it)' : 'press THROW to join');
       }
     }

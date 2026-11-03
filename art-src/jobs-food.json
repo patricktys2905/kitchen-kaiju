@@ -1,0 +1,60 @@
+[
+  {
+    "name": "kaiju-0",
+    "newChat": true,
+    "refs": ["art-src/ref-style.png"],
+    "prompt": "Generate an image. The attached picture shows character sprites from my party game Kitchen Kaiju. Keep this EXACT art style: bold chunky cartoon, thick dark-brown outlines, flat bright colours with soft cel shading and one crisp white highlight, cheeky (not babyish) expressions, same size and proportions. I'm redesigning the cast so every kaiju is MADE OF FOOD — clearly an edible thing that came alive, not an animal holding food. Framing: one full-body character, three-quarter view facing RIGHT, standing, centred, filling about 80% of the frame, solid flat magenta (#FF00FF) background, no ground shadow, no text, no props. Square 1:1. Character: GOBZILLA JR., a stubby little lizard kaiju whose whole body is a glossy ripe pink-red (#ff5a7a) STRAWBERRY covered in tiny golden seeds, with spiky green strawberry leaves running down its back as dorsal spikes, a short strawberry tail, big round eyes and a smug grin with one tiny fang."
+  },
+  {
+    "name": "kaiju-1",
+    "prompt": "Next character in exactly the same style, framing (three-quarter view facing RIGHT) and solid flat magenta (#FF00FF) background, made of food: SQUIDGEON, a wobbly translucent sky-blue (#4fd1ff) BLUE-RASPBERRY JELLY dessert shaped like an octopus, with jiggly jelly tentacles, a couple of raspberries suspended inside, still wearing a small white porcelain teacup upside-down as a helmet, mischievous smirk. No text, no props. Square 1:1."
+  },
+  {
+    "name": "kaiju-2",
+    "prompt": "Next character, same style, framing (facing RIGHT) and magenta background, made of food: CRABBAGE, a crab kaiju whose body is a sunny yellow (#ffd24a) WEDGE OF CHEESE with round holes, two big claws also made of cheese, a crinkly green cabbage-leaf shell on its back, eyes on short breadstick stalks, a determined grin. No text, no props. Square 1:1."
+  },
+  {
+    "name": "kaiju-3",
+    "prompt": "Next character, same style, framing (facing RIGHT) and magenta background, made of food: BLOBLIN, a wobbly bright lime-green (#8dff6a) LIME JELLY dessert blob with a swirl of whipped cream on top and a red cherry, a slice of lime stuck in its side, stubby jelly arms, a wide gleeful grin. No text, no props. Square 1:1."
+  },
+  {
+    "name": "kaiju-4",
+    "prompt": "Next character, same style, framing (facing RIGHT) and magenta background, made of food: MOTHBALL, a round fluffy lavender (#b98cff) UBE MARSHMALLOW moth kaiju dusted with powdered sugar, with two crisp striped WAFER biscuits as wings, two licorice-twist antennae, big shiny eyes and a dreamy mischievous smile. No text, no props. Square 1:1."
+  },
+  {
+    "name": "kaiju-5",
+    "prompt": "Next character, same style, framing (facing RIGHT) and magenta background, made of food: TOASTBAT, a stubby bat kaiju whose body is a golden-orange (#ff9a3c) TOASTED BREAD ROLL with a crusty top, two slices of toast as wings, pointy crust ears, a pat of butter melting on its head, tiny fangs, a sleepy-but-sneaky grin. No text, no props. Square 1:1."
+  },
+  {
+    "name": "kaiju-7",
+    "prompt": "Next character, same style, framing (facing RIGHT) and magenta background, made of food: NORIGON, a chunky dragon kaiju built from SUSHI ROLLS: its body and tail are maki-roll segments wrapped in teal-green (#21c7a8) nori with white rice showing, a frill of pink pickled-ginger slices down its back, a salmon-nigiri belly, stubby legs and a confident toothy grin. No text, no props. Square 1:1."
+  },
+  {
+    "name": "kaiju-0-rage",
+    "prompt": "Now GOBZILLA JR. (the strawberry lizard) in KAIJU MODE: exactly the same design and colours, same style, framing (facing RIGHT) and magenta background, but roaring furiously with mouth wide open, little arms raised, angry eyebrows, leafy spikes bristling, strawberry juice droplets flying. No text. Square 1:1."
+  },
+  {
+    "name": "kaiju-1-rage",
+    "prompt": "Now SQUIDGEON (the blue jelly octopus with the teacup) in KAIJU MODE: same design, style, framing (facing RIGHT) and magenta background, but roaring furiously, mouth wide open, jelly tentacles flailing up, wobbling violently, angry eyebrows. No text. Square 1:1."
+  },
+  {
+    "name": "kaiju-2-rage",
+    "prompt": "Now CRABBAGE (the cheese-wedge crab with the cabbage shell) in KAIJU MODE: same design, style, framing (facing RIGHT) and magenta background, but roaring furiously, mouth wide open, both cheese claws snapping high, angry eyebrows, a few cheese crumbs flying. No text. Square 1:1."
+  },
+  {
+    "name": "kaiju-3-rage",
+    "prompt": "Now BLOBLIN (the lime jelly with whipped cream and a cherry) in KAIJU MODE: same design, style, framing (facing RIGHT) and magenta background, but roaring furiously with a huge open mouth, body bulging and jiggling, cherry bouncing, angry eyebrows. No text. Square 1:1."
+  },
+  {
+    "name": "kaiju-4-rage",
+    "prompt": "Now MOTHBALL (the ube marshmallow moth with wafer wings) in KAIJU MODE: same design, style, framing (facing RIGHT) and magenta background, but roaring furiously, mouth wide open, wafer wings spread wide, powdered sugar puffing off, angry eyebrows. No text. Square 1:1."
+  },
+  {
+    "name": "kaiju-5-rage",
+    "prompt": "Now TOASTBAT (the toasted bread-roll bat with toast wings) in KAIJU MODE: same design, style, framing (facing RIGHT) and magenta background, but roaring furiously, mouth wide open, toast wings flared, butter sizzling, crumbs flying, angry eyebrows. No text. Square 1:1."
+  },
+  {
+    "name": "kaiju-7-rage",
+    "prompt": "Now NORIGON (the sushi-roll dragon) in KAIJU MODE: same design, style, framing (facing RIGHT) and magenta background, but roaring furiously, mouth wide open, ginger frill flared, maki tail lashing, a few rice grains flying, angry eyebrows. No text. Square 1:1."
+  }
+]

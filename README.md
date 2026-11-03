@@ -37,7 +37,7 @@ Menu: THROW joins, DASH leaves, B/N add/remove bot, D bot difficulty, 1 or START
 
 ## Kaiju and tables
 
-8 kaiju to pick from (each player picks a different one; LEFT/RIGHT on your controller, or KAIJU ▶ on touch): Gobzilla Jr., Squidgeon, Crabbage, Bloblin, Mothball, Toastbat, Dumplord, Norigon. All play the same for now.
+8 food kaiju to pick from (each player picks a different one; LEFT/RIGHT on your controller, or KAIJU ▶ on touch): Gobzilla Jr. (strawberry lizard), Squidgeon (blue jelly octopus), Crabbage (cheese crab), Bloblin (lime jelly), Mothball (ube marshmallow moth), Toastbat (toast bat), Dumplord (dumpling), Norigon (sushi-roll dragon). All play the same for now.
 
 6 tables (M / gamepad Y / TABLE button; default rotates through all):
 - Sunday Roast, Dinner for Four, Leftovers: the giant hand
