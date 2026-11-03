@@ -1,0 +1,255 @@
+// Online lobby: host a room (4-letter code) or join one. HTML panel on top of the canvas so typing a
+// code works the same on phones and computers.
+import * as Phaser from 'phaser';
+import { sfx } from '../audio';
+import { clearTaps, consumeTap, type Slot } from '../input';
+import { MAX_GUESTS, NetGuest, NetHost, type LobbySeat, type NetMsg } from '../net/net';
+import { hasArt } from '../render/art';
+import { drawFloor } from '../render/draw';
+import { DIFFICULTIES, type Difficulty } from '../sim/bot';
+import { SPECIES } from '../sim/constants';
+import { LAYOUTS } from '../sim/layouts';
+import { setTouchMode } from '../touch';
+
+const CSS = `
+#lobby { position: fixed; inset: 0; z-index: 15; display: flex; align-items: center; justify-content: center; font-family: Nunito, Arial, sans-serif; font-weight: 800; color: #f1e4d2; }
+#lobby .panel { background: #2a1408f2; border: 4px solid #ffcf8a; border-radius: 24px; padding: 22px 30px; width: min(720px, 92vw); max-height: 92vh; overflow: auto; box-shadow: 0 10px 0 #140b05; }
+#lobby h1 { font-family: 'Luckiest Guy', 'Arial Black', sans-serif; font-weight: 400; letter-spacing: 0.04em; color: #ffb347; margin: 0 0 6px; font-size: 40px; text-shadow: 0 4px 0 #140b05; }
+#lobby p { margin: 6px 0; line-height: 1.4; }
+#lobby .muted { color: #cdb9a3; font-weight: 700; font-size: 15px; }
+#lobby .row { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 14px; align-items: center; }
+#lobby button { font-family: 'Luckiest Guy', 'Arial Black', sans-serif; font-weight: 400; letter-spacing: 0.04em; font-size: 20px; padding: 12px 20px; border-radius: 14px;
+  border: 3px solid #ffcf8a; background: #3a1f0e; color: #ffe9c7; cursor: pointer; }
+#lobby button.go { background: #ff9a3c; color: #2a1408; }
+#lobby button:disabled { opacity: 0.4; cursor: default; }
+#lobby input { font-family: 'Luckiest Guy', 'Arial Black', sans-serif; font-size: 34px; letter-spacing: 0.3em; width: 7em; text-transform: uppercase; text-align: center;
+  padding: 8px; border-radius: 12px; border: 3px solid #ffcf8a; background: #fff3dc; color: #2a1408; }
+#lobby input.name { font-size: 20px; letter-spacing: 0.02em; width: 9em; font-family: Nunito, Arial, sans-serif; font-weight: 800; }
+#lobby .code { font-family: 'Luckiest Guy', 'Arial Black', sans-serif; font-size: 64px; letter-spacing: 0.25em; color: #fff3dc; text-shadow: 0 5px 0 #140b05; margin: 4px 0; }
+#lobby .seat { display: flex; align-items: center; gap: 12px; padding: 8px 12px; margin-top: 8px; border-radius: 14px; background: #0006; border: 3px solid transparent; }
+#lobby .seat img { width: 46px; height: 46px; object-fit: contain; }
+#lobby .seat .k { font-family: 'Luckiest Guy', 'Arial Black', sans-serif; font-size: 22px; flex: 1; }
+#lobby .seat .who { color: #cdb9a3; font-size: 15px; }
+#lobby .seat button { font-size: 16px; padding: 6px 12px; }
+#lobby .status { margin-top: 12px; font-size: 16px; }
+#lobby .status.bad { color: #ff8a7a; }
+`;
+
+export class LobbyScene extends Phaser.Scene {
+  private root: HTMLElement | null = null;
+  private host: NetHost | null = null;
+  private guest: NetGuest | null = null;
+  private seats: LobbySeat[] = [];
+  private mySeat = 0;
+  private table = -1;
+  private difficulty: Difficulty = 'normal';
+  private fillBots = true;
+  private status = '';
+  private statusOk = true;
+  private view: 'choose' | 'host' | 'join' = 'choose';
+  private leaving = false;
+
+  constructor() {
+    super('lobby');
+  }
+
+  init(data: { difficulty?: Difficulty }): void {
+    this.difficulty = data.difficulty ?? 'normal';
+    this.view = 'choose';
+    this.host = this.guest = null;
+    this.seats = [];
+    this.status = '';
+    this.leaving = false;
+  }
+
+  create(): void {
+    clearTaps();
+    setTouchMode('off');
+    const g = this.add.graphics();
+    if (hasArt('bg-menu')) this.add.image(640, 360, 'bg-menu').setDisplaySize(1280, 720).setDepth(-2);
+    else drawFloor(g);
+    g.fillStyle(0x0d0805, 0.55).fillRect(0, 0, 1280, 720);
+    if (!document.getElementById('lobby-css')) {
+      const st = document.createElement('style');
+      st.id = 'lobby-css';
+      st.textContent = CSS;
+      document.head.appendChild(st);
+    }
+    this.root = document.createElement('div');
+    this.root.id = 'lobby';
+    document.body.appendChild(this.root);
+    this.events.once('shutdown', () => { this.root?.remove(); this.root = null; });
+    this.render();
+  }
+
+  update(): void {
+    if (consumeTap('Escape')) this.back();
+    clearTaps();
+  }
+
+  // ---------------------------------------------------------------- actions
+  private back(): void {
+    if (this.leaving) return;
+    this.leaving = true;
+    this.host?.close();
+    this.guest?.close();
+    this.scene.start('menu', { difficulty: this.difficulty });
+  }
+
+  private startHosting(): void {
+    const host = new NetHost();
+    this.host = host;
+    this.view = 'host';
+    this.mySeat = 0;
+    this.seats = [{ who: 'host', name: 'You (host)', species: 0 }];
+    host.onStatus = (t, ok) => { this.status = t; this.statusOk = ok; this.render(); };
+    host.onGuestJoin = (g, name) => {
+      const free = SPECIES.map((_, k) => k).filter(k => !this.seats.some(s => s.species === k));
+      this.seats.push({ who: 'guest', guest: g, name, species: free[0] ?? 0 });
+      sfx.join(this.seats.length);
+      this.syncLobby();
+    };
+    host.onGuestLeave = g => { this.seats = this.seats.filter(s => s.guest !== g); sfx.leave(); this.syncLobby(); };
+    host.onPick = (g, dir) => { const i = this.seats.findIndex(s => s.guest === g); if (i >= 0) this.cycle(i, dir); };
+    this.status = 'Opening a room…';
+    host.open();
+    this.render();
+  }
+
+  private joinRoom(code: string, name: string): void {
+    if (!/^[A-Z]{4}$/i.test(code)) { this.status = 'Room codes are 4 letters.'; this.statusOk = false; this.render(); return; }
+    localStorage.setItem('kk-name', name);
+    this.guest?.close();
+    const guest = new NetGuest();
+    this.guest = guest;
+    guest.onStatus = (t, ok) => { this.status = t; this.statusOk = ok; this.render(); };
+    guest.onClosed = reason => { this.status = reason; this.statusOk = false; this.seats = []; this.guest = null; this.render(); };
+    guest.onMsg = (m: NetMsg) => {
+      if (m.t === 'lobby') { this.seats = m.seats; this.mySeat = m.you; this.table = m.table; this.difficulty = m.difficulty as Difficulty; this.render(); }
+      if (m.t === 'start') this.launchGuest(m);
+    };
+    guest.join(code, name || 'Friend');
+  }
+
+  private cycle(i: number, dir: number): void {
+    const taken = new Set(this.seats.filter((_, k) => k !== i).map(s => s.species));
+    let p = this.seats[i].species;
+    for (let n = 0; n < SPECIES.length; n++) {
+      p = (p + dir + SPECIES.length) % SPECIES.length;
+      if (!taken.has(p)) break;
+    }
+    this.seats[i].species = p;
+    sfx.pickup();
+    this.syncLobby();
+  }
+
+  /** Host: tell every guest the current lobby (each sees their own seat). */
+  private syncLobby(): void {
+    if (!this.host) return;
+    this.seats.forEach((s, i) => {
+      if (s.who === 'guest' && s.guest !== undefined) this.host!.send(s.guest, { t: 'lobby', seats: this.seats, you: i, table: this.table, difficulty: this.difficulty });
+    });
+    this.render();
+  }
+
+  private startMatch(): void {
+    const host = this.host;
+    if (!host) return;
+    const seats = this.seats.slice();
+    const target = this.fillBots ? 4 : Math.max(2, seats.length);
+    while (seats.length < target) {
+      const free = SPECIES.map((_, k) => k).filter(k => !seats.some(s => s.species === k));
+      seats.push({ who: 'bot', name: 'Bot', species: free[Math.floor(Math.random() * free.length)] });
+    }
+    const species = seats.map(s => s.species);
+    const names = seats.map(s => s.name);
+    const tables = this.table < 0 ? null : [this.table];
+    seats.forEach((s, i) => { if (s.who === 'guest' && s.guest !== undefined) host.send(s.guest, { t: 'start', species, names, seat: i, tables }); });
+    const slots: Slot[] = seats.map(s => (s.who === 'host' ? { kind: 'local', index: 0 } : s.who === 'guest' ? { kind: 'remote', index: s.guest! } : { kind: 'bot', index: 0 }));
+    this.leaving = true;
+    this.scene.start('game', { slots, difficulty: this.difficulty, species, tables, net: { role: 'host', host } });
+  }
+
+  private launchGuest(m: Extract<NetMsg, { t: 'start' }>): void {
+    if (!this.guest) return;
+    const slots: Slot[] = m.species.map((_, i) => (i === m.seat ? { kind: 'local', index: 0 } : { kind: 'remote', index: i }));
+    this.leaving = true;
+    this.scene.start('game', { slots, difficulty: this.difficulty, species: m.species, tables: m.tables, net: { role: 'guest', guest: this.guest, seat: m.seat } });
+  }
+
+  // ---------------------------------------------------------------- UI
+  private render(): void {
+    const root = this.root;
+    if (!root) return;
+    const esc = (s: string) => s.replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]!));
+    const statusHtml = this.status ? `<div class="status ${this.statusOk ? '' : 'bad'}">${esc(this.status)}</div>` : '';
+    const seatsHtml = this.seats.map((s, i) => {
+      const sp = SPECIES[s.species];
+      const mine = i === this.mySeat || (this.host && s.who === 'host');
+      const img = `art/kaiju-${s.species}.webp`;
+      return `<div class="seat" style="border-color:${sp.css}">
+        <img src="${img}" alt="">
+        <div class="k" style="color:${sp.css}">${sp.full}<div class="who">${esc(s.name)}${mine ? ' (you)' : ''}</div></div>
+        ${mine ? `<button data-pick="-1">◀</button><button data-pick="1">▶</button>` : ''}
+      </div>`;
+    }).join('');
+    let html = '';
+    if (this.view === 'choose') {
+      html = `<h1>Play online</h1>
+        <p>Play with friends on their own phones or computers, from anywhere. One person hosts and shares a 4-letter room code.</p>
+        <p class="muted">Uses a free public matchmaking server to connect you; the game itself goes directly between your devices.</p>
+        <div class="row"><button class="go" data-act="host">Host a game</button><button data-act="joinview">Join a game</button><button data-act="back">Back</button></div>`;
+    } else if (this.view === 'host') {
+      const tl = this.table < 0 ? `All ${LAYOUTS.length} (rotate)` : LAYOUTS[this.table].name;
+      const guests = this.seats.filter(s => s.who === 'guest').length;
+      html = `<h1>Your room</h1>
+        <div class="code">${this.host?.code || '····'}</div>
+        <p class="muted">Friends tap ONLINE → Join a game and type this code. Up to ${MAX_GUESTS} friends.</p>
+        ${seatsHtml}
+        <div class="row">
+          <button data-act="bots">${this.fillBots ? 'Bots fill empty seats: ON' : 'Bots fill empty seats: OFF'}</button>
+          <button data-act="diff">Bots: ${this.difficulty}</button>
+          <button data-act="table">Table: ${esc(tl)}</button>
+        </div>
+        <div class="row"><button class="go" data-act="start" ${guests ? '' : 'disabled'}>Start match</button><button data-act="back">Close room</button></div>
+        ${guests ? '' : '<p class="muted">Waiting for at least one friend to join…</p>'}
+        ${statusHtml}`;
+    } else {
+      const saved = localStorage.getItem('kk-name') ?? '';
+      html = this.seats.length
+        ? `<h1>You're in!</h1>${seatsHtml}<p class="muted">Pick your kaiju with ◀ ▶. The host starts the match.</p>${statusHtml}
+           <div class="row"><button data-act="back">Leave</button></div>`
+        : `<h1>Join a game</h1>
+           <p>Room code from your host:</p>
+           <div class="row"><input id="lb-code" maxlength="4" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="ABCD">
+             <input id="lb-name" class="name" maxlength="12" placeholder="Your name" value="${esc(saved)}"></div>
+           <div class="row"><button class="go" data-act="join">Join</button><button data-act="back">Back</button></div>${statusHtml}`;
+    }
+    root.innerHTML = `<div class="panel">${html}</div>`;
+    root.querySelectorAll<HTMLButtonElement>('button[data-act]').forEach(b => b.addEventListener('click', () => this.act(b.dataset.act!)));
+    root.querySelectorAll<HTMLButtonElement>('button[data-pick]').forEach(b => b.addEventListener('click', () => {
+      const dir = Number(b.dataset.pick);
+      if (this.host) this.cycle(this.mySeat, dir);
+      else this.guest?.send({ t: 'pick', dir });
+    }));
+    const code = root.querySelector<HTMLInputElement>('#lb-code');
+    code?.addEventListener('keydown', e => { e.stopPropagation(); if (e.key === 'Enter') this.act('join'); });
+    root.querySelector<HTMLInputElement>('#lb-name')?.addEventListener('keydown', e => e.stopPropagation());
+  }
+
+  private act(a: string): void {
+    sfx.pickup();
+    if (a === 'back') { this.back(); return; }
+    if (a === 'host') this.startHosting();
+    if (a === 'joinview') { this.view = 'join'; this.status = ''; this.render(); setTimeout(() => this.root?.querySelector<HTMLInputElement>('#lb-code')?.focus(), 50); }
+    if (a === 'join') {
+      const code = (this.root?.querySelector<HTMLInputElement>('#lb-code')?.value ?? '').trim().toUpperCase();
+      const name = (this.root?.querySelector<HTMLInputElement>('#lb-name')?.value ?? '').trim();
+      this.joinRoom(code, name);
+    }
+    if (a === 'bots') { this.fillBots = !this.fillBots; this.render(); }
+    if (a === 'diff') { this.difficulty = DIFFICULTIES[(DIFFICULTIES.indexOf(this.difficulty) + 1) % DIFFICULTIES.length]; this.syncLobby(); }
+    if (a === 'table') { this.table = this.table + 1 >= LAYOUTS.length ? -1 : this.table + 1; this.syncLobby(); }
+    if (a === 'start') this.startMatch();
+  }
+}

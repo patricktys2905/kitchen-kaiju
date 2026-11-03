@@ -301,6 +301,31 @@ describe('new tables', () => {
   });
 });
 
+describe('online snapshots', () => {
+  it('a guest world rebuilt from a snapshot matches the host world', async () => {
+    const { makeSnapshot, applySnapshot } = await import('../src/net/snapshot');
+    const host = new World({ players: [0, 1, 2].map(i => ({ name: 'P' + i })), seed: 11, layout: 6 });
+    const bots = [0, 1, 2].map(i => new BotBrain(i, 'hard', i));
+    for (let t = 0; t < 6; t += DT) host.step(DT, bots.map(b => b.decide(host, DT)));
+    host.burner = { state: 'warn', i: 1, t: 0.5 };
+    const snap = JSON.parse(JSON.stringify(makeSnapshot(host))); // through the wire
+    const guest = new World({ players: [0, 1, 2].map(i => ({ name: 'P' + i })), seed: 99 });
+    applySnapshot(guest, snap);
+    expect(guest.layout.name).toBe(host.layout.name);
+    expect(guest.phase).toBe(host.phase);
+    expect(guest.burner).toMatchObject({ state: 'warn', i: 1 });
+    guest.players.forEach((p, i) => {
+      expect(p.x).toBeCloseTo(host.players[i].x, 0);
+      expect(p.alive).toBe(host.players[i].alive);
+      expect(p.holding).toBe(host.players[i].holding);
+      expect(p.score).toBe(host.players[i].score);
+    });
+    expect(guest.cutlery.map(c => [c.id, c.kind, c.state])).toEqual(host.cutlery.map(c => [c.id, c.kind, c.state]));
+    expect(guest.crumbs.length).toBe(host.crumbs.length);
+    expect(JSON.stringify(snap).length).toBeLessThan(6000); // small enough to send ~20x a second
+  });
+});
+
 describe('match flow', () => {
   it('first to the target wins the match', () => {
     const w = makeWorld();

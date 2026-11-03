@@ -35,6 +35,14 @@ Full screen: tap the ⛶ FULL SCREEN button (top-left on the menu, under MENU in
 
 Menu: THROW joins, DASH leaves, B/N add/remove bot, 2 bot difficulty, 1 or START begins. In game: P pause, Esc menu.
 
+## Online with friends
+
+Menu → **ONLINE** (or press O). One person taps **Host a game** and gets a 4-letter room code; friends tap **Join a game** on their own phone or computer, anywhere, and type the code. Everyone picks a kaiju in the lobby, the host picks bots/table and starts. Up to 4 players (host + 3 friends), bots can fill empty seats.
+
+- The host's device runs the match; friends send their controls and receive the game ~20 times a second (PeerJS/WebRTC; the free public PeerJS server only introduces the devices).
+- If a friend drops out, a bot takes over their kaiju. If the host leaves, friends are sent back to the menu. Only the host can start a rematch; pausing is off online.
+- Needs an internet connection (the rest of the game works offline).
+
 ## Kaiju and tables
 
 12 food kaiju to pick from (each player picks a different one; LEFT/RIGHT on your controller, or KAIJU ▶ on touch): Gobzilla Jr. (strawberry lizard), Squidgeon (blue jelly octopus), Crabbage (cheese crab), Bloblin (lime jelly), Mothball (ube marshmallow moth), Toastbat (toast bat), Dumplord (dumpling), Norigon (sushi-roll dragon), Chocomunch (chocolate golem), Bubblegumbo (bubblegum elephant), Bluebeary (blueberry muffin bear), Pizzaraptor (pizza raptor). All play the same for now.
@@ -44,6 +52,9 @@ Menu: THROW joins, DASH leaves, B/N add/remove bot, 2 bot difficulty, 1 or START
 - Sushi Bar: a conveyor belt carries players, loose cutlery and crumbs sideways (plus the hand)
 - Birthday Bash: warned gusts of wind push everyone towards one edge; walk into the wind
 - Chef's Board: the cleaver chops a marked vertical lane
+- Diner Griddle: burners glow, then flare and grill anyone standing on them
+- Ice Cream Parlour: melted puddles are slippery (plus the hand)
+- Picnic Blanket: an ant trail marches down the middle carrying everything (plus the hand)
 
 ## Rules (phases 1–2)
 
@@ -84,6 +95,7 @@ npm test          # rules tests incl. full 4-bot matches
 npm run build     # typecheck + production build
 npm run smoke     # headless browser playthrough + screenshots (needs Edge/Chrome)
 npm run update-check # installed copy picks up a newly deployed version on the menu
+npm run smoke:online # two browsers play online over the real matchmaking server (needs internet)
 npm run smoke:phone  # emulated phone with multi-touch: menu, joystick, aim-drag throw, dash, rotate prompt
 npm run balance   # simulate 12 bot matches: pacing + KO-cause mix  (args: easy|normal|hard, players)
 npx vite-node scripts/accuracy.ts   # how hard each bot level is to survive against

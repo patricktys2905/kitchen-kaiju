@@ -9,7 +9,9 @@ import { BotBrain, type Difficulty } from '../sim/bot';
 import { P, SPECIES, TABLE, VIEW } from '../sim/constants';
 import { CUTLERY } from '../sim/cutlery';
 import { angleDiff } from '../sim/math';
-import { World, type GameEvent, type PlayerInput } from '../sim/world';
+import { NO_INPUT, World, type GameEvent, type PlayerInput } from '../sim/world';
+import type { NetGuest, NetHost, NetMsg } from '../net/net';
+import { applySnapshot, extrapolate, makeSnapshot, type Snapshot } from '../net/snapshot';
 import { isTouchDevice, setTouchHud, setTouchMode } from '../touch';
 
 const STEP = 1 / 120;
@@ -25,6 +27,7 @@ export interface GameData {
   difficulty: Difficulty;
   species?: number[]; // which kaiju each slot picked
   tables?: number[] | null; // table pool (null/empty = all)
+  net?: { role: 'host'; host: NetHost } | { role: 'guest'; guest: NetGuest; seat: number };
   seed?: number;
 }
 
@@ -43,6 +46,11 @@ export class GameScene extends Phaser.Scene {
   private dynG!: Phaser.GameObjects.Graphics;
   private overG!: Phaser.GameObjects.Graphics;
   private art!: ArtRenderer;
+  private net: GameData['net'];
+  private netAcc = 0;
+  private netEvents: GameEvent[] = [];
+  private inbox: { s: Snapshot; ev: GameEvent[] }[] = [];
+  private netNotice = '';
   private species: number[] = [];
   private tables: number[] | null = null;
   private colors: number[] = [];
@@ -79,6 +87,12 @@ export class GameScene extends Phaser.Scene {
     this.css = this.species.map(s => SPECIES[s].css);
     this.world = new World({ players: this.species.map(s => ({ name: SPECIES[s].name })), seed, layouts: this.tables ?? undefined });
     this.bots = this.slots.map((s, i) => (s.kind === 'bot' ? new BotBrain(i, this.difficulty, seed + i * 101) : null));
+    this.net = data.net;
+    this.netAcc = 0;
+    this.netEvents = [];
+    this.inbox = [];
+    this.netNotice = '';
+    this.setupNet(data, seed);
     this.acc = 0;
     this.t = 0;
     this.paused = false;
@@ -121,14 +135,15 @@ export class GameScene extends Phaser.Scene {
     const dt = Math.min(0.1, delta / 1000);
     this.t += dt;
 
-    if (consumeTap('Escape')) { this.scene.start('menu', { slots: this.slots, difficulty: this.difficulty, species: this.species, tables: this.tables }); return; }
-    if (consumeTap('KeyP') && this.world.phase !== 'matchEnd') this.paused = !this.paused;
+    if (consumeTap('Escape')) { this.leave(); return; }
+    if (consumeTap('KeyP') && this.world.phase !== 'matchEnd' && !this.net) this.paused = !this.paused;
     const anyStart = this.slots.some(s => s.kind === 'pad' && readSlot(s).start);
-    if (anyStart && !this.padPrevStart && this.world.phase !== 'matchEnd') this.paused = !this.paused;
-    if (this.world.phase === 'matchEnd' && (consumeTap('Digit1') || (anyStart && !this.padPrevStart))) {
-      this.scene.restart({ slots: this.slots, difficulty: this.difficulty, species: this.species, tables: this.tables });
+    if (anyStart && !this.padPrevStart && this.world.phase !== 'matchEnd' && !this.net) this.paused = !this.paused;
+    if (this.world.phase === 'matchEnd' && this.net?.role !== 'guest' && (consumeTap('Digit1') || (anyStart && !this.padPrevStart))) {
+      this.rematch();
       return;
     }
+    if (this.net?.role === 'guest') { this.padPrevStart = anyStart; clearTaps(); this.syncTouchUi(); this.guestFrame(dt); return; }
     this.padPrevStart = anyStart;
     clearTaps();
     this.syncTouchUi();
@@ -136,8 +151,9 @@ export class GameScene extends Phaser.Scene {
     if (!this.paused) {
       const human: PlayerInput[] = this.slots.map((s, i) => {
         if (s.kind === 'bot') return { mx: 0, my: 0, throw: false, swipe: false, dash: false, stomp: false };
+        if (s.kind === 'remote') return this.net?.role === 'host' ? this.net.host.inputOf(s.index) ?? NO_INPUT : NO_INPUT;
         const inp: PlayerInput = readSlot(s);
-        if (s.kind === 'touch') this.touchAimAssist(i, inp);
+        if (s.kind === 'touch' || (s.kind === 'local' && isTouchDevice)) this.touchAimAssist(i, inp);
         return inp;
       });
       this.acc += dt;
@@ -150,18 +166,89 @@ export class GameScene extends Phaser.Scene {
         n++;
       }
       this.updateFx(dt);
+      this.hostBroadcast(dt);
     }
+    this.render();
+  }
+
+  // ---------------------------------------------------------------- online
+  private setupNet(data: GameData, seed: number): void {
+    const net = data.net;
+    if (!net) return;
+    if (net.role === 'host') {
+      // a friend who drops out mid-match is taken over by a bot
+      net.host.onGuestLeave = g => {
+        const i = this.slots.findIndex(s => s.kind === 'remote' && s.index === g);
+        if (i >= 0) { this.bots[i] = new BotBrain(i, this.difficulty, seed + i); this.feed.unshift({ text: `${this.world.players[i].name} left: a bot takes over`, color: '#ffffff', t: 4 }); }
+      };
+      net.host.onGuestJoin = () => {}; // no joining mid-match
+    } else {
+      net.guest.onMsg = (m: NetMsg) => {
+        if (m.t === 'snap') this.inbox.push({ s: m.s, ev: m.ev });
+        if (m.t === 'start') {
+          const slots = m.species.map((_, i) => (i === m.seat ? { kind: 'local' as const, index: 0 } : { kind: 'remote' as const, index: i }));
+          this.scene.restart({ slots, difficulty: this.difficulty, species: m.species, tables: m.tables, net: { role: 'guest', guest: net.guest, seat: m.seat } });
+        }
+      };
+      net.guest.onClosed = reason => { this.netNotice = reason; this.time.delayedCall(2500, () => this.scene.start('menu', { difficulty: this.difficulty })); };
+    }
+  }
+
+  private leave(): void {
+    if (this.net?.role === 'host') this.net.host.close();
+    if (this.net?.role === 'guest') this.net.guest.close();
+    this.scene.start('menu', { slots: this.net ? [] : this.slots, difficulty: this.difficulty, species: this.net ? [] : this.species, tables: this.tables });
+  }
+
+  private rematch(): void {
+    const data: GameData = { slots: this.slots, difficulty: this.difficulty, species: this.species, tables: this.tables, net: this.net };
+    const net = this.net;
+    if (net?.role === 'host') {
+      const names = this.world.players.map(p => p.name);
+      this.slots.forEach((sl, i) => { if (sl.kind === 'remote') net.host.send(sl.index, { t: 'start', species: this.species, names, seat: i, tables: this.tables }); });
+    }
+    this.scene.restart(data);
+  }
+
+  /** Host: send the game state to friends ~20 times a second. */
+  private hostBroadcast(dt: number): void {
+    if (this.net?.role !== 'host') return;
+    this.netAcc += dt;
+    if (this.netAcc < 0.05) return;
+    this.netAcc = 0;
+    this.net.host.broadcast({ t: 'snap', s: makeSnapshot(this.world), ev: this.netEvents.splice(0, 60) });
+    this.netEvents = [];
+  }
+
+  /** Guest: send my input, show the host's game. */
+  private guestFrame(dt: number): void {
+    if (this.net?.role !== 'guest') return;
+    const seat = this.net.seat;
+    const inp: PlayerInput = readSlot({ kind: 'local', index: 0 });
+    if (isTouchDevice) this.touchAimAssist(seat, inp);
+    this.netAcc += dt;
+    if (this.netAcc >= 1 / 30) { this.netAcc = 0; this.net.guest.send({ t: 'in', i: inp }); }
+    if (this.inbox.length) {
+      for (const m of this.inbox.splice(0)) {
+        if (applySnapshot(this.world, m.s)) this.art.setupTable(this.world.layout, this.world.players.map(p => ({ x: p.x, y: p.y, color: this.colors[p.id] })));
+        this.handleEvents(m.ev.filter(e => e.type !== 'roundStart'));
+      }
+    } else {
+      extrapolate(this.world, dt);
+    }
+    this.updateFx(dt);
     this.render();
   }
 
   // ---------------------------------------------------------------- touch
   private syncTouchUi(): void {
-    const ti = this.slots.findIndex(s => s.kind === 'touch');
+    const ti = this.slots.findIndex(s => s.kind === 'touch' || (s.kind === 'local' && isTouchDevice));
     if (this.world.phase === 'matchEnd') { setTouchMode('end'); return; }
     setTouchMode(ti >= 0 ? 'game' : 'watch');
+    if (ti < 0) setTouchHud({ canPause: !this.net });
     if (ti >= 0) {
       const p = this.world.players[ti];
-      setTouchHud({ stompReady: p.alive && p.meter >= 100 && p.kaijuT <= 0, armed: p.alive && p.holding !== null });
+      setTouchHud({ stompReady: p.alive && p.meter >= 100 && p.kaijuT <= 0, armed: p.alive && p.holding !== null, canPause: !this.net });
     }
   }
 
@@ -182,6 +269,7 @@ export class GameScene extends Phaser.Scene {
 
   // ---------------------------------------------------------------- events -> juice
   private handleEvents(events: GameEvent[]): void {
+    if (this.net?.role === 'host') this.netEvents.push(...events);
     const w = this.world;
     for (const e of events) {
       switch (e.type) {
@@ -394,7 +482,10 @@ export class GameScene extends Phaser.Scene {
   private renderBanner(): void {
     const w = this.world;
     let main = '', sub = '', color = '#ffe9c7';
-    if (this.paused) {
+    if (this.netNotice) {
+      main = 'DISCONNECTED';
+      sub = this.netNotice + '\nBack to the menu…';
+    } else if (this.paused) {
       main = 'PAUSED';
       sub = 'P / START to resume · Esc for menu';
     } else if (w.phase === 'countdown') {
@@ -411,7 +502,8 @@ export class GameScene extends Phaser.Scene {
       main = `${SPECIES[this.species[w.winner]].full.toUpperCase()}\nRULES THE TABLE`;
       color = this.css[w.winner];
       const ranked = w.players.slice().sort((a, b) => b.score - a.score || b.kos - a.kos);
-      sub = ranked.map((p, i) => `${i + 1}. ${p.name}  ${p.score} rounds · ${p.kos} KOs`).join('\n') + '\n\n1 / START rematch · Esc menu';
+      sub = ranked.map((p, i) => `${i + 1}. ${p.name}  ${p.score} rounds · ${p.kos} KOs`).join('\n')
+        + (this.net?.role === 'guest' ? '\n\nWaiting for the host to start a rematch… · Esc to leave' : '\n\n1 / START rematch · Esc menu');
     }
     if (main !== this.lastBanner) { this.lastBanner = main; if (main) popIn(this, this.banner, 1.5, 380); }
     this.banner.setText(main).setColor(color).setFontSize(main.length > 14 ? 58 : 90);

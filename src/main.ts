@@ -3,6 +3,7 @@ import { unlockAudio } from './audio';
 import { initInput, injectTap } from './input';
 import { BootScene } from './render/art';
 import { GameScene } from './scenes/GameScene';
+import { LobbyScene } from './scenes/LobbyScene';
 import { MenuScene } from './scenes/MenuScene';
 import { VIEW } from './sim/constants';
 import { initPwa } from './pwa';
@@ -23,7 +24,7 @@ const game = new Phaser.Game({
     height: VIEW.h,
   },
   render: { antialias: true },
-  scene: [BootScene, MenuScene, GameScene],
+  scene: [BootScene, MenuScene, GameScene, LobbyScene],
 });
 
 // Handy for debugging / automated smoke tests.

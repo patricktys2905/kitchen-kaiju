@@ -174,6 +174,7 @@ export class World {
   cleaver: Cleaver | null = null;
   burner: Burner | null = null;
   layout: Layout = LAYOUTS[0];
+  layoutIndex = 0;
   phase: Phase = 'countdown';
   phaseT = 0;
   roundT = 0;
@@ -223,6 +224,7 @@ export class World {
   startRound(): void {
     const li = this.opts.layout ?? this.layoutOrder[this.round % this.layoutOrder.length];
     this.layout = LAYOUTS[li];
+    this.layoutIndex = li;
     this.round++;
     this.cutlery = [];
     this.crumbs = [];

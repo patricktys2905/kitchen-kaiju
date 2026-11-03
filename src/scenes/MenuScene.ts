@@ -143,7 +143,7 @@ export class MenuScene extends Phaser.Scene {
     this.add.text(640, 560, rules.join('\n'), { ...BODY, fontStyle: '700', fontSize: '15px', align: 'center', color: '#cdb9a3', lineSpacing: 5 }).setOrigin(0.5, 0).setDepth(2);
     if (!isTouchDevice) {
       this.chipLine(chipG, 640, 640, '[THROW] join   [◀ ▶] pick kaiju   [DASH] leave   [B] [N] add / remove bot', 15);
-      this.chipLine(chipG, 640, 670, '[2] bot difficulty   [M] change table   [1] PLAY', 15);
+      this.chipLine(chipG, 640, 670, '[2] bot difficulty   [M] change table   [O] play ONLINE   [1] PLAY', 15);
     }
     setTouchMode('menu');
     this.add.text(1272, 712, `v${__APP_VERSION__}`, { ...BODY, fontSize: '11px', color: '#8a7a6a' }).setOrigin(1, 1).setDepth(5);
@@ -186,6 +186,7 @@ export class MenuScene extends Phaser.Scene {
     // Bot difficulty: '2' on a keyboard (D is the left player's "next kaiju"), or the BOTS button on touch.
     if (consumeTap('Digit2') || consumeTap('TouchDiff')) { this.difficulty = DIFFICULTIES[(DIFFICULTIES.indexOf(this.difficulty) + 1) % DIFFICULTIES.length]; sfx.pickup(); }
     if (consumeTap('KeyM')) this.cycleTable();
+    if (consumeTap('KeyO') || consumeTap('TouchOnline')) { this.scene.start('lobby', { difficulty: this.difficulty }); return; }
     if (consumeTap('TouchJoin')) {
       const j = this.slots.findIndex(s => s.kind === 'touch');
       if (j >= 0) this.removeSlot(j);

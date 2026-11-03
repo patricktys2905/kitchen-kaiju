@@ -76,6 +76,7 @@ const CSS = `
 `;
 
 let layers: Record<Exclude<TouchMode, 'off'>, HTMLElement> | null = null;
+let pauseBtn: HTMLElement | null = null;
 let stompBtn: HTMLElement, throwBtn: HTMLElement, joinPill: HTMLElement, diffPill: HTMLElement, tablePill: HTMLElement, aimEl: HTMLElement;
 
 function el(tag: string, parent: HTMLElement, attrs: Record<string, string> = {}, text = ''): HTMLElement {
@@ -284,6 +285,7 @@ export function initTouch(injectTap: (code: string) => void): void {
   const top = el('div', root, { class: 'layer' });
   const pause = el('div', top, { class: 'small', style: 'right: calc(1.5vmin + env(safe-area-inset-right)); top: 12.5vh;' }, '❚❚ PAUSE');
   tapButton(pause, 'KeyP');
+  pauseBtn = pause;
   const quit = el('div', top, { class: 'small', style: 'right: calc(1.5vmin + env(safe-area-inset-right)); top: 21vh;' }, '✕ MENU');
   tapButton(quit, 'Escape');
 
@@ -299,6 +301,7 @@ export function initTouch(injectTap: (code: string) => void): void {
   tapButton(diffPill, 'TouchDiff'); // own code: 'KeyD' is also "next kaiju" for Keyboard Left
   tablePill = el('div', row, { class: 'pill' }, 'TABLE: ALL');
   tapButton(tablePill, 'KeyM');
+  tapButton(el('div', row, { class: 'pill' }, '🌐 ONLINE'), 'TouchOnline');
   tapButton(el('div', row, { class: 'pill go' }, '▶ PLAY'), 'Digit1');
 
   // ---- match end
@@ -334,7 +337,7 @@ export function setTouchMode(mode: TouchMode): void {
 }
 
 let lastHud = '';
-export function setTouchHud(h: { stompReady?: boolean; armed?: boolean; joined?: boolean; difficulty?: string; table?: string }): void {
+export function setTouchHud(h: { stompReady?: boolean; armed?: boolean; joined?: boolean; difficulty?: string; table?: string; canPause?: boolean }): void {
   if (!layers) return;
   const key = JSON.stringify(h);
   if (key === lastHud) return;
@@ -342,6 +345,7 @@ export function setTouchHud(h: { stompReady?: boolean; armed?: boolean; joined?:
   if (h.stompReady !== undefined) stompBtn.classList.toggle('ready', h.stompReady);
   if (h.armed !== undefined) throwBtn.classList.toggle('dim', !h.armed);
   if (h.joined !== undefined) joinPill.textContent = h.joined ? 'LEAVE' : 'JOIN';
+  if (h.canPause !== undefined && pauseBtn) pauseBtn.style.display = h.canPause ? '' : 'none';
   if (h.table !== undefined) tablePill.textContent = `TABLE: ${h.table}`;
   if (h.difficulty !== undefined) diffPill.textContent = `BOTS: ${h.difficulty.toUpperCase()}`;
 }

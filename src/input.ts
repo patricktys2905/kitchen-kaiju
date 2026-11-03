@@ -2,7 +2,7 @@
 import type { PlayerInput } from './sim/world';
 import { readTouch } from './touch';
 
-export type Slot = { kind: 'kb' | 'pad' | 'touch'; index: number } | { kind: 'bot'; index: number };
+export type Slot = { kind: 'kb' | 'pad' | 'touch' | 'local' | 'remote'; index: number } | { kind: 'bot'; index: number };
 
 export interface DeviceInput extends PlayerInput {
   start: boolean;
@@ -59,6 +59,18 @@ function pads(): (Gamepad | null)[] {
 export function readSlot(s: Slot): DeviceInput {
   const out: DeviceInput = { mx: 0, my: 0, throw: false, swipe: false, dash: false, stomp: false, start: false };
   if (s.kind === 'touch') return { ...readTouch(), start: false };
+  if (s.kind === 'remote') return out; // filled in from the network by GameScene
+  if (s.kind === 'local') {
+    // Online: one player per device, so any keyboard/gamepad/touch on this device drives them.
+    const all = [{ ...readTouch(), start: false }, readSlot({ kind: 'kb', index: 0 }), readSlot({ kind: 'kb', index: 1 }),
+      ...pads().map((g, i) => (g ? readSlot({ kind: 'pad', index: i }) : null)).filter((x): x is DeviceInput => !!x)];
+    for (const d of all) {
+      out.mx += d.mx; out.my += d.my;
+      out.throw ||= d.throw; out.swipe ||= d.swipe; out.dash ||= d.dash; out.stomp ||= d.stomp; out.start ||= d.start;
+      if (d.aimX !== undefined && out.aimX === undefined) { out.aimX = d.aimX; out.aimY = d.aimY; }
+    }
+    return out;
+  }
   if (s.kind === 'kb') {
     const m = KEYMAPS[s.index];
     out.mx = (keys[m.right] ? 1 : 0) - (keys[m.left] ? 1 : 0);
@@ -101,6 +113,8 @@ export function slotLabel(s: Slot): string {
   if (s.kind === 'kb') return KEYMAPS[s.index].name;
   if (s.kind === 'pad') return `Gamepad ${s.index + 1}`;
   if (s.kind === 'touch') return 'Touch screen';
+  if (s.kind === 'local') return 'This device';
+  if (s.kind === 'remote') return 'Online';
   return 'Bot';
 }
 
