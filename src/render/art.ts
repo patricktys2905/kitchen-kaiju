@@ -2,6 +2,7 @@
 // to the shape renderer in draw.ts when an image isn't present.
 import * as Phaser from 'phaser';
 import type { CutleryKind } from '../sim/cutlery';
+import { fontsReady } from './fonts';
 
 let available = new Set<string>();
 export const hasArt = (key: string) => available.has(key);
@@ -17,7 +18,8 @@ export class BootScene extends Phaser.Scene {
   }
   create(): void {
     const list = (this.cache.json.get('art-manifest') as string[] | undefined) ?? [];
-    if (!list.length) { this.scene.start('menu'); return; }
+    const go = () => { void fontsReady().then(() => this.scene.start('menu')); };
+    if (!list.length) { go(); return; }
     const bar = this.add.graphics();
     this.load.on('progress', (v: number) => {
       bar.clear();
@@ -27,7 +29,7 @@ export class BootScene extends Phaser.Scene {
     for (const k of list) this.load.image(k, `art/${k}.webp`);
     this.load.once('complete', () => {
       available = new Set(list.filter(k => this.textures.exists(k)));
-      this.scene.start('menu');
+      go();
     });
     this.load.start();
   }

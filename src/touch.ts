@@ -32,7 +32,7 @@ export function readTouch(): TouchRead {
 }
 
 const CSS = `
-#tc { position: fixed; inset: 0; pointer-events: none; z-index: 10; font-family: 'Arial Black', Impact, sans-serif; }
+#tc { position: fixed; inset: 0; pointer-events: none; z-index: 10; font-family: 'Luckiest Guy', 'Arial Black', Impact, sans-serif; letter-spacing: 0.04em; }
 #tc .layer { position: absolute; inset: 0; display: none; }
 #tc .layer.on { display: block; }
 #tc .btn { position: absolute; pointer-events: auto; border-radius: 50%; display: flex; align-items: center; justify-content: center;
@@ -61,7 +61,7 @@ const CSS = `
 #tc .row .pill.go { background: #ff9a3c; color: #2a1408; }
 #tc .row .pill.down { transform: scale(0.95); filter: brightness(1.3); }
 #tc-rotate { position: fixed; inset: 0; z-index: 20; background: #140e0a; color: #ffe9c7; display: none; align-items: center; justify-content: center;
-  flex-direction: column; font-family: 'Arial Black', Impact, sans-serif; font-size: 6vw; text-align: center; gap: 4vw; }
+  flex-direction: column; font-family: 'Luckiest Guy', 'Arial Black', Impact, sans-serif; letter-spacing: 0.04em; font-size: 6vw; text-align: center; gap: 4vw; }
 @media (orientation: portrait) { body.touch #tc-rotate { display: flex; } }
 `;
 

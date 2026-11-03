@@ -4,13 +4,14 @@ import { clearTaps, consumeTap, KEYMAPS, listDevices, readSlot, sameDevice, slot
 import { applyPendingUpdate } from '../pwa';
 import { CUTLERY_LEN, fitInside, hasArt } from '../render/art';
 import { drawCutleryShape, drawFloor, drawKaiju } from '../render/draw';
+import { BODY as BODY_FONT, DISPLAY, INK, popIn, withGradient, withShadow } from '../render/fonts';
 import { DIFFICULTIES, type Difficulty } from '../sim/bot';
 import { SPECIES } from '../sim/constants';
 import { LAYOUTS } from '../sim/layouts';
 import { isTouchDevice, setTouchHud, setTouchMode } from '../touch';
 
-const TITLE = { fontFamily: 'Arial Black, Impact, sans-serif', color: '#ffe9c7', stroke: '#2a1408', strokeThickness: 10 };
-const BODY = { fontFamily: 'Arial, sans-serif', color: '#e9dccb' };
+const TITLE = { fontFamily: DISPLAY, color: '#ffe9c7', stroke: INK, strokeThickness: 10 };
+const BODY = { fontFamily: BODY_FONT, fontStyle: '800', color: '#e9dccb' };
 const CARD_X = (i: number) => 205 + i * 290;
 
 export interface MenuData {
@@ -106,42 +107,43 @@ export class MenuScene extends Phaser.Scene {
     this.decoImgs = (['fork', 'spoon', 'knife', 'chopstick', 'ladle', 'spork'] as const)
       .filter(k => hasArt(`cut-${k}`))
       .map(k => this.add.image(0, 0, `cut-${k}`).setDepth(1).setScale((CUTLERY_LEN[k] * 1.5) / this.textures.get(`cut-${k}`).getSourceImage().width));
-    this.add.text(640, 62, 'KITCHEN KAIJU', { ...TITLE, fontSize: '78px' }).setOrigin(0.5);
-    this.add.text(640, 120, 'Tiny monsters. Giant dinner. Sharp cutlery.', { ...BODY, fontSize: '22px', color: '#ffcf8a' }).setOrigin(0.5);
+    const title = this.add.text(640, 66, 'KITCHEN KAIJU', { ...TITLE, fontSize: '92px', strokeThickness: 12, padding: { x: 8, y: 8 } }).setOrigin(0.5).setDepth(2);
+    withShadow(withGradient(title, '#fff6cf', '#ffb347'), 7);
+    popIn(this, title, 1.25, 600);
+    withShadow(this.add.text(640, 126, 'Tiny monsters. Giant dinner. Sharp cutlery.', { ...BODY, fontStyle: '900', fontSize: '23px', color: '#ffd9a0' }).setOrigin(0.5).setDepth(2), 3);
 
     this.slotTexts = [];
     this.slotSub = [];
     this.slotFood = [];
     for (let i = 0; i < 4; i++) {
-      this.slotTexts.push(this.add.text(CARD_X(i), 324, '', { ...TITLE, fontSize: '24px', strokeThickness: 6 }).setOrigin(0.5).setDepth(2));
-      this.slotFood.push(this.add.text(CARD_X(i), 348, '', { ...BODY, fontSize: '13px', fontStyle: 'italic', color: '#ffcf8a' }).setOrigin(0.5).setDepth(2));
-      this.slotSub.push(this.add.text(CARD_X(i), 368, '', { ...BODY, fontSize: '14px', align: 'center' }).setOrigin(0.5).setDepth(2));
+      this.slotTexts.push(withShadow(this.add.text(CARD_X(i), 322, '', { ...TITLE, fontSize: '27px', strokeThickness: 6 }).setOrigin(0.5).setDepth(2), 3));
+      this.slotFood.push(this.add.text(CARD_X(i), 348, '', { ...BODY, fontSize: '14px', fontStyle: 'italic 800', color: '#ffcf8a' }).setOrigin(0.5).setDepth(2));
+      this.slotSub.push(this.add.text(CARD_X(i), 368, '', { ...BODY, fontStyle: '700', fontSize: '14px', align: 'center', color: '#d9c7b3' }).setOrigin(0.5).setDepth(2));
     }
-    this.infoText = this.add.text(640, 404, '', { ...BODY, fontSize: '17px', color: '#ffcf8a' }).setOrigin(0.5).setDepth(2);
-    this.tableText = this.add.text(640, 434, '', { ...BODY, fontSize: '16px', color: '#ffffff', align: 'center' }).setOrigin(0.5).setDepth(2);
+    this.infoText = this.add.text(640, 404, '', { ...BODY, fontStyle: '900', fontSize: '17px', color: '#ffcf8a' }).setOrigin(0.5).setDepth(2);
+    this.tableText = this.add.text(640, 434, '', { ...BODY, fontStyle: '900', fontSize: '16px', color: '#ffffff', align: 'center' }).setOrigin(0.5).setDepth(2);
     this.tableThumb = null;
 
+    // Controls as key "chips": [KEY] tokens get a keycap behind them.
+    const chipG = this.add.graphics().setDepth(2);
     const lines = isTouchDevice
       ? [
-          'TOUCH:  drag the LEFT side to move · hold THROW to charge, drag it to aim, let go to throw',
-          'SWIPE hits up close · DASH dodges, shoves, catches cutlery · STOMP when your belly is full',
+          '[LEFT SIDE] drag to move   [THROW] hold, drag to aim, let go   [SWIPE] up close   [DASH] dodge & shove   [STOMP] belly full',
         ]
       : [
-          `${KEYMAPS[0].name}:  ${KEYMAPS[0].hint}`,
-          `${KEYMAPS[1].name}:  ${KEYMAPS[1].hint}`,
-          'Gamepad:  L-stick move · R-stick aim · A/RT throw · X swipe · B/RB dash · Y/LB stomp',
+          'Keyboard Left   [W A S D] move  [SPACE] throw  [F] swipe  [L-SHIFT] dash  [E] stomp',
+          'Keyboard Right   [ARROWS] move  [ENTER] throw  [/] swipe  [R-SHIFT] dash  [.] stomp',
+          'Gamepad   [L-STICK] move  [R-STICK] aim  [A] throw  [X] swipe  [B] dash  [Y] stomp',
         ];
-    this.add.text(640, 470, lines.join('\n'), { ...BODY, fontSize: '15px', align: 'center', lineSpacing: 5 }).setOrigin(0.5, 0).setDepth(2);
+    lines.forEach((l, i) => this.chipLine(chipG, 640, 474 + i * 28, l, 14));
     const rules = [
       'Cutlery STICKS where it lands, so a miss leaves you unarmed, and anything loose is fair game.',
       'Eat crumbs, then STOMP to go KAIJU. Shove rivals off the edge. Every table has its own hazard.',
     ];
-    this.add.text(640, 556, rules.join('\n'), { ...BODY, fontSize: '15px', align: 'center', color: '#cdb9a3', lineSpacing: 5 }).setOrigin(0.5, 0).setDepth(2);
+    this.add.text(640, 560, rules.join('\n'), { ...BODY, fontStyle: '700', fontSize: '15px', align: 'center', color: '#cdb9a3', lineSpacing: 5 }).setOrigin(0.5, 0).setDepth(2);
     if (!isTouchDevice) {
-      this.add.text(640, 640, 'THROW on any controller to join · LEFT/RIGHT to pick your kaiju · DASH to leave',
-        { ...BODY, fontSize: '16px', color: '#ffffff' }).setOrigin(0.5).setDepth(2);
-      this.add.text(640, 668, 'B add bot · N remove bot · 2 bot difficulty · M (or gamepad Y) change table · 1 or START to play',
-        { ...BODY, fontSize: '16px', color: '#ffffff' }).setOrigin(0.5).setDepth(2);
+      this.chipLine(chipG, 640, 640, '[THROW] join   [◀ ▶] pick kaiju   [DASH] leave   [B] [N] add / remove bot', 15);
+      this.chipLine(chipG, 640, 670, '[2] bot difficulty   [M] change table   [1] PLAY', 15);
     }
     setTouchMode('menu');
     this.add.text(1272, 712, `v${__APP_VERSION__}`, { ...BODY, fontSize: '11px', color: '#8a7a6a' }).setOrigin(1, 1).setDepth(5);
@@ -300,6 +302,31 @@ export class MenuScene extends Phaser.Scene {
       this.tableThumb.setTexture(key).setVisible(true).setDisplaySize(54, 29).setPosition(640 - tw / 2 - 36, 434);
     } else {
       this.tableThumb?.setVisible(false);
+    }
+  }
+
+  /** Renders a centred line where [TOKENS] become keycap chips. */
+  private chipLine(g: Phaser.GameObjects.Graphics, cx: number, cy: number, line: string, size: number): void {
+    const parts = line.split(/(\[[^\]]+\])/).filter(Boolean);
+    const items = parts.map(part => {
+      const chip = part.startsWith('[');
+      const label = chip ? part.slice(1, -1) : part;
+      const t = this.add.text(0, cy, label, chip
+        ? { ...BODY, fontStyle: '900', fontSize: `${size}px`, color: '#2a1408' }
+        : { ...BODY, fontStyle: '700', fontSize: `${size}px`, color: '#e9dccb' }).setOrigin(0, 0.5).setDepth(3);
+      return { t, chip, w: t.width + (chip ? 14 : 0) };
+    });
+    let x = cx - items.reduce((a, it) => a + it.w + 2, 0) / 2;
+    for (const it of items) {
+      if (it.chip) {
+        const h = size + 10;
+        g.fillStyle(0x7a4a24, 1); g.fillRoundedRect(x, cy - h / 2 + 2, it.w, h, 6); // keycap edge
+        g.fillStyle(0xffe1b0, 1); g.fillRoundedRect(x, cy - h / 2, it.w, h - 2, 6); // keycap face
+        it.t.setX(x + 7);
+      } else {
+        it.t.setX(x);
+      }
+      x += it.w + 2;
     }
   }
 }

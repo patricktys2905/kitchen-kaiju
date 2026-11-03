@@ -10,7 +10,12 @@
   <title>Kitchen Kaiju</title>
   <link rel="icon" href="./icon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="./icons/apple-touch-icon.png">
+  <link rel="preload" href="./fonts/luckiest-guy.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="./fonts/nunito.woff2" as="font" type="font/woff2" crossorigin>
   <style>
+    /* Bundled fonts (see public/fonts/LICENSE-*.txt) */
+    @font-face { font-family: 'Luckiest Guy'; src: url('./fonts/luckiest-guy.woff2') format('woff2'); font-weight: 400; font-display: block; }
+    @font-face { font-family: 'Nunito'; src: url('./fonts/nunito.woff2') format('woff2'); font-weight: 200 1000; font-display: block; }
     html, body {
       margin: 0; height: 100%; background: #140e0a; overflow: hidden;
       touch-action: none; overscroll-behavior: none;

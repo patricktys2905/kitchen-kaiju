@@ -41,7 +41,7 @@ export default defineConfig({
       },
       workbox: {
         // Precache the whole game so it runs with no connection after the first visit.
-        globPatterns: ['**/*.{js,css,html,svg,png,webp,ico,json}'],
+        globPatterns: ['**/*.{js,css,html,svg,png,webp,ico,json,woff2}'],
         maximumFileSizeToCacheInBytes: 4 * 1024 * 1024,
         cleanupOutdatedCaches: true,
         navigateFallback: 'index.html',

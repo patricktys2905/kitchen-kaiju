@@ -4,6 +4,7 @@ import { clearTaps, consumeTap, readSlot, slotLabel, type Slot } from '../input'
 import { CUTLERY_LEN, fitInside, hasArt } from '../render/art';
 import { ArtRenderer } from '../render/artRender';
 import { drawCutleryShape, drawKaiju, drawTableLive } from '../render/draw';
+import { body, display, popIn, withShadow } from '../render/fonts';
 import { BotBrain, type Difficulty } from '../sim/bot';
 import { P, SPECIES, TABLE, VIEW } from '../sim/constants';
 import { CUTLERY } from '../sim/cutlery';
@@ -12,7 +13,6 @@ import { World, type GameEvent, type PlayerInput } from '../sim/world';
 import { isTouchDevice, setTouchHud, setTouchMode } from '../touch';
 
 const STEP = 1 / 120;
-const FONT = 'Arial Black, Impact, sans-serif';
 const TOUCH_ASSIST_ANGLE = 0.45; // radians either side of facing
 const HUD_X = (i: number) => 16 + i * 246; // panel left edge; panels are 236 wide
 
@@ -62,6 +62,7 @@ export class GameScene extends Phaser.Scene {
   private rings: Ring[] = [];
   private feed: { text: string; color: string; t: number }[] = [];
   private bannerT = 0;
+  private lastBanner = '';
   private eatSfxT = 0;
 
   constructor() {
@@ -104,14 +105,14 @@ export class GameScene extends Phaser.Scene {
     this.infoTexts = [];
     this.slots.forEach((s, i) => {
       const x = HUD_X(i);
-      this.nameTexts.push(this.add.text(x + 48, 8, SPECIES[this.species[i]].name, { fontFamily: FONT, fontSize: '18px', color: this.css[i], stroke: '#140b05', strokeThickness: 4 }).setDepth(6));
-      this.infoTexts.push(this.add.text(x + 48, 54, slotLabel(s), { fontFamily: 'Arial', fontSize: '13px', color: '#d9c7b3' }).setDepth(6));
+      this.nameTexts.push(withShadow(this.add.text(x + 48, 7, SPECIES[this.species[i]].name, display(20, this.css[i], { strokeThickness: 4 })).setDepth(6), 2));
+      this.infoTexts.push(this.add.text(x + 48, 53, slotLabel(s), body(13, '#d9c7b3', 800)).setDepth(6));
     });
-    this.roundText = this.add.text(VIEW.w - 16, 12, '', { fontFamily: FONT, fontSize: '14px', color: '#ffcf8a', align: 'right' }).setOrigin(1, 0).setDepth(6);
-    if (!isTouchDevice) this.add.text(VIEW.w - 16, 34, 'P pause · Esc menu', { fontFamily: 'Arial', fontSize: '12px', color: '#9c8a78' }).setOrigin(1, 0).setDepth(6);
-    this.feedTexts = [0, 1].map(i => this.add.text(VIEW.w / 2, 682 + i * 19, '', { fontFamily: FONT, fontSize: '15px', color: '#fff', stroke: '#140b05', strokeThickness: 4 }).setOrigin(0.5, 0).setDepth(6));
-    this.banner = this.add.text(VIEW.w / 2, VIEW.h / 2 - 20, '', { fontFamily: FONT, fontSize: '84px', color: '#ffe9c7', stroke: '#2a1408', strokeThickness: 12, align: 'center' }).setOrigin(0.5).setDepth(10);
-    this.bannerSub = this.add.text(VIEW.w / 2, VIEW.h / 2 + 50, '', { fontFamily: 'Arial', fontSize: '22px', color: '#ffffff', stroke: '#2a1408', strokeThickness: 5, align: 'center' }).setOrigin(0.5).setDepth(10);
+    this.roundText = this.add.text(VIEW.w - 16, 11, '', display(16, '#ffcf8a', { align: 'right', strokeThickness: 3 })).setOrigin(1, 0).setDepth(6);
+    if (!isTouchDevice) this.add.text(VIEW.w - 16, 36, 'P pause · Esc menu', body(12, '#9c8a78', 700)).setOrigin(1, 0).setDepth(6);
+    this.feedTexts = [0, 1].map(i => this.add.text(VIEW.w / 2, 680 + i * 19, '', body(16, '#fff', 900, { stroke: '#140b05', strokeThickness: 4 })).setOrigin(0.5, 0).setDepth(6));
+    this.banner = withShadow(this.add.text(VIEW.w / 2, VIEW.h / 2 - 20, '', display(90, '#ffe9c7', { strokeThickness: 13, align: 'center', padding: { x: 10, y: 10 } })).setOrigin(0.5).setDepth(10), 8);
+    this.bannerSub = withShadow(this.add.text(VIEW.w / 2, VIEW.h / 2 + 50, '', body(22, '#ffffff', 900, { stroke: '#2a1408', strokeThickness: 5, align: 'center' })).setOrigin(0.5).setDepth(10), 3);
     this.handleEvents(this.world.drainEvents());
   }
 
@@ -281,7 +282,8 @@ export class GameScene extends Phaser.Scene {
   }
 
   private popup(x: number, y: number, text: string, color: string, size = 22): void {
-    const t = this.add.text(x, y, text, { fontFamily: FONT, fontSize: `${size}px`, color, stroke: '#140b05', strokeThickness: 5 }).setOrigin(0.5).setDepth(7);
+    const t = withShadow(this.add.text(x, y, text, display(size + 2, color, { strokeThickness: 5 })).setOrigin(0.5).setDepth(7), 3);
+    popIn(this, t, 1.8, 260);
     this.popups.push({ text: t, vy: -50, life: 1 });
   }
 
@@ -408,7 +410,8 @@ export class GameScene extends Phaser.Scene {
       const ranked = w.players.slice().sort((a, b) => b.score - a.score || b.kos - a.kos);
       sub = ranked.map((p, i) => `${i + 1}. ${p.name}  ${p.score} rounds · ${p.kos} KOs`).join('\n') + '\n\n1 / START rematch · Esc menu';
     }
-    this.banner.setText(main).setColor(color).setFontSize(main.length > 14 ? 54 : 84);
+    if (main !== this.lastBanner) { this.lastBanner = main; if (main) popIn(this, this.banner, 1.5, 380); }
+    this.banner.setText(main).setColor(color).setFontSize(main.length > 14 ? 58 : 90);
     this.banner.setY(w.phase === 'matchEnd' ? 210 : VIEW.h / 2 - 20);
     this.bannerSub.setText(sub).setY(w.phase === 'matchEnd' ? 380 : VIEW.h / 2 + 50);
   }
