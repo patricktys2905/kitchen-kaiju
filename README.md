@@ -99,6 +99,7 @@ npm run build     # typecheck + production build
 npm run smoke     # headless browser playthrough + screenshots (needs Edge/Chrome)
 npm run update-check # installed copy picks up a newly deployed version on the menu
 npm run banner-check # 6-player round-end / match-end screens: all text on screen, nothing overlapping
+npm run smoke:online-backup # same, with the friend forced onto the backup route
 npm run smoke:online # two browsers play online over the real matchmaking server (needs internet)
 npm run smoke:phone  # emulated phone with multi-touch: menu, joystick, aim-drag throw, dash, rotate prompt
 npm run balance   # simulate 12 bot matches: pacing + KO-cause mix  (args: easy|normal|hard, players)

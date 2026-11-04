@@ -226,7 +226,8 @@ export class GameScene extends Phaser.Scene {
   private hostBroadcast(dt: number): void {
     if (this.net?.role !== 'host') return;
     this.netAcc += dt;
-    if (this.netAcc < 0.05) return;
+    // ~20 updates/s; ~13/s when a friend is on the (slower) backup route so it never falls behind
+    if (this.netAcc < (this.net.host.hasBackupGuests ? 0.075 : 0.05)) return;
     this.netAcc = 0;
     this.net.host.broadcast({ t: 'snap', s: makeSnapshot(this.world), ev: this.netEvents.splice(0, 60) });
     this.netEvents = [];
@@ -239,7 +240,7 @@ export class GameScene extends Phaser.Scene {
     const inp: PlayerInput = readSlot({ kind: 'local', index: 0 });
     if (isTouchDevice) this.touchAimAssist(seat, inp);
     this.netAcc += dt;
-    if (this.netAcc >= 1 / 30) { this.netAcc = 0; this.net.guest.send({ t: 'in', i: inp }); }
+    if (this.netAcc >= (this.net.guest.route === 'backup' ? 1 / 15 : 1 / 30)) { this.netAcc = 0; this.net.guest.send({ t: 'in', i: inp }); }
     if (this.inbox.length) {
       for (const m of this.inbox.splice(0)) {
         if (applySnapshot(this.world, m.s)) this.art.setupTable(this.world.layout, this.world.players.map(p => ({ x: p.x, y: p.y, color: this.colors[p.id] })));

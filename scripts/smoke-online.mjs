@@ -5,6 +5,7 @@ import { spawn } from 'node:child_process';
 import { existsSync } from 'node:fs';
 import { chromium } from 'playwright-core';
 
+const ROUTE = process.env.ROUTE === 'backup' || process.argv[2] === 'backup' ? 'backup' : 'direct'; // ROUTE=backup forces the friend onto the backup route
 const PORT = 5287, url = `http://localhost:${PORT}/`;
 const server = spawn(process.execPath, ['node_modules/vite/bin/vite.js', 'preview', '--port', String(PORT), '--strictPort'], { stdio: 'pipe' });
 const errors = [];
@@ -38,7 +39,7 @@ try {
   await until(() => host.getByText(/Room .* is open/).isVisible());
 
   // Phone joins with the code
-  await guest.goto(url); await menuReady(guest); await wait(300);
+  await guest.goto(ROUTE === 'backup' ? url + '?net=backup' : url); await menuReady(guest); await wait(300);
   await guest.getByText('🌐 ONLINE').tap();
   await guest.getByText('Join a game').tap();
   await guest.fill('#lb-code', code);
@@ -46,6 +47,7 @@ try {
   await guest.getByText('Join', { exact: true }).tap();
   check(await until(() => guest.getByText("You're in!").isVisible()), 'phone joined the room');
   check(await until(() => host.getByText('Phone', { exact: false }).first().isVisible()), 'host sees the phone player');
+  check(await until(() => host.getByText(ROUTE === 'backup' ? 'backup route' : 'direct link', { exact: false }).first().isVisible()), `phone joined via the ${ROUTE} route`);
 
   // Phone changes its kaiju; host's lobby reflects it
   const before = await host.locator('#lobby .seat').nth(1).locator('.k').textContent();
@@ -66,7 +68,7 @@ try {
   check(hs.length === 6 && gs.length === 6, 'bots filled the empty seats (6 kaiju on both screens)');
   check(hs.every((p, i) => p.name === gs[i].name), 'same kaiju line-up on both screens');
   const drift = Math.max(...hs.map((p, i) => Math.hypot(p.x - gs[i].x, p.y - gs[i].y)));
-  check(drift < 120, `positions in sync (max drift ${drift.toFixed(0)}px)`);
+  check(drift < (ROUTE === 'backup' ? 220 : 120), `positions in sync (max drift ${drift.toFixed(0)}px)`);
 
   // Guest input reaches the host: drag the phone joystick towards the table centre
   await host.evaluate(() => { const w = window.__game.scene.getScene('game').world; w.opts.hazards = false; w.players[1].invT = 1e9; });
@@ -91,4 +93,4 @@ try {
 }
 const real = errors.filter(e => !/Could not connect to peer|Lost connection/.test(e));
 if (real.length) { console.error('Console errors:\n' + real.join('\n')); process.exit(1); }
-console.log('ONLINE SMOKE OK (screenshots: smoke-online-*.png)');
+console.log(`ONLINE SMOKE OK via ${ROUTE} route (screenshots: smoke-online-*.png)`);

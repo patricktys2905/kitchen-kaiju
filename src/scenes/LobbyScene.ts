@@ -105,9 +105,9 @@ export class LobbyScene extends Phaser.Scene {
     this.mySeat = 0;
     this.seats = [{ who: 'host', name: 'You (host)', species: 0 }];
     host.onStatus = (t, ok) => { this.status = t; this.statusOk = ok; this.render(); };
-    host.onGuestJoin = (g, name) => {
+    host.onGuestJoin = (g, name, route) => {
       const free = SPECIES.map((_, k) => k).filter(k => !this.seats.some(s => s.species === k));
-      this.seats.push({ who: 'guest', guest: g, name, species: free[0] ?? 0 });
+      this.seats.push({ who: 'guest', guest: g, name, species: free[0] ?? 0, route });
       sfx.join(this.seats.length);
       this.syncLobby();
     };
@@ -191,7 +191,7 @@ export class LobbyScene extends Phaser.Scene {
       const img = `art/kaiju-${s.species}.webp`;
       return `<div class="seat" style="border-color:${sp.css}">
         <img src="${img}" alt="">
-        <div class="k" style="color:${sp.css}">${sp.full}<div class="who">${esc(s.name)}${mine ? ' (you)' : ''}</div></div>
+        <div class="k" style="color:${sp.css}">${sp.full}<div class="who">${esc(s.name)}${mine ? ' (you)' : ''}${s.route === 'backup' ? ' · backup route (slower)' : s.route === 'direct' ? ' · direct link' : ''}</div></div>
         ${mine ? `<button data-pick="-1">◀</button><button data-pick="1">▶</button>` : ''}
       </div>`;
     }).join('');

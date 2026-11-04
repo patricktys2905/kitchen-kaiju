@@ -17,9 +17,11 @@
     "art:gen": "node scripts/gem-gen.mjs",
     "update-check": "node scripts/update-check.mjs",
     "smoke:online": "node scripts/smoke-online.mjs",
-    "banner-check": "node scripts/banner-check.mjs"
+    "banner-check": "node scripts/banner-check.mjs",
+    "smoke:online-backup": "node scripts/smoke-online.mjs backup"
   },
   "dependencies": {
+    "mqtt": "^5.16.1",
     "peerjs": "^1.5.5",
     "phaser": "^4.2.1"
   },
