@@ -441,3 +441,19 @@ describe('bots', () => {
     });
   }
 });
+
+describe('kaiju look distinct', () => {
+  it('no two kaiju player colours are too close to tell apart', async () => {
+    const { SPECIES } = await import('../src/sim/constants');
+    const lab = (hex: number) => {
+      const c = [(hex >> 16) & 255, (hex >> 8) & 255, hex & 255].map(v => { v /= 255; return v > 0.04045 ? ((v + 0.055) / 1.055) ** 2.4 : v / 12.92; });
+      const X = (c[0] * 0.4124 + c[1] * 0.3576 + c[2] * 0.1805) / 0.95047, Y = c[0] * 0.2126 + c[1] * 0.7152 + c[2] * 0.0722, Z = (c[0] * 0.0193 + c[1] * 0.1192 + c[2] * 0.9505) / 1.08883;
+      const f = (t: number) => (t > 0.008856 ? Math.cbrt(t) : 7.787 * t + 16 / 116);
+      return [116 * f(Y) - 16, 500 * (f(X) - f(Y)), 200 * (f(Y) - f(Z))];
+    };
+    for (let i = 0; i < SPECIES.length; i++) for (let j = i + 1; j < SPECIES.length; j++) {
+      const a = lab(SPECIES[i].color), b = lab(SPECIES[j].color);
+      expect(Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2]), `${SPECIES[i].name} vs ${SPECIES[j].name}`).toBeGreaterThan(28);
+    }
+  });
+});

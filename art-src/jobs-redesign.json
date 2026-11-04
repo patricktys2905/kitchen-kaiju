@@ -1,0 +1,38 @@
+[
+  {
+    "name": "kaiju-13",
+    "newChat": true,
+    "refs": [
+      "art-src/ref-style.png"
+    ],
+    "prompt": "Generate an image. The attached picture shows character sprites from my party game Kitchen Kaiju. Keep this EXACT art style: bold chunky cartoon, thick dark-brown outlines, flat bright colours with soft cel shading and one crisp white highlight, cheeky (not babyish) expressions, same size. The kaiju is MADE OF FOOD. Framing: one full-body character, three-quarter view facing RIGHT, centred, filling about 80% of the frame, solid flat magenta (#FF00FF) background, no ground shadow, no text, no props. Square 1:1. Kaiju: AVOCADRAKE: IMPORTANT: NOT a lizard or dinosaur and NOT standing on two legs. It is a ROUND, plump AVOCADO HALF that is flying: the cut face (pale yellow-green flesh with the big round brown PIT in the middle like a belly) faces the viewer, dark bumpy avocado-skin bat WINGS flapping on each side, two tiny stubby feet dangling, small horns, a cocky grin above the pit. Olive-green (#9bb33a) and yellow-green colours."
+  },
+  {
+    "name": "kaiju-14",
+    "prompt": "Next kaiju in exactly the same art style, framing (three-quarter view facing RIGHT) and solid flat magenta (#FF00FF) background: SALMONSTER: IMPORTANT: NOT a lizard or dinosaur, no legs. It is an upright FISH monster standing on its curled TAIL FIN like a seahorse: a chunky salmon fish body with a deep NAVY-BLUE (#2f5f9f) shiny fish-skin back and head, a bright coral SALMON-FILLET belly with white marbling stripes, two fins used as arms, big round fish eyes and a wide gaping fish mouth with little teeth, a lemon slice stuck on its head like a hat. No text, no props. Square 1:1."
+  },
+  {
+    "name": "kaiju-10",
+    "prompt": "Next kaiju in exactly the same art style, framing (three-quarter view facing RIGHT) and solid flat magenta (#FF00FF) background: BLUEBEARY: a stout bear kaiju made of a BLUEBERRY MUFFIN that is clearly ROYAL BLUE: the whole muffin top and bear head are covered in thick royal-blue (#4a6cff) blueberry icing and plump blueberries, round blue bear ears, only a small golden paper muffin cup as its lower body, a mischievous smile. No text, no props. Square 1:1."
+  },
+  {
+    "name": "kaiju-15",
+    "prompt": "Next kaiju in exactly the same art style, framing (three-quarter view facing RIGHT) and solid flat magenta (#FF00FF) background: ONIGIRILLA: a burly gorilla kaiju made of an ONIGIRI rice ball, with a clearly TRIANGULAR rice head, white fluffy rice-grain body, and a BIG wrap of dark-black NORI SEAWEED covering its whole lower half and legs like shorts (strong black and white contrast), a red pickled-plum dot on its chest, big rice fists, a proud grin. No text, no props. Square 1:1."
+  },
+  {
+    "name": "kaiju-13-rage",
+    "prompt": "Now AVOCADRAKE in KAIJU MODE: exactly the same new design, shape and colours you just drew, same style, framing (facing RIGHT) and magenta background, but roaring furiously with mouth wide open, angry eyebrows, bits of its food flying off. No text. Square 1:1."
+  },
+  {
+    "name": "kaiju-14-rage",
+    "prompt": "Now SALMONSTER in KAIJU MODE: exactly the same new design, shape and colours you just drew, same style, framing (facing RIGHT) and magenta background, but roaring furiously with mouth wide open, angry eyebrows, bits of its food flying off. No text. Square 1:1."
+  },
+  {
+    "name": "kaiju-10-rage",
+    "prompt": "Now BLUEBEARY in KAIJU MODE: exactly the same new design, shape and colours you just drew, same style, framing (facing RIGHT) and magenta background, but roaring furiously with mouth wide open, angry eyebrows, bits of its food flying off. No text. Square 1:1."
+  },
+  {
+    "name": "kaiju-15-rage",
+    "prompt": "Now ONIGIRILLA in KAIJU MODE: exactly the same new design, shape and colours you just drew, same style, framing (facing RIGHT) and magenta background, but roaring furiously with mouth wide open, angry eyebrows, bits of its food flying off. No text. Square 1:1."
+  }
+]
