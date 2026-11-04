@@ -1,6 +1,9 @@
 // All tunable numbers live here so balancing never means hunting through logic.
 export const VIEW = { w: 1280, h: 720 };
 export const MAX_PLAYERS = 6;
+/** "First to N rounds" choices on the menu / online lobby. */
+export const ROUND_CHOICES = [1, 3, 5, 7, 10];
+export const DEFAULT_ROUNDS = 5;
 export const TABLE = { x: 100, y: 95, w: 1080, h: 575 };
 
 export const P = {

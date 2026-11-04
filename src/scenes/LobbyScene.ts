@@ -7,7 +7,7 @@ import { MAX_GUESTS, NetGuest, NetHost, type LobbySeat, type NetMsg } from '../n
 import { hasArt } from '../render/art';
 import { drawFloor } from '../render/draw';
 import { DIFFICULTIES, type Difficulty } from '../sim/bot';
-import { SPECIES } from '../sim/constants';
+import { DEFAULT_ROUNDS, ROUND_CHOICES, SPECIES } from '../sim/constants';
 import { LAYOUTS } from '../sim/layouts';
 import { setTouchMode } from '../touch';
 
@@ -43,6 +43,7 @@ export class LobbyScene extends Phaser.Scene {
   private mySeat = 0;
   private table = -1;
   private difficulty: Difficulty = 'normal';
+  private rounds = DEFAULT_ROUNDS;
   private fillTo: 0 | 4 | 6 = 4; // bots fill empty seats up to this many players (0 = no bots)
   private status = '';
   private statusOk = true;
@@ -53,8 +54,9 @@ export class LobbyScene extends Phaser.Scene {
     super('lobby');
   }
 
-  init(data: { difficulty?: Difficulty }): void {
+  init(data: { difficulty?: Difficulty; rounds?: number }): void {
     this.difficulty = data.difficulty ?? 'normal';
+    this.rounds = data.rounds ?? DEFAULT_ROUNDS;
     this.view = 'choose';
     this.host = this.guest = null;
     this.seats = [];
@@ -93,7 +95,7 @@ export class LobbyScene extends Phaser.Scene {
     this.leaving = true;
     this.host?.close();
     this.guest?.close();
-    this.scene.start('menu', { difficulty: this.difficulty });
+    this.scene.start('menu', { difficulty: this.difficulty, rounds: this.rounds });
   }
 
   private startHosting(): void {
@@ -125,7 +127,7 @@ export class LobbyScene extends Phaser.Scene {
     guest.onStatus = (t, ok) => { this.status = t; this.statusOk = ok; this.render(); };
     guest.onClosed = reason => { this.status = reason; this.statusOk = false; this.seats = []; this.guest = null; this.render(); };
     guest.onMsg = (m: NetMsg) => {
-      if (m.t === 'lobby') { this.seats = m.seats; this.mySeat = m.you; this.table = m.table; this.difficulty = m.difficulty as Difficulty; this.render(); }
+      if (m.t === 'lobby') { this.seats = m.seats; this.mySeat = m.you; this.table = m.table; this.difficulty = m.difficulty as Difficulty; this.rounds = m.rounds ?? DEFAULT_ROUNDS; this.render(); }
       if (m.t === 'start') this.launchGuest(m);
     };
     guest.join(code, name || 'Friend');
@@ -147,7 +149,7 @@ export class LobbyScene extends Phaser.Scene {
   private syncLobby(): void {
     if (!this.host) return;
     this.seats.forEach((s, i) => {
-      if (s.who === 'guest' && s.guest !== undefined) this.host!.send(s.guest, { t: 'lobby', seats: this.seats, you: i, table: this.table, difficulty: this.difficulty });
+      if (s.who === 'guest' && s.guest !== undefined) this.host!.send(s.guest, { t: 'lobby', seats: this.seats, you: i, table: this.table, difficulty: this.difficulty, rounds: this.rounds });
     });
     this.render();
   }
@@ -164,17 +166,17 @@ export class LobbyScene extends Phaser.Scene {
     const species = seats.map(s => s.species);
     const names = seats.map(s => s.name);
     const tables = this.table < 0 ? null : [this.table];
-    seats.forEach((s, i) => { if (s.who === 'guest' && s.guest !== undefined) host.send(s.guest, { t: 'start', species, names, seat: i, tables }); });
+    seats.forEach((s, i) => { if (s.who === 'guest' && s.guest !== undefined) host.send(s.guest, { t: 'start', species, names, seat: i, tables, rounds: this.rounds }); });
     const slots: Slot[] = seats.map(s => (s.who === 'host' ? { kind: 'local', index: 0 } : s.who === 'guest' ? { kind: 'remote', index: s.guest! } : { kind: 'bot', index: 0 }));
     this.leaving = true;
-    this.scene.start('game', { slots, difficulty: this.difficulty, species, tables, net: { role: 'host', host } });
+    this.scene.start('game', { slots, difficulty: this.difficulty, species, tables, rounds: this.rounds, net: { role: 'host', host } });
   }
 
   private launchGuest(m: Extract<NetMsg, { t: 'start' }>): void {
     if (!this.guest) return;
     const slots: Slot[] = m.species.map((_, i) => (i === m.seat ? { kind: 'local', index: 0 } : { kind: 'remote', index: i }));
     this.leaving = true;
-    this.scene.start('game', { slots, difficulty: this.difficulty, species: m.species, tables: m.tables, net: { role: 'guest', guest: this.guest, seat: m.seat } });
+    this.scene.start('game', { slots, difficulty: this.difficulty, species: m.species, tables: m.tables, rounds: m.rounds, net: { role: 'guest', guest: this.guest, seat: m.seat } });
   }
 
   // ---------------------------------------------------------------- UI
@@ -210,6 +212,7 @@ export class LobbyScene extends Phaser.Scene {
           <button data-act="bots">${this.fillTo ? `Bots fill up to ${this.fillTo} players` : 'No bots'}</button>
           <button data-act="diff">Bots: ${this.difficulty}</button>
           <button data-act="table">Table: ${esc(tl)}</button>
+          <button data-act="rounds">First to ${this.rounds} round${this.rounds === 1 ? '' : 's'}</button>
         </div>
         <div class="row"><button class="go" data-act="start" ${guests ? '' : 'disabled'}>Start match</button><button data-act="back">Close room</button></div>
         ${guests ? '' : '<p class="muted">Waiting for at least one friend to join…</p>'}
@@ -217,7 +220,7 @@ export class LobbyScene extends Phaser.Scene {
     } else {
       const saved = localStorage.getItem('kk-name') ?? '';
       html = this.seats.length
-        ? `<h1>You're in!</h1>${seatsHtml}<p class="muted">Pick your kaiju with ◀ ▶. The host starts the match.</p>${statusHtml}
+        ? `<h1>You're in!</h1>${seatsHtml}<p class="muted">Pick your kaiju with ◀ ▶. The host starts the match · first to ${this.rounds} round${this.rounds === 1 ? '' : 's'}.</p>${statusHtml}
            <div class="row"><button data-act="back">Leave</button></div>`
         : `<h1>Join a game</h1>
            <p>Room code from your host:</p>
@@ -249,6 +252,7 @@ export class LobbyScene extends Phaser.Scene {
     }
     if (a === 'bots') { this.fillTo = this.fillTo === 4 ? 6 : this.fillTo === 6 ? 0 : 4; this.render(); }
     if (a === 'diff') { this.difficulty = DIFFICULTIES[(DIFFICULTIES.indexOf(this.difficulty) + 1) % DIFFICULTIES.length]; this.syncLobby(); }
+    if (a === 'rounds') { this.rounds = ROUND_CHOICES[(ROUND_CHOICES.indexOf(this.rounds) + 1) % ROUND_CHOICES.length] ?? DEFAULT_ROUNDS; this.syncLobby(); }
     if (a === 'table') { this.table = this.table + 1 >= LAYOUTS.length ? -1 : this.table + 1; this.syncLobby(); }
     if (a === 'start') this.startMatch();
   }

@@ -59,6 +59,12 @@ try {
   await wait(100);
   if ((await menu()).pick === d1.pick) throw new Error('D did not change the kaiju');
   if ((await menu()).diff !== d1.diff) throw new Error('D changed difficulty instead of the kaiju');
+  const r0 = await page.evaluate(() => window.__game.scene.getScene('menu').rounds);
+  await page.keyboard.press('KeyR');
+  await wait(100);
+  const r1 = await page.evaluate(() => window.__game.scene.getScene('menu').rounds);
+  console.log('rounds key check:', r0, '->', r1);
+  if (r1 === r0) throw new Error('R did not change the number of rounds');
   await page.screenshot({ path: 'smoke-1-menu.png' });
   await page.keyboard.press('Digit1');
   await wait(2200); // countdown
@@ -93,6 +99,9 @@ try {
     return { slot0: s.slots[0].kind, players: s.world.players.length, thrown: s.world.cutlery.some(c => c.owner === 0 && c.holder !== 0) || s.world.players[0].holding === null };
   });
   console.log('human check:', JSON.stringify(human));
+  const target = await page.evaluate(() => window.__game.scene.getScene('game').world.opts.target);
+  if (target !== r1) throw new Error(`match uses ${target} rounds, menu said ${r1}`);
+  console.log('match uses the chosen rounds:', target);
   if (human.slot0 !== 'kb' || human.players !== 3) throw new Error('keyboard player did not join');
 
   // 3) Bot-only demo match for a while (hazards, kaiju etc.).

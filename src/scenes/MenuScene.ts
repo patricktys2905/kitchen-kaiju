@@ -6,7 +6,7 @@ import { CUTLERY_LEN, fitInside, hasArt } from '../render/art';
 import { drawCutleryShape, drawFloor, drawKaiju } from '../render/draw';
 import { BODY as BODY_FONT, DISPLAY, INK, popIn, withGradient, withShadow } from '../render/fonts';
 import { DIFFICULTIES, type Difficulty } from '../sim/bot';
-import { MAX_PLAYERS, SPECIES } from '../sim/constants';
+import { DEFAULT_ROUNDS, MAX_PLAYERS, ROUND_CHOICES, SPECIES } from '../sim/constants';
 import { LAYOUTS } from '../sim/layouts';
 import { isTouchDevice, setTouchHud, setTouchMode } from '../touch';
 
@@ -20,6 +20,7 @@ export interface MenuData {
   difficulty?: Difficulty;
   species?: number[];
   tables?: number[] | null;
+  rounds?: number;
 }
 
 export class MenuScene extends Phaser.Scene {
@@ -27,6 +28,7 @@ export class MenuScene extends Phaser.Scene {
   private picks: number[] = []; // kaiju species per slot
   private difficulty: Difficulty = 'normal';
   private table = -1; // -1 = rotate through all tables
+  private rounds = DEFAULT_ROUNDS; // first to this many round wins
   private g!: Phaser.GameObjects.Graphics;
   private slotTexts: Phaser.GameObjects.Text[] = [];
   private slotSub: Phaser.GameObjects.Text[] = [];
@@ -48,6 +50,7 @@ export class MenuScene extends Phaser.Scene {
     this.slots = data.slots ?? [];
     this.picks = (data.species ?? []).slice(0, this.slots.length);
     this.difficulty = data.difficulty ?? this.difficulty;
+    if (data.rounds) this.rounds = data.rounds;
     if (data.tables !== undefined) this.table = data.tables && data.tables.length === 1 ? data.tables[0] : -1;
     this.devPrev.clear();
     this.fixPicks();
@@ -144,7 +147,7 @@ export class MenuScene extends Phaser.Scene {
     this.add.text(640, 560, rules.join('\n'), { ...BODY, fontStyle: '700', fontSize: '15px', align: 'center', color: '#cdb9a3', lineSpacing: 5 }).setOrigin(0.5, 0).setDepth(2);
     if (!isTouchDevice) {
       this.chipLine(chipG, 640, 640, '[THROW] join   [◀ ▶] pick kaiju   [DASH] leave   [B] [N] add / remove bot', 15);
-      this.chipLine(chipG, 640, 670, '[2] bot difficulty   [M] change table   [O] play ONLINE   [1] PLAY', 15);
+      this.chipLine(chipG, 640, 670, '[2] bots   [M] table   [R] rounds   [O] ONLINE   [1] PLAY', 15);
     }
     setTouchMode('menu');
     this.add.text(1272, 712, `v${__APP_VERSION__}`, { ...BODY, fontSize: '11px', color: '#8a7a6a' }).setOrigin(1, 1).setDepth(5);
@@ -170,7 +173,7 @@ export class MenuScene extends Phaser.Scene {
     while (this.slots.length < 2) this.addSlot({ kind: 'bot', index: this.slots.length });
     this.fixPicks();
     this.scene.start('game', {
-      slots: this.slots.slice(), difficulty: this.difficulty, species: this.picks.slice(), tables: this.table < 0 ? null : [this.table],
+      slots: this.slots.slice(), difficulty: this.difficulty, species: this.picks.slice(), tables: this.table < 0 ? null : [this.table], rounds: this.rounds,
     });
   }
 
@@ -187,7 +190,11 @@ export class MenuScene extends Phaser.Scene {
     // Bot difficulty: '2' on a keyboard (D is the left player's "next kaiju"), or the BOTS button on touch.
     if (consumeTap('Digit2') || consumeTap('TouchDiff')) { this.difficulty = DIFFICULTIES[(DIFFICULTIES.indexOf(this.difficulty) + 1) % DIFFICULTIES.length]; sfx.pickup(); }
     if (consumeTap('KeyM')) this.cycleTable();
-    if (consumeTap('KeyO') || consumeTap('TouchOnline')) { this.scene.start('lobby', { difficulty: this.difficulty }); return; }
+    if (consumeTap('KeyR') || consumeTap('TouchRounds')) {
+      this.rounds = ROUND_CHOICES[(ROUND_CHOICES.indexOf(this.rounds) + 1) % ROUND_CHOICES.length] ?? DEFAULT_ROUNDS;
+      sfx.pickup();
+    }
+    if (consumeTap('KeyO') || consumeTap('TouchOnline')) { this.scene.start('lobby', { difficulty: this.difficulty, rounds: this.rounds }); return; }
     if (consumeTap('TouchJoin')) {
       const j = this.slots.findIndex(s => s.kind === 'touch');
       if (j >= 0) this.removeSlot(j);
@@ -203,6 +210,7 @@ export class MenuScene extends Phaser.Scene {
       joined: this.slots.some(s => s.kind === 'touch'),
       difficulty: this.difficulty,
       table: this.table < 0 ? 'ALL' : LAYOUTS[this.table].name.toUpperCase(),
+      rounds: this.rounds,
     });
     this.draw();
   }
@@ -293,7 +301,7 @@ export class MenuScene extends Phaser.Scene {
         this.slotSub[i].setText(isTouchDevice ? 'empty (+ BOT)' : 'THROW to join');
       }
     }
-    this.infoText.setText(`Bot difficulty: ${this.difficulty.toUpperCase()}   ·   Up to ${MAX_PLAYERS} players   ·   First to 5 rounds   ·   ${SPECIES.length} kaiju`);
+    this.infoText.setText(`Bot difficulty: ${this.difficulty.toUpperCase()}   ·   Up to ${MAX_PLAYERS} players   ·   First to ${this.rounds} round${this.rounds === 1 ? '' : 's'}   ·   ${SPECIES.length} kaiju`);
     const tl = this.table < 0 ? null : LAYOUTS[this.table];
     this.tableText.setText(tl ? `TABLE: ${tl.name.toUpperCase()}  —  ${tl.blurb}` : `TABLE: ALL ${LAYOUTS.length} (a different one every round)`);
     // small preview of the chosen table surface

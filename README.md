@@ -33,7 +33,7 @@ Full screen: tap the ⛶ FULL SCREEN button (top-left on the menu, under MENU in
 | Dash | Left Shift | Right Shift / Numpad 2 | B / RB |
 | Stomp (meter full) | E | . / Numpad 3 | Y / LB |
 
-Menu: THROW joins, DASH leaves, B/N add/remove bot, 2 bot difficulty, 1 or START begins. In game: P pause, Esc menu.
+Menu: THROW joins, DASH leaves, B/N add/remove bot, 2 bot difficulty, M table, R rounds to win (1/3/5/7/10), O online, 1 or START begins. In game: P pause, Esc menu.
 
 ## Online with friends
 
@@ -67,7 +67,7 @@ Menu → **ONLINE** (or press O). One person taps **Host a game** and gets a 4-l
 - Dash bumps rivals (and off the table edge); dash into enemy cutlery while unarmed to catch it.
 - Crumbs fill the belly meter → Stomp → 5s KAIJU: huge, immune to cutlery, squashes on contact, shockwave steps.
 - The giant hand sweeps a lane (1.4s warning) aimed at the biggest kaiju / fullest belly. After 45s it comes much more often.
-- First to 5 round wins.
+- First to 5 round wins by default; choose 1, 3, 5, 7 or 10 with R / the ROUNDS button (host sets it online).
 
 ## Code layout
 

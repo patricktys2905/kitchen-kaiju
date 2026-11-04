@@ -26,6 +26,7 @@ export interface GameData {
   difficulty: Difficulty;
   species?: number[]; // which kaiju each slot picked
   tables?: number[] | null; // table pool (null/empty = all)
+  rounds?: number; // first to this many round wins
   net?: { role: 'host'; host: NetHost } | { role: 'guest'; guest: NetGuest; seat: number };
   seed?: number;
 }
@@ -56,8 +57,10 @@ export class GameScene extends Phaser.Scene {
   private hudX(i: number): number { return (this.slots.length > 4 ? 5 : 16) + i * this.hudW; }
   private get hudText(): number { return this.slots.length > 4 ? 42 : 48; }
   private tables: number[] | null = null;
+  private rounds = 5;
   private colors: number[] = [];
   private css: string[] = [];
+  private scoreTexts: Phaser.GameObjects.Text[] = [];
   private hudIcons: (Phaser.GameObjects.Image | null)[] = [];
   private hudHeld: (Phaser.GameObjects.Image | null)[] = [];
   private fxG!: Phaser.GameObjects.Graphics;
@@ -88,7 +91,8 @@ export class GameScene extends Phaser.Scene {
     this.tables = data.tables?.length ? data.tables : null;
     this.colors = this.species.map(s => SPECIES[s].color);
     this.css = this.species.map(s => SPECIES[s].css);
-    this.world = new World({ players: this.species.map(s => ({ name: SPECIES[s].name })), seed, layouts: this.tables ?? undefined });
+    this.rounds = data.rounds ?? 5;
+    this.world = new World({ players: this.species.map(s => ({ name: SPECIES[s].name })), seed, layouts: this.tables ?? undefined, target: this.rounds });
     this.bots = this.slots.map((s, i) => (s.kind === 'bot' ? new BotBrain(i, this.difficulty, seed + i * 101) : null));
     this.net = data.net;
     this.netAcc = 0;
@@ -119,6 +123,7 @@ export class GameScene extends Phaser.Scene {
     this.hudHeld = this.slots.map((_, i) => (hasArt('cut-fork') ? this.add.image(this.hudX(i) + this.hudW - 40, 18, 'cut-fork').setDepth(6).setRotation(-0.35) : null));
 
     this.nameTexts = [];
+    this.scoreTexts = this.slots.map(() => this.add.text(0, 0, '', display(15, '#ffe9c7', { strokeThickness: 3 })).setDepth(6));
     this.infoTexts = [];
     this.slots.forEach((s, i) => {
       const x = this.hudX(i), six = this.slots.length > 4;
@@ -194,7 +199,7 @@ export class GameScene extends Phaser.Scene {
         if (m.t === 'snap') this.inbox.push({ s: m.s, ev: m.ev });
         if (m.t === 'start') {
           const slots = m.species.map((_, i) => (i === m.seat ? { kind: 'local' as const, index: 0 } : { kind: 'remote' as const, index: i }));
-          this.scene.restart({ slots, difficulty: this.difficulty, species: m.species, tables: m.tables, net: { role: 'guest', guest: net.guest, seat: m.seat } });
+          this.scene.restart({ slots, difficulty: this.difficulty, species: m.species, tables: m.tables, rounds: m.rounds, net: { role: 'guest', guest: net.guest, seat: m.seat } });
         }
       };
       net.guest.onClosed = reason => { this.netNotice = reason; this.time.delayedCall(2500, () => this.scene.start('menu', { difficulty: this.difficulty })); };
@@ -204,15 +209,15 @@ export class GameScene extends Phaser.Scene {
   private leave(): void {
     if (this.net?.role === 'host') this.net.host.close();
     if (this.net?.role === 'guest') this.net.guest.close();
-    this.scene.start('menu', { slots: this.net ? [] : this.slots, difficulty: this.difficulty, species: this.net ? [] : this.species, tables: this.tables });
+    this.scene.start('menu', { slots: this.net ? [] : this.slots, difficulty: this.difficulty, species: this.net ? [] : this.species, tables: this.tables, rounds: this.rounds });
   }
 
   private rematch(): void {
-    const data: GameData = { slots: this.slots, difficulty: this.difficulty, species: this.species, tables: this.tables, net: this.net };
+    const data: GameData = { slots: this.slots, difficulty: this.difficulty, species: this.species, tables: this.tables, net: this.net, rounds: this.rounds };
     const net = this.net;
     if (net?.role === 'host') {
       const names = this.world.players.map(p => p.name);
-      this.slots.forEach((sl, i) => { if (sl.kind === 'remote') net.host.send(sl.index, { t: 'start', species: this.species, names, seat: i, tables: this.tables }); });
+      this.slots.forEach((sl, i) => { if (sl.kind === 'remote') net.host.send(sl.index, { t: 'start', species: this.species, names, seat: i, tables: this.tables, rounds: this.rounds }); });
     }
     this.scene.restart(data);
   }
@@ -454,7 +459,14 @@ export class GameScene extends Phaser.Scene {
       if (icon) fitInside(icon.setAlpha(p.alive ? 1 : 0.35).setTexture(p.kaijuT > 0 && hasArt(`kaiju-${this.species[i]}-rage`) ? `kaiju-${this.species[i]}-rage` : `kaiju-${this.species[i]}`), 40, 44);
       else drawKaiju(g, { x: x + 20, y: 40, r: 17, aim: Math.PI / 2, kaiju: false, species: this.species[i], color: this.colors[i] }, t, p.alive ? 1 : 0.35);
       // round stars (second row, right of the belly meter)
-      for (let s = 0; s < w.opts.target; s++) {
+      if (w.opts.target > 5) {
+        g.fillStyle(this.colors[i], 1);
+        const sx = x + pw - 76, sy = 41, pts: { x: number; y: number }[] = [];
+        for (let k = 0; k < 10; k++) { const r = k % 2 ? 2.8 : 6.5, a = (k / 10) * Math.PI * 2 - Math.PI / 2; pts.push({ x: sx + Math.cos(a) * r, y: sy + Math.sin(a) * r }); }
+        g.fillPoints(pts as unknown as Phaser.Math.Vector2[], true);
+      }
+      this.scoreTexts[i]?.setText(w.opts.target > 5 ? `${p.score}/${w.opts.target}` : '').setPosition(x + pw - 66, 33);
+      for (let s = 0; s < (w.opts.target > 5 ? 0 : w.opts.target); s++) {
         const sx = x + pw - 76 + s * 14, sy = 41;
         g.fillStyle(s < p.score ? this.colors[i] : 0x3a2c22, 1);
         const pts: { x: number; y: number }[] = [];
@@ -509,7 +521,7 @@ export class GameScene extends Phaser.Scene {
       if (w.winner !== null) { main = `${w.players[w.winner].name} WINS THE ROUND`; color = this.css[w.winner]; }
       else { main = 'NOBODY SURVIVED DINNER'; }
       // scores: at most 3 kaiju per line so 6 players still fit on screen
-      const scores = w.players.map(p => `${p.name} ${'★'.repeat(p.score)}${'☆'.repeat(w.opts.target - p.score)}`);
+      const scores = w.players.map(p => (w.opts.target > 5 ? `${p.name} ★ ${p.score}/${w.opts.target}` : `${p.name} ${'★'.repeat(p.score)}${'☆'.repeat(w.opts.target - p.score)}`));
       sub = chunk(scores, 3).map(r => r.join('      ')).join('\n');
     } else if (w.phase === 'matchEnd' && w.winner !== null) {
       main = `${SPECIES[this.species[w.winner]].full.toUpperCase()}\nRULES THE TABLE`;

@@ -48,6 +48,9 @@ try {
   await tapEl(page.getByText(/^TABLE:/));
   check((await menuState()).table !== m0.table, 'TABLE button changes the table');
   m0 = await menuState();
+  const rr = await page.evaluate(() => window.__game.scene.getScene('menu').rounds);
+  await tapEl(page.getByText(/^ROUNDS:/));
+  check((await page.evaluate(() => window.__game.scene.getScene('menu').rounds)) !== rr, 'ROUNDS button changes the number of rounds');
   await tapEl(page.getByText('KAIJU ▶'));
   check((await menuState()).pick !== m0.pick, 'KAIJU button changes your kaiju');
   // Full screen button: goes full screen where allowed, otherwise shows the Add-to-Home-Screen guide.
