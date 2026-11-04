@@ -16,7 +16,8 @@
     "art": "node scripts/process-art.mjs",
     "art:gen": "node scripts/gem-gen.mjs",
     "update-check": "node scripts/update-check.mjs",
-    "smoke:online": "node scripts/smoke-online.mjs"
+    "smoke:online": "node scripts/smoke-online.mjs",
+    "banner-check": "node scripts/banner-check.mjs"
   },
   "dependencies": {
     "peerjs": "^1.5.5",

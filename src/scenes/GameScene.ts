@@ -508,17 +508,34 @@ export class GameScene extends Phaser.Scene {
     } else if (w.phase === 'roundEnd') {
       if (w.winner !== null) { main = `${w.players[w.winner].name} WINS THE ROUND`; color = this.css[w.winner]; }
       else { main = 'NOBODY SURVIVED DINNER'; }
-      sub = w.players.map(p => `${p.name} ${'★'.repeat(p.score)}${'☆'.repeat(w.opts.target - p.score)}`).join('     ');
+      // scores: at most 3 kaiju per line so 6 players still fit on screen
+      const scores = w.players.map(p => `${p.name} ${'★'.repeat(p.score)}${'☆'.repeat(w.opts.target - p.score)}`);
+      sub = chunk(scores, 3).map(r => r.join('      ')).join('\n');
     } else if (w.phase === 'matchEnd' && w.winner !== null) {
       main = `${SPECIES[this.species[w.winner]].full.toUpperCase()}\nRULES THE TABLE`;
       color = this.css[w.winner];
       const ranked = w.players.slice().sort((a, b) => b.score - a.score || b.kos - a.kos);
-      sub = ranked.map((p, i) => `${i + 1}. ${p.name}  ${p.score} rounds · ${p.kos} KOs`).join('\n')
-        + (this.net?.role === 'guest' ? '\n\nWaiting for the host to start a rematch… · Esc to leave' : '\n\n1 / START rematch · Esc menu');
+      const lines = ranked.map((p, i) => `${i + 1}. ${p.name}  ${p.score} round${p.score === 1 ? '' : 's'} · ${p.kos} KO${p.kos === 1 ? '' : 's'}`);
+      // more than 4 players: two columns (1st|2nd, 3rd|4th, 5th|6th)
+      const table = lines.length > 4 ? chunk(lines, 2).map(r => r.join('        ')).join('\n') : lines.join('\n');
+      sub = table + (this.net?.role === 'guest' ? '\n\nWaiting for the host to start a rematch… · Esc to leave' : '\n\n1 / START rematch · Esc menu');
     }
     if (main !== this.lastBanner) { this.lastBanner = main; if (main) popIn(this, this.banner, 1.5, 380); }
     this.banner.setText(main).setColor(color).setFontSize(main.length > 14 ? 58 : 90);
-    this.banner.setY(w.phase === 'matchEnd' ? 210 : VIEW.h / 2 - 20);
-    this.bannerSub.setText(sub).setY(w.phase === 'matchEnd' ? 380 : VIEW.h / 2 + 50);
+    this.bannerSub.setText(sub).setFontSize(w.players.length > 4 && (w.phase === 'roundEnd' || w.phase === 'matchEnd') ? 20 : 22);
+    if (w.phase === 'matchEnd') {
+      // title near the top, the ranking starts just below it (never overlapping)
+      this.banner.setY(185);
+      this.bannerSub.setOrigin(0.5, 0).setY(185 + this.banner.displayHeight / 2 + 12);
+    } else {
+      this.banner.setY(VIEW.h / 2 - 20);
+      this.bannerSub.setOrigin(0.5, 0.5).setY(VIEW.h / 2 + 50 + (sub.split('\n').length - 1) * 12);
+    }
   }
+}
+
+function chunk<T>(a: T[], n: number): T[][] {
+  const out: T[][] = [];
+  for (let i = 0; i < a.length; i += n) out.push(a.slice(i, i + n));
+  return out;
 }
