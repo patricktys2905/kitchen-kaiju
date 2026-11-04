@@ -292,12 +292,82 @@ describe('new tables', () => {
     expect(w.players[0].y).toBeGreaterThan(290);
   });
 
+  it('Bakery Bench: sticky dough halves your speed', () => {
+    const w = makeWorld(2, 'fork', { layout: 9 });
+    expect(w.layout.name).toBe('Bakery Bench');
+    const z = w.layout.stickies![0];
+    place(w, 0, z.x - 30, z.y);
+    place(w, 1, 1100, 620);
+    run(w, 0.25, () => [{ ...NO_INPUT, mx: 1 }]);
+    const onDough = w.players[0].x - (z.x - 30);
+    const d = makeWorld(2, 'fork', { layout: 9 });
+    place(d, 0, 640, 470);
+    place(d, 1, 1100, 620);
+    run(d, 0.25, () => [{ ...NO_INPUT, mx: 1 }]);
+    expect(onDough).toBeLessThan((d.players[0].x - 640) * 0.65);
+  });
+
+  it('Banquet Lazy Susan: the turntable carries you around its centre', () => {
+    const w = makeWorld(2, 'fork', { layout: 10 });
+    const tt = w.layout.turntable!;
+    place(w, 0, tt.x + 150, tt.y);
+    place(w, 1, 1100, 620);
+    run(w, 1);
+    const p = w.players[0];
+    expect(Math.hypot(p.x - tt.x, p.y - tt.y)).toBeCloseTo(150, -1); // same distance from the centre...
+    expect(Math.atan2(p.y - tt.y, p.x - tt.x)).toBeGreaterThan(0.5); // ...but turned
+  });
+
+  it('Breakfast Rush: a toaster warns, then its toast knocks out whoever is in the lane', () => {
+    const w = makeWorld(3, 'fork', { layout: 11, hazards: true });
+    const z = w.layout.toasters![0]; // fires to the right along y = z.y
+    place(w, 0, 480, z.y);
+    place(w, 1, 480, 600);
+    place(w, 2, 1000, 150);
+    w.toaster = { state: 'warn', i: 0, t: 0 };
+    run(w, 1.0);
+    expect(w.players[0].alive).toBe(true); // still warning
+    const ev = run(w, 0.8);
+    expect(ev.find(e => e.type === 'ko' && e.id === 0)).toMatchObject({ cause: 'toast' });
+    expect(w.players[1].alive && w.players[2].alive).toBe(true);
+  });
+
   it('a chosen table is used for every round', () => {
     const w = new World({ players: [{ name: 'a' }, { name: 'b' }], seed: 3, layouts: [4] });
     for (let r = 0; r < 3; r++) {
       expect(w.layout.name).toBe('Birthday Bash');
       w.startRound();
     }
+  });
+});
+
+describe('6 players', () => {
+  it('every table has 6 safe, spread-out starting spots', async () => {
+    const { LAYOUTS } = await import('../src/sim/layouts');
+    for (const L of LAYOUTS) {
+      expect(L.spawns.length, L.name).toBeGreaterThanOrEqual(6);
+      L.spawns.forEach(([x, y], i) => {
+        const where = `${L.name} spawn ${i} (${x},${y})`;
+        expect(x > TABLE.x + 40 && x < TABLE.x + TABLE.w - 40 && y > TABLE.y + 30 && y < TABLE.y + TABLE.h - 30, where + ' on the table').toBe(true);
+        for (const o of L.obstacles) {
+          const clear = o.shape === 'circle' ? Math.hypot(x - o.x, y - o.y) > o.r + P.radius + 8
+            : x < o.x - P.radius - 8 || x > o.x + o.w + P.radius + 8 || y < o.y - P.radius - 8 || y > o.y + o.h + P.radius + 8;
+          expect(clear, `${where} clear of ${o.style}`).toBe(true);
+        }
+        for (const z of [...(L.burners ?? []), ...(L.spills ?? [])]) expect(Math.hypot(x - z.x, y - z.y) > z.r + P.radius, `${where} off burners/puddles`).toBe(true);
+        for (const b of L.belts ?? []) expect(x > b.x - P.radius && x < b.x + b.w + P.radius && y > b.y - P.radius && y < b.y + b.h + P.radius, `${where} off belts`).toBe(false);
+        L.spawns.forEach(([x2, y2], j) => { if (j !== i) expect(Math.hypot(x - x2, y - y2) > 100, `${where} apart from spawn ${j}`).toBe(true); });
+      });
+    }
+  });
+
+  it('six bots finish a full match', () => {
+    const w = new World({ players: [0, 1, 2, 3, 4, 5].map(i => ({ name: 'B' + i })), seed: 6 });
+    const bots = w.players.map((_, i) => new BotBrain(i, 'normal', 60 + i));
+    let t = 0;
+    while (w.phase !== 'matchEnd' && t < 1200) { w.step(DT, bots.map(b => b.decide(w, DT))); w.drainEvents(); t += DT; }
+    expect(w.phase).toBe('matchEnd');
+    expect(new Set(w.players.map(p => `${Math.round(p.x)},${Math.round(p.y)}`)).size).toBe(6);
   });
 });
 

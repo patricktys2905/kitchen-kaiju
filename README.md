@@ -1,6 +1,6 @@
 # Kitchen Kaiju
 
-Tiny monsters brawl on a giant dinner table with throwable cutlery. Local multiplayer for 2–4 players (keyboards + gamepads), bots fill empty seats.
+Tiny monsters brawl on a giant dinner table with throwable cutlery. Up to 6 players: on one screen (2 keyboards, gamepads, touch) or online with friends; bots fill empty seats.
 
 ## Play
 
@@ -37,7 +37,7 @@ Menu: THROW joins, DASH leaves, B/N add/remove bot, 2 bot difficulty, 1 or START
 
 ## Online with friends
 
-Menu → **ONLINE** (or press O). One person taps **Host a game** and gets a 4-letter room code; friends tap **Join a game** on their own phone or computer, anywhere, and type the code. Everyone picks a kaiju in the lobby, the host picks bots/table and starts. Up to 4 players (host + 3 friends), bots can fill empty seats.
+Menu → **ONLINE** (or press O). One person taps **Host a game** and gets a 4-letter room code; friends tap **Join a game** on their own phone or computer, anywhere, and type the code. Everyone picks a kaiju in the lobby, the host picks bots/table and starts. Up to 6 players (host + 5 friends); bots can fill empty seats up to 4 or 6 players.
 
 - The host's device runs the match; friends send their controls and receive the game ~20 times a second (PeerJS/WebRTC; the free public PeerJS server only introduces the devices).
 - If a friend drops out, a bot takes over their kaiju. If the host leaves, friends are sent back to the menu. Only the host can start a rematch; pausing is off online.
@@ -45,9 +45,9 @@ Menu → **ONLINE** (or press O). One person taps **Host a game** and gets a 4-l
 
 ## Kaiju and tables
 
-12 food kaiju to pick from (each player picks a different one; LEFT/RIGHT on your controller, or KAIJU ▶ on touch): Gobzilla Jr. (strawberry lizard), Squidgeon (blue jelly octopus), Crabbage (cheese crab), Bloblin (lime jelly), Mothball (ube marshmallow moth), Toastbat (toast bat), Dumplord (dumpling), Norigon (sushi-roll dragon), Chocomunch (chocolate golem), Bubblegumbo (bubblegum elephant), Bluebeary (blueberry muffin bear), Pizzaraptor (pizza raptor). All play the same for now.
+16 food kaiju to pick from (each player picks a different one; LEFT/RIGHT on your controller, or KAIJU ▶ on touch): Gobzilla Jr. (strawberry lizard), Squidgeon (blue jelly octopus), Crabbage (cheese crab), Bloblin (lime jelly), Mothball (ube marshmallow moth), Toastbat (toast bat), Dumplord (dumpling), Norigon (sushi-roll dragon), Chocomunch (chocolate golem), Bubblegumbo (bubblegum elephant), Bluebeary (blueberry muffin bear), Pizzaraptor (pizza raptor), Grapehound (grape hound), Avocadrake (avocado dragon), Salmonster (salmon sea monster), Onigirilla (rice-ball gorilla). All play the same for now.
 
-9 tables (M / gamepad Y / TABLE button; default rotates through all):
+12 tables (M / gamepad Y / TABLE button; default rotates through all):
 - Sunday Roast, Dinner for Four, Leftovers: the giant hand
 - Sushi Bar: a conveyor belt carries players, loose cutlery and crumbs sideways (plus the hand)
 - Birthday Bash: warned gusts of wind push everyone towards one edge; walk into the wind
@@ -55,6 +55,9 @@ Menu → **ONLINE** (or press O). One person taps **Host a game** and gets a 4-l
 - Diner Griddle: burners glow, then flare and grill anyone standing on them
 - Ice Cream Parlour: melted puddles are slippery (plus the hand)
 - Picnic Blanket: an ant trail marches down the middle carrying everything (plus the hand)
+- Bakery Bench: sticky dough patches slow you to half speed (plus the hand)
+- Banquet Lazy Susan: a big turntable in the middle spins everything on it (plus the hand)
+- Breakfast Rush: toasters shake, then fire toast across their lane
 
 ## Rules (phases 1–2)
 

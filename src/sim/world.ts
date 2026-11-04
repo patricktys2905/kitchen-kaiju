@@ -20,7 +20,7 @@ const BOOMERANG_TURN = 10; // rad/s (turn radius = speed / turn)
 
 export const NO_INPUT: PlayerInput = { mx: 0, my: 0, throw: false, swipe: false, dash: false, stomp: false };
 
-export type KOCause = 'cutlery' | 'swipe' | 'squash' | 'fall' | 'hand' | 'wind' | 'chop' | 'burn';
+export type KOCause = 'cutlery' | 'swipe' | 'squash' | 'fall' | 'hand' | 'wind' | 'chop' | 'burn' | 'toast';
 
 export type GameEvent =
   | { type: 'throw'; id: number; kind: CutleryKind; x: number; y: number }
@@ -47,6 +47,9 @@ export type GameEvent =
   | { type: 'cleaverChop'; x: number }
   | { type: 'burnerWarn'; i: number; x: number; y: number }
   | { type: 'burnerFlare'; i: number; x: number; y: number }
+  | { type: 'toasterWarn'; i: number }
+  | { type: 'toasterPop'; i: number; x: number; y: number }
+  | { type: 'toastBreak'; x: number; y: number }
   | { type: 'spawnCutlery'; kind: CutleryKind; x: number; y: number }
   | { type: 'countdown'; n: number }
   | { type: 'go' }
@@ -156,6 +159,22 @@ export interface Burner {
   t: number;
 }
 
+/** Breakfast Rush: the toaster (index into layout.toasters) that is about to fire. */
+export interface ToasterState {
+  state: 'warn';
+  i: number;
+  t: number;
+}
+
+/** A flying slice of toast (no owner: it hurts everyone). */
+export interface Toast {
+  x: number;
+  y: number;
+  vx: number;
+  vy: number;
+  spin: number;
+}
+
 /** Chef's Board cleaver: a vertical lane at x. */
 export interface Cleaver {
   state: 'warn' | 'chop';
@@ -173,6 +192,9 @@ export class World {
   wind: Wind | null = null;
   cleaver: Cleaver | null = null;
   burner: Burner | null = null;
+  toaster: ToasterState | null = null;
+  toasts: Toast[] = [];
+  turnAngle = 0; // Lazy Susan rotation, for drawing
   layout: Layout = LAYOUTS[0];
   layoutIndex = 0;
   phase: Phase = 'countdown';
@@ -186,6 +208,7 @@ export class World {
   private windTimer = 0;
   private cleaverTimer = 0;
   private burnerTimer = 0;
+  private toasterTimer = 0;
   private crumbTimer = 0;
   private pickupTimer = 0;
   private lastCount = 0;
@@ -237,6 +260,9 @@ export class World {
     this.cleaverTimer = RULES.cleaverFirst;
     this.burner = null;
     this.burnerTimer = RULES.burnerFirst;
+    this.toaster = null;
+    this.toasts = [];
+    this.toasterTimer = RULES.toasterFirst;
     this.crumbTimer = 0;
     this.pickupTimer = RULES.pickupEvery;
     this.phase = 'countdown';
@@ -315,13 +341,15 @@ export class World {
     this.resolvePlayerContacts();
     this.updateCutlery(dt);
     this.eatCrumbs();
-    if (this.phase === 'play' || this.hand || this.wind || this.cleaver || this.burner) {
+    if (this.phase === 'play' || this.hand || this.wind || this.cleaver || this.burner || this.toaster || this.toasts.length) {
       if (this.phase === 'play') this.spawnTimers(dt);
       this.updateHand(dt);
       this.updateWind(dt);
       this.updateCleaver(dt);
       this.updateBurner(dt);
+      this.updateToasters(dt);
     }
+    this.spinTurntable(dt);
     this.cutlery = this.cutlery.filter(c => !c.dead);
     this.checkRound();
   }
@@ -390,7 +418,7 @@ export class World {
     p.prev = { throw: inp.throw, swipe: inp.swipe, dash: inp.dash, stomp: inp.stomp };
 
     // Movement
-    const spd = P.speed * (p.charging ? P.chargeSlow : 1) * (p.kaijuT > 0 ? P.kaijuSpeed : 1);
+    const spd = P.speed * (p.charging ? P.chargeSlow : 1) * (p.kaijuT > 0 ? P.kaijuSpeed : 1) * (this.onSticky(p.x, p.y) ? RULES.stickySlow : 1);
     if (p.dashT > 0) {
       p.dashT -= dt;
     } else {
@@ -851,7 +879,7 @@ export class World {
   }
 
   // ---------------------------------------------------------------- hazards
-  private hazardOn(k: 'hand' | 'wind' | 'cleaver' | 'burner'): boolean {
+  private hazardOn(k: 'hand' | 'wind' | 'cleaver' | 'burner' | 'toaster'): boolean {
     return this.opts.hazards && this.layout.hazards.includes(k);
   }
 
@@ -896,6 +924,73 @@ export class World {
       this.wind = null;
       const iv = this.roundT > RULES.suddenDeathAt ? RULES.suddenDeathInterval : RULES.windInterval;
       this.windTimer = this.rng.range(iv[0], iv[1]);
+    }
+  }
+
+  onSticky(x: number, y: number): boolean {
+    for (const z of this.layout.stickies ?? []) if (Math.hypot(x - z.x, y - z.y) < z.r) return true;
+    return false;
+  }
+
+  /** Lazy Susan: rotate everything sitting on the turntable around its centre. */
+  private spinTurntable(dt: number): void {
+    const tt = this.layout.turntable;
+    if (!tt || this.phase === 'countdown') return;
+    const a = tt.spin * dt, c = Math.cos(a), sn = Math.sin(a);
+    this.turnAngle += a;
+    const turn = (o: { x: number; y: number }) => {
+      const dx = o.x - tt.x, dy = o.y - tt.y;
+      if (dx * dx + dy * dy > tt.r * tt.r) return;
+      o.x = tt.x + dx * c - dy * sn;
+      o.y = tt.y + dx * sn + dy * c;
+    };
+    for (const p of this.players) if (p.alive) turn(p);
+    for (const cu of this.cutlery) if (cu.state === 'stuck') turn(cu);
+    for (const cr of this.crumbs) turn(cr);
+  }
+
+  private updateToasters(dt: number): void {
+    // flying toast
+    const R = RULES.toastRadius;
+    for (const t of this.toasts) {
+      t.x += t.vx * dt;
+      t.y += t.vy * dt;
+      t.spin += dt * 9;
+      let broke = t.x < TABLE.x || t.x > TABLE.x + TABLE.w || t.y < TABLE.y || t.y > TABLE.y + TABLE.h;
+      for (const o of this.layout.obstacles) {
+        if (o.style === 'toaster') continue; // it flies out of its own toaster
+        if (o.shape === 'circle' ? Math.hypot(t.x - o.x, t.y - o.y) < o.r + R * 0.6 : circRect(t.x, t.y, R * 0.6, o.x, o.y, o.w, o.h)) broke = true;
+      }
+      for (const p of this.players) {
+        if (!p.alive || p.invT > 0 || Math.hypot(p.x - t.x, p.y - t.y) > p.r + R) continue;
+        if (p.kaijuT > 0) { broke = true; continue; } // a kaiju just eats it
+        this.ko(p, null, 'toast');
+        broke = true;
+      }
+      if (broke) { t.spin = NaN; this.emit({ type: 'toastBreak', x: t.x, y: t.y }); }
+    }
+    this.toasts = this.toasts.filter(t => !Number.isNaN(t.spin));
+
+    const list = this.layout.toasters ?? [];
+    if (!this.hazardOn('toaster') || !list.length) return;
+    if (!this.toaster) {
+      if (this.phase !== 'play') return;
+      this.toasterTimer -= dt;
+      if (this.toasterTimer > 0) return;
+      const i = this.rng.int(list.length);
+      this.toaster = { state: 'warn', i, t: 0 };
+      this.emit({ type: 'toasterWarn', i });
+      return;
+    }
+    const ts = this.toaster;
+    ts.t += dt;
+    if (ts.t >= RULES.toasterWarn) {
+      const z = list[ts.i];
+      this.toasts.push({ x: z.x, y: z.y, vx: Math.cos(z.a) * RULES.toastSpeed, vy: Math.sin(z.a) * RULES.toastSpeed, spin: 0 });
+      this.emit({ type: 'toasterPop', i: ts.i, x: z.x, y: z.y });
+      this.toaster = null;
+      const iv = this.roundT > RULES.suddenDeathAt ? RULES.toasterSuddenDeath : RULES.toasterInterval;
+      this.toasterTimer = this.rng.range(iv[0], iv[1]);
     }
   }
 

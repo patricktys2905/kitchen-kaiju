@@ -1,0 +1,17 @@
+[
+  {
+    "name": "bg-bakery",
+    "newChat": true,
+    "prompt": "Generate an image. A game background texture for a top-down party game: a floury BAKERY WORKBENCH made of pale wood, dusted with patches of white flour, seen from DIRECTLY ABOVE, filling the ENTIRE frame. Style: clean painted cartoon game art with gentle cel shading (not a photo), even flat lighting, low contrast so game pieces on top stay readable. Completely EMPTY: no objects, no food, no text, no border, no vignette. Wide 16:9 landscape image."
+  },
+  {
+    "name": "bg-banquet",
+    "newChat": true,
+    "prompt": "Generate an image. A game background texture for a top-down party game: a grand BANQUET TABLE with a deep red tablecloth with a subtle gold damask pattern, seen from DIRECTLY ABOVE, filling the ENTIRE frame. Style: clean painted cartoon game art with gentle cel shading (not a photo), even flat lighting, low contrast so game pieces on top stay readable. Completely EMPTY: no objects, no food, no text, no border, no vignette. Wide 16:9 landscape image."
+  },
+  {
+    "name": "bg-breakfast",
+    "newChat": true,
+    "prompt": "Generate an image. A game background texture for a top-down party game: a sunny KITCHEN BREAKFAST TABLE with a pale yellow-and-white checked oilcloth, seen from DIRECTLY ABOVE, filling the ENTIRE frame. Style: clean painted cartoon game art with gentle cel shading (not a photo), even flat lighting, low contrast so game pieces on top stay readable. Completely EMPTY: no objects, no food, no text, no border, no vignette. Wide 16:9 landscape image."
+  }
+]

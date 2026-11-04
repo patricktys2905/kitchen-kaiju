@@ -1,0 +1,38 @@
+[
+  {
+    "name": "kaiju-12",
+    "newChat": true,
+    "refs": [
+      "art-src/ref-style.png"
+    ],
+    "prompt": "Generate an image. The attached picture shows character sprites from my party game Kitchen Kaiju. Keep this EXACT art style: bold chunky cartoon, thick dark-brown outlines, flat bright colours with soft cel shading and one crisp white highlight, cheeky (not babyish) expressions, same size and proportions. Each kaiju is MADE OF FOOD (an edible thing come alive). Framing: one full-body character, three-quarter view facing RIGHT, standing, centred, filling about 80% of the frame, solid flat magenta (#FF00FF) background, no ground shadow, no text, no props. Square 1:1. New kaiju: GRAPEHOUND, a stocky hound-dog kaiju made of a bunch of glossy deep-purple (#8a4fd6) GRAPES, a woody vine stem as its tail, two grape-leaf ears, a goofy toothy grin."
+  },
+  {
+    "name": "kaiju-13",
+    "prompt": "Next NEW kaiju in exactly the same style, framing (three-quarter view facing RIGHT) and solid flat magenta (#FF00FF) background, made of food: AVOCADRAKE, a small chunky dragon kaiju made of an AVOCADO: bumpy dark-green skin on its back and wings, smooth olive-green (#9bb33a) avocado flesh on its belly with the round brown PIT as a belly button, little wings, a cocky grin. No text, no props. Square 1:1."
+  },
+  {
+    "name": "kaiju-14",
+    "prompt": "Next NEW kaiju in exactly the same style, framing (three-quarter view facing RIGHT) and solid flat magenta (#FF00FF) background, made of food: SALMONSTER, a sea-monster kaiju made of a SALMON FILLET: coral-orange (#ff8a6a) flesh with white marbling stripes, a silvery fish-skin back with fins, a lemon-wedge crest, a sly toothy grin. No text, no props. Square 1:1."
+  },
+  {
+    "name": "kaiju-15",
+    "prompt": "Next NEW kaiju in exactly the same style, framing (three-quarter view facing RIGHT) and solid flat magenta (#FF00FF) background, made of food: ONIGIRILLA, a burly gorilla kaiju made of a triangular ONIGIRI rice ball: fluffy white (#e8eef4) rice body with visible grains, a strip of dark nori seaweed wrapped around its belly like a belt, a pickled-plum red dot on its chest, big rice fists, a proud grin. No text, no props. Square 1:1."
+  },
+  {
+    "name": "kaiju-12-rage",
+    "prompt": "Now GRAPEHOUND in KAIJU MODE: exactly the same design and colours, same style, framing (facing RIGHT) and magenta background, but roaring furiously with mouth wide open, arms raised, angry eyebrows, bits of its food flying off. No text. Square 1:1."
+  },
+  {
+    "name": "kaiju-13-rage",
+    "prompt": "Now AVOCADRAKE in KAIJU MODE: exactly the same design and colours, same style, framing (facing RIGHT) and magenta background, but roaring furiously with mouth wide open, arms raised, angry eyebrows, bits of its food flying off. No text. Square 1:1."
+  },
+  {
+    "name": "kaiju-14-rage",
+    "prompt": "Now SALMONSTER in KAIJU MODE: exactly the same design and colours, same style, framing (facing RIGHT) and magenta background, but roaring furiously with mouth wide open, arms raised, angry eyebrows, bits of its food flying off. No text. Square 1:1."
+  },
+  {
+    "name": "kaiju-15-rage",
+    "prompt": "Now ONIGIRILLA in KAIJU MODE: exactly the same design and colours, same style, framing (facing RIGHT) and magenta background, but roaring furiously with mouth wide open, arms raised, angry eyebrows, bits of its food flying off. No text. Square 1:1."
+  }
+]

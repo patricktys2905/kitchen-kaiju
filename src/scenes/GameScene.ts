@@ -16,7 +16,6 @@ import { isTouchDevice, setTouchHud, setTouchMode } from '../touch';
 
 const STEP = 1 / 120;
 const TOUCH_ASSIST_ANGLE = 0.45; // radians either side of facing
-const HUD_X = (i: number) => 16 + i * 246; // panel left edge; panels are 236 wide
 
 interface Particle { x: number; y: number; vx: number; vy: number; life: number; max: number; color: number; size: number; grav: number }
 interface Ring { x: number; y: number; r: number; t: number; max: number; color: number }
@@ -52,6 +51,10 @@ export class GameScene extends Phaser.Scene {
   private inbox: { s: Snapshot; ev: GameEvent[] }[] = [];
   private netNotice = '';
   private species: number[] = [];
+  /** Scoreboard panel geometry: 4 roomy panels, or 6 slimmer ones when more than 4 play. */
+  private get hudW(): number { return this.slots.length > 4 ? 210 : 246; }
+  private hudX(i: number): number { return (this.slots.length > 4 ? 5 : 16) + i * this.hudW; }
+  private get hudText(): number { return this.slots.length > 4 ? 42 : 48; }
   private tables: number[] | null = null;
   private colors: number[] = [];
   private css: string[] = [];
@@ -112,18 +115,22 @@ export class GameScene extends Phaser.Scene {
     this.hudG = this.add.graphics().setDepth(5);
     this.art = new ArtRenderer(this, this.baseG, this.tableG, { species: this.species, colors: this.colors });
     this.art.setupTable(this.world.layout, this.world.players.map(p => ({ x: p.x, y: p.y, color: this.colors[p.id] })));
-    this.hudIcons = this.species.map((sp, i) => (hasArt(`kaiju-${sp}`) ? fitInside(this.add.image(HUD_X(i) + 20, 40, `kaiju-${sp}`), 40, 44).setDepth(6) : null));
-    this.hudHeld = this.slots.map((_, i) => (hasArt('cut-fork') ? this.add.image(HUD_X(i) + 206, 18, 'cut-fork').setDepth(6).setRotation(-0.35) : null));
+    this.hudIcons = this.species.map((sp, i) => (hasArt(`kaiju-${sp}`) ? fitInside(this.add.image(this.hudX(i) + 18, 40, `kaiju-${sp}`), 38, 42).setDepth(6) : null));
+    this.hudHeld = this.slots.map((_, i) => (hasArt('cut-fork') ? this.add.image(this.hudX(i) + this.hudW - 40, 18, 'cut-fork').setDepth(6).setRotation(-0.35) : null));
 
     this.nameTexts = [];
     this.infoTexts = [];
     this.slots.forEach((s, i) => {
-      const x = HUD_X(i);
-      this.nameTexts.push(withShadow(this.add.text(x + 48, 7, SPECIES[this.species[i]].name, display(20, this.css[i], { strokeThickness: 4 })).setDepth(6), 2));
-      this.infoTexts.push(this.add.text(x + 48, 53, slotLabel(s), body(13, '#d9c7b3', 800)).setDepth(6));
+      const x = this.hudX(i), six = this.slots.length > 4;
+      this.nameTexts.push(withShadow(this.add.text(x + this.hudText, 7, SPECIES[this.species[i]].name, display(six ? 17 : 20, this.css[i], { strokeThickness: 4 })).setDepth(6), 2));
+      this.infoTexts.push(this.add.text(x + this.hudText, 53, slotLabel(s), body(six ? 12 : 13, '#d9c7b3', 800)).setDepth(6));
     });
-    this.roundText = this.add.text(VIEW.w - 16, 11, '', display(16, '#ffcf8a', { align: 'right', strokeThickness: 3 })).setOrigin(1, 0).setDepth(6);
-    if (!isTouchDevice) this.add.text(VIEW.w - 16, 36, 'P pause · Esc menu', body(12, '#9c8a78', 700)).setOrigin(1, 0).setDepth(6);
+    if (this.slots.length > 4) {
+      this.roundText = this.add.text(14, 708, '', display(14, '#ffcf8a', { strokeThickness: 3 })).setOrigin(0, 1).setDepth(6);
+    } else {
+      this.roundText = this.add.text(VIEW.w - 16, 11, '', display(16, '#ffcf8a', { align: 'right', strokeThickness: 3 })).setOrigin(1, 0).setDepth(6);
+      if (!isTouchDevice) this.add.text(VIEW.w - 16, 36, 'P pause · Esc menu', body(12, '#9c8a78', 700)).setOrigin(1, 0).setDepth(6);
+    }
     this.feedTexts = [0, 1].map(i => this.add.text(VIEW.w / 2, 680 + i * 19, '', body(16, '#fff', 900, { stroke: '#140b05', strokeThickness: 4 })).setOrigin(0.5, 0).setDepth(6));
     this.banner = withShadow(this.add.text(VIEW.w / 2, VIEW.h / 2 - 20, '', display(90, '#ffe9c7', { strokeThickness: 13, align: 'center', padding: { x: 10, y: 10 } })).setOrigin(0.5).setDepth(10), 8);
     this.bannerSub = withShadow(this.add.text(VIEW.w / 2, VIEW.h / 2 + 50, '', body(22, '#ffffff', 900, { stroke: '#2a1408', strokeThickness: 5, align: 'center' })).setOrigin(0.5).setDepth(10), 3);
@@ -326,6 +333,9 @@ export class GameScene extends Phaser.Scene {
         case 'windGust': sfx.windGust(); this.shake(0.003, 1300); break;
         case 'cleaverWarn': sfx.cleaverWarn(); break;
         case 'burnerWarn': sfx.burnerWarn(); break;
+        case 'toasterWarn': sfx.toasterWarn(); break;
+        case 'toasterPop': sfx.toasterPop(); this.burst(e.x, e.y, 0xe8b060, 10, 160, 0.4); break;
+        case 'toastBreak': sfx.thwock(); this.burst(e.x, e.y, 0xe0a050, 18, 220, 0.5, 200); break;
         case 'burnerFlare': sfx.burnerFlare(); this.shake(0.006, 300); this.burst(e.x, e.y, 0xff7a1a, 30, 260, 0.6); this.burst(e.x, e.y, 0xffd040, 16, 180, 0.5); break;
         case 'cleaverChop': sfx.cleaverChop(); this.shake(0.014, 260); this.burst(e.x, 380, 0x8a5a32, 30, 300, 0.6); break;
         case 'spawnCutlery': sfx.spawn(); this.burst(e.x, e.y, 0xffffff, 14, 140, 0.5); break;
@@ -358,6 +368,7 @@ export class GameScene extends Phaser.Scene {
       case 'wind': text = `${victim} got blown off the table`; break;
       case 'chop': text = `${victim} got CHOPPED by the cleaver`; break;
       case 'burn': text = `${victim} got grilled on the burner`; break;
+      case 'toast': text = `${victim} got TOASTED`; break;
     }
     if (e.by === null && e.cause === 'cutlery') text = `${victim} skewered themselves`;
     this.feed.unshift({ text, color: this.css[e.by ?? e.id], t: 4 });
@@ -436,15 +447,15 @@ export class GameScene extends Phaser.Scene {
     g.fillStyle(0x0d0805, 0.85);
     g.fillRect(0, 0, VIEW.w, 80);
     w.players.forEach((p, i) => {
-      const x = HUD_X(i);
+      const x = this.hudX(i), pw = this.hudW - 10;
       g.fillStyle(0xffffff, p.alive ? 0.06 : 0.02);
-      g.fillRoundedRect(x - 6, 6, 236, 68, 10);
+      g.fillRoundedRect(x - 4, 6, pw, 68, 10);
       const icon = this.hudIcons[i];
       if (icon) fitInside(icon.setAlpha(p.alive ? 1 : 0.35).setTexture(p.kaijuT > 0 && hasArt(`kaiju-${this.species[i]}-rage`) ? `kaiju-${this.species[i]}-rage` : `kaiju-${this.species[i]}`), 40, 44);
       else drawKaiju(g, { x: x + 20, y: 40, r: 17, aim: Math.PI / 2, kaiju: false, species: this.species[i], color: this.colors[i] }, t, p.alive ? 1 : 0.35);
       // round stars (second row, right of the belly meter)
       for (let s = 0; s < w.opts.target; s++) {
-        const sx = x + 160 + s * 14, sy = 41;
+        const sx = x + pw - 76 + s * 14, sy = 41;
         g.fillStyle(s < p.score ? this.colors[i] : 0x3a2c22, 1);
         const pts: { x: number; y: number }[] = [];
         for (let k = 0; k < 10; k++) {
@@ -454,7 +465,7 @@ export class GameScene extends Phaser.Scene {
         g.fillPoints(pts as unknown as Phaser.Math.Vector2[], true);
       }
       // belly meter
-      const bx = x + 48, by = 36, bw = 100;
+      const bx = x + this.hudText, by = 36, bw = pw - this.hudText - 84;
       g.fillStyle(0x000000, 0.6); g.fillRect(bx, by, bw, 10);
       const full = p.meter >= 100;
       g.fillStyle(p.kaijuT > 0 ? 0xff3b3b : full ? (Math.floor(t * 8) % 2 ? 0xffffff : 0xff3b3b) : 0xffb347, 1);
@@ -466,7 +477,7 @@ export class GameScene extends Phaser.Scene {
         const show = !!held && p.alive && hasArt(`cut-${held.kind}`);
         hi.setVisible(show);
         if (show && held) { hi.setTexture(`cut-${held.kind}`); hi.setScale((CUTLERY_LEN[held.kind] * 0.85) / hi.width); }
-      } else if (held && p.alive) drawCutleryShape(g, held.kind, x + 206, 18, -0.35, 0.85);
+      } else if (held && p.alive) drawCutleryShape(g, held.kind, x + pw - 30, 18, -0.35, 0.85);
       this.nameTexts[i].setAlpha(p.alive ? 1 : 0.4);
       const status = !p.alive ? 'KNOCKED OUT' : p.kaijuT > 0 ? 'KAIJU MODE!' : full ? 'STOMP READY!' : held ? CUTLERY[held.kind].name : 'unarmed';
       this.infoTexts[i].setText(`${status} · KOs ${p.kos}`);

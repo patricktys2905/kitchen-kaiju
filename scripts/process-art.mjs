@@ -22,8 +22,10 @@ const SPRITES = [
   [/^hand$/, 640],
   [/^cleaver$/, 640],
   [/^mat-[a-z]+$/, 320],
+  [/^toast$/, 96],
+  [/^lazysusan$/, 640],
 ];
-const TABLES = ['bg-table', 'bg-sushi', 'bg-party', 'bg-board', 'bg-griddle', 'bg-parlour', 'bg-picnic']; // table surfaces get rounded corners
+const TABLES = ['bg-table', 'bg-sushi', 'bg-party', 'bg-board', 'bg-griddle', 'bg-parlour', 'bg-picnic', 'bg-bakery', 'bg-banquet', 'bg-breakfast']; // table surfaces get rounded corners
 const BACKGROUNDS = { 'bg-floor': [1280, 720], 'bg-menu': [1280, 720], ...Object.fromEntries(TABLES.map(t => [t, [1080, 575]])) };
 
 fs.mkdirSync(OUT, { recursive: true });

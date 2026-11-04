@@ -1,7 +1,10 @@
 [
   {
-    "name": "bg-parlour",
-    "prompt": "Generate an image. A game background texture for a top-down party game: a retro ICE CREAM PARLOUR counter seen from DIRECTLY ABOVE: mint-green and cream checkerboard tiles with a soft marble sheen, filling the ENTIRE frame. Style: clean painted cartoon game art with gentle cel shading (not a photo), even flat lighting, low contrast so game pieces on top stay readable. Completely EMPTY: no objects, no food, no text, no border, no vignette. Wide 16:9 landscape image.",
-    "newChat": true
+    "name": "kaiju-13",
+    "newChat": true,
+    "refs": [
+      "art-src/ref-avo.png"
+    ],
+    "prompt": "Generate an image. The attached picture shows two characters from my cartoon party game. Draw the LEFT character (the avocado dragon, AVOCADRAKE) again in exactly the same art style, design and colours, but CALM: standing relaxed, three-quarter view facing RIGHT, mouth closed in a cocky little grin, small wings folded. One full-body character, centred, filling about 80% of the frame, solid flat magenta (#FF00FF) background, no ground shadow, no text. Square 1:1."
   }
 ]

@@ -19,6 +19,9 @@ export interface Snapshot {
   w: number[] | null;
   cl: number[] | null;
   b: number[] | null;
+  ts: number[][];
+  to: number[] | null;
+  ta: number;
 }
 
 export function makeSnapshot(w: World): Snapshot {
@@ -36,6 +39,9 @@ export function makeSnapshot(w: World): Snapshot {
     w: w.wind ? [w.wind.state === 'warn' ? 0 : 1, r3(w.wind.dir), r3(w.wind.t)] : null,
     cl: w.cleaver ? [w.cleaver.state === 'warn' ? 0 : 1, r1(w.cleaver.x), r3(w.cleaver.t)] : null,
     b: w.burner ? [w.burner.state === 'warn' ? 0 : 1, w.burner.i, r3(w.burner.t)] : null,
+    ts: w.toasts.map(t => [r1(t.x), r1(t.y), r1(t.vx), r1(t.vy), r3(t.spin)]),
+    to: w.toaster ? [w.toaster.i, r3(w.toaster.t)] : null,
+    ta: r3(w.turnAngle),
   };
 }
 
@@ -69,6 +75,9 @@ export function applySnapshot(w: World, s: Snapshot): boolean {
   w.wind = s.w ? { state: s.w[0] ? 'gust' : 'warn', dir: s.w[1], t: s.w[2] } : null;
   w.cleaver = s.cl ? { state: s.cl[0] ? 'chop' : 'warn', x: s.cl[1], t: s.cl[2] } : null;
   w.burner = s.b ? { state: s.b[0] ? 'flare' : 'warn', i: s.b[1], t: s.b[2] } : null;
+  w.toasts = (s.ts ?? []).map(a => ({ x: a[0], y: a[1], vx: a[2], vy: a[3], spin: a[4] }));
+  w.toaster = s.to ? { state: 'warn', i: s.to[0], t: s.to[1] } : null;
+  w.turnAngle = s.ta ?? 0;
   return tableChanged;
 }
 
@@ -82,4 +91,7 @@ export function extrapolate(w: World, dt: number): void {
   for (const c of w.cutlery) {
     if (c.state === 'flying') { c.x += c.vx * dt; c.y += c.vy * dt; c.spin += dt * 28; }
   }
+  for (const t of w.toasts) { t.x += t.vx * dt; t.y += t.vy * dt; t.spin += dt * 9; }
+  const tt = w.layout.turntable;
+  if (tt) w.turnAngle += tt.spin * dt;
 }

@@ -6,7 +6,7 @@ import type { Snapshot } from './snapshot';
 
 const ID_PREFIX = 'kitchen-kaiju-room-';
 const CODE_LETTERS = 'BCDFGHJKLMNPQRSTVWXZ'; // no vowels: no accidental words
-export const MAX_GUESTS = 3;
+export const MAX_GUESTS = 5; // host + 5 friends = 6 players
 
 export interface LobbySeat {
   who: 'host' | 'guest' | 'bot';

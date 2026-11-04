@@ -53,6 +53,7 @@ try {
   check(await until(async () => (await host.locator('#lobby .seat').nth(1).locator('.k').textContent()) !== before), 'phone picked a different kaiju');
 
   // Start
+  await host.getByText(/Bots fill up to 4/).click(); // fill to 6 players
   await host.getByText('Start match').click();
   const inGame = pg => pg.evaluate(() => window.__game.scene.isActive('game'));
   check(await until(() => inGame(host)) && await until(() => inGame(guest)), 'both devices are in the match');
@@ -62,7 +63,7 @@ try {
   const hostState = () => host.evaluate(() => window.__game.scene.getScene('game').world.players.map(p => ({ x: p.x, y: p.y, alive: p.alive, name: p.name })));
   const guestState = () => guest.evaluate(() => window.__game.scene.getScene('game').world.players.map(p => ({ x: p.x, y: p.y, alive: p.alive, name: p.name })));
   const [hs, gs] = [await hostState(), await guestState()];
-  check(hs.length === 4 && gs.length === 4, 'bots filled the empty seats (4 kaiju on both screens)');
+  check(hs.length === 6 && gs.length === 6, 'bots filled the empty seats (6 kaiju on both screens)');
   check(hs.every((p, i) => p.name === gs[i].name), 'same kaiju line-up on both screens');
   const drift = Math.max(...hs.map((p, i) => Math.hypot(p.x - gs[i].x, p.y - gs[i].y)));
   check(drift < 120, `positions in sync (max drift ${drift.toFixed(0)}px)`);

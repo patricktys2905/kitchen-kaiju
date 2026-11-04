@@ -1,13 +1,14 @@
 export type ObstacleStyle =
   | 'cup' | 'shaker' | 'bowl' | 'candle' | 'napkin' | 'bread' | 'gravy'
   | 'soy' | 'sushi' | 'teapot' | 'cake' | 'gift' | 'cupcake' | 'tomato' | 'onion' | 'carrot' | 'garlic'
-  | 'ketchup' | 'mustard' | 'pancakes' | 'egg' | 'sundae' | 'shake' | 'cone' | 'basket' | 'melon' | 'lemonade' | 'sandwich';
+  | 'ketchup' | 'mustard' | 'pancakes' | 'egg' | 'sundae' | 'shake' | 'cone' | 'basket' | 'melon' | 'lemonade' | 'sandwich'
+  | 'croissant' | 'flour' | 'rollingpin' | 'cupcakes' | 'dumplings' | 'noodles' | 'teacup' | 'toaster' | 'jam' | 'cereal';
 
 export type Obstacle =
   | { shape: 'circle'; x: number; y: number; r: number; style: ObstacleStyle }
   | { shape: 'rect'; x: number; y: number; w: number; h: number; style: ObstacleStyle };
 
-export type HazardKind = 'hand' | 'wind' | 'cleaver' | 'burner';
+export type HazardKind = 'hand' | 'wind' | 'cleaver' | 'burner' | 'toaster';
 
 /** A conveyor strip: anything sitting on it is carried sideways at vx px/s. */
 export interface Belt {
@@ -17,6 +18,21 @@ export interface Belt {
   h: number;
   vx: number;
   vy?: number; // vertical belts (the picnic ant trail)
+}
+
+/** Breakfast Rush toaster: fires toast from (x,y) along angle a (radians). */
+export interface Toaster {
+  x: number;
+  y: number;
+  a: number;
+}
+
+/** Banquet Lazy Susan: a turntable that spins everything on it. */
+export interface Turntable {
+  x: number;
+  y: number;
+  r: number;
+  spin: number; // rad/s
 }
 
 /** A circular zone (Ice Cream Parlour puddles, Diner Griddle burners). */
@@ -29,11 +45,14 @@ export interface Zone {
 export interface Layout {
   name: string;
   /** Art key of the table surface. */
-  table: 'bg-table' | 'bg-sushi' | 'bg-party' | 'bg-board' | 'bg-griddle' | 'bg-parlour' | 'bg-picnic';
+  table: 'bg-table' | 'bg-sushi' | 'bg-party' | 'bg-board' | 'bg-griddle' | 'bg-parlour' | 'bg-picnic' | 'bg-bakery' | 'bg-banquet' | 'bg-breakfast';
   hazards: HazardKind[];
   belts?: Belt[];
   spills?: Zone[]; // slippery: you slide instead of stopping
   burners?: Zone[]; // Diner Griddle burners (hazard 'burner')
+  stickies?: Zone[]; // Bakery dough: slows you down
+  turntable?: Turntable; // Banquet Lazy Susan
+  toasters?: Toaster[]; // Breakfast Rush (hazard 'toaster')
   obstacles: Obstacle[];
   spawns: [number, number][];
   blurb: string;
@@ -54,7 +73,7 @@ export const LAYOUTS: Layout[] = [
       { shape: 'circle', x: 330, y: 515, r: 18, style: 'shaker' },
       { shape: 'circle', x: 950, y: 250, r: 18, style: 'shaker' },
     ],
-    spawns: [[180, 170], [1100, 595], [1100, 170], [180, 595]],
+    spawns: [[180, 170], [1100, 595], [1100, 170], [180, 595], [160, 382], [1120, 382]],
   },
   {
     name: 'Dinner for Four',
@@ -70,7 +89,7 @@ export const LAYOUTS: Layout[] = [
       { shape: 'rect', x: 615, y: 140, w: 50, h: 70, style: 'napkin' },
       { shape: 'rect', x: 615, y: 555, w: 50, h: 70, style: 'napkin' },
     ],
-    spawns: [[170, 160], [1110, 605], [1110, 160], [170, 605]],
+    spawns: [[170, 160], [1110, 605], [1110, 160], [170, 605], [160, 382], [1120, 382]],
   },
   {
     name: 'Leftovers',
@@ -84,7 +103,7 @@ export const LAYOUTS: Layout[] = [
       { shape: 'circle', x: 500, y: 565, r: 16, style: 'shaker' },
       { shape: 'circle', x: 780, y: 200, r: 16, style: 'shaker' },
     ],
-    spawns: [[170, 150], [1110, 615], [1110, 150], [170, 615]],
+    spawns: [[170, 150], [1110, 615], [1110, 150], [170, 615], [160, 382], [1120, 382]],
   },
   {
     name: 'Sushi Bar',
@@ -100,7 +119,7 @@ export const LAYOUTS: Layout[] = [
       { shape: 'circle', x: 640, y: 205, r: 18, style: 'soy' },
       { shape: 'circle', x: 640, y: 560, r: 18, style: 'soy' },
     ],
-    spawns: [[170, 160], [1110, 605], [1110, 160], [170, 605]],
+    spawns: [[170, 160], [1110, 605], [1110, 160], [170, 605], [470, 140], [810, 625]],
   },
   {
     name: 'Birthday Bash',
@@ -114,7 +133,7 @@ export const LAYOUTS: Layout[] = [
       { shape: 'circle', x: 290, y: 560, r: 22, style: 'cupcake' },
       { shape: 'circle', x: 990, y: 205, r: 22, style: 'cupcake' },
     ],
-    spawns: [[180, 380], [1100, 380], [640, 150], [640, 615]],
+    spawns: [[180, 380], [1100, 380], [640, 150], [640, 615], [170, 160], [1110, 605]],
   },
   {
     name: "Chef's Board",
@@ -128,7 +147,7 @@ export const LAYOUTS: Layout[] = [
       { shape: 'circle', x: 900, y: 235, r: 18, style: 'garlic' },
       { shape: 'circle', x: 380, y: 520, r: 18, style: 'garlic' },
     ],
-    spawns: [[170, 160], [1110, 605], [1110, 160], [170, 605]],
+    spawns: [[170, 160], [1110, 605], [1110, 160], [170, 605], [160, 382], [1120, 382]],
   },
   {
     name: 'Diner Griddle',
@@ -143,7 +162,7 @@ export const LAYOUTS: Layout[] = [
       { shape: 'circle', x: 195, y: 382, r: 28, style: 'egg' },
       { shape: 'circle', x: 1085, y: 382, r: 28, style: 'egg' },
     ],
-    spawns: [[170, 150], [1110, 615], [1110, 150], [170, 615]],
+    spawns: [[170, 150], [1110, 615], [1110, 150], [170, 615], [450, 130], [830, 632]],
   },
   {
     name: 'Ice Cream Parlour',
@@ -158,7 +177,7 @@ export const LAYOUTS: Layout[] = [
       { shape: 'rect', x: 240, y: 205, w: 120, h: 40, style: 'cone' },
       { shape: 'rect', x: 920, y: 530, w: 120, h: 40, style: 'cone' },
     ],
-    spawns: [[170, 150], [1110, 615], [1110, 150], [170, 615]],
+    spawns: [[170, 150], [1110, 615], [1110, 150], [170, 615], [160, 382], [1120, 382]],
   },
   {
     name: 'Picnic Blanket',
@@ -172,6 +191,50 @@ export const LAYOUTS: Layout[] = [
       { shape: 'circle', x: 975, y: 540, r: 30, style: 'lemonade' },
       { shape: 'rect', x: 330, y: 540, w: 64, h: 64, style: 'sandwich' },
     ],
-    spawns: [[170, 150], [1110, 615], [1110, 150], [170, 615]],
+    spawns: [[170, 150], [1110, 615], [1110, 150], [170, 615], [160, 382], [1120, 382]],
+  },
+  {
+    name: 'Bakery Bench',
+    table: 'bg-bakery',
+    hazards: ['hand'],
+    blurb: 'Sticky dough slows you to a crawl. Easy pickings!',
+    stickies: [{ x: 420, y: 275, r: 66 }, { x: 860, y: 490, r: 66 }, { x: 860, y: 215, r: 46 }, { x: 420, y: 550, r: 46 }],
+    obstacles: [
+      { shape: 'circle', x: 640, y: 382, r: 44, style: 'flour' },
+      { shape: 'rect', x: 560, y: 590, w: 160, h: 32, style: 'rollingpin' },
+      { shape: 'rect', x: 270, y: 395, w: 100, h: 44, style: 'croissant' },
+      { shape: 'circle', x: 1010, y: 360, r: 34, style: 'cupcakes' },
+    ],
+    spawns: [[170, 150], [1110, 615], [1110, 150], [170, 615], [160, 300], [1120, 470]],
+  },
+  {
+    name: 'Banquet Lazy Susan',
+    table: 'bg-banquet',
+    hazards: ['hand'],
+    blurb: 'A giant turntable spins everything on it. Ride it, or get flung!',
+    turntable: { x: 640, y: 382, r: 205, spin: 0.7 },
+    obstacles: [
+      { shape: 'circle', x: 300, y: 205, r: 34, style: 'dumplings' },
+      { shape: 'circle', x: 980, y: 560, r: 36, style: 'noodles' },
+      { shape: 'circle', x: 300, y: 560, r: 20, style: 'teacup' },
+      { shape: 'circle', x: 980, y: 205, r: 20, style: 'teacup' },
+    ],
+    spawns: [[170, 150], [1110, 615], [1110, 150], [170, 615], [160, 382], [1120, 382]],
+  },
+  {
+    name: 'Breakfast Rush',
+    table: 'bg-breakfast',
+    hazards: ['toaster'],
+    blurb: 'Toasters shake, then fire hot toast across the table. Duck!',
+    toasters: [{ x: 188, y: 296, a: 0 }, { x: 1092, y: 496, a: Math.PI }, { x: 640, y: 160, a: Math.PI / 2 }],
+    obstacles: [
+      { shape: 'rect', x: 116, y: 270, w: 70, h: 52, style: 'toaster' },
+      { shape: 'rect', x: 1094, y: 470, w: 70, h: 52, style: 'toaster' },
+      { shape: 'rect', x: 610, y: 105, w: 60, h: 52, style: 'toaster' },
+      { shape: 'circle', x: 640, y: 420, r: 28, style: 'jam' },
+      { shape: 'circle', x: 380, y: 560, r: 36, style: 'cereal' },
+      { shape: 'circle', x: 900, y: 230, r: 36, style: 'cereal' },
+    ],
+    spawns: [[170, 150], [1110, 615], [1110, 150], [170, 615], [160, 400], [1120, 330]],
   },
 ];

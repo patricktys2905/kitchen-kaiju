@@ -5,7 +5,7 @@ import type { Layout } from '../sim/layouts';
 import type { Cutlery, Player, World } from '../sim/world';
 import { CUTLERY_LEN, fitInside, hasArt, SpritePool } from './art';
 import {
-  cutleryAngle, drawBelt, drawBurner, drawSpill, drawChopMark, drawCleaverBlade, drawCleaverWarn, drawCrumbs, drawCutlery, drawCutleryGlow, drawFloor,
+  cutleryAngle, drawBelt, drawBurner, drawSpill, drawSticky, drawToast, drawToasterWarn, drawTurnArrows, drawTurntable, drawChopMark, drawCleaverBlade, drawCleaverWarn, drawCrumbs, drawCutlery, drawCutleryGlow, drawFloor,
   drawHand, drawKaiju, drawObstacle, drawObstacleShadow, drawMat, drawPlayerOver, drawPlayerUnder, drawTableFrame, drawTableRim,
   drawTableSurface, drawWind, playerAlpha,
 } from './draw';
@@ -121,6 +121,19 @@ export class ArtRenderer {
     this.pool.begin();
     for (const b of w.layout.belts ?? []) drawBelt(under, b, t);
     (w.layout.spills ?? []).forEach((z, i) => drawSpill(under, z, i, t));
+    (w.layout.stickies ?? []).forEach((z, i) => drawSticky(under, z, i));
+    const tt = w.layout.turntable;
+    if (tt) {
+      if (hasArt('lazysusan')) {
+        under.fillStyle(0x000000, 0.25); under.fillCircle(tt.x + 6, tt.y + 9, tt.r);
+        const img = this.pool.take('lazysusan', D.mat);
+        img.setDisplaySize(tt.r * 2.05, tt.r * 2.05).setRotation(w.turnAngle).setPosition(tt.x, tt.y);
+      } else {
+        drawTurntable(under, tt, w.turnAngle);
+      }
+      drawTurnArrows(under, tt, w.turnAngle * 1.5);
+    }
+    if (w.toaster) { const z = w.layout.toasters?.[w.toaster.i]; if (z) drawToasterWarn(under, z, w.toaster, t); }
     (w.layout.burners ?? []).forEach((z, i) => drawBurner(under, z, w.burner, i, t));
 
     for (const c of w.crumbs) {
@@ -158,6 +171,10 @@ export class ArtRenderer {
       }
     }
     if (w.wind && w.wind.state === 'gust') drawWind(over, w.wind, t);
+    for (const ts of w.toasts) {
+      if (!hasArt('toast')) { drawToast(over, ts); continue; }
+      fitInside(this.pool.take('toast', D.flying), 40, 40).setRotation(ts.spin).setPosition(ts.x, ts.y);
+    }
     if (w.cleaver && w.cleaver.state === 'chop') {
       const c = w.cleaver, k = Math.min(1, c.t / 0.08); // slams down fast
       if (!hasArt('cleaver')) {

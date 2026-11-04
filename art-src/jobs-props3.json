@@ -1,0 +1,66 @@
+[
+  {
+    "name": "ob-croissant",
+    "newChat": true,
+    "refs": [
+      "art-src/ref-props.png"
+    ],
+    "prompt": "Generate an image. The attached picture shows prop sprites from my top-down party game. Draw a NEW prop seen from DIRECTLY ABOVE (top-down, flat), in exactly the art style of the attached reference props (bold chunky cartoon, thick dark-brown outlines, flat colours, soft cel shading, one white highlight). One object, centred, filling about 85% of the frame, solid flat magenta (#FF00FF) background, no shadow, no text. Square 1:1. Prop: a golden flaky CROISSANT lying horizontally."
+  },
+  {
+    "name": "ob-flour",
+    "prompt": "Next new prop, same style, seen from DIRECTLY ABOVE (top-down, flat), in exactly the art style of the attached reference props (bold chunky cartoon, thick dark-brown outlines, flat colours, soft cel shading, one white highlight). One object, centred, filling about 85% of the frame, solid flat magenta (#FF00FF) background, no shadow, no text. Square 1:1. Prop: a round open sack of FLOUR seen from above, white flour inside, brown paper rim."
+  },
+  {
+    "name": "ob-rollingpin",
+    "prompt": "Next new prop, same style, seen from DIRECTLY ABOVE (top-down, flat), in exactly the art style of the attached reference props (bold chunky cartoon, thick dark-brown outlines, flat colours, soft cel shading, one white highlight). One object, centred, filling about 85% of the frame, solid flat magenta (#FF00FF) background, no shadow, no text. Square 1:1. Prop: a wooden ROLLING PIN lying perfectly horizontal with handles at both ends."
+  },
+  {
+    "name": "ob-cupcakes",
+    "prompt": "Next new prop, same style, seen from DIRECTLY ABOVE (top-down, flat), in exactly the art style of the attached reference props (bold chunky cartoon, thick dark-brown outlines, flat colours, soft cel shading, one white highlight). One object, centred, filling about 85% of the frame, solid flat magenta (#FF00FF) background, no shadow, no text. Square 1:1. Prop: a round cake stand with three frosted CUPCAKES on it."
+  },
+  {
+    "name": "ob-dumplings",
+    "prompt": "Next new prop, same style, seen from DIRECTLY ABOVE (top-down, flat), in exactly the art style of the attached reference props (bold chunky cartoon, thick dark-brown outlines, flat colours, soft cel shading, one white highlight). One object, centred, filling about 85% of the frame, solid flat magenta (#FF00FF) background, no shadow, no text. Square 1:1. Prop: a round bamboo STEAMER BASKET full of dumplings, lid off."
+  },
+  {
+    "name": "ob-noodles",
+    "prompt": "Next new prop, same style, seen from DIRECTLY ABOVE (top-down, flat), in exactly the art style of the attached reference props (bold chunky cartoon, thick dark-brown outlines, flat colours, soft cel shading, one white highlight). One object, centred, filling about 85% of the frame, solid flat magenta (#FF00FF) background, no shadow, no text. Square 1:1. Prop: a round bowl of RAMEN NOODLES with a soft egg, nori and spring onion."
+  },
+  {
+    "name": "ob-teacup",
+    "prompt": "Next new prop, same style, seen from DIRECTLY ABOVE (top-down, flat), in exactly the art style of the attached reference props (bold chunky cartoon, thick dark-brown outlines, flat colours, soft cel shading, one white highlight). One object, centred, filling about 85% of the frame, solid flat magenta (#FF00FF) background, no shadow, no text. Square 1:1. Prop: a small round Chinese TEA CUP with green tea."
+  },
+  {
+    "name": "ob-toaster",
+    "prompt": "Next new prop, same style, seen from DIRECTLY ABOVE (top-down, flat), in exactly the art style of the attached reference props (bold chunky cartoon, thick dark-brown outlines, flat colours, soft cel shading, one white highlight). One object, centred, filling about 85% of the frame, solid flat magenta (#FF00FF) background, no shadow, no text. Square 1:1. Prop: a chrome retro TOASTER seen from directly above, two slots with golden toast poking out, rectangular, wider than tall."
+  },
+  {
+    "name": "ob-jam",
+    "prompt": "Next new prop, same style, seen from DIRECTLY ABOVE (top-down, flat), in exactly the art style of the attached reference props (bold chunky cartoon, thick dark-brown outlines, flat colours, soft cel shading, one white highlight). One object, centred, filling about 85% of the frame, solid flat magenta (#FF00FF) background, no shadow, no text. Square 1:1. Prop: a round glass JAR of strawberry JAM with the lid off."
+  },
+  {
+    "name": "ob-cereal",
+    "prompt": "Next new prop, same style, seen from DIRECTLY ABOVE (top-down, flat), in exactly the art style of the attached reference props (bold chunky cartoon, thick dark-brown outlines, flat colours, soft cel shading, one white highlight). One object, centred, filling about 85% of the frame, solid flat magenta (#FF00FF) background, no shadow, no text. Square 1:1. Prop: a round bowl of CEREAL loops in milk."
+  },
+  {
+    "name": "toast",
+    "prompt": "Next new prop, same style, seen from DIRECTLY ABOVE (top-down, flat), in exactly the art style of the attached reference props (bold chunky cartoon, thick dark-brown outlines, flat colours, soft cel shading, one white highlight). One object, centred, filling about 85% of the frame, solid flat magenta (#FF00FF) background, no shadow, no text. Square 1:1. Prop: a single slice of golden TOAST, slightly tilted, with a pat of butter."
+  },
+  {
+    "name": "lazysusan",
+    "prompt": "Next new prop, same style, seen from DIRECTLY ABOVE (top-down, flat), in exactly the art style of the attached reference props (bold chunky cartoon, thick dark-brown outlines, flat colours, soft cel shading, one white highlight). One object, centred, filling about 85% of the frame, solid flat magenta (#FF00FF) background, no shadow, no text. Square 1:1. Prop: a big round wooden LAZY SUSAN turntable for a banquet table, empty, with a darker inner ring and decorative carved edge."
+  },
+  {
+    "name": "mat-bakery",
+    "prompt": "Next new prop, same style, seen from DIRECTLY ABOVE (top-down, flat), in exactly the art style of the attached reference props (bold chunky cartoon, thick dark-brown outlines, flat colours, soft cel shading, one white highlight). One object, centred, filling about 85% of the frame, solid flat magenta (#FF00FF) background, no shadow, no text. Square 1:1. Prop: a rectangular folded white LINEN TEA TOWEL placemat with a blue stripe, wider than tall (4:3)."
+  },
+  {
+    "name": "mat-banquet",
+    "prompt": "Next new prop, same style, seen from DIRECTLY ABOVE (top-down, flat), in exactly the art style of the attached reference props (bold chunky cartoon, thick dark-brown outlines, flat colours, soft cel shading, one white highlight). One object, centred, filling about 85% of the frame, solid flat magenta (#FF00FF) background, no shadow, no text. Square 1:1. Prop: a rectangular red silk BANQUET PLACEMAT with gold trim and a gold pattern, wider than tall (4:3)."
+  },
+  {
+    "name": "mat-breakfast",
+    "prompt": "Next new prop, same style, seen from DIRECTLY ABOVE (top-down, flat), in exactly the art style of the attached reference props (bold chunky cartoon, thick dark-brown outlines, flat colours, soft cel shading, one white highlight). One object, centred, filling about 85% of the frame, solid flat magenta (#FF00FF) background, no shadow, no text. Square 1:1. Prop: a rectangular checked yellow-and-white BREAKFAST PLACEMAT, wider than tall (4:3)."
+  }
+]

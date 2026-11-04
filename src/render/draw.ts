@@ -2,8 +2,8 @@
 import type * as Phaser from 'phaser';
 import { P, RULES, TABLE, VIEW } from '../sim/constants';
 import { CUTLERY } from '../sim/cutlery';
-import type { Belt, Layout, Obstacle, Zone } from '../sim/layouts';
-import type { Burner, Cleaver, Crumb, Cutlery, Hand, Player, Wind } from '../sim/world';
+import type { Belt, Layout, Obstacle, Toaster, Turntable, Zone } from '../sim/layouts';
+import type { Burner, Cleaver, Crumb, Cutlery, Hand, Player, Toast, ToasterState, Wind } from '../sim/world';
 
 type G = Phaser.GameObjects.Graphics;
 type Pt = [number, number];
@@ -61,6 +61,7 @@ export function drawTableShadow(g: G): void {
 const SURFACE: Record<Layout['table'], number> = {
   'bg-table': 0x9a6438, 'bg-sushi': 0xd9c08a, 'bg-party': 0xf3b6cc, 'bg-board': 0xb88452,
   'bg-griddle': 0x8d939b, 'bg-parlour': 0xbfe8d6, 'bg-picnic': 0xe8a0a0,
+  'bg-bakery': 0xe8d3a8, 'bg-banquet': 0xa8283a, 'bg-breakfast': 0xf6e7a0,
 };
 export function drawTableSurface(g: G, table: Layout['table'] = 'bg-table'): void {
   g.fillStyle(SURFACE[table], 1);
@@ -93,6 +94,9 @@ const FRAMES: Record<Layout['table'], FrameStyle> = {
   'bg-griddle': { frame: 0x3d4248, hi: 0x9aa3ad, lip: 0x22262a, depth: 18 },
   'bg-parlour': { frame: 0xff9ec4, hi: 0xffd6e6, lip: 0xc96a91, depth: 14 },
   'bg-picnic': { frame: 0x6fae4a, hi: 0x9fd46e, lip: 0x4a7e2e, depth: 8 },
+  'bg-bakery': { frame: 0xb08050, hi: 0xe2b27a, lip: 0x765230, depth: 18 },
+  'bg-banquet': { frame: 0x3a1a10, hi: 0xd4a640, lip: 0x22100a, depth: 20 },
+  'bg-breakfast': { frame: 0x5aa7d6, hi: 0x9fd2f0, lip: 0x3a7aa6, depth: 14 },
 };
 
 /** Soft floor shadow, the table's 3D front lip and its frame, styled per table. */
@@ -132,6 +136,7 @@ export function drawMat(g: G, x: number, y: number, color: number, table: Layout
   const fill: Record<Layout['table'], number> = {
     'bg-table': 0xd9b878, 'bg-sushi': 0x9fc26a, 'bg-party': 0xfff1f6, 'bg-board': 0x4a4e57,
     'bg-griddle': 0xf4f0e6, 'bg-parlour': 0xe8fff4, 'bg-picnic': 0xfff3a8,
+    'bg-bakery': 0xf7f4ee, 'bg-banquet': 0xc0303c, 'bg-breakfast': 0xfff4c0,
   };
   g.fillStyle(0x000000, 0.18); g.fillRoundedRect(x - 54, y - 38, 112, 82, 12);
   g.fillStyle(fill[table], 0.9); g.fillRoundedRect(x - 56, y - 41, 112, 82, 12);
@@ -144,7 +149,7 @@ export function drawObstacleShadow(g: G, o: Obstacle): void {
   if (o.shape === 'circle') { g.fillCircle(o.x + 5, o.y + 7, o.r); return; }
   if (o.style === 'gravy') { g.fillEllipse(o.x + o.w / 2 + 6, o.y + o.h / 2 + 8, o.w * 0.95, o.h * 0.75); return; }
   // long thin things (bottles, cones, carrots, bread) get a pill-shaped shadow
-  const pill = ['bread', 'cone', 'ketchup', 'mustard', 'carrot'].includes(o.style);
+  const pill = ['bread', 'cone', 'ketchup', 'mustard', 'carrot', 'croissant', 'rollingpin'].includes(o.style);
   if (pill) {
     if (o.h > o.w) g.fillRoundedRect(o.x + o.w * 0.12 + 5, o.y + 8, o.w * 0.8, o.h - 6, (o.w * 0.8) / 2); // vertical (bread)
     else g.fillRoundedRect(o.x + 8, o.y + o.h * 0.15 + 6, o.w - 10, o.h * 0.75, (o.h * 0.75) / 2);
@@ -158,6 +163,8 @@ const FALLBACK_COLORS: Partial<Record<Obstacle['style'], number>> = {
   tomato: 0xe8392f, onion: 0xa04a8c, carrot: 0xff8a2a, garlic: 0xf2ece0,
   ketchup: 0xd8281e, mustard: 0xf2c418, pancakes: 0xd99a4e, egg: 0xfff8e8, sundae: 0xffc4dc, shake: 0xff9ec4, cone: 0xd8a35a,
   basket: 0xb07a3e, melon: 0x4caf50, lemonade: 0xfff176, sandwich: 0xe8c27a,
+  croissant: 0xe0a24a, flour: 0xf4efe6, rollingpin: 0xc8925a, cupcakes: 0xffb6d0, dumplings: 0xd8b06a, noodles: 0xf0e0b0,
+  teacup: 0xe8f4e0, toaster: 0xc8d0d8, jam: 0xd8283e, cereal: 0xf0c060,
 };
 
 export function drawObstacle(g: G, o: Obstacle): void {
@@ -696,4 +703,71 @@ export function drawBurner(g: G, z: Zone, state: Burner | null, i: number, t: nu
     g.fillStyle(0xfff3b0, 0.8);
     g.fillCircle(z.x, z.y, z.r * 0.35);
   }
+}
+
+/** Bakery Bench: a sticky patch of dough with a dusting of flour. */
+export function drawSticky(g: G, z: Zone, i: number): void {
+  g.fillStyle(0xc9a874, 0.9);
+  g.fillCircle(z.x + 3, z.y + 4, z.r);
+  g.fillStyle(0xf0dcb0, 1);
+  g.fillCircle(z.x, z.y, z.r);
+  for (let k = 0; k < 6; k++) {
+    const a = k * 1.1 + i, rr = z.r * (0.7 + 0.2 * Math.sin(k * 1.7 + i));
+    g.fillCircle(z.x + Math.cos(a) * rr, z.y + Math.sin(a) * rr, z.r * 0.3);
+  }
+  g.fillStyle(0xffffff, 0.55);
+  for (let k = 0; k < 9; k++) g.fillCircle(z.x + Math.cos(k * 2.4 + i) * z.r * 0.6, z.y + Math.sin(k * 3.1 + i) * z.r * 0.55, 2 + (k % 3));
+  g.lineStyle(2, 0xc9a874, 0.7);
+  g.strokeCircle(z.x - z.r * 0.2, z.y + z.r * 0.1, z.r * 0.35);
+}
+
+/** Banquet Lazy Susan (shape fallback): a wooden disc with spokes, turned by angle. */
+export function drawTurntable(g: G, tt: Turntable, angle: number): void {
+  g.fillStyle(0x000000, 0.25); g.fillCircle(tt.x + 6, tt.y + 9, tt.r);
+  g.fillStyle(0x8a5a32, 1); g.fillCircle(tt.x, tt.y, tt.r);
+  g.fillStyle(0xa8703f, 1); g.fillCircle(tt.x, tt.y, tt.r - 10);
+  g.lineStyle(3, 0x6b4424, 0.8);
+  g.strokeCircle(tt.x, tt.y, tt.r * 0.55);
+  for (let k = 0; k < 8; k++) {
+    const a = angle + (k / 8) * Math.PI * 2;
+    g.lineBetween(tt.x + Math.cos(a) * tt.r * 0.55, tt.y + Math.sin(a) * tt.r * 0.55, tt.x + Math.cos(a) * (tt.r - 12), tt.y + Math.sin(a) * (tt.r - 12));
+  }
+}
+
+/** Arrows around the turntable rim showing which way it spins. */
+export function drawTurnArrows(g: G, tt: Turntable, angle: number): void {
+  g.fillStyle(0xffe1a0, 0.55);
+  for (let k = 0; k < 6; k++) {
+    const a = angle * 1.0 + (k / 6) * Math.PI * 2, r = tt.r + 14;
+    const x = tt.x + Math.cos(a) * r, y = tt.y + Math.sin(a) * r, tx = -Math.sin(a), ty = Math.cos(a);
+    g.fillTriangle(x + tx * 12, y + ty * 12, x - tx * 6 + Math.cos(a) * 7, y - ty * 6 + Math.sin(a) * 7, x - tx * 6 - Math.cos(a) * 7, y - ty * 6 - Math.sin(a) * 7);
+  }
+}
+
+/** Breakfast Rush: red firing lane while a toaster is about to pop. */
+export function drawToasterWarn(g: G, z: Toaster, st: ToasterState, t: number): void {
+  const k = st.t / RULES.toasterWarn, ux = Math.cos(z.a), uy = Math.sin(z.a), w = RULES.toastRadius * 2 + 16;
+  const len = 1400, px = -uy * w / 2, py = ux * w / 2, ex = z.x + ux * len, ey = z.y + uy * len;
+  g.fillStyle(0xff2a2a, 0.12 + 0.18 * k + 0.08 * Math.sin(t * 22));
+  g.fillPoints([{ x: z.x + px, y: z.y + py }, { x: ex + px, y: ey + py }, { x: ex - px, y: ey - py }, { x: z.x - px, y: z.y - py }] as unknown as Phaser.Math.Vector2[], true);
+  g.fillStyle(0xffffff, 0.8);
+  for (let d = 40; d < 1200; d += 80) {
+    const cx = z.x + ux * d + ux * ((t * 200) % 80), cy = z.y + uy * d + uy * ((t * 200) % 80);
+    g.fillTriangle(cx + ux * 10, cy + uy * 10, cx - ux * 6 + px * 0.5, cy - uy * 6 + py * 0.5, cx - ux * 6 - px * 0.5, cy - uy * 6 - py * 0.5);
+  }
+  // little "!" above the toaster
+  g.fillStyle(0xff3b3b, 1);
+  g.fillRoundedRect(z.x - ux * 40 - 4, z.y - uy * 40 - 46 + Math.sin(t * 30) * 2, 8, 20, 3);
+  g.fillCircle(z.x - ux * 40, z.y - uy * 40 - 20, 4);
+}
+
+/** Flying toast (shape fallback). */
+export function drawToast(g: G, ts: Toast): void {
+  const pts: Pt[] = [[-15, -14], [15, -14], [15, 14], [-15, 14]];
+  g.fillStyle(0x8a5a2a, 1);
+  poly(g, pts, ts.x, ts.y, ts.spin, 1.08);
+  g.fillStyle(0xe8b060, 1);
+  poly(g, pts, ts.x, ts.y, ts.spin, 0.85);
+  g.fillStyle(0xfff3b0, 1);
+  g.fillCircle(ts.x, ts.y, 5);
 }

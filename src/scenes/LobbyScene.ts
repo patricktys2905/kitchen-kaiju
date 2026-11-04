@@ -43,7 +43,7 @@ export class LobbyScene extends Phaser.Scene {
   private mySeat = 0;
   private table = -1;
   private difficulty: Difficulty = 'normal';
-  private fillBots = true;
+  private fillTo: 0 | 4 | 6 = 4; // bots fill empty seats up to this many players (0 = no bots)
   private status = '';
   private statusOk = true;
   private view: 'choose' | 'host' | 'join' = 'choose';
@@ -156,7 +156,7 @@ export class LobbyScene extends Phaser.Scene {
     const host = this.host;
     if (!host) return;
     const seats = this.seats.slice();
-    const target = this.fillBots ? 4 : Math.max(2, seats.length);
+    const target = Math.max(2, seats.length, this.fillTo);
     while (seats.length < target) {
       const free = SPECIES.map((_, k) => k).filter(k => !seats.some(s => s.species === k));
       seats.push({ who: 'bot', name: 'Bot', species: free[Math.floor(Math.random() * free.length)] });
@@ -207,7 +207,7 @@ export class LobbyScene extends Phaser.Scene {
         <p class="muted">Friends tap ONLINE → Join a game and type this code. Up to ${MAX_GUESTS} friends.</p>
         ${seatsHtml}
         <div class="row">
-          <button data-act="bots">${this.fillBots ? 'Bots fill empty seats: ON' : 'Bots fill empty seats: OFF'}</button>
+          <button data-act="bots">${this.fillTo ? `Bots fill up to ${this.fillTo} players` : 'No bots'}</button>
           <button data-act="diff">Bots: ${this.difficulty}</button>
           <button data-act="table">Table: ${esc(tl)}</button>
         </div>
@@ -247,7 +247,7 @@ export class LobbyScene extends Phaser.Scene {
       const name = (this.root?.querySelector<HTMLInputElement>('#lb-name')?.value ?? '').trim();
       this.joinRoom(code, name);
     }
-    if (a === 'bots') { this.fillBots = !this.fillBots; this.render(); }
+    if (a === 'bots') { this.fillTo = this.fillTo === 4 ? 6 : this.fillTo === 6 ? 0 : 4; this.render(); }
     if (a === 'diff') { this.difficulty = DIFFICULTIES[(DIFFICULTIES.indexOf(this.difficulty) + 1) % DIFFICULTIES.length]; this.syncLobby(); }
     if (a === 'table') { this.table = this.table + 1 >= LAYOUTS.length ? -1 : this.table + 1; this.syncLobby(); }
     if (a === 'start') this.startMatch();

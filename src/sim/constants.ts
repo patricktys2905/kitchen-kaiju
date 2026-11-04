@@ -1,5 +1,6 @@
 // All tunable numbers live here so balancing never means hunting through logic.
 export const VIEW = { w: 1280, h: 720 };
+export const MAX_PLAYERS = 6;
 export const TABLE = { x: 100, y: 95, w: 1080, h: 575 };
 
 export const P = {
@@ -66,6 +67,15 @@ export const RULES = {
   burnerFlare: 0.7,
   // Ice Cream Parlour: how quickly you regain grip on a melted puddle (normal is 14)
   spillGrip: 2.2,
+  // Bakery Bench: sticky dough slows you to this fraction of your speed
+  stickySlow: 0.5,
+  // Breakfast Rush: toasters
+  toasterFirst: 4,
+  toasterInterval: [3, 4.5] as [number, number],
+  toasterSuddenDeath: [1.6, 2.4] as [number, number],
+  toasterWarn: 1.2,
+  toastSpeed: 720,
+  toastRadius: 16,
 };
 
 /** The kaiju roster. Each player picks a different one; its colour is that player's colour. */
@@ -82,4 +92,8 @@ export const SPECIES = [
   { name: 'BUBBLEGUMBO', full: 'Bubblegumbo', food: 'bubblegum elephant', color: 0xff7ad9, css: '#ff7ad9' },
   { name: 'BLUEBEARY', full: 'Bluebeary', food: 'blueberry muffin bear', color: 0x4a6cff, css: '#7a93ff' },
   { name: 'PIZZARAPTOR', full: 'Pizzaraptor', food: 'pizza raptor', color: 0xe03a2a, css: '#ff6a4a' },
+  { name: 'GRAPEHOUND', full: 'Grapehound', food: 'grape hound', color: 0x8a4fd6, css: '#a875ec' },
+  { name: 'AVOCADRAKE', full: 'Avocadrake', food: 'avocado dragon', color: 0x9bb33a, css: '#b6cf52' },
+  { name: 'SALMONSTER', full: 'Salmonster', food: 'salmon sea monster', color: 0xff8a6a, css: '#ff9d82' },
+  { name: 'ONIGIRILLA', full: 'Onigirilla', food: 'rice-ball gorilla', color: 0xdfe6ee, css: '#eef3f8' },
 ];

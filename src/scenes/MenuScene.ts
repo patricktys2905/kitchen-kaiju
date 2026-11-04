@@ -6,13 +6,14 @@ import { CUTLERY_LEN, fitInside, hasArt } from '../render/art';
 import { drawCutleryShape, drawFloor, drawKaiju } from '../render/draw';
 import { BODY as BODY_FONT, DISPLAY, INK, popIn, withGradient, withShadow } from '../render/fonts';
 import { DIFFICULTIES, type Difficulty } from '../sim/bot';
-import { SPECIES } from '../sim/constants';
+import { MAX_PLAYERS, SPECIES } from '../sim/constants';
 import { LAYOUTS } from '../sim/layouts';
 import { isTouchDevice, setTouchHud, setTouchMode } from '../touch';
 
 const TITLE = { fontFamily: DISPLAY, color: '#ffe9c7', stroke: INK, strokeThickness: 10 };
 const BODY = { fontFamily: BODY_FONT, fontStyle: '800', color: '#e9dccb' };
-const CARD_X = (i: number) => 205 + i * 290;
+const CARD_X = (i: number) => 112 + i * 211; // 6 seats across
+const CARD_W = 198;
 
 export interface MenuData {
   slots?: Slot[];
@@ -37,7 +38,7 @@ export class MenuScene extends Phaser.Scene {
   private t = 0;
   private cardImgs: Phaser.GameObjects.Image[] = [];
   private decoImgs: Phaser.GameObjects.Image[] = [];
-  private bump: number[] = [0, 0, 0, 0]; // little pop when a pick changes
+  private bump: number[] = new Array(MAX_PLAYERS).fill(0); // little pop when a pick changes
 
   constructor() {
     super('menu');
@@ -66,7 +67,7 @@ export class MenuScene extends Phaser.Scene {
   }
 
   private addSlot(s: Slot): void {
-    if (this.slots.length >= 4) return;
+    if (this.slots.length >= MAX_PLAYERS) return;
     this.slots.push(s);
     const taken = new Set(this.picks);
     const free = SPECIES.map((_, k) => k).filter(k => !taken.has(k));
@@ -103,7 +104,7 @@ export class MenuScene extends Phaser.Scene {
     clearTaps();
     if (hasArt('bg-menu')) this.add.image(640, 360, 'bg-menu').setDisplaySize(1280, 720).setDepth(-2);
     this.g = this.add.graphics();
-    this.cardImgs = [0, 1, 2, 3].map(i => this.add.image(CARD_X(i), 250, '__MISSING').setDepth(1).setVisible(false));
+    this.cardImgs = Array.from({ length: MAX_PLAYERS }, (_, i) => i).map(i => this.add.image(CARD_X(i), 250, '__MISSING').setDepth(1).setVisible(false));
     this.decoImgs = (['fork', 'spoon', 'knife', 'chopstick', 'ladle', 'spork'] as const)
       .filter(k => hasArt(`cut-${k}`))
       .map(k => this.add.image(0, 0, `cut-${k}`).setDepth(1).setScale((CUTLERY_LEN[k] * 1.5) / this.textures.get(`cut-${k}`).getSourceImage().width));
@@ -115,10 +116,10 @@ export class MenuScene extends Phaser.Scene {
     this.slotTexts = [];
     this.slotSub = [];
     this.slotFood = [];
-    for (let i = 0; i < 4; i++) {
-      this.slotTexts.push(withShadow(this.add.text(CARD_X(i), 322, '', { ...TITLE, fontSize: '27px', strokeThickness: 6 }).setOrigin(0.5).setDepth(2), 3));
-      this.slotFood.push(this.add.text(CARD_X(i), 348, '', { ...BODY, fontSize: '14px', fontStyle: 'italic 800', color: '#ffcf8a' }).setOrigin(0.5).setDepth(2));
-      this.slotSub.push(this.add.text(CARD_X(i), 368, '', { ...BODY, fontStyle: '700', fontSize: '14px', align: 'center', color: '#d9c7b3' }).setOrigin(0.5).setDepth(2));
+    for (let i = 0; i < MAX_PLAYERS; i++) {
+      this.slotTexts.push(withShadow(this.add.text(CARD_X(i), 322, '', { ...TITLE, fontSize: '22px', strokeThickness: 5 }).setOrigin(0.5).setDepth(2), 3));
+      this.slotFood.push(this.add.text(CARD_X(i), 346, '', { ...BODY, fontSize: '13px', fontStyle: 'italic 800', color: '#ffcf8a' }).setOrigin(0.5).setDepth(2));
+      this.slotSub.push(this.add.text(CARD_X(i), 368, '', { ...BODY, fontStyle: '700', fontSize: '13px', align: 'center', color: '#d9c7b3' }).setOrigin(0.5).setDepth(2));
     }
     this.infoText = this.add.text(640, 404, '', { ...BODY, fontStyle: '900', fontSize: '17px', color: '#ffcf8a' }).setOrigin(0.5).setDepth(2);
     this.tableText = this.add.text(640, 434, '', { ...BODY, fontStyle: '900', fontSize: '16px', color: '#ffffff', align: 'center' }).setOrigin(0.5).setDepth(2);
@@ -158,7 +159,7 @@ export class MenuScene extends Phaser.Scene {
       this.registry.set('demoStarted', true);
       this.slots = [];
       this.picks = [];
-      for (let i = 0; i < Math.min(4, demo); i++) this.addSlot({ kind: 'bot', index: i });
+      for (let i = 0; i < Math.min(MAX_PLAYERS, demo); i++) this.addSlot({ kind: 'bot', index: i });
       const tbl = Number(new URLSearchParams(location.search).get('table') ?? -1);
       if (tbl >= 0 && tbl < LAYOUTS.length) this.table = tbl;
       this.startGame();
@@ -176,7 +177,7 @@ export class MenuScene extends Phaser.Scene {
   update(_time: number, delta: number): void {
     const dt = delta / 1000;
     this.t += dt;
-    for (let i = 0; i < 4; i++) this.bump[i] = Math.max(0, this.bump[i] - dt * 5);
+    for (let i = 0; i < MAX_PLAYERS; i++) this.bump[i] = Math.max(0, this.bump[i] - dt * 5);
     applyPendingUpdate();
     this.pollDevices();
     if (consumeTap('KeyB')) this.addSlot({ kind: 'bot', index: this.slots.length });
@@ -252,47 +253,47 @@ export class MenuScene extends Phaser.Scene {
         drawCutleryShape(g, k, 640 + Math.cos(a) * 520, 92 + Math.sin(a) * 40, a * 3, 1.4);
       });
     }
-    for (let i = 0; i < 4; i++) {
+    for (let i = 0; i < MAX_PLAYERS; i++) {
       const x = CARD_X(i), s = this.slots[i], img = this.cardImgs[i];
       const sp = s ? this.picks[i] : -1, col = sp >= 0 ? SPECIES[sp].color : 0x4a3a2e;
       g.fillStyle(0x000000, 0.5);
-      g.fillRoundedRect(x - 128, 168, 256, 216, 18);
+      g.fillRoundedRect(x - CARD_W / 2, 168, CARD_W, 216, 16);
       g.lineStyle(3, col, 1);
-      g.strokeRoundedRect(x - 128, 168, 256, 216, 18);
+      g.strokeRoundedRect(x - CARD_W / 2, 168, CARD_W, 216, 16);
       if (s && sp >= 0) {
         // left/right arrows for players who can change their kaiju
         if (s.kind !== 'bot') {
           const pulse = 0.55 + 0.35 * Math.sin(t * 5);
           g.fillStyle(col, pulse);
-          g.fillTriangle(x - 112, 250, x - 96, 236, x - 96, 264);
-          g.fillTriangle(x + 112, 250, x + 96, 236, x + 96, 264);
+          g.fillTriangle(x - 88, 250, x - 74, 238, x - 74, 262);
+          g.fillTriangle(x + 88, 250, x + 74, 238, x + 74, 262);
         }
         const key = `kaiju-${sp}`;
         const pop = 1 + this.bump[i] * 0.15;
         if (hasArt(key)) {
-          g.fillStyle(0x000000, 0.35); g.fillEllipse(x, 296, 110, 18);
+          g.fillStyle(0x000000, 0.35); g.fillEllipse(x, 296, 96, 16);
           img.setTexture(key).setVisible(true);
-          fitInside(img, 130 * pop, 120 * pop).setOrigin(0.5, 1).setPosition(x, 300 - Math.abs(Math.sin(t * 3 + i)) * 6);
+          fitInside(img, 116 * pop, 112 * pop).setOrigin(0.5, 1).setPosition(x, 300 - Math.abs(Math.sin(t * 3 + i)) * 6);
         } else {
           img.setVisible(false);
-          drawKaiju(g, { x, y: 250 + Math.sin(t * 4 + i) * 4, r: 44 * pop, aim: Math.sin(t * 1.5 + i) * 0.8 + Math.PI / 2, kaiju: false, species: sp, color: col }, t);
+          drawKaiju(g, { x, y: 250 + Math.sin(t * 4 + i) * 4, r: 38 * pop, aim: Math.sin(t * 1.5 + i) * 0.8 + Math.PI / 2, kaiju: false, species: sp, color: col }, t);
         }
         this.slotTexts[i].setText(SPECIES[sp].full.toUpperCase()).setColor(SPECIES[sp].css);
         this.slotFood[i].setText(SPECIES[sp].food);
-        const how = s.kind === 'kb' ? `${slotLabel(s)} · ${s.index === 0 ? 'A / D' : '← / →'} to change`
-          : s.kind === 'pad' ? `${slotLabel(s)} · ◀ ▶ to change`
-          : s.kind === 'touch' ? 'Touch · KAIJU ▶ to change' : `Bot (${this.difficulty})`;
+        const how = s.kind === 'kb' ? (s.index === 0 ? 'Keys left · A / D' : 'Keys right · ← / →')
+          : s.kind === 'pad' ? `${slotLabel(s)} · ◀ ▶`
+          : s.kind === 'touch' ? 'Touch · KAIJU ▶' : `Bot (${this.difficulty})`;
         this.slotSub[i].setText(how);
       } else {
         img.setVisible(false);
         g.fillStyle(0xffffff, 0.06 + 0.04 * Math.sin(t * 3 + i));
-        g.fillCircle(x, 250, 44);
+        g.fillCircle(x, 250, 38);
         this.slotTexts[i].setText('');
         this.slotFood[i].setText('');
-        this.slotSub[i].setText(isTouchDevice ? 'empty seat (+ BOT fills it)' : 'press THROW to join');
+        this.slotSub[i].setText(isTouchDevice ? 'empty (+ BOT)' : 'THROW to join');
       }
     }
-    this.infoText.setText(`Bot difficulty: ${this.difficulty.toUpperCase()}   ·   First to 5 rounds   ·   ${SPECIES.length} kaiju to pick from`);
+    this.infoText.setText(`Bot difficulty: ${this.difficulty.toUpperCase()}   ·   Up to ${MAX_PLAYERS} players   ·   First to 5 rounds   ·   ${SPECIES.length} kaiju`);
     const tl = this.table < 0 ? null : LAYOUTS[this.table];
     this.tableText.setText(tl ? `TABLE: ${tl.name.toUpperCase()}  —  ${tl.blurb}` : `TABLE: ALL ${LAYOUTS.length} (a different one every round)`);
     // small preview of the chosen table surface

@@ -187,6 +187,25 @@ export class BotBrain {
       if (d < z.r + 30) add(dx / d, dy / d, 0.6);
     }
 
+    // Step out of a toaster's firing lane (and away from flying toast).
+    const lanes: { x: number; y: number; a: number; urgent: boolean }[] = [];
+    if (w.toaster) { const z = w.layout.toasters?.[w.toaster.i]; if (z) lanes.push({ ...z, urgent: w.toaster.t > RULES.toasterWarn * 0.6 }); }
+    for (const ts of w.toasts) lanes.push({ x: ts.x, y: ts.y, a: Math.atan2(ts.vy, ts.vx), urgent: true });
+    for (const L of lanes) {
+      const ux = Math.cos(L.a), uy = Math.sin(L.a), rx = p.x - L.x, ry = p.y - L.y;
+      const ahead = rx * ux + ry * uy, side = -rx * uy + ry * ux;
+      if (ahead > -20 && Math.abs(side) < RULES.toastRadius + p.r + 26) {
+        const dir = side >= 0 ? 1 : -1;
+        add(-uy * dir, ux * dir, 4);
+        if (L.urgent && p.dashCD <= 0 && this.rng.next() < T.dodge + 0.2) { mx = -uy * dir; my = ux * dir; out.dash = !p.prev.dash; }
+      }
+    }
+    // Sticky dough is slow: go around it.
+    for (const z of w.layout.stickies ?? []) {
+      const dx = p.x - z.x, dy = p.y - z.y, d = Math.hypot(dx, dy) || 1;
+      if (d < z.r + 30) add(dx / d, dy / d, 0.8);
+    }
+
     // Get out of the cleaver's lane.
     if (w.cleaver && w.cleaver.state === 'warn') {
       const gap = p.x - w.cleaver.x;
