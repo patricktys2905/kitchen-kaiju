@@ -1,10 +1,10 @@
 [
   {
-    "name": "kaiju-13",
+    "name": "kaiju-4-rage",
     "newChat": true,
     "refs": [
-      "art-src/ref-avo.png"
+      "art-src/ref-moth.png"
     ],
-    "prompt": "Generate an image. The attached picture shows two characters from my cartoon party game. Draw the LEFT character (the avocado dragon, AVOCADRAKE) again in exactly the same art style, design and colours, but CALM: standing relaxed, three-quarter view facing RIGHT, mouth closed in a cocky little grin, small wings folded. One full-body character, centred, filling about 80% of the frame, solid flat magenta (#FF00FF) background, no ground shadow, no text. Square 1:1."
+    "prompt": "Generate an image. The attached picture shows MOTHBALL, a character from my cartoon party game. Draw the SAME character in exactly the same design, colours and art style (bold chunky cartoon, thick dark-brown outlines, flat colours, soft cel shading), but in KAIJU MODE: roaring furiously with its mouth wide open, angry eyebrows, its big sugar-glass moth wings flared wide, a few small WHITE puffs of powdered sugar flying off. NO glow, NO aura, NO pink or purple haze around it, clean outlines. Three-quarter view facing RIGHT, one full-body character centred filling about 80% of the frame, solid flat magenta (#FF00FF) background, no ground shadow, no text. Square 1:1."
   }
 ]

@@ -1,0 +1,14 @@
+[
+  {
+    "name": "kaiju-4",
+    "newChat": true,
+    "refs": [
+      "art-src/ref-moth.png"
+    ],
+    "prompt": "Generate an image. The attached picture shows two characters from my cartoon party game: LEFT is MOTHBALL (a lavender ube-marshmallow moth), RIGHT is TOASTBAT. They look too similar: both are round four-legged blobs with two flat slabs sticking up behind them. Redraw MOTHBALL so it has a clearly DIFFERENT silhouette from Toastbat, in exactly the same art style (bold chunky cartoon, thick dark-brown outlines, flat colours, soft cel shading, one white highlight): Mothball stands UPRIGHT on two little legs like a chubby person, a fluffy round lavender (#b98cff) UBE MARSHMALLOW body dusted with powdered sugar and a fluffy collar, and two BIG ROUNDED MOTH WINGS spread wide out to the LEFT and RIGHT sides (not sticking up), made of translucent lavender-pink SUGAR GLASS with sprinkle eye-spot patterns, two long FEATHERY antennae, big shiny eyes and a dreamy mischievous smile. NO wafer biscuits, nothing square. Three-quarter view facing RIGHT, one full-body character centred filling about 80% of the frame, solid flat magenta (#FF00FF) background, no ground shadow, no text. Square 1:1."
+  },
+  {
+    "name": "kaiju-4-rage",
+    "prompt": "Now this new MOTHBALL in KAIJU MODE: exactly the same new upright design with the big spread sugar-glass moth wings and feathery antennae, same colours, style, framing (facing RIGHT) and magenta background, but roaring furiously with mouth wide open, wings flared even wider, powdered sugar puffing off, angry eyebrows. No text. Square 1:1."
+  }
+]
