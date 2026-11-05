@@ -5,6 +5,8 @@ import { BootScene } from './render/art';
 import { GameScene } from './scenes/GameScene';
 import { LobbyScene } from './scenes/LobbyScene';
 import { MenuScene } from './scenes/MenuScene';
+import { StoryScene } from './scenes/StoryScene';
+import { TitleScene } from './scenes/TitleScene';
 import { VIEW } from './sim/constants';
 import { initPwa } from './pwa';
 import { initTouch } from './touch';
@@ -24,7 +26,7 @@ const game = new Phaser.Game({
     height: VIEW.h,
   },
   render: { antialias: true },
-  scene: [BootScene, MenuScene, GameScene, LobbyScene],
+  scene: [BootScene, TitleScene, MenuScene, GameScene, LobbyScene, StoryScene],
 });
 
 // Handy for debugging / automated smoke tests.

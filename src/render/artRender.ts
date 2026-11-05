@@ -14,6 +14,7 @@ import {
 export interface Looks {
   species: number[];
   colors: number[];
+  bosses?: number[]; // story bosses wear a crown
 }
 
 type G = Phaser.GameObjects.Graphics;
@@ -242,6 +243,15 @@ export class ArtRenderer {
           ci.setPosition(hx + Math.cos(p.aim) * pull - Math.sin(p.aim) * off, hy + Math.sin(p.aim) * pull + Math.cos(p.aim) * off);
         }
       }
+    }
+    if (this.looks.bosses?.includes(i)) {
+      // a little gold crown floating above the boss
+      const cx = p.x, cy = p.y + p.r * 0.85 - bob - p.r * 3.1 - 10 + Math.sin(t * 4) * 2, w2 = 13;
+      over.fillStyle(0x7a4a10, 1);
+      over.fillPoints([{ x: cx - w2 - 2, y: cy + 9 }, { x: cx + w2 + 2, y: cy + 9 }, { x: cx + w2 + 2, y: cy - 7 }, { x: cx + 6, y: cy + 1 }, { x: cx, y: cy - 11 }, { x: cx - 6, y: cy + 1 }, { x: cx - w2 - 2, y: cy - 7 }] as unknown as Phaser.Math.Vector2[], true);
+      over.fillStyle(0xffd24a, 1);
+      over.fillPoints([{ x: cx - w2, y: cy + 7 }, { x: cx + w2, y: cy + 7 }, { x: cx + w2, y: cy - 4 }, { x: cx + 6, y: cy + 3 }, { x: cx, y: cy - 8 }, { x: cx - 6, y: cy + 3 }, { x: cx - w2, y: cy - 4 }] as unknown as Phaser.Math.Vector2[], true);
+      over.fillStyle(0xff3b3b, 1); over.fillCircle(cx, cy + 3, 2.5);
     }
     drawPlayerOver(over, p, color, t);
   }

@@ -2,6 +2,7 @@ import * as Phaser from 'phaser';
 import { sfx } from '../audio';
 import { clearTaps, consumeTap, KEYMAPS, listDevices, readSlot, sameDevice, slotLabel, type Slot } from '../input';
 import { applyPendingUpdate } from '../pwa';
+import { Button } from '../render/ui';
 import { CUTLERY_LEN, fitInside, hasArt } from '../render/art';
 import { drawCutleryShape, drawFloor, drawKaiju } from '../render/draw';
 import { BODY as BODY_FONT, DISPLAY, INK, popIn, withGradient, withShadow } from '../render/fonts';
@@ -40,6 +41,7 @@ export class MenuScene extends Phaser.Scene {
   private t = 0;
   private cardImgs: Phaser.GameObjects.Image[] = [];
   private decoImgs: Phaser.GameObjects.Image[] = [];
+  private backBtn: Button | null = null;
   private bump: number[] = new Array(MAX_PLAYERS).fill(0); // little pop when a pick changes
 
   constructor() {
@@ -114,7 +116,7 @@ export class MenuScene extends Phaser.Scene {
     const title = this.add.text(640, 66, 'KITCHEN KAIJU', { ...TITLE, fontSize: '92px', strokeThickness: 12, padding: { x: 8, y: 8 } }).setOrigin(0.5).setDepth(2);
     withShadow(withGradient(title, '#fff6cf', '#ffb347'), 7);
     popIn(this, title, 1.25, 600);
-    withShadow(this.add.text(640, 126, 'Tiny monsters. Giant dinner. Sharp cutlery.', { ...BODY, fontStyle: '900', fontSize: '23px', color: '#ffd9a0' }).setOrigin(0.5).setDepth(2), 3);
+    withShadow(this.add.text(640, 126, 'Tiny monsters. Giant dinner.', { ...BODY, fontStyle: '900', fontSize: '23px', color: '#ffd9a0' }).setOrigin(0.5).setDepth(2), 3);
 
     this.slotTexts = [];
     this.slotSub = [];
@@ -150,6 +152,7 @@ export class MenuScene extends Phaser.Scene {
       this.chipLine(chipG, 640, 670, '[2] bots   [M] table   [R] rounds   [O] ONLINE   [1] PLAY', 15);
     }
     setTouchMode('menu');
+    this.backBtn = new Button(this, 1192, 34, { w: 150, h: 44, label: '◀ MODES', size: 18, onClick: () => this.scene.start('title') }, 6);
     this.add.text(1272, 712, `v${__APP_VERSION__}`, { ...BODY, fontSize: '11px', color: '#8a7a6a' }).setOrigin(1, 1).setDepth(5);
     // First visit on a phone: seat the touch player straight away.
     if (isTouchDevice && !this.registry.get('touchSeeded')) {
@@ -182,6 +185,7 @@ export class MenuScene extends Phaser.Scene {
     this.t += dt;
     for (let i = 0; i < MAX_PLAYERS; i++) this.bump[i] = Math.max(0, this.bump[i] - dt * 5);
     applyPendingUpdate();
+    this.backBtn?.update(dt);
     this.pollDevices();
     if (consumeTap('KeyB')) this.addSlot({ kind: 'bot', index: this.slots.length });
     if (consumeTap('KeyN')) {
@@ -205,6 +209,7 @@ export class MenuScene extends Phaser.Scene {
       if (j >= 0) this.cycle(j, 1);
     }
     if (consumeTap('Digit1')) { this.startGame(); return; }
+    if (consumeTap('Escape')) { this.scene.start('title'); return; }
     clearTaps();
     setTouchHud({
       joined: this.slots.some(s => s.kind === 'touch'),

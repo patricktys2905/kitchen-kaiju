@@ -7,7 +7,7 @@ const wait = ms => new Promise(r => setTimeout(r, ms));
 const build = v => { const env = { ...process.env }; if (v) env.KK_VERSION = v; else delete env.KK_VERSION; execSync('node node_modules/vite/bin/vite.js build', { env, stdio: 'pipe' }); };
 const exe = [process.env.CHROME_PATH, '/opt/pw-browsers/chromium', 'C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe',
   'C:/Program Files/Microsoft/Edge/Application/msedge.exe', 'C:/Program Files/Google/Chrome/Application/chrome.exe'].filter(Boolean).find(p => existsSync(p));
-const version = page => page.evaluate(() => window.__game?.scene.getScene('menu')?.children.list.find(o => o.text?.startsWith?.('v'))?.text ?? null).catch(() => null); // page may be mid-reload
+const version = page => page.evaluate(() => window.__game?.scene.getScene('title')?.children.list.find(o => o.text?.startsWith?.('v'))?.text ?? null).catch(() => null); // page may be mid-reload
 
 build('A-test');
 const server = spawn(process.execPath, ['node_modules/vite/bin/vite.js', 'preview', '--port', String(PORT), '--strictPort'], { stdio: 'pipe' });

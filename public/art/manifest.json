@@ -9,8 +9,10 @@
  "bg-parlour",
  "bg-party",
  "bg-picnic",
+ "bg-story",
  "bg-sushi",
  "bg-table",
+ "bg-title",
  "cleaver",
  "crumb-0",
  "crumb-1",
@@ -103,5 +105,6 @@
  "ob-teapot",
  "ob-toaster",
  "ob-tomato",
+ "spoon",
  "toast"
 ]

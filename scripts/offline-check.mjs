@@ -21,7 +21,7 @@ try {
   await ctx.setOffline(true);
   await page.reload();
   await wait(1500);
-  ok = await page.evaluate(() => !!window.__game && window.__game.scene.isActive('menu'));
+  ok = await page.evaluate(() => !!window.__game && window.__game.scene.isActive('title'));
   console.log(ok ? 'OFFLINE OK: game loaded with no network' : 'OFFLINE FAILED');
 } finally { await browser?.close(); server.kill(); }
 process.exit(ok ? 0 : 1);

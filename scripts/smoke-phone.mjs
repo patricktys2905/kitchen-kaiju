@@ -33,7 +33,7 @@ try {
       flying: w.cutlery.filter(c => c.state === 'flying' && c.owner === 0).length };
   });
 
-  await page.goto(url);
+  await page.goto(url + '?mode=free');
   await wait(900);
   await page.screenshot({ path: 'smoke-phone-1-menu.png' });
   const slots = await page.evaluate(() => window.__game.scene.getScene('menu').slots.map(s => s.kind));

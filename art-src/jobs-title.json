@@ -1,0 +1,18 @@
+[
+  {
+    "name": "bg-title",
+    "newChat": true,
+    "refs": [
+      "art-src/ref-style.png"
+    ],
+    "prompt": "Generate an image. The attached picture shows characters from my party game Kitchen Kaiju (tiny food monsters fighting on a giant dinner table). Paint the GAME COVER ART in exactly that art style (bold chunky cartoon, thick dark-brown outlines, bright colours, soft cel shading): a dramatic low-angle scene of these five kaiju (the strawberry lizard, the dumpling, the pink bubblegum elephant, the pizza raptor and the rice-ball gorilla) charging heroically across a huge candle-lit dinner table straight toward the viewer, brandishing a giant fork, a spoon and chopsticks like weapons, crumbs and peas flying, a giant shiny GOLDEN SPOON (a spoon, not a cup) standing upright on a cake stand in the background, shining, warm dramatic light, epic movie-poster energy. Keep the TOP THIRD of the image as calm warm dark background with no characters (space for the title logo). Absolutely NO text, NO letters, NO logo. Wide 16:9 landscape image. The golden spoon must have NO writing or labels on it."
+  },
+  {
+    "name": "spoon",
+    "newChat": true,
+    "refs": [
+      "art-src/ref-props.png"
+    ],
+    "prompt": "Generate an image. In exactly the art style of the attached prop sprites (bold chunky cartoon, thick dark-brown outlines, flat colours, soft cel shading, one white highlight): a legendary GOLDEN SPOON trophy, shiny, standing upright, with a little ribbon tied on its handle and a few small sparkles. NO glow, NO halo, clean outlines. Centred, filling about 85% of the frame, solid flat magenta (#FF00FF) background, no shadow, no text. Square 1:1."
+  }
+]

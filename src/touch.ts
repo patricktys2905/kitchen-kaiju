@@ -6,7 +6,7 @@ export const isTouchDevice =
   new URLSearchParams(location.search).has('touch') || 'ontouchstart' in window || navigator.maxTouchPoints > 0;
 
 type Btn = 'throw' | 'swipe' | 'dash' | 'stomp';
-export type TouchMode = 'off' | 'menu' | 'game' | 'watch' | 'end';
+export type TouchMode = 'off' | 'menu' | 'game' | 'watch' | 'end' | 'title'; // 'title': title / story screens (just FULL SCREEN)
 
 const held: Record<Btn, boolean> = { throw: false, swipe: false, dash: false, stomp: false };
 const latched: Record<Btn, boolean> = { throw: false, swipe: false, dash: false, stomp: false }; // quick taps between frames
@@ -312,7 +312,8 @@ export function initTouch(injectTap: (code: string) => void): void {
   tapButton(el('div', erow, { class: 'pill go' }, '↻ REMATCH'), 'Digit1');
   tapButton(el('div', erow, { class: 'pill' }, 'MENU'), 'Escape');
 
-  for (const layer of [menu, top, end]) {
+  const titleLayer = el('div', root, { class: 'layer' });
+  for (const layer of [menu, top, end, titleLayer]) {
     const b = el('div', layer, { class: 'fsbtn' }, '⛶ FULL SCREEN');
     if (layer === top) Object.assign(b.style, { left: 'auto', right: 'calc(1.5vmin + env(safe-area-inset-right))', top: '29.5vh' });
     // own handler: the shared tap handler also auto-enters full screen on press, which would fight the toggle
@@ -322,7 +323,7 @@ export function initTouch(injectTap: (code: string) => void): void {
     fsButtons.push(b);
   }
   refreshFsButtons();
-  layers = { menu, game, watch: top, end }; // 'game' also turns on the pause/menu buttons (see setTouchMode)
+  layers = { menu, game, watch: top, end, title: titleLayer }; // 'game' also turns on the pause/menu buttons (see setTouchMode)
 }
 
 let currentMode: TouchMode = 'off';

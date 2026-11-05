@@ -10,6 +10,7 @@ import { P, SPECIES, TABLE, VIEW } from '../sim/constants';
 import { CUTLERY } from '../sim/cutlery';
 import { angleDiff } from '../sim/math';
 import { NO_INPUT, World, type GameEvent, type PlayerInput } from '../sim/world';
+import { starsFor } from '../story/chapters';
 import type { NetGuest, NetHost, NetMsg } from '../net/net';
 import { applySnapshot, extrapolate, makeSnapshot, type Snapshot } from '../net/snapshot';
 import { isTouchDevice, setTouchHud, setTouchMode } from '../touch';
@@ -27,6 +28,8 @@ export interface GameData {
   species?: number[]; // which kaiju each slot picked
   tables?: number[] | null; // table pool (null/empty = all)
   rounds?: number; // first to this many round wins
+  botLevels?: (Difficulty | null)[]; // per-seat bot level (story mode)
+  story?: { chapter: number; bosses: number[] }; // story chapter: seat 0 is you; bosses start rounds with a full belly
   net?: { role: 'host'; host: NetHost } | { role: 'guest'; guest: NetGuest; seat: number };
   seed?: number;
 }
@@ -58,6 +61,7 @@ export class GameScene extends Phaser.Scene {
   private get hudText(): number { return this.slots.length > 4 ? 42 : 48; }
   private tables: number[] | null = null;
   private rounds = 5;
+  private story: GameData['story'];
   private colors: number[] = [];
   private css: string[] = [];
   private scoreTexts: Phaser.GameObjects.Text[] = [];
@@ -93,7 +97,8 @@ export class GameScene extends Phaser.Scene {
     this.css = this.species.map(s => SPECIES[s].css);
     this.rounds = data.rounds ?? 5;
     this.world = new World({ players: this.species.map(s => ({ name: SPECIES[s].name })), seed, layouts: this.tables ?? undefined, target: this.rounds });
-    this.bots = this.slots.map((s, i) => (s.kind === 'bot' ? new BotBrain(i, this.difficulty, seed + i * 101) : null));
+    this.story = data.story;
+    this.bots = this.slots.map((s, i) => (s.kind === 'bot' ? new BotBrain(i, data.botLevels?.[i] ?? this.difficulty, seed + i * 101) : null));
     this.net = data.net;
     this.netAcc = 0;
     this.netEvents = [];
@@ -117,7 +122,7 @@ export class GameScene extends Phaser.Scene {
     this.overG = this.add.graphics().setDepth(3.6);
     this.fxG = this.add.graphics().setDepth(3.8);
     this.hudG = this.add.graphics().setDepth(5);
-    this.art = new ArtRenderer(this, this.baseG, this.tableG, { species: this.species, colors: this.colors });
+    this.art = new ArtRenderer(this, this.baseG, this.tableG, { species: this.species, colors: this.colors, bosses: this.story?.bosses ?? [] });
     this.art.setupTable(this.world.layout, this.world.players.map(p => ({ x: p.x, y: p.y, color: this.colors[p.id] })));
     this.hudIcons = this.species.map((sp, i) => (hasArt(`kaiju-${sp}`) ? fitInside(this.add.image(this.hudX(i) + 18, 40, `kaiju-${sp}`), 38, 42).setDepth(6) : null));
     this.hudHeld = this.slots.map((_, i) => (hasArt('cut-fork') ? this.add.image(this.hudX(i) + this.hudW - 40, 18, 'cut-fork').setDepth(6).setRotation(-0.35) : null));
@@ -151,7 +156,12 @@ export class GameScene extends Phaser.Scene {
     if (consumeTap('KeyP') && this.world.phase !== 'matchEnd' && !this.net) this.paused = !this.paused;
     const anyStart = this.slots.some(s => s.kind === 'pad' && readSlot(s).start);
     if (anyStart && !this.padPrevStart && this.world.phase !== 'matchEnd' && !this.net) this.paused = !this.paused;
-    if (this.world.phase === 'matchEnd' && this.net?.role !== 'guest' && (consumeTap('Digit1') || (anyStart && !this.padPrevStart))) {
+    if (this.story && this.world.phase === 'matchEnd' && (this.world.phaseT > 2.8 || consumeTap('Digit1') || consumeTap('Space') || consumeTap('Enter'))) {
+      const me = this.world.players[0], won = this.world.winner === 0;
+      this.scene.start('story', { result: { chapter: this.story.chapter, won, stars: won ? starsFor(this.world.round - me.score) : 0 } });
+      return;
+    }
+    if (!this.story && this.world.phase === 'matchEnd' && this.net?.role !== 'guest' && (consumeTap('Digit1') || (anyStart && !this.padPrevStart))) {
       this.rematch();
       return;
     }
@@ -207,8 +217,10 @@ export class GameScene extends Phaser.Scene {
   }
 
   private leave(): void {
+    if (this.story) { this.scene.start('story'); return; }
     if (this.net?.role === 'host') this.net.host.close();
     if (this.net?.role === 'guest') this.net.guest.close();
+    if (this.net) { this.scene.start('title'); return; }
     this.scene.start('menu', { slots: this.net ? [] : this.slots, difficulty: this.difficulty, species: this.net ? [] : this.species, tables: this.tables, rounds: this.rounds });
   }
 
@@ -256,7 +268,7 @@ export class GameScene extends Phaser.Scene {
   // ---------------------------------------------------------------- touch
   private syncTouchUi(): void {
     const ti = this.slots.findIndex(s => s.kind === 'touch' || (s.kind === 'local' && isTouchDevice));
-    if (this.world.phase === 'matchEnd') { setTouchMode('end'); return; }
+    if (this.world.phase === 'matchEnd') { setTouchMode(this.story ? 'watch' : 'end'); return; }
     setTouchMode(ti >= 0 ? 'game' : 'watch');
     if (ti < 0) setTouchHud({ canPause: !this.net });
     if (ti >= 0) {
@@ -288,6 +300,7 @@ export class GameScene extends Phaser.Scene {
       switch (e.type) {
         case 'roundStart':
           this.art.setupTable(w.layout, this.world.players.map(p => ({ x: p.x, y: p.y, color: this.colors[p.id] })));
+          for (const b of this.story?.bosses ?? []) if (w.players[b]) w.players[b].meter = 100; // bosses can go KAIJU straight away
           this.parts = [];
           this.rings = [];
           break;
@@ -524,6 +537,10 @@ export class GameScene extends Phaser.Scene {
       // scores: at most 3 kaiju per line so 6 players still fit on screen
       const scores = w.players.map(p => (w.opts.target > 5 ? `${p.name} ★ ${p.score}/${w.opts.target}` : `${p.name} ${'★'.repeat(p.score)}${'☆'.repeat(w.opts.target - p.score)}`));
       sub = chunk(scores, 3).map(r => r.join('      ')).join('\n');
+    } else if (w.phase === 'matchEnd' && this.story) {
+      main = w.winner === 0 ? 'CHAPTER CLEAR!' : 'DEFEATED';
+      color = w.winner === 0 ? '#ffd24a' : '#ff8a7a';
+      sub = '';
     } else if (w.phase === 'matchEnd' && w.winner !== null) {
       main = `${SPECIES[this.species[w.winner]].full.toUpperCase()}\nRULES THE TABLE`;
       color = this.css[w.winner];

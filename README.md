@@ -35,6 +35,14 @@ Full screen: tap the ⛶ FULL SCREEN button (top-left on the menu, under MENU in
 
 Menu: THROW joins, DASH leaves, B/N add/remove bot, 2 bot difficulty, M table, R rounds to win (1/3/5/7/10), O online, 1 or START begins. In game: P pause, Esc menu.
 
+## Modes
+
+The game opens on a title screen (cover art) with mode cards: **Story**, **Free Play**, **Online** (and a placeholder for more). New modes = one more card in `src/scenes/TitleScene.ts`. `?mode=free|story|online` jumps straight to a mode.
+
+### Story: The Grand Feast (solo)
+
+12 chapters, one per table (`src/story/chapters.ts`): a rival dialogue and a tip before each match, bosses (👑, start every round able to go KAIJU) in chapters 4, 8 and 12, 1–3 stars per chapter (3 = never lost a round), progress saved on the device (`kk-story-v1`), and an ending with the Golden Spoon. Pick your kaiju on the map; rivals never duplicate it. `npm run story-balance` simulates every chapter to check the difficulty ramp.
+
 ## Online with friends
 
 Menu → **ONLINE** (or press O). One person taps **Host a game** and gets a 4-letter room code; friends tap **Join a game** on their own phone or computer, anywhere, and type the code. Everyone picks a kaiju in the lobby, the host picks bots/table and starts. Up to 6 players (host + 5 friends); bots can fill empty seats up to 4 or 6 players.
@@ -99,6 +107,7 @@ npm run build     # typecheck + production build
 npm run smoke     # headless browser playthrough + screenshots (needs Edge/Chrome)
 npm run update-check # installed copy picks up a newly deployed version on the menu
 npm run banner-check # 6-player round-end / match-end screens: all text on screen, nothing overlapping
+npm run smoke:story  # title -> story -> chapter 1 -> dialogue -> win -> stars + unlock (desktop and phone)
 npm run smoke:online-backup # same, with the friend forced onto the backup route
 npm run smoke:online # two browsers play online over the real matchmaking server (needs internet)
 npm run smoke:phone  # emulated phone with multi-touch: menu, joystick, aim-drag throw, dash, rotate prompt

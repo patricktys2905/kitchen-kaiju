@@ -40,7 +40,7 @@ try {
   page.on('pageerror', e => errors.push(String(e)));
 
   // 1) Menu + keyboard join flow.
-  await page.goto(url);
+  await page.goto(url + '?mode=free');
   await wait(800);
   await page.keyboard.press('Space'); // Keyboard Left joins (quick tap on purpose)
   await wait(100);

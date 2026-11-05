@@ -31,7 +31,7 @@ try {
 
   // Host opens a room
   const menuReady = pg => until(() => pg.evaluate(() => !!window.__game && window.__game.scene.isActive('menu')));
-  await host.goto(url); await menuReady(host); await wait(300);
+  await host.goto(url + '?mode=free'); await menuReady(host); await wait(300);
   check(await until(async () => { await host.keyboard.press('KeyO'); return host.evaluate(() => !!document.getElementById('lobby')); }, 10000, 600), 'O opens the online lobby');
   await host.getByText('Host a game').click();
   const code = await until(async () => { const t = await host.locator('#lobby .code').textContent(); return /^[A-Z]{4}$/.test(t ?? '') ? t : null; });
@@ -39,7 +39,7 @@ try {
   await until(() => host.getByText(/Room .* is open/).isVisible());
 
   // Phone joins with the code
-  await guest.goto(ROUTE === 'backup' ? url + '?net=backup' : url); await menuReady(guest); await wait(300);
+  await guest.goto(ROUTE === 'backup' ? url + '?net=backup&mode=free' : url + '?mode=free'); await menuReady(guest); await wait(300);
   await guest.getByText('🌐 ONLINE').tap();
   await guest.getByText('Join a game').tap();
   await guest.fill('#lb-code', code);

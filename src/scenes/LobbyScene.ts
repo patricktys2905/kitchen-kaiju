@@ -95,7 +95,7 @@ export class LobbyScene extends Phaser.Scene {
     this.leaving = true;
     this.host?.close();
     this.guest?.close();
-    this.scene.start('menu', { difficulty: this.difficulty, rounds: this.rounds });
+    this.scene.start('title');
   }
 
   private startHosting(): void {

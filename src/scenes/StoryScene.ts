@@ -1,0 +1,395 @@
+// Story mode: chapter map, pre-match dialogue, results with stars, and the ending.
+import * as Phaser from 'phaser';
+import { sfx } from '../audio';
+import { clearTaps, consumeTap, listDevices, readSlot, type Slot } from '../input';
+import { fitInside, hasArt } from '../render/art';
+import { drawFloor } from '../render/draw';
+import { body, display, popIn, withShadow } from '../render/fonts';
+import { Button } from '../render/ui';
+import { SPECIES } from '../sim/constants';
+import { LAYOUTS } from '../sim/layouts';
+import { CHAPTERS, chapterRivals, ENDING, type Line } from '../story/chapters';
+import { loadStory, recordResult, saveStory, totalStars, type StorySave } from '../story/save';
+import { setTouchMode } from '../touch';
+
+export interface StoryResult {
+  chapter: number;
+  won: boolean;
+  stars: number;
+}
+
+const CARD_W = 178, CARD_H = 112;
+/** Chapters snake across 3 rows of 4 (left→right, right→left, left→right). */
+function cardPos(i: number): { x: number; y: number } {
+  const r = Math.floor(i / 4), c0 = i % 4, c = r % 2 ? 3 - c0 : c0;
+  return { x: 112 + c * 200, y: 178 + r * 148 };
+}
+
+type Mode = 'map' | 'dialogue' | 'result' | 'ending';
+
+export class StoryScene extends Phaser.Scene {
+  private save!: StorySave;
+  private sel = 0;
+  private mode: Mode = 'map';
+  private t = 0;
+  private mapG!: Phaser.GameObjects.Graphics;
+  private cardImgs: Phaser.GameObjects.Image[] = [];
+  private cardTexts: Phaser.GameObjects.Text[] = [];
+  private cardZones: Phaser.GameObjects.Zone[] = [];
+  private panel: Phaser.GameObjects.GameObject[] = [];
+  private pickImg: Phaser.GameObjects.Image | null = null;
+  private pickText!: Phaser.GameObjects.Text;
+  private buttons: Button[] = [];
+  private playBtn!: Button;
+  private overlay: Phaser.GameObjects.GameObject[] = [];
+  private lines: Line[] = [];
+  private lineIdx = 0;
+  private lineShown = 0;
+  private lineText: Phaser.GameObjects.Text | null = null;
+  private afterDialogue: () => void = () => {};
+  private pendingResult: StoryResult | null = null;
+  private padPrev = new Map<string, { mx: number; my: number; a: boolean; b: boolean; y: boolean }>();
+  private overlayButtons: Button[] = [];
+  private overlayFocus = 0;
+
+  constructor() {
+    super('story');
+  }
+
+  init(data: { result?: StoryResult }): void {
+    this.save = loadStory();
+    this.pendingResult = data.result ?? null;
+    this.sel = Math.min(this.save.unlocked - 1, CHAPTERS.length - 1);
+    if (this.pendingResult) this.sel = this.pendingResult.chapter;
+    this.mode = 'map';
+    this.cardImgs = []; this.cardTexts = []; this.cardZones = []; this.panel = []; this.buttons = []; this.overlay = []; this.overlayButtons = [];
+    this.pickImg = null; // objects from a previous visit are destroyed when the scene restarts
+    this.lineText = null;
+    this.padPrev.clear();
+  }
+
+  create(): void {
+    clearTaps();
+    setTouchMode('title');
+    if (hasArt('bg-story')) this.add.image(640, 360, 'bg-story').setDisplaySize(1280, 720).setDepth(-3);
+    else drawFloor(this.add.graphics().setDepth(-3));
+    this.add.graphics().setDepth(-2).fillStyle(0x0d0805, 0.55).fillRect(0, 0, 1280, 720);
+    withShadow(this.add.text(30, 26, 'THE GRAND FEAST', display(40, '#ffcf8a', { strokeThickness: 7 })).setDepth(5), 4);
+    this.add.text(34, 78, 'Story mode · conquer every table to win the Golden Spoon', body(15, '#e9dccb', 800)).setDepth(5);
+    this.mapG = this.add.graphics().setDepth(1);
+
+    CHAPTERS.forEach((ch, i) => {
+      const { x, y } = cardPos(i);
+      const key = LAYOUTS[ch.table].table;
+      this.cardImgs.push(this.add.image(x, y - 12, hasArt(key) ? key : '__MISSING').setDisplaySize(CARD_W - 16, 62).setDepth(2).setVisible(hasArt(key)));
+      this.cardTexts.push(this.add.text(x, y + 34, '', body(13, '#ffe9c7', 900, { align: 'center' })).setOrigin(0.5).setDepth(3));
+      const z = this.add.zone(x, y, CARD_W, CARD_H).setInteractive({ useHandCursor: true }).setDepth(4);
+      z.on('pointerup', () => { if (this.mode !== 'map') return; if (this.sel === i && i < this.save.unlocked) this.play(); else this.select(i); });
+      this.cardZones.push(z);
+    });
+
+    // your kaiju (bottom-left)
+    this.add.text(40, 640, 'YOUR KAIJU', body(14, '#cdb9a3', 900)).setDepth(5);
+    this.pickText = withShadow(this.add.text(178, 676, '', display(22, '#ffe9c7', { strokeThickness: 4 })).setOrigin(0, 0.5).setDepth(5), 2);
+    this.buttons.push(new Button(this, 60, 676, { w: 44, h: 44, label: '◀', size: 20, onClick: () => this.cyclePick(-1) }, 6));
+    this.buttons.push(new Button(this, 400, 676, { w: 44, h: 44, label: '▶', size: 20, onClick: () => this.cyclePick(1) }, 6));
+    this.buttons.push(new Button(this, 560, 676, { w: 150, h: 50, label: '◀ MODES', size: 20, onClick: () => this.back() }, 6));
+    this.add.text(1070, 712, 'arrows choose · ENTER play · Q / E kaiju · Esc back', body(12, '#a89680', 700)).setOrigin(0.5, 1).setDepth(5);
+
+    this.playBtn = new Button(this, 1070, 640, { w: 330, h: 74, label: '▶ PLAY', size: 34, accent: 0xff9a3c, onClick: () => this.play() }, 6);
+    this.drawMap();
+    this.drawPanel();
+    this.drawPick();
+
+    if (this.pendingResult) this.showResult(this.pendingResult);
+  }
+
+  // ---------------------------------------------------------------- map
+  private select(i: number): void {
+    if (i === this.sel) return;
+    this.sel = i;
+    sfx.pickup();
+    this.drawMap();
+    this.drawPanel();
+  }
+
+  private cyclePick(dir: number): void {
+    this.save.pick = (this.save.pick + dir + SPECIES.length) % SPECIES.length;
+    saveStory(this.save);
+    sfx.pickup();
+    this.drawPick();
+    this.drawPanel();
+  }
+
+  private drawPick(): void {
+    const sp = SPECIES[this.save.pick];
+    if (!this.pickImg) this.pickImg = this.add.image(120, 676, '__MISSING').setDepth(5);
+    if (hasArt(`kaiju-${this.save.pick}`)) fitInside(this.pickImg.setTexture(`kaiju-${this.save.pick}`).setVisible(true), 64, 60);
+    else this.pickImg.setVisible(false);
+    this.pickText.setText(sp.full.toUpperCase()).setColor(sp.css);
+  }
+
+  private drawMap(): void {
+    const g = this.mapG, t = this.t;
+    g.clear();
+    // the path between chapters
+    for (let i = 0; i < CHAPTERS.length - 1; i++) {
+      const a = cardPos(i), b = cardPos(i + 1), done = i + 1 < this.save.unlocked;
+      g.lineStyle(10, 0x000000, 0.35); g.lineBetween(a.x, a.y + 4, b.x, b.y + 4);
+      g.lineStyle(6, done ? 0xffb347 : 0x5a4a3e, 1); g.lineBetween(a.x, a.y, b.x, b.y);
+    }
+    CHAPTERS.forEach((ch, i) => {
+      const { x, y } = cardPos(i), open = i < this.save.unlocked, stars = this.save.stars[i] ?? 0, selected = i === this.sel;
+      const s = selected ? 1.06 + Math.sin(t * 5) * 0.015 : 1, W = CARD_W * s, H = CARD_H * s;
+      g.fillStyle(0x000000, 0.5); g.fillRoundedRect(x - W / 2 + 4, y - H / 2 + 7, W, H, 14);
+      g.fillStyle(open ? 0x2a1408 : 0x1c1714, 0.96); g.fillRoundedRect(x - W / 2, y - H / 2, W, H, 14);
+      g.lineStyle(selected ? 5 : 3, selected ? 0xffe08a : ch.boss ? 0xff5a4a : open ? 0xffb347 : 0x4a3e34, 1);
+      g.strokeRoundedRect(x - W / 2, y - H / 2, W, H, 14);
+      this.cardImgs[i].setAlpha(open ? 1 : 0.25).setScale(this.cardImgs[i].scaleX, this.cardImgs[i].scaleY);
+      // stars
+      for (let k = 0; k < 3; k++) {
+        const sx = x + 44 + k * 18 - 18, sy = y - H / 2 + 14;
+        g.fillStyle(k < stars ? 0xffd24a : 0x3a2c22, 1);
+        const pts: { x: number; y: number }[] = [];
+        for (let q = 0; q < 10; q++) { const r = q % 2 ? 3 : 7.5, a = (q / 10) * Math.PI * 2 - Math.PI / 2; pts.push({ x: sx + Math.cos(a) * r, y: sy + Math.sin(a) * r }); }
+        g.fillPoints(pts as unknown as Phaser.Math.Vector2[], true);
+      }
+      if (!open) { // padlock
+        g.fillStyle(0xcdb9a3, 1); g.fillRoundedRect(x - 12, y - 18, 24, 20, 4);
+        g.lineStyle(4, 0xcdb9a3, 1); g.beginPath(); g.arc(x, y - 18, 8, Math.PI, 0); g.strokePath();
+      }
+      this.cardTexts[i].setText(`${i + 1}. ${ch.title}${ch.boss ? '  👑' : ''}`).setAlpha(open ? 1 : 0.45);
+    });
+  }
+
+  private drawPanel(): void {
+    for (const o of this.panel) o.destroy();
+    this.panel = [];
+    const ch = CHAPTERS[this.sel], open = this.sel < this.save.unlocked, L = LAYOUTS[ch.table];
+    const g = this.add.graphics().setDepth(4);
+    g.fillStyle(0x140b05, 0.88); g.fillRoundedRect(890, 110, 360, 490, 20);
+    g.lineStyle(3, ch.boss ? 0xff5a4a : 0xffb347, 1); g.strokeRoundedRect(890, 110, 360, 490, 20);
+    this.panel.push(g);
+    const add = <T extends Phaser.GameObjects.GameObject>(o: T) => { this.panel.push(o); return o; };
+    add(this.add.text(1070, 136, `CHAPTER ${this.sel + 1}${ch.boss ? (this.sel === CHAPTERS.length - 1 ? ' · FINAL BOSS' : ' · BOSS') : ''}`, body(15, ch.boss ? '#ff8a7a' : '#ffcf8a', 900)).setOrigin(0.5).setDepth(5));
+    add(withShadow(this.add.text(1070, 168, ch.title.toUpperCase(), display(28, '#ffe9c7', { strokeThickness: 5, align: 'center', wordWrap: { width: 330 } })).setOrigin(0.5, 0).setDepth(5), 3));
+    add(this.add.text(1070, 214, `${L.name} · first to ${ch.rounds} rounds`, body(14, '#e9dccb', 800)).setOrigin(0.5, 0).setDepth(5));
+    if (!open) {
+      add(this.add.text(1070, 360, '🔒\nBeat the chapter before\nto unlock this one.', body(18, '#cdb9a3', 800, { align: 'center' })).setOrigin(0.5).setDepth(5));
+      this.playBtn.disabled = true;
+      return;
+    }
+    this.playBtn.disabled = false;
+    add(this.add.text(1070, 244, 'RIVALS', body(13, '#cdb9a3', 900)).setOrigin(0.5, 0).setDepth(5));
+    const rivals = chapterRivals(ch, this.save.pick);
+    rivals.forEach((r, k) => {
+      const x = 1070 + (k - (rivals.length - 1) / 2) * 108;
+      if (hasArt(`kaiju-${r.species}`)) add(fitInside(this.add.image(x, 300, `kaiju-${r.species}`), 84, 72).setDepth(5));
+      add(this.add.text(x, 344, SPECIES[r.species].name + (r.boss ? '\n👑 BOSS' : `\n${r.level}`), body(12, r.boss ? '#ff8a7a' : SPECIES[r.species].css, 900, { align: 'center' })).setOrigin(0.5, 0).setDepth(5));
+    });
+    add(this.add.text(1070, 392, '“' + ch.tip + '”', body(14, '#ffe9c7', 700, { align: 'center', wordWrap: { width: 320 }, fontStyle: 'italic 700' })).setOrigin(0.5, 0).setDepth(5));
+    const best = this.save.stars[this.sel] ?? 0;
+    add(this.add.text(1070, 560, best ? `Best: ${'★'.repeat(best)}${'☆'.repeat(3 - best)}` : 'Not cleared yet', body(16, '#ffd24a', 900)).setOrigin(0.5).setDepth(5));
+  }
+
+  // ---------------------------------------------------------------- flow
+  private back(): void {
+    sfx.leave();
+    this.scene.start('title');
+  }
+
+  private play(): void {
+    if (this.mode !== 'map' || this.sel >= this.save.unlocked) return;
+    sfx.go();
+    const ch = CHAPTERS[this.sel], rivals = chapterRivals(ch, this.save.pick);
+    this.lines = [...ch.intro, { speaker: 'chef', text: 'TIP: ' + ch.tip }];
+    this.startDialogue(rivals.map(r => r.species), () => this.launch());
+  }
+
+  private launch(): void {
+    const ch = CHAPTERS[this.sel], rivals = chapterRivals(ch, this.save.pick);
+    const slots: Slot[] = [{ kind: 'local', index: 0 }, ...rivals.map((): Slot => ({ kind: 'bot', index: 0 }))];
+    this.scene.start('game', {
+      slots, difficulty: 'normal', species: [this.save.pick, ...rivals.map(r => r.species)], tables: [ch.table], rounds: ch.rounds,
+      botLevels: [null, ...rivals.map(r => r.level)],
+      story: { chapter: this.sel, bosses: rivals.map((r, k) => (r.boss ? k + 1 : -1)).filter(k => k > 0) },
+    });
+  }
+
+  // ---------------------------------------------------------------- dialogue
+  private speakerSpecies: number[] = [];
+  private startDialogue(speakers: number[], then: () => void): void {
+    this.mode = 'dialogue';
+    this.speakerSpecies = speakers;
+    this.afterDialogue = then;
+    this.lineIdx = 0;
+    this.showLine();
+  }
+
+  private clearOverlay(): void {
+    for (const o of this.overlay) o.destroy();
+    this.overlay = [];
+    for (const b of this.overlayButtons) { b.g.destroy(); b.label.destroy(); b.sub?.destroy(); b.zone.destroy(); }
+    this.overlayButtons = [];
+    this.lineText = null;
+  }
+
+  private showLine(): void {
+    this.clearOverlay();
+    const line = this.lines[this.lineIdx];
+    const g = this.add.graphics().setDepth(30);
+    g.fillStyle(0x0d0805, 0.55); g.fillRect(0, 0, 1280, 720);
+    g.fillStyle(0x2a1408, 0.97); g.fillRoundedRect(150, 430, 980, 220, 24);
+    g.lineStyle(4, 0xffb347, 1); g.strokeRoundedRect(150, 430, 980, 220, 24);
+    this.overlay.push(g);
+    const isChef = line.speaker === 'chef';
+    const sp = isChef ? -1 : this.speakerSpecies[line.speaker as number] ?? 0;
+    const key = isChef ? 'spoon' : `kaiju-${sp}`;
+    if (hasArt(key)) {
+      const img = fitInside(this.add.image(250, 470, key), 210, 230).setOrigin(0.5, 0.85).setDepth(31);
+      this.overlay.push(img);
+      popIn(this, img as unknown as Phaser.GameObjects.Text, 1.2, 300);
+    }
+    const name = isChef ? (line.text.startsWith('TIP:') ? 'TIP' : 'THE HEAD CHEF') : SPECIES[sp].full.toUpperCase();
+    const color = isChef ? '#ffd24a' : SPECIES[sp].css;
+    this.overlay.push(withShadow(this.add.text(380, 450, name, display(28, color, { strokeThickness: 5 })).setDepth(31), 3));
+    this.lineText = this.add.text(380, 494, '', body(22, '#ffe9c7', 800, { wordWrap: { width: 720 }, lineSpacing: 6 })).setDepth(31);
+    this.overlay.push(this.lineText);
+    this.overlay.push(this.add.text(1110, 630, '▶ tap / SPACE', body(14, '#cdb9a3', 900)).setOrigin(1, 1).setDepth(31));
+    const zone = this.add.zone(640, 360, 1280, 720).setInteractive().setDepth(32);
+    zone.on('pointerup', () => this.advance());
+    this.overlay.push(zone);
+    this.lineShown = 0;
+    sfx.eat();
+  }
+
+  private advance(): void {
+    const line = this.lines[this.lineIdx];
+    if (this.lineText && this.lineShown < line.text.length) { this.lineShown = line.text.length; return; } // finish typing first
+    this.lineIdx++;
+    if (this.lineIdx >= this.lines.length) { this.clearOverlay(); this.mode = 'map'; this.afterDialogue(); return; }
+    this.showLine();
+  }
+
+  // ---------------------------------------------------------------- results
+  private showResult(r: StoryResult): void {
+    const ch = CHAPTERS[r.chapter], last = r.chapter === CHAPTERS.length - 1;
+    const unlockedNew = recordResult(this.save, r.chapter, r.won, r.stars);
+    this.drawMap();
+    this.drawPanel();
+    this.mode = 'result';
+    this.clearOverlay();
+    const g = this.add.graphics().setDepth(30);
+    g.fillStyle(0x0d0805, 0.7); g.fillRect(0, 0, 1280, 720);
+    g.fillStyle(0x2a1408, 0.97); g.fillRoundedRect(290, 120, 700, 480, 26);
+    g.lineStyle(5, r.won ? 0xffd24a : 0xff5a4a, 1); g.strokeRoundedRect(290, 120, 700, 480, 26);
+    this.overlay.push(g);
+    const title = withShadow(this.add.text(640, 175, r.won ? 'CHAPTER CLEAR!' : 'DEFEATED', display(56, r.won ? '#ffd24a' : '#ff8a7a', { strokeThickness: 9 })).setOrigin(0.5).setDepth(31), 6);
+    popIn(this, title, 1.6, 500);
+    this.overlay.push(title);
+    if (r.won) {
+      for (let k = 0; k < 3; k++) {
+        const on = k < r.stars;
+        const st = this.add.text(560 + k * 80, 258, on ? '★' : '☆', display(64, on ? '#ffd24a' : '#5a4a3e', { strokeThickness: 6 })).setOrigin(0.5).setDepth(31);
+        this.overlay.push(st);
+        if (on) this.time.delayedCall(250 + k * 220, () => { popIn(this, st, 2, 300); sfx.pickup(); });
+      }
+      const rivals = chapterRivals(ch, this.save.pick);
+      const sp = rivals[ch.win.speaker as number]?.species ?? 0;
+      if (hasArt(`kaiju-${sp}-rage`)) this.overlay.push(fitInside(this.add.image(390, 420, `kaiju-${sp}`), 130, 130).setDepth(31));
+      this.overlay.push(this.add.text(470, 360, `${SPECIES[sp].full}: “${ch.win.text}”`, body(18, '#ffe9c7', 800, { wordWrap: { width: 480 } })).setDepth(31));
+      if (unlockedNew && !last) this.overlay.push(this.add.text(640, 482, `Chapter ${r.chapter + 2} unlocked!`, body(18, '#8dff6a', 900)).setOrigin(0.5).setDepth(31));
+    } else {
+      this.overlay.push(this.add.text(640, 300, 'So close! Every rival can be beaten.\n\n“' + ch.tip + '”', body(19, '#ffe9c7', 800, { align: 'center', wordWrap: { width: 600 } })).setOrigin(0.5, 0).setDepth(31));
+    }
+    const btns: { label: string; act: () => void; accent?: number }[] = [];
+    if (r.won && last && !this.save.endingSeen) btns.push({ label: 'THE ENDING ▶', act: () => this.showEnding(), accent: 0xffd24a });
+    else if (r.won && !last) btns.push({ label: 'NEXT ▶', act: () => { this.clearOverlay(); this.mode = 'map'; this.select(r.chapter + 1); this.play(); }, accent: 0xff9a3c });
+    btns.push({ label: r.won ? 'REPLAY' : 'RETRY', act: () => { this.clearOverlay(); this.mode = 'map'; this.sel = r.chapter; this.play(); }, accent: r.won ? undefined : 0xff9a3c });
+    btns.push({ label: 'MAP', act: () => { this.clearOverlay(); this.mode = 'map'; } });
+    btns.forEach((b, k) => this.overlayButtons.push(new Button(this, 640 + (k - (btns.length - 1) / 2) * 210, 548, { w: 190, h: 64, label: b.label, size: 24, accent: b.accent, onClick: b.act }, 33)));
+    this.overlayFocus = 0;
+  }
+
+  private showEnding(): void {
+    this.clearOverlay();
+    this.save.endingSeen = true;
+    saveStory(this.save);
+    sfx.matchWin();
+    this.lines = ENDING;
+    this.startDialogue([], () => {
+      this.mode = 'ending';
+      const g = this.add.graphics().setDepth(30);
+      g.fillStyle(0x0d0805, 0.85); g.fillRect(0, 0, 1280, 720);
+      this.overlay.push(g);
+      if (hasArt('spoon')) { const sp = fitInside(this.add.image(640, 300, 'spoon'), 260, 330).setDepth(31); this.overlay.push(sp); this.tweens.add({ targets: sp, angle: { from: -6, to: 6 }, yoyo: true, repeat: -1, duration: 1400, ease: 'Sine.easeInOut' }); }
+      const end = withShadow(this.add.text(640, 520, 'THE END', display(72, '#ffd24a', { strokeThickness: 10 })).setOrigin(0.5).setDepth(31), 6);
+      popIn(this, end, 1.8, 700);
+      this.overlay.push(end, this.add.text(640, 580, `You collected ★ ${totalStars(this.save)}/${CHAPTERS.length * 3}. Go for all 3 stars, or brawl in Free Play!`, body(18, '#ffe9c7', 800)).setOrigin(0.5).setDepth(31));
+      this.overlayButtons.push(new Button(this, 640, 650, { w: 220, h: 60, label: 'BACK TO MAP', size: 22, onClick: () => { this.clearOverlay(); this.mode = 'map'; } }, 33));
+    });
+  }
+
+  // ---------------------------------------------------------------- input
+  update(_t: number, delta: number): void {
+    const dt = delta / 1000;
+    this.t += dt;
+    let dx = 0, dy = 0, go = false, back = false, next = 0;
+    if (consumeTap('ArrowLeft') || consumeTap('KeyA')) dx = -1;
+    if (consumeTap('ArrowRight') || consumeTap('KeyD')) dx = 1;
+    if (consumeTap('ArrowUp') || consumeTap('KeyW')) dy = -1;
+    if (consumeTap('ArrowDown') || consumeTap('KeyS')) dy = 1;
+    if (consumeTap('Enter') || consumeTap('Space') || consumeTap('Digit1') || consumeTap('NumpadEnter')) go = true;
+    if (consumeTap('Escape') || consumeTap('Backspace')) back = true;
+    if (consumeTap('KeyQ')) next = -1;
+    if (consumeTap('KeyE')) next = 1;
+    for (const d of listDevices()) {
+      if (d.kind !== 'pad') continue;
+      const inp = readSlot(d), id = 'p' + d.index;
+      const mx = inp.mx > 0.6 ? 1 : inp.mx < -0.6 ? -1 : 0, my = inp.my > 0.6 ? 1 : inp.my < -0.6 ? -1 : 0;
+      const prev = this.padPrev.get(id) ?? { mx, my, a: true, b: true, y: true };
+      if (mx && mx !== prev.mx) dx = mx;
+      if (my && my !== prev.my) dy = my;
+      if ((inp.throw || inp.start) && !prev.a) go = true;
+      if (inp.dash && !prev.b) back = true;
+      if (inp.stomp && !prev.y) next = 1;
+      this.padPrev.set(id, { mx, my, a: inp.throw || inp.start, b: inp.dash, y: inp.stomp });
+    }
+    clearTaps();
+
+    if (this.mode === 'dialogue') {
+      const line = this.lines[this.lineIdx];
+      if (this.lineText && line) {
+        this.lineShown = Math.min(line.text.length, this.lineShown + dt * 60);
+        this.lineText.setText(line.text.slice(0, Math.floor(this.lineShown)));
+      }
+      if (go) this.advance();
+      if (back) { this.clearOverlay(); this.mode = 'map'; }
+    } else if (this.mode === 'result' || this.mode === 'ending') {
+      if (dx && this.overlayButtons.length) this.overlayFocus = (this.overlayFocus + dx + this.overlayButtons.length) % this.overlayButtons.length;
+      this.overlayButtons.forEach((b, i) => { b.focused = i === this.overlayFocus; b.update(dt); });
+      if (go) this.overlayButtons[this.overlayFocus]?.press();
+      if (back) { this.clearOverlay(); this.mode = 'map'; }
+    } else {
+      if (dx || dy) {
+        // move to the nearest card in that direction
+        const here = cardPos(this.sel);
+        let best = this.sel, bestD = Infinity;
+        CHAPTERS.forEach((_, i) => {
+          const p = cardPos(i), vx = p.x - here.x, vy = p.y - here.y;
+          if (dx && Math.sign(vx) !== dx) return;
+          if (dy && Math.sign(vy) !== dy) return;
+          const d = (dx ? Math.abs(vx) : Math.abs(vy)) + (dx ? Math.abs(vy) * 3 : Math.abs(vx) * 3);
+          if (d > 0 && d < bestD) { bestD = d; best = i; }
+        });
+        this.select(best);
+      }
+      if (next) this.cyclePick(next);
+      if (go) this.play();
+      if (back) this.back();
+      this.drawMap();
+    }
+    for (const b of this.buttons) b.update(dt);
+    this.playBtn.update(dt);
+  }
+}

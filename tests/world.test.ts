@@ -457,3 +457,47 @@ describe('kaiju look distinct', () => {
     }
   });
 });
+
+describe('story mode', () => {
+  it('every chapter uses a real table, real kaiju and sensible settings', async () => {
+    const { CHAPTERS } = await import('../src/story/chapters');
+    const { LAYOUTS } = await import('../src/sim/layouts');
+    const { SPECIES, MAX_PLAYERS } = await import('../src/sim/constants');
+    expect(CHAPTERS.length).toBe(12);
+    CHAPTERS.forEach((ch, i) => {
+      expect(LAYOUTS[ch.table], ch.title).toBeTruthy();
+      expect(ch.rivals.length + 1).toBeLessThanOrEqual(MAX_PLAYERS);
+      expect(ch.rounds).toBeGreaterThanOrEqual(1);
+      for (const r of ch.rivals) expect(SPECIES[r.species], ch.title).toBeTruthy();
+      expect(new Set(ch.rivals.map(r => r.species)).size, `${ch.title} rivals are all different`).toBe(ch.rivals.length);
+      for (const l of [...ch.intro, ch.win]) if (l.speaker !== 'chef') expect(ch.rivals[l.speaker], `${ch.title} speaker ${l.speaker}`).toBeTruthy();
+      if (ch.boss) expect(ch.rivals.some(r => r.boss), `${ch.title} has a boss`).toBe(true);
+      expect(i === 0 || CHAPTERS[i].rivals.length >= 1).toBe(true);
+    });
+  });
+
+  it('rivals never duplicate the kaiju you picked', async () => {
+    const { CHAPTERS, chapterRivals } = await import('../src/story/chapters');
+    const { SPECIES } = await import('../src/sim/constants');
+    for (let pick = 0; pick < SPECIES.length; pick++) for (const ch of CHAPTERS) {
+      const rv = chapterRivals(ch, pick).map(r => r.species);
+      expect(rv.includes(pick), `${ch.title} with pick ${pick}`).toBe(false);
+      expect(new Set(rv).size).toBe(rv.length);
+    }
+  });
+
+  it('stars and unlocking work', async () => {
+    const { starsFor } = await import('../src/story/chapters');
+    const { recordResult } = await import('../src/story/save');
+    expect([starsFor(0), starsFor(1), starsFor(2), starsFor(5)]).toEqual([3, 2, 1, 1]);
+    const s = { unlocked: 1, stars: [] as number[], pick: 0, endingSeen: false };
+    expect(recordResult(s, 0, false, 0)).toBe(false); // a loss unlocks nothing
+    expect(s.unlocked).toBe(1);
+    expect(recordResult(s, 0, true, 2)).toBe(true);
+    expect(s.unlocked).toBe(2);
+    recordResult(s, 0, true, 1); // a worse replay keeps the best stars
+    expect(s.stars[0]).toBe(2);
+    recordResult(s, 11, true, 3);
+    expect(s.unlocked).toBe(12); // never past the last chapter
+  });
+});
