@@ -2,3 +2,4 @@ node_modules
 dist
 smoke-*.png
 art-src/preview.png
+art-src/shot-*.png
