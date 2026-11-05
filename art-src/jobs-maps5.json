@@ -1,0 +1,17 @@
+[
+  {
+    "name": "bg-freezer",
+    "newChat": true,
+    "prompt": "Generate an image. A game background texture for a top-down party game: the inside of a FREEZER: a frosty pale-blue icy shelf surface with frost patterns and thin ice, seen from DIRECTLY ABOVE, filling the ENTIRE frame. Style: clean painted cartoon game art with gentle cel shading (not a photo), even lighting, low contrast so game pieces on top stay readable. Completely EMPTY: no objects, no food, no text, no border, no vignette. Wide 16:9 landscape image."
+  },
+  {
+    "name": "bg-candy",
+    "newChat": true,
+    "prompt": "Generate an image. A game background texture for a top-down party game: a CANDY SHOP counter: glossy mint-green and pink striped candy surface with a few sugar sprinkles, seen from DIRECTLY ABOVE, filling the ENTIRE frame. Style: clean painted cartoon game art with gentle cel shading (not a photo), even lighting, low contrast so game pieces on top stay readable. Completely EMPTY: no objects, no food, no text, no border, no vignette. Wide 16:9 landscape image."
+  },
+  {
+    "name": "bg-nightmare",
+    "newChat": true,
+    "prompt": "Generate an image. A game background texture for a top-down party game: a scorched dark-grey steel RESTAURANT KITCHEN COUNTER with soot marks, faint orange heat glow patches and grease stains, a bit spooky, seen from DIRECTLY ABOVE, filling the ENTIRE frame. Style: clean painted cartoon game art with gentle cel shading (not a photo), even lighting, low contrast so game pieces on top stay readable. Completely EMPTY: no objects, no food, no text, no border, no vignette. Wide 16:9 landscape image."
+  }
+]

@@ -11,6 +11,7 @@ import { LAYOUTS } from '../sim/layouts';
 import { CHAPTERS, chapterRivals, ENDING, type Line } from '../story/chapters';
 import { loadStory, recordResult, saveStory, totalStars, type StorySave } from '../story/save';
 import { setTouchMode } from '../touch';
+import { isEarned, needText, newlyEarned, owned, unlockName, UNLOCKS } from '../story/unlocks';
 
 export interface StoryResult {
   chapter: number;
@@ -51,6 +52,7 @@ export class StoryScene extends Phaser.Scene {
   private padPrev = new Map<string, { mx: number; my: number; a: boolean; b: boolean; y: boolean }>();
   private overlayButtons: Button[] = [];
   private overlayFocus = 0;
+  private rewardsBtn: Button | null = null;
 
   constructor() {
     super('story');
@@ -94,6 +96,9 @@ export class StoryScene extends Phaser.Scene {
     this.buttons.push(new Button(this, 60, 676, { w: 44, h: 44, label: '◀', size: 20, onClick: () => this.cyclePick(-1) }, 6));
     this.buttons.push(new Button(this, 400, 676, { w: 44, h: 44, label: '▶', size: 20, onClick: () => this.cyclePick(1) }, 6));
     this.buttons.push(new Button(this, 560, 676, { w: 150, h: 50, label: '◀ MODES', size: 20, onClick: () => this.back() }, 6));
+    const earnedCount = UNLOCKS.filter(u => isEarned(u, this.save)).length;
+    this.rewardsBtn = new Button(this, 745, 676, { w: 190, h: 50, label: `🎁 REWARDS ${earnedCount}/${UNLOCKS.length}`, size: 18, accent: 0xffd24a, onClick: () => this.showRewards() }, 6);
+    this.buttons.push(this.rewardsBtn);
     this.add.text(1070, 712, 'arrows choose · ENTER play · Q / E kaiju · Esc back', body(12, '#a89680', 700)).setOrigin(0.5, 1).setDepth(5);
 
     this.playBtn = new Button(this, 1070, 640, { w: 330, h: 74, label: '▶ PLAY', size: 34, accent: 0xff9a3c, onClick: () => this.play() }, 6);
@@ -114,7 +119,9 @@ export class StoryScene extends Phaser.Scene {
   }
 
   private cyclePick(dir: number): void {
-    this.save.pick = (this.save.pick + dir + SPECIES.length) % SPECIES.length;
+    const own = owned(this.save).kaiju;
+    const at = own.indexOf(this.save.pick);
+    this.save.pick = own[((at < 0 ? 0 : at) + dir + own.length) % own.length];
     saveStory(this.save);
     sfx.pickup();
     this.drawPick();
@@ -274,7 +281,10 @@ export class StoryScene extends Phaser.Scene {
   // ---------------------------------------------------------------- results
   private showResult(r: StoryResult): void {
     const ch = CHAPTERS[r.chapter], last = r.chapter === CHAPTERS.length - 1;
+    const before = { ...this.save, stars: this.save.stars.slice() };
     const unlockedNew = recordResult(this.save, r.chapter, r.won, r.stars);
+    const rewards = newlyEarned(before, this.save);
+    this.rewardsBtn?.setText(`🎁 REWARDS ${UNLOCKS.filter(u => isEarned(u, this.save)).length}/${UNLOCKS.length}`);
     this.drawMap();
     this.drawPanel();
     this.mode = 'result';
@@ -298,7 +308,19 @@ export class StoryScene extends Phaser.Scene {
       const sp = rivals[ch.win.speaker as number]?.species ?? 0;
       if (hasArt(`kaiju-${sp}-rage`)) this.overlay.push(fitInside(this.add.image(390, 420, `kaiju-${sp}`), 130, 130).setDepth(31));
       this.overlay.push(this.add.text(470, 360, `${SPECIES[sp].full}: “${ch.win.text}”`, body(18, '#ffe9c7', 800, { wordWrap: { width: 480 } })).setDepth(31));
-      if (unlockedNew && !last) this.overlay.push(this.add.text(640, 482, `Chapter ${r.chapter + 2} unlocked!`, body(18, '#8dff6a', 900)).setOrigin(0.5).setDepth(31));
+      if (rewards.length) {
+        const label = withShadow(this.add.text(640, 452, '🎁 UNLOCKED: ' + rewards.map(u => `${unlockName(u)}${u.kind === 'table' ? ' (table)' : ''}`).join(' + '), display(22, '#ffd24a', { strokeThickness: 4 })).setOrigin(0.5).setDepth(31), 3);
+        this.overlay.push(label);
+        this.time.delayedCall(900, () => { popIn(this, label, 1.6, 400); sfx.meterFull(); });
+        rewards.forEach((u, k) => {
+          const key = u.kind === 'kaiju' ? `kaiju-${u.index}` : LAYOUTS[u.index].table;
+          if (!hasArt(key)) return;
+          const img = this.add.image(870 + k * 70, 420, key).setDepth(31);
+          if (u.kind === 'kaiju') fitInside(img, 70, 70); else img.setDisplaySize(80, 44);
+          this.overlay.push(img);
+        });
+      }
+      if (unlockedNew && !last) this.overlay.push(this.add.text(640, 488, `Chapter ${r.chapter + 2} unlocked!`, body(17, '#8dff6a', 900)).setOrigin(0.5).setDepth(31));
     } else {
       this.overlay.push(this.add.text(640, 300, 'So close! Every rival can be beaten.\n\n“' + ch.tip + '”', body(19, '#ffe9c7', 800, { align: 'center', wordWrap: { width: 600 } })).setOrigin(0.5, 0).setDepth(31));
     }
@@ -308,6 +330,40 @@ export class StoryScene extends Phaser.Scene {
     btns.push({ label: r.won ? 'REPLAY' : 'RETRY', act: () => { this.clearOverlay(); this.mode = 'map'; this.sel = r.chapter; this.play(); }, accent: r.won ? undefined : 0xff9a3c });
     btns.push({ label: 'MAP', act: () => { this.clearOverlay(); this.mode = 'map'; } });
     btns.forEach((b, k) => this.overlayButtons.push(new Button(this, 640 + (k - (btns.length - 1) / 2) * 210, 548, { w: 190, h: 64, label: b.label, size: 24, accent: b.accent, onClick: b.act }, 33)));
+    this.overlayFocus = 0;
+  }
+
+  private showRewards(): void {
+    if (this.mode !== 'map') return;
+    sfx.pickup();
+    this.mode = 'result'; // reuse the overlay input handling
+    this.clearOverlay();
+    const g = this.add.graphics().setDepth(30);
+    g.fillStyle(0x0d0805, 0.75); g.fillRect(0, 0, 1280, 720);
+    g.fillStyle(0x2a1408, 0.97); g.fillRoundedRect(190, 70, 900, 580, 26);
+    g.lineStyle(5, 0xffd24a, 1); g.strokeRoundedRect(190, 70, 900, 580, 26);
+    this.overlay.push(g);
+    this.overlay.push(withShadow(this.add.text(640, 112, '🎁 STORY REWARDS', display(40, '#ffd24a', { strokeThickness: 7 })).setOrigin(0.5).setDepth(31), 4));
+    this.overlay.push(this.add.text(640, 152, 'Earn new kaiju and tables for Free Play and Online by playing Story mode.', body(16, '#e9dccb', 800)).setOrigin(0.5).setDepth(31));
+    UNLOCKS.forEach((u, k) => {
+      const col = k % 2, row = Math.floor(k / 2), x = 240 + col * 420, y = 200 + row * 102;
+      const got = isEarned(u, this.save);
+      const card = this.add.graphics().setDepth(31);
+      card.fillStyle(got ? 0x3a2412 : 0x1c1714, 1); card.fillRoundedRect(x, y, 400, 90, 14);
+      card.lineStyle(3, got ? 0xffd24a : 0x4a3e34, 1); card.strokeRoundedRect(x, y, 400, 90, 14);
+      this.overlay.push(card);
+      const key = u.kind === 'kaiju' ? `kaiju-${u.index}` : LAYOUTS[u.index].table;
+      if (hasArt(key)) {
+        const img = this.add.image(x + 50, y + 45, key).setDepth(32);
+        if (u.kind === 'kaiju') fitInside(img, 76, 76); else img.setDisplaySize(84, 48);
+        if (!got) img.setTint(0x1a1410); // locked: a dark silhouette
+        this.overlay.push(img);
+      }
+      const name = got ? unlockName(u) : u.kind === 'kaiju' ? '??? (mystery kaiju)' : `${unlockName(u)} (table)`;
+      this.overlay.push(this.add.text(x + 100, y + 18, (got ? '✓ ' : '🔒 ') + name, display(19, got ? (u.kind === 'kaiju' ? SPECIES[u.index].css : '#ffe9c7') : '#a89680', { strokeThickness: 3 })).setDepth(32));
+      this.overlay.push(this.add.text(x + 100, y + 50, got ? (u.kind === 'kaiju' ? `Playable now · ${SPECIES[u.index].food}` : 'Playable now in Free Play and Online') : needText(u), body(14, got ? '#8dff6a' : '#e9dccb', 800, { wordWrap: { width: 290 } })).setDepth(32));
+    });
+    this.overlayButtons.push(new Button(this, 640, 612, { w: 200, h: 54, label: 'CLOSE', size: 22, onClick: () => { this.clearOverlay(); this.mode = 'map'; } }, 33));
     this.overlayFocus = 0;
   }
 

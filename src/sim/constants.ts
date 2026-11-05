@@ -72,6 +72,10 @@ export const RULES = {
   spillGrip: 2.2,
   // Bakery Bench: sticky dough slows you to this fraction of your speed
   stickySlow: 0.5,
+  // Freezer Shelf: grip on ice everywhere (normal is 14)
+  iceGrip: 3,
+  // Candy Shop: gumdrop bumper kick
+  bumperForce: 760,
   // Breakfast Rush: toasters
   toasterFirst: 4,
   toasterInterval: [3, 4.5] as [number, number],
@@ -99,4 +103,9 @@ export const SPECIES = [
   { name: 'AVOCADRAKE', full: 'Avocadrake', food: 'avocado dragon', color: 0x9bb33a, css: '#b6cf52' },
   { name: 'SALMONSTER', full: 'Salmonster', food: 'salmon fish monster', color: 0x2f5f9f, css: '#6f9fdf' },
   { name: 'ONIGIRILLA', full: 'Onigirilla', food: 'rice-ball gorilla', color: 0xdfe6ee, css: '#eef3f8' },
+  // unlocked in Story mode (see src/story/unlocks.ts)
+  { name: 'MINTURTLE', full: 'Minturtle', food: 'mint-choc-chip turtle', color: 0x25767e, css: '#4fb8c2' },
+  { name: 'SWIRLSNAIL', full: 'Swirlsnail', food: 'jam-roll snail', color: 0x1a1aff, css: '#6a7aff' },
+  { name: 'CHERRANTULA', full: 'Cherrantula', food: 'cherry tarantula', color: 0x7e2549, css: '#d0507e' },
+  { name: 'SHERBETOAD', full: 'Sherbetoad', food: 'lime sherbet toad', color: 0xe8ff1a, css: '#e8ff1a' },
 ];

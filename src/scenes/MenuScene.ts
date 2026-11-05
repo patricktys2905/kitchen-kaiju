@@ -10,6 +10,7 @@ import { DIFFICULTIES, type Difficulty } from '../sim/bot';
 import { DEFAULT_ROUNDS, MAX_PLAYERS, ROUND_CHOICES, SPECIES } from '../sim/constants';
 import { LAYOUTS } from '../sim/layouts';
 import { isTouchDevice, setTouchHud, setTouchMode } from '../touch';
+import { owned, type Owned } from '../story/unlocks';
 
 const TITLE = { fontFamily: DISPLAY, color: '#ffe9c7', stroke: INK, strokeThickness: 10 };
 const BODY = { fontFamily: BODY_FONT, fontStyle: '800', color: '#e9dccb' };
@@ -42,6 +43,7 @@ export class MenuScene extends Phaser.Scene {
   private cardImgs: Phaser.GameObjects.Image[] = [];
   private decoImgs: Phaser.GameObjects.Image[] = [];
   private backBtn: Button | null = null;
+  private own: Owned = { kaiju: [], tables: [] }; // kaiju/tables this player has (story unlocks)
   private bump: number[] = new Array(MAX_PLAYERS).fill(0); // little pop when a pick changes
 
   constructor() {
@@ -49,6 +51,7 @@ export class MenuScene extends Phaser.Scene {
   }
 
   init(data: MenuData): void {
+    this.own = owned();
     this.slots = data.slots ?? [];
     this.picks = (data.species ?? []).slice(0, this.slots.length);
     this.difficulty = data.difficulty ?? this.difficulty;
@@ -64,8 +67,8 @@ export class MenuScene extends Phaser.Scene {
     const used = new Set<number>();
     this.picks = this.slots.map((_, i) => {
       let p = this.picks[i];
-      if (p === undefined || used.has(p) || p < 0 || p >= SPECIES.length) p = SPECIES.findIndex((_, k) => !used.has(k) && !this.picks.slice(i + 1).includes(k));
-      if (p < 0) p = SPECIES.findIndex((_, k) => !used.has(k));
+      if (p === undefined || used.has(p) || !this.own.kaiju.includes(p)) p = this.own.kaiju.find(k => !used.has(k) && !this.picks.slice(i + 1).includes(k)) ?? -1;
+      if (p < 0) p = this.own.kaiju.find(k => !used.has(k)) ?? 0;
       used.add(p);
       return p;
     });
@@ -75,7 +78,7 @@ export class MenuScene extends Phaser.Scene {
     if (this.slots.length >= MAX_PLAYERS) return;
     this.slots.push(s);
     const taken = new Set(this.picks);
-    const free = SPECIES.map((_, k) => k).filter(k => !taken.has(k));
+    const free = this.own.kaiju.filter(k => !taken.has(k));
     this.picks.push(s.kind === 'bot' ? free[Math.floor(Math.random() * free.length)] : free[0]);
     sfx.join(this.slots.length);
   }
@@ -89,18 +92,14 @@ export class MenuScene extends Phaser.Scene {
   /** Next/previous kaiju not already taken by someone else. */
   private cycle(i: number, dir: number): void {
     const taken = new Set(this.picks.filter((_, k) => k !== i));
-    let p = this.picks[i];
-    for (let n = 0; n < SPECIES.length; n++) {
-      p = (p + dir + SPECIES.length) % SPECIES.length;
-      if (!taken.has(p)) break;
-    }
-    this.picks[i] = p;
+    this.picks[i] = nextIn(this.own.kaiju, this.picks[i], dir, taken);
     this.bump[i] = 1;
     sfx.pickup();
   }
 
   private cycleTable(): void {
-    this.table = this.table + 1 >= LAYOUTS.length ? -1 : this.table + 1;
+    const later = this.own.tables.filter(t => t > this.table);
+    this.table = later.length ? later[0] : -1; // ... then back to ALL
     sfx.pickup();
   }
 
@@ -176,7 +175,7 @@ export class MenuScene extends Phaser.Scene {
     while (this.slots.length < 2) this.addSlot({ kind: 'bot', index: this.slots.length });
     this.fixPicks();
     this.scene.start('game', {
-      slots: this.slots.slice(), difficulty: this.difficulty, species: this.picks.slice(), tables: this.table < 0 ? null : [this.table], rounds: this.rounds,
+      slots: this.slots.slice(), difficulty: this.difficulty, species: this.picks.slice(), tables: this.table < 0 ? this.own.tables.slice() : [this.table], rounds: this.rounds,
     });
   }
 
@@ -306,9 +305,9 @@ export class MenuScene extends Phaser.Scene {
         this.slotSub[i].setText(isTouchDevice ? 'empty (+ BOT)' : 'THROW to join');
       }
     }
-    this.infoText.setText(`Bot difficulty: ${this.difficulty.toUpperCase()}   ·   Up to ${MAX_PLAYERS} players   ·   First to ${this.rounds} round${this.rounds === 1 ? '' : 's'}   ·   ${SPECIES.length} kaiju`);
+    this.infoText.setText(`Bot difficulty: ${this.difficulty.toUpperCase()}   ·   Up to ${MAX_PLAYERS} players   ·   First to ${this.rounds} round${this.rounds === 1 ? '' : 's'}   ·   ${this.own.kaiju.length < SPECIES.length ? `${this.own.kaiju.length}/${SPECIES.length} kaiju (unlock more in Story)` : `${SPECIES.length} kaiju`}`);
     const tl = this.table < 0 ? null : LAYOUTS[this.table];
-    this.tableText.setText(tl ? `TABLE: ${tl.name.toUpperCase()}  —  ${tl.blurb}` : `TABLE: ALL ${LAYOUTS.length} (a different one every round)`);
+    this.tableText.setText(tl ? `TABLE: ${tl.name.toUpperCase()}  —  ${tl.blurb}` : `TABLE: ALL ${this.own.tables.length} (a different one every round)${this.own.tables.length < LAYOUTS.length ? ` · ${LAYOUTS.length - this.own.tables.length} more to unlock in Story` : ''}`);
     // small preview of the chosen table surface
     const key = tl ? tl.table : null;
     if (key && hasArt(key)) {
@@ -344,4 +343,16 @@ export class MenuScene extends Phaser.Scene {
       x += it.w + 2;
     }
   }
+}
+
+/** Next item in `list` after `cur` (wrapping), skipping anything in `skip`. */
+function nextIn(list: number[], cur: number, dir: number, skip: Set<number> = new Set()): number {
+  if (!list.length) return cur;
+  let i = list.indexOf(cur);
+  if (i < 0) i = dir > 0 ? -1 : 0;
+  for (let n = 0; n < list.length; n++) {
+    i = (i + dir + list.length) % list.length;
+    if (!skip.has(list[i])) return list[i];
+  }
+  return cur;
 }

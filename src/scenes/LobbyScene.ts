@@ -10,6 +10,7 @@ import { DIFFICULTIES, type Difficulty } from '../sim/bot';
 import { DEFAULT_ROUNDS, ROUND_CHOICES, SPECIES } from '../sim/constants';
 import { LAYOUTS } from '../sim/layouts';
 import { setTouchMode } from '../touch';
+import { owned, type Owned } from '../story/unlocks';
 
 const CSS = `
 #lobby { position: fixed; inset: 0; z-index: 15; display: flex; align-items: center; justify-content: center; font-family: Nunito, Arial, sans-serif; font-weight: 800; color: #f1e4d2; }
@@ -44,6 +45,7 @@ export class LobbyScene extends Phaser.Scene {
   private table = -1;
   private difficulty: Difficulty = 'normal';
   private rounds = DEFAULT_ROUNDS;
+  private own: Owned = { kaiju: [], tables: [] }; // the HOST's unlocks apply to the whole room
   private fillTo: 0 | 4 | 6 = 4; // bots fill empty seats up to this many players (0 = no bots)
   private status = '';
   private statusOk = true;
@@ -57,6 +59,7 @@ export class LobbyScene extends Phaser.Scene {
   init(data: { difficulty?: Difficulty; rounds?: number }): void {
     this.difficulty = data.difficulty ?? 'normal';
     this.rounds = data.rounds ?? DEFAULT_ROUNDS;
+    this.own = owned();
     this.view = 'choose';
     this.host = this.guest = null;
     this.seats = [];
@@ -106,7 +109,7 @@ export class LobbyScene extends Phaser.Scene {
     this.seats = [{ who: 'host', name: 'You (host)', species: 0 }];
     host.onStatus = (t, ok) => { this.status = t; this.statusOk = ok; this.render(); };
     host.onGuestJoin = (g, name, route) => {
-      const free = SPECIES.map((_, k) => k).filter(k => !this.seats.some(s => s.species === k));
+      const free = this.own.kaiju.filter(k => !this.seats.some(s => s.species === k));
       this.seats.push({ who: 'guest', guest: g, name, species: free[0] ?? 0, route });
       sfx.join(this.seats.length);
       this.syncLobby();
@@ -135,12 +138,13 @@ export class LobbyScene extends Phaser.Scene {
 
   private cycle(i: number, dir: number): void {
     const taken = new Set(this.seats.filter((_, k) => k !== i).map(s => s.species));
-    let p = this.seats[i].species;
-    for (let n = 0; n < SPECIES.length; n++) {
-      p = (p + dir + SPECIES.length) % SPECIES.length;
-      if (!taken.has(p)) break;
+    const list = this.own.kaiju;
+    let at = list.indexOf(this.seats[i].species);
+    for (let n = 0; n < list.length; n++) {
+      at = (at + dir + list.length) % list.length;
+      if (!taken.has(list[at])) break;
     }
-    this.seats[i].species = p;
+    this.seats[i].species = list[at] ?? this.seats[i].species;
     sfx.pickup();
     this.syncLobby();
   }
@@ -160,12 +164,12 @@ export class LobbyScene extends Phaser.Scene {
     const seats = this.seats.slice();
     const target = Math.max(2, seats.length, this.fillTo);
     while (seats.length < target) {
-      const free = SPECIES.map((_, k) => k).filter(k => !seats.some(s => s.species === k));
+      const free = this.own.kaiju.filter(k => !seats.some(s => s.species === k));
       seats.push({ who: 'bot', name: 'Bot', species: free[Math.floor(Math.random() * free.length)] });
     }
     const species = seats.map(s => s.species);
     const names = seats.map(s => s.name);
-    const tables = this.table < 0 ? null : [this.table];
+    const tables = this.table < 0 ? this.own.tables.slice() : [this.table];
     seats.forEach((s, i) => { if (s.who === 'guest' && s.guest !== undefined) host.send(s.guest, { t: 'start', species, names, seat: i, tables, rounds: this.rounds }); });
     const slots: Slot[] = seats.map(s => (s.who === 'host' ? { kind: 'local', index: 0 } : s.who === 'guest' ? { kind: 'remote', index: s.guest! } : { kind: 'bot', index: 0 }));
     this.leaving = true;
@@ -202,7 +206,7 @@ export class LobbyScene extends Phaser.Scene {
         <p class="muted">Uses a free public matchmaking server to connect you; the game itself goes directly between your devices.</p>
         <div class="row"><button class="go" data-act="host">Host a game</button><button data-act="joinview">Join a game</button><button data-act="back">Back</button></div>`;
     } else if (this.view === 'host') {
-      const tl = this.table < 0 ? `All ${LAYOUTS.length} (rotate)` : LAYOUTS[this.table].name;
+      const tl = this.table < 0 ? `All ${this.own.tables.length} (rotate)` : LAYOUTS[this.table].name;
       const guests = this.seats.filter(s => s.who === 'guest').length;
       html = `<h1>Your room</h1>
         <div class="code">${this.host?.code || '····'}</div>
@@ -253,7 +257,7 @@ export class LobbyScene extends Phaser.Scene {
     if (a === 'bots') { this.fillTo = this.fillTo === 4 ? 6 : this.fillTo === 6 ? 0 : 4; this.render(); }
     if (a === 'diff') { this.difficulty = DIFFICULTIES[(DIFFICULTIES.indexOf(this.difficulty) + 1) % DIFFICULTIES.length]; this.syncLobby(); }
     if (a === 'rounds') { this.rounds = ROUND_CHOICES[(ROUND_CHOICES.indexOf(this.rounds) + 1) % ROUND_CHOICES.length] ?? DEFAULT_ROUNDS; this.syncLobby(); }
-    if (a === 'table') { this.table = this.table + 1 >= LAYOUTS.length ? -1 : this.table + 1; this.syncLobby(); }
+    if (a === 'table') { const later = this.own.tables.filter(t => t > this.table); this.table = later.length ? later[0] : -1; this.syncLobby(); }
     if (a === 'start') this.startMatch();
   }
 }

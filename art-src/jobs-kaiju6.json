@@ -1,0 +1,38 @@
+[
+  {
+    "name": "kaiju-16",
+    "newChat": true,
+    "refs": [
+      "art-src/ref-style.png"
+    ],
+    "prompt": "Generate an image. The attached picture shows character sprites from my party game Kitchen Kaiju. Keep this EXACT art style: bold chunky cartoon, thick dark-brown outlines, flat bright colours with soft cel shading and one crisp white highlight, cheeky (not babyish) expressions, same size. The kaiju is MADE OF FOOD, and must have its own body shape (described below), different from the reference characters. Framing: one full-body character, three-quarter view facing RIGHT, centred, filling about 80% of the frame, solid flat magenta (#FF00FF) background, no ground shadow, no text, no props. Square 1:1. Kaiju: MINTURTLE: a chunky TURTLE kaiju on four stubby legs: its SHELL is a big round scoop of MINT CHOCOLATE CHIP ice cream (pale mint with dark chocolate chips) sitting in a waffle-cone rim, its head, legs and tail are deep TEAL-BLUE (#25767e), a sly confident grin."
+  },
+  {
+    "name": "kaiju-17",
+    "prompt": "Next NEW kaiju in exactly the same art style, framing (three-quarter view facing RIGHT) and solid flat magenta (#FF00FF) background, with its own body shape: SWIRLSNAIL: a big SNAIL kaiju: its spiral SHELL is a swirled JAM ROLL cake (sponge with a deep INDIGO-BLUE (#1a1aff) blueberry jam spiral), its soft body is glossy indigo-blue blueberry jelly, two eye-stalks, a mischievous smirk. No text, no props. Square 1:1."
+  },
+  {
+    "name": "kaiju-18",
+    "prompt": "Next NEW kaiju in exactly the same art style, framing (three-quarter view facing RIGHT) and solid flat magenta (#FF00FF) background, with its own body shape: CHERRANTULA: a TARANTULA spider kaiju: its body and head are two big glossy dark BERRY-RED (#7e2549) CHERRIES, with EIGHT curly black licorice legs and green cherry-stem antennae, several shiny eyes, a toothy grin. Clearly a spider shape. No text, no props. Square 1:1."
+  },
+  {
+    "name": "kaiju-19",
+    "prompt": "Next NEW kaiju in exactly the same art style, framing (three-quarter view facing RIGHT) and solid flat magenta (#FF00FF) background, with its own body shape: SHERBETOAD: a squat round TOAD kaiju sitting on its haunches, made of fizzy LIME SHERBET: bright lemon-lime CHARTREUSE (#e8ff1a) colour, sparkly sugar crystals all over, a sour-candy sheen, huge mouth, bulging eyes, a cheeky grin. No text, no props. Square 1:1."
+  },
+  {
+    "name": "kaiju-16-rage",
+    "prompt": "Now MINTURTLE in KAIJU MODE: exactly the same design, shape and colours, same style, framing (facing RIGHT) and magenta background, but roaring furiously with mouth wide open, angry eyebrows, bits of its food flying off. No text. Square 1:1."
+  },
+  {
+    "name": "kaiju-17-rage",
+    "prompt": "Now SWIRLSNAIL in KAIJU MODE: exactly the same design, shape and colours, same style, framing (facing RIGHT) and magenta background, but roaring furiously with mouth wide open, angry eyebrows, bits of its food flying off. No text. Square 1:1."
+  },
+  {
+    "name": "kaiju-18-rage",
+    "prompt": "Now CHERRANTULA in KAIJU MODE: exactly the same design, shape and colours, same style, framing (facing RIGHT) and magenta background, but roaring furiously with mouth wide open, angry eyebrows, bits of its food flying off. No text. Square 1:1."
+  },
+  {
+    "name": "kaiju-19-rage",
+    "prompt": "Now SHERBETOAD in KAIJU MODE: exactly the same design, shape and colours, same style, framing (facing RIGHT) and magenta background, but roaring furiously with mouth wide open, angry eyebrows, bits of its food flying off. No text. Square 1:1."
+  }
+]

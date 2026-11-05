@@ -501,3 +501,45 @@ describe('story mode', () => {
     expect(s.unlocked).toBe(12); // never past the last chapter
   });
 });
+
+describe('story unlockables', () => {
+  it('locked kaiju and tables appear only once earned', async () => {
+    const { owned, UNLOCKS, newlyEarned, isEarned } = await import('../src/story/unlocks');
+    const { SPECIES } = await import('../src/sim/constants');
+    const { LAYOUTS } = await import('../src/sim/layouts');
+    const fresh = { unlocked: 1, stars: [] as number[], pick: 0, endingSeen: false };
+    const o = owned(fresh);
+    expect(o.kaiju.length).toBe(SPECIES.length - UNLOCKS.filter(u => u.kind === 'kaiju').length);
+    expect(o.tables.length).toBe(LAYOUTS.length - UNLOCKS.filter(u => u.kind === 'table').length);
+    for (const u of UNLOCKS) expect(u.kind === 'kaiju' ? SPECIES[u.index] : LAYOUTS[u.index]).toBeTruthy();
+    for (const i of [12, 13, 14]) expect(LAYOUTS[i].locked).toBe(true);
+    const after = { ...fresh, stars: [3, 3, 3, 3] };
+    expect(newlyEarned(fresh, after).map(u => u.index)).toEqual([16]); // beat the first boss -> Minturtle
+    expect(owned(after).kaiju).toContain(16);
+    const all = { ...fresh, stars: Array(12).fill(3) };
+    expect(UNLOCKS.every(u => isEarned(u, all))).toBe(true);
+    expect(owned(all).kaiju.length).toBe(SPECIES.length);
+    expect(owned(all).tables.length).toBe(LAYOUTS.length);
+  });
+
+  it('the freezer shelf is slippery: you keep sliding after letting go', () => {
+    const slide = (layout: number) => {
+      const w = makeWorld(1, 'fork', { layout });
+      w.layout = { ...w.layout, obstacles: [] }; // copy: LAYOUTS is shared
+      place(w, 0, 300, 360);
+      run(w, 0.6, () => [{ ...NO_INPUT, mx: 1 }]);
+      const x0 = w.players[0].x;
+      run(w, 0.6, () => [NO_INPUT]);
+      return w.players[0].x - x0;
+    };
+    expect(slide(12)).toBeGreaterThan(slide(0) * 3);
+  });
+
+  it('gumdrops bounce kaiju away', () => {
+    const w = makeWorld(1, 'fork', { layout: 13 });
+    place(w, 0, 640 - 36 - P.radius - 30, 382);
+    const ev = run(w, 0.8, () => [{ ...NO_INPUT, mx: 1 }]);
+    expect(ev.some(e => e.type === 'bumper')).toBe(true);
+    expect(w.players[0].x).toBeLessThan(640 - 36);
+  });
+});

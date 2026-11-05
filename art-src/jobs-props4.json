@@ -1,0 +1,58 @@
+[
+  {
+    "name": "ob-icetray",
+    "newChat": true,
+    "refs": [
+      "art-src/ref-props.png"
+    ],
+    "prompt": "Generate an image. The attached picture shows prop sprites from my top-down party game. Draw a NEW prop seen from DIRECTLY ABOVE (top-down, flat), in exactly the art style of the attached reference props (bold chunky cartoon, thick dark-brown outlines, flat colours, soft cel shading, one white highlight). One object, centred, filling about 85% of the frame, solid flat magenta (#FF00FF) background, no shadow, no text. Square 1:1. Prop: a blue plastic ICE CUBE TRAY full of ice cubes, rectangular, wider than tall."
+  },
+  {
+    "name": "ob-peas",
+    "prompt": "Next new prop, same style, seen from DIRECTLY ABOVE (top-down, flat), in exactly the art style of the attached reference props (bold chunky cartoon, thick dark-brown outlines, flat colours, soft cel shading, one white highlight). One object, centred, filling about 85% of the frame, solid flat magenta (#FF00FF) background, no shadow, no text. Square 1:1. Prop: a bag of FROZEN PEAS with frost on it, rectangular."
+  },
+  {
+    "name": "ob-popsicle",
+    "prompt": "Next new prop, same style, seen from DIRECTLY ABOVE (top-down, flat), in exactly the art style of the attached reference props (bold chunky cartoon, thick dark-brown outlines, flat colours, soft cel shading, one white highlight). One object, centred, filling about 85% of the frame, solid flat magenta (#FF00FF) background, no shadow, no text. Square 1:1. Prop: a red-and-white striped ICE POP on a wooden stick lying horizontally."
+  },
+  {
+    "name": "ob-tub",
+    "prompt": "Next new prop, same style, seen from DIRECTLY ABOVE (top-down, flat), in exactly the art style of the attached reference props (bold chunky cartoon, thick dark-brown outlines, flat colours, soft cel shading, one white highlight). One object, centred, filling about 85% of the frame, solid flat magenta (#FF00FF) background, no shadow, no text. Square 1:1. Prop: a round tub of VANILLA ICE CREAM with the lid off and a scoop dug out."
+  },
+  {
+    "name": "ob-gumdrop",
+    "prompt": "Next new prop, same style, seen from DIRECTLY ABOVE (top-down, flat), in exactly the art style of the attached reference props (bold chunky cartoon, thick dark-brown outlines, flat colours, soft cel shading, one white highlight). One object, centred, filling about 85% of the frame, solid flat magenta (#FF00FF) background, no shadow, no text. Square 1:1. Prop: a big round shiny GUMDROP candy covered in sugar crystals, bright cherry red, seen from above."
+  },
+  {
+    "name": "ob-lollipop",
+    "prompt": "Next new prop, same style, seen from DIRECTLY ABOVE (top-down, flat), in exactly the art style of the attached reference props (bold chunky cartoon, thick dark-brown outlines, flat colours, soft cel shading, one white highlight). One object, centred, filling about 85% of the frame, solid flat magenta (#FF00FF) background, no shadow, no text. Square 1:1. Prop: a big round swirly rainbow LOLLIPOP seen from above."
+  },
+  {
+    "name": "ob-candyjar",
+    "prompt": "Next new prop, same style, seen from DIRECTLY ABOVE (top-down, flat), in exactly the art style of the attached reference props (bold chunky cartoon, thick dark-brown outlines, flat colours, soft cel shading, one white highlight). One object, centred, filling about 85% of the frame, solid flat magenta (#FF00FF) background, no shadow, no text. Square 1:1. Prop: a round glass CANDY JAR full of colourful sweets, seen from above with the lid off."
+  },
+  {
+    "name": "ob-knifeblock",
+    "prompt": "Next new prop, same style, seen from DIRECTLY ABOVE (top-down, flat), in exactly the art style of the attached reference props (bold chunky cartoon, thick dark-brown outlines, flat colours, soft cel shading, one white highlight). One object, centred, filling about 85% of the frame, solid flat magenta (#FF00FF) background, no shadow, no text. Square 1:1. Prop: a wooden KNIFE BLOCK with knife handles sticking out, rectangular, seen from above."
+  },
+  {
+    "name": "ob-pot",
+    "prompt": "Next new prop, same style, seen from DIRECTLY ABOVE (top-down, flat), in exactly the art style of the attached reference props (bold chunky cartoon, thick dark-brown outlines, flat colours, soft cel shading, one white highlight). One object, centred, filling about 85% of the frame, solid flat magenta (#FF00FF) background, no shadow, no text. Square 1:1. Prop: a round steel STOCK POT full of bubbling orange soup."
+  },
+  {
+    "name": "ob-pan",
+    "prompt": "Next new prop, same style, seen from DIRECTLY ABOVE (top-down, flat), in exactly the art style of the attached reference props (bold chunky cartoon, thick dark-brown outlines, flat colours, soft cel shading, one white highlight). One object, centred, filling about 85% of the frame, solid flat magenta (#FF00FF) background, no shadow, no text. Square 1:1. Prop: a round black FRYING PAN with a sizzling fried egg and bacon, handle pointing right."
+  },
+  {
+    "name": "mat-freezer",
+    "prompt": "Next new prop, same style, seen from DIRECTLY ABOVE (top-down, flat), in exactly the art style of the attached reference props (bold chunky cartoon, thick dark-brown outlines, flat colours, soft cel shading, one white highlight). One object, centred, filling about 85% of the frame, solid flat magenta (#FF00FF) background, no shadow, no text. Square 1:1. Prop: a rectangular frosty pale-blue SILICONE MAT with snowflake prints, wider than tall (4:3)."
+  },
+  {
+    "name": "mat-candy",
+    "prompt": "Next new prop, same style, seen from DIRECTLY ABOVE (top-down, flat), in exactly the art style of the attached reference props (bold chunky cartoon, thick dark-brown outlines, flat colours, soft cel shading, one white highlight). One object, centred, filling about 85% of the frame, solid flat magenta (#FF00FF) background, no shadow, no text. Square 1:1. Prop: a rectangular pink-and-white candy-striped PAPER PLACEMAT with little sweets printed on it, wider than tall (4:3)."
+  },
+  {
+    "name": "mat-nightmare",
+    "prompt": "Next new prop, same style, seen from DIRECTLY ABOVE (top-down, flat), in exactly the art style of the attached reference props (bold chunky cartoon, thick dark-brown outlines, flat colours, soft cel shading, one white highlight). One object, centred, filling about 85% of the frame, solid flat magenta (#FF00FF) background, no shadow, no text. Square 1:1. Prop: a rectangular scorched dark-grey OVEN MITT laid flat, slightly burnt at the edges, wider than tall (4:3)."
+  }
+]

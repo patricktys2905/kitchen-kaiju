@@ -50,6 +50,7 @@ export type GameEvent =
   | { type: 'toasterWarn'; i: number }
   | { type: 'toasterPop'; i: number; x: number; y: number }
   | { type: 'toastBreak'; x: number; y: number }
+  | { type: 'bumper'; x: number; y: number }
   | { type: 'spawnCutlery'; kind: CutleryKind; x: number; y: number }
   | { type: 'countdown'; n: number }
   | { type: 'go' }
@@ -84,6 +85,7 @@ export interface Player {
   invT: number;
   lastHitBy: number | null;
   lastHitT: number;
+  bumpT: number; // gumdrop bumper cooldown
   moving: boolean;
   score: number;
   kos: number;
@@ -239,7 +241,7 @@ export class World {
       id, name, x: 0, y: 0, vx: 0, vy: 0, kx: 0, ky: 0, r: P.radius, aim: 0, alive: true,
       holding: null, charging: false, charge: 0, dashT: 0, dashCD: 0, dashBumped: false,
       swipeT: 0, swipeCD: 0, swipeHit: new Set(), meter: 0, kaijuT: 0, stepT: 0, invT: 0,
-      lastHitBy: null, lastHitT: 0, moving: false, score: 0, kos: 0,
+      lastHitBy: null, lastHitT: 0, bumpT: 0, moving: false, score: 0, kos: 0,
       prev: { throw: false, swipe: false, dash: false, stomp: false },
     };
   }
@@ -361,6 +363,7 @@ export class World {
     p.dashCD -= dt;
     p.swipeCD -= dt;
     p.lastHitT -= dt;
+    p.bumpT -= dt;
     if (p.lastHitT <= 0) p.lastHitBy = null;
     const kaiju = p.kaijuT > 0;
     const targetR = kaiju ? P.kaijuRadius : P.radius;
@@ -422,7 +425,7 @@ export class World {
     if (p.dashT > 0) {
       p.dashT -= dt;
     } else {
-      const k = Math.min(1, dt * (this.onSpill(p.x, p.y) ? RULES.spillGrip : 14));
+      const k = Math.min(1, dt * (this.onSpill(p.x, p.y) ? RULES.spillGrip : this.layout.slippery ? RULES.iceGrip : 14));
       p.vx += (mx * spd - p.vx) * k;
       p.vy += (my * spd - p.vy) * k;
     }
@@ -476,6 +479,12 @@ export class World {
       if (h) {
         p.x += h.nx * h.pen;
         p.y += h.ny * h.pen;
+        if (o.style === 'gumdrop' && p.bumpT <= 0) {
+          p.kx += h.nx * RULES.bumperForce;
+          p.ky += h.ny * RULES.bumperForce;
+          p.bumpT = 0.25;
+          this.emit({ type: 'bumper', x: o.x + h.nx * (o.shape === 'circle' ? o.r : 0), y: o.y + h.ny * (o.shape === 'circle' ? o.r : 0) });
+        }
       }
     }
   }

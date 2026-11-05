@@ -43,6 +43,8 @@ The game opens on a title screen (cover art) with mode cards: **Story**, **Free 
 
 12 chapters, one per table (`src/story/chapters.ts`): a rival dialogue and a tip before each match, bosses (👑, start every round able to go KAIJU) in chapters 4, 8 and 12, 1–3 stars per chapter (3 = never lost a round), progress saved on the device (`kk-story-v1`), and an ending with the Golden Spoon. Pick your kaiju on the map; rivals never duplicate it. `npm run story-balance` simulates every chapter to check the difficulty ramp.
 
+**Story rewards** (`src/story/unlocks.ts`): 4 kaiju and 3 tables start locked in Free Play and Online, and are earned in Story. Minturtle (beat chapter 4), Freezer Shelf table (chapter 6, slippery ice), Swirlsnail (chapter 8), Candy Shop table (chapter 10, bouncy gumdrop bumpers), Cherrantula + Chef's Nightmare table (chapter 12, burners + toasters + the hand), Sherbetoad (30 stars). The map's 🎁 REWARDS button lists them; the results screen celebrates new ones. Online uses the host's unlocks. `node scripts/shots-unlocks.mjs` screenshots them.
+
 ## Online with friends
 
 Menu → **ONLINE** (or press O). One person taps **Host a game** and gets a 4-letter room code; friends tap **Join a game** on their own phone or computer, anywhere, and type the code. Everyone picks a kaiju in the lobby, the host picks bots/table and starts. Up to 6 players (host + 5 friends); bots can fill empty seats up to 4 or 6 players.

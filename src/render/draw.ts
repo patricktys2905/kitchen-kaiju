@@ -62,6 +62,7 @@ const SURFACE: Record<Layout['table'], number> = {
   'bg-table': 0x9a6438, 'bg-sushi': 0xd9c08a, 'bg-party': 0xf3b6cc, 'bg-board': 0xb88452,
   'bg-griddle': 0x8d939b, 'bg-parlour': 0xbfe8d6, 'bg-picnic': 0xe8a0a0,
   'bg-bakery': 0xe8d3a8, 'bg-banquet': 0xa8283a, 'bg-breakfast': 0xf6e7a0,
+  'bg-freezer': 0xd6eef8, 'bg-candy': 0xffc4de, 'bg-nightmare': 0x3a3836,
 };
 export function drawTableSurface(g: G, table: Layout['table'] = 'bg-table'): void {
   g.fillStyle(SURFACE[table], 1);
@@ -97,6 +98,9 @@ const FRAMES: Record<Layout['table'], FrameStyle> = {
   'bg-bakery': { frame: 0xb08050, hi: 0xe2b27a, lip: 0x765230, depth: 18 },
   'bg-banquet': { frame: 0x3a1a10, hi: 0xd4a640, lip: 0x22100a, depth: 20 },
   'bg-breakfast': { frame: 0x5aa7d6, hi: 0x9fd2f0, lip: 0x3a7aa6, depth: 14 },
+  'bg-freezer': { frame: 0xb8c4cc, hi: 0xeef6fb, lip: 0x7f8f9a, depth: 14 },
+  'bg-candy': { frame: 0xe0457f, hi: 0xff9cc4, lip: 0xa82a5c, depth: 14 },
+  'bg-nightmare': { frame: 0x2a2624, hi: 0x6a625c, lip: 0x161210, depth: 16 },
 };
 
 /** Soft floor shadow, the table's 3D front lip and its frame, styled per table. */
@@ -137,6 +141,7 @@ export function drawMat(g: G, x: number, y: number, color: number, table: Layout
     'bg-table': 0xd9b878, 'bg-sushi': 0x9fc26a, 'bg-party': 0xfff1f6, 'bg-board': 0x4a4e57,
     'bg-griddle': 0xf4f0e6, 'bg-parlour': 0xe8fff4, 'bg-picnic': 0xfff3a8,
     'bg-bakery': 0xf7f4ee, 'bg-banquet': 0xc0303c, 'bg-breakfast': 0xfff4c0,
+    'bg-freezer': 0xeaf6fc, 'bg-candy': 0xffe0ee, 'bg-nightmare': 0x5a3a30,
   };
   g.fillStyle(0x000000, 0.18); g.fillRoundedRect(x - 54, y - 38, 112, 82, 12);
   g.fillStyle(fill[table], 0.9); g.fillRoundedRect(x - 56, y - 41, 112, 82, 12);
@@ -159,6 +164,7 @@ export function drawObstacleShadow(g: G, o: Obstacle): void {
 }
 
 const FALLBACK_COLORS: Partial<Record<Obstacle['style'], number>> = {
+  icetray: 0xbfe6f5, peas: 0x6fbf4a, popsicle: 0xff6a5a, tub: 0xf2ead8, gumdrop: 0xff4fa0, lollipop: 0xffd24a, candyjar: 0xcfeefa, knifeblock: 0x6a4a30, pot: 0x8a8f96, pan: 0x2f2f33,
   soy: 0x3a2214, sushi: 0x24407a, teapot: 0x3f6b3a, cake: 0xff9ec4, gift: 0x4f8fe0, cupcake: 0x9ff0d0,
   tomato: 0xe8392f, onion: 0xa04a8c, carrot: 0xff8a2a, garlic: 0xf2ece0,
   ketchup: 0xd8281e, mustard: 0xf2c418, pancakes: 0xd99a4e, egg: 0xfff8e8, sundae: 0xffc4dc, shake: 0xff9ec4, cone: 0xd8a35a,

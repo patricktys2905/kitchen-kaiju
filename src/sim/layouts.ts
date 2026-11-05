@@ -2,7 +2,8 @@ export type ObstacleStyle =
   | 'cup' | 'shaker' | 'bowl' | 'candle' | 'napkin' | 'bread' | 'gravy'
   | 'soy' | 'sushi' | 'teapot' | 'cake' | 'gift' | 'cupcake' | 'tomato' | 'onion' | 'carrot' | 'garlic'
   | 'ketchup' | 'mustard' | 'pancakes' | 'egg' | 'sundae' | 'shake' | 'cone' | 'basket' | 'melon' | 'lemonade' | 'sandwich'
-  | 'croissant' | 'flour' | 'rollingpin' | 'cupcakes' | 'dumplings' | 'noodles' | 'teacup' | 'toaster' | 'jam' | 'cereal';
+  | 'croissant' | 'flour' | 'rollingpin' | 'cupcakes' | 'dumplings' | 'noodles' | 'teacup' | 'toaster' | 'jam' | 'cereal'
+  | 'icetray' | 'peas' | 'popsicle' | 'tub' | 'gumdrop' | 'lollipop' | 'candyjar' | 'knifeblock' | 'pot' | 'pan';
 
 export type Obstacle =
   | { shape: 'circle'; x: number; y: number; r: number; style: ObstacleStyle }
@@ -45,7 +46,8 @@ export interface Zone {
 export interface Layout {
   name: string;
   /** Art key of the table surface. */
-  table: 'bg-table' | 'bg-sushi' | 'bg-party' | 'bg-board' | 'bg-griddle' | 'bg-parlour' | 'bg-picnic' | 'bg-bakery' | 'bg-banquet' | 'bg-breakfast';
+  table: 'bg-table' | 'bg-sushi' | 'bg-party' | 'bg-board' | 'bg-griddle' | 'bg-parlour' | 'bg-picnic' | 'bg-bakery' | 'bg-banquet' | 'bg-breakfast'
+    | 'bg-freezer' | 'bg-candy' | 'bg-nightmare';
   hazards: HazardKind[];
   belts?: Belt[];
   spills?: Zone[]; // slippery: you slide instead of stopping
@@ -53,6 +55,9 @@ export interface Layout {
   stickies?: Zone[]; // Bakery dough: slows you down
   turntable?: Turntable; // Banquet Lazy Susan
   toasters?: Toaster[]; // Breakfast Rush (hazard 'toaster')
+  slippery?: boolean; // Freezer Shelf: the whole table is ice
+  /** Unlocked in Story mode (see src/story/unlocks.ts). */
+  locked?: boolean;
   obstacles: Obstacle[];
   spawns: [number, number][];
   blurb: string;
@@ -236,5 +241,56 @@ export const LAYOUTS: Layout[] = [
       { shape: 'circle', x: 900, y: 230, r: 36, style: 'cereal' },
     ],
     spawns: [[170, 150], [1110, 615], [1110, 150], [170, 615], [160, 400], [1120, 330]],
+  },
+  {
+    name: 'Freezer Shelf',
+    table: 'bg-freezer',
+    hazards: ['hand'],
+    locked: true,
+    blurb: 'The whole table is ICE. Every step slides. (Story unlock)',
+    slippery: true,
+    obstacles: [
+      { shape: 'rect', x: 560, y: 340, w: 160, h: 84, style: 'icetray' },
+      { shape: 'rect', x: 300, y: 205, w: 96, h: 70, style: 'peas' },
+      { shape: 'rect', x: 884, y: 490, w: 96, h: 70, style: 'peas' },
+      { shape: 'circle', x: 330, y: 540, r: 40, style: 'tub' },
+      { shape: 'rect', x: 860, y: 215, w: 120, h: 36, style: 'popsicle' },
+    ],
+    spawns: [[170, 150], [1110, 615], [1110, 150], [170, 615], [160, 382], [1120, 382]],
+  },
+  {
+    name: 'Candy Shop',
+    table: 'bg-candy',
+    hazards: ['hand'],
+    locked: true,
+    blurb: 'Gumdrop bumpers fling anyone who bumps into them. Pinball! (Story unlock)',
+    obstacles: [
+      { shape: 'circle', x: 640, y: 382, r: 36, style: 'gumdrop' },
+      { shape: 'circle', x: 420, y: 250, r: 30, style: 'gumdrop' },
+      { shape: 'circle', x: 860, y: 250, r: 30, style: 'gumdrop' },
+      { shape: 'circle', x: 420, y: 515, r: 30, style: 'gumdrop' },
+      { shape: 'circle', x: 860, y: 515, r: 30, style: 'gumdrop' },
+      { shape: 'circle', x: 640, y: 175, r: 26, style: 'lollipop' },
+      { shape: 'circle', x: 640, y: 590, r: 34, style: 'candyjar' },
+    ],
+    spawns: [[170, 150], [1110, 615], [1110, 150], [170, 615], [160, 382], [1120, 382]],
+  },
+  {
+    name: "Chef's Nightmare",
+    table: 'bg-nightmare',
+    hazards: ['hand', 'burner', 'toaster'],
+    locked: true,
+    blurb: 'Burners, toasters AND the giant hand. Good luck. (Story unlock)',
+    burners: [{ x: 420, y: 260, r: 56 }, { x: 860, y: 505, r: 56 }],
+    toasters: [{ x: 188, y: 520, a: 0 }, { x: 1092, y: 245, a: Math.PI }],
+    obstacles: [
+      { shape: 'rect', x: 116, y: 494, w: 70, h: 52, style: 'toaster' },
+      { shape: 'rect', x: 1094, y: 219, w: 70, h: 52, style: 'toaster' },
+      { shape: 'circle', x: 640, y: 382, r: 44, style: 'pot' },
+      { shape: 'rect', x: 600, y: 140, w: 80, h: 56, style: 'knifeblock' },
+      { shape: 'circle', x: 860, y: 260, r: 32, style: 'pan' },
+      { shape: 'circle', x: 420, y: 505, r: 32, style: 'pan' },
+    ],
+    spawns: [[170, 150], [1110, 615], [1110, 150], [170, 615], [160, 382], [1120, 382]],
   },
 ];

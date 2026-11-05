@@ -62,6 +62,7 @@ export const sfx = {
   swipe: () => noise(0.1, 0.1, 5000),
   dash: () => { noise(0.14, 0.06, 1800); tone(220, 0.1, 'sine', 0.04, 260); },
   bump: () => { tone(120, 0.12, 'sine', 0.1, -40); noise(0.08, 0.1, 800); },
+  boing: () => { tone(260, 0.18, 'sine', 0.09, 520); tone(520, 0.12, 'triangle', 0.04, 300); },
   eat: () => tone(300 + Math.random() * 200, 0.04, 'square', 0.025),
   meterFull: () => { [523, 659, 784, 1046].forEach((f, i) => tone(f, 0.12, 'triangle', 0.05, 0, i * 0.06)); },
   kaiju: () => { tone(90, 0.7, 'sawtooth', 0.12, 120); tone(60, 0.8, 'square', 0.06, 40); noise(0.5, 0.12, 600); },
