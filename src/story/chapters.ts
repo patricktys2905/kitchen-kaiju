@@ -146,7 +146,7 @@ export const CHAPTERS: Chapter[] = [
   },
   {
     title: 'The Grand Feast', table: 11, rounds: 3, boss: true,
-    rivals: [{ species: 6, level: 'hard', boss: true }, { species: 15, level: 'normal' }, { species: 11, level: 'hard' }],
+    rivals: [{ species: 6, level: 'hard', boss: true }, { species: 15, level: 'normal' }, { species: 11, level: 'normal' }],
     intro: [
       { speaker: 'chef', text: 'Breakfast is served. The last table. The Golden Spoon sits on its cake stand, waiting.' },
       { speaker: 0, text: 'Every kaiju in this kitchen bows to DUMPLORD. The Golden Spoon stays with ME!' },

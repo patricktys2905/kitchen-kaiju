@@ -42,6 +42,7 @@ export class BotBrain {
   private aimA = 0;
   private aimOffset = 0;
   private time = 0;
+  private dodgeRoll = new Map<number, boolean>(); // one dodge decision per incoming throw (not per frame)
   private history: { t: number; pos: { x: number; y: number; vx: number; vy: number }[] }[] = [];
 
   constructor(readonly id: number, public difficulty: BotLevel, seed: number) {
@@ -139,6 +140,7 @@ export class BotBrain {
     }
 
     // Dodge incoming cutlery.
+    for (const id of this.dodgeRoll.keys()) if (!w.cutlery.some(c => c.id === id && c.state === 'flying')) this.dodgeRoll.delete(id);
     for (const c of w.cutlery) {
       if (c.state !== 'flying') continue;
       if (c.owner === p.id && !c.bounced) continue;
@@ -148,7 +150,8 @@ export class BotBrain {
       if (closing < 200) continue;
       const px = -c.vy, py = c.vx, pl = Math.hypot(px, py) || 1, side = px * cx + py * cy > 0 ? 1 : -1;
       add((px / pl) * side, (py / pl) * side, 2.6);
-      if (cd < 110 && p.dashCD <= 0 && this.rng.next() < T.dodge) out.dash = !p.prev.dash;
+      if (!this.dodgeRoll.has(c.id)) this.dodgeRoll.set(c.id, this.rng.next() < T.dodge);
+      if (cd < 110 && p.dashCD <= 0 && this.dodgeRoll.get(c.id)) out.dash = !p.prev.dash;
     }
 
     // Get out of the giant hand's lane.

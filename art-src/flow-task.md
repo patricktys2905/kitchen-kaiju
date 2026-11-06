@@ -31,6 +31,15 @@ For each key, skip it if `art-src/clips-raw/<key>.mp4` already exists.
 8. If Flow refuses a prompt, retry it once. Simplify the wording if needed: drop words like "furious", "menacingly" or "villain". If it still refuses, skip that key and note it.
 
 ## Rules
+- After each clip downloads, look at it: grab frames (e.g. open it in a tab) and check that no new characters appeared and nobody changed shape. If it drifted badly, generate it ONE more time and keep the better one. Do at most 3 such retries in the whole run (credit budget). Save the retry as `<key>.mp4` and the other as `<key>-alt.mp4`.
 - Only generate the listed keys. One output each. Don't buy credits or change plan or account settings.
 - If you run out of credits, or a sign-in or captcha is needed, stop and report it.
 - At the end, print one line per key: `<key>: saved` / `skipped (exists)` / `failed: <reason>`, plus the credits remaining if shown.
+
+## If screenshots of the Flow tab freeze ("renderer may be frozen")
+The user is away from the PC. Nobody can click for you, so fix it yourself with PowerShell:
+- Bring the user's Chrome to the front and maximise it:
+  `Add-Type 'using System;using System.Runtime.InteropServices;public class W{[DllImport("user32.dll")]public static extern bool ShowWindow(IntPtr h,int c);[DllImport("user32.dll")]public static extern bool SetForegroundWindow(IntPtr h);}'; $p = Get-Process chrome | ? { $_.MainWindowTitle -and $_.MainWindowTitle -notmatch 'Gemini' } | select -First 1; [W]::ShowWindow($p.MainWindowHandle,3); [W]::SetForegroundWindow($p.MainWindowHandle)`
+- Make sure the Flow tab is the active tab in that window (switch to it).
+- Wait a few seconds, then try the screenshot again. Reloading the tab once after that is fine.
+- Only stop if it is still frozen after a few tries.
