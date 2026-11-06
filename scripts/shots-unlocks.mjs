@@ -11,7 +11,7 @@ let browser;
 try {
   for (let i = 0; i < 60; i++) { try { if ((await fetch(url)).ok) break; } catch { /* */ } await wait(250); }
   browser = await chromium.launch({ executablePath: 'C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe', headless: true });
-  const save = (stars) => JSON.stringify({ unlocked: 12, stars, pick: 16, endingSeen: false });
+  const save = (stars) => JSON.stringify({ unlocked: 12, stars, pick: 16, endingSeen: false, cuts: ['cut-open'] });
   for (const [table, stars] of [[12, Array(12).fill(3)], [13, Array(12).fill(3)], [14, Array(12).fill(3)]]) {
     const page = await browser.newPage({ viewport: { width: 1280, height: 720 } });
     page.on('pageerror', e => errors.push(String(e)));
@@ -25,7 +25,7 @@ try {
   // rewards screen with a part-way save (4 chapters -> Minturtle earned)
   const page = await browser.newPage({ viewport: { width: 1280, height: 720 } });
   page.on('pageerror', e => errors.push(String(e)));
-  await page.addInitScript(s => localStorage.setItem('kk-story-v1', s), save([3, 2, 3, 1, 2, 2]));
+  await page.addInitScript(s => localStorage.setItem('kk-story-v1', s), save([3, 2, 3, 3, 2, 2, 3, 3, 3, 3, 3, 3]));
   await page.goto(`${url}?mode=story`);
   await wait(2500);
   await page.mouse.click(745, 676);

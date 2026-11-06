@@ -38,6 +38,11 @@ try {
     await tapAt(170, 640); // STORY card
     check(await until(() => active('story')), `${tag}: STORY opens the chapter map`);
     await wait(500);
+    check(await until(() => pg.evaluate(() => window.__game.scene.getScene('story').mode === 'cut')), `${tag}: the opening cutscene plays on the first visit`);
+    await wait(2500);
+    await pg.screenshot({ path: `smoke-story-${tag}-2a-opening.png` });
+    await tapAt(640, 360); // tap skips
+    check(await until(() => pg.evaluate(() => window.__game.scene.getScene('story').mode === 'map')), `${tag}: tapping skips the cutscene`);
     await pg.screenshot({ path: `smoke-story-${tag}-2-map.png` });
     await tapAt(1070, 640); // PLAY
     await wait(600);

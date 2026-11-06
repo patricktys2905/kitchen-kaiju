@@ -16,7 +16,7 @@ for (const [phase, target] of [['roundEnd', 5], ['matchEnd', 5], ['roundEnd', 10
   await pg.evaluate(([ph, target]) => {
     const s = window.__game.scene.getScene('game'), w = s.world;
     // longest names, big scores
-    ['BUBBLEGUMBO', 'PIZZARAPTOR', 'ONIGIRILLA', 'SALMONSTER', 'CHOCOMUNCH', 'AVOCADRAKE'].forEach((n, i) => { w.players[i].name = n; w.players[i].score = 5 - (i % 5); w.players[i].kos = 12 + i; });
+    ['BUBBLEGUMBO', 'PIZZARAPTOR', 'ONIGORI', 'SALMONSTER', 'CHOCOMUNCH', 'AVOCADRAKE'].forEach((n, i) => { w.players[i].name = n; w.players[i].score = 5 - (i % 5); w.players[i].kos = 12 + i; });
     w.opts.target = target; w.phase = ph; w.phaseT = 0; w.winner = 0;
     w.step = () => {}; // freeze the match so the banner stays put
   }, [phase, target]);

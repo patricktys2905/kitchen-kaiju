@@ -43,7 +43,9 @@ The game opens on a title screen (cover art) with mode cards: **Story**, **Free 
 
 12 chapters, one per table (`src/story/chapters.ts`): a rival dialogue and a tip before each match, bosses (👑, start every round able to go KAIJU) in chapters 4, 8 and 12, 1–3 stars per chapter (3 = never lost a round), progress saved on the device (`kk-story-v1`), and an ending with the Golden Spoon. Pick your kaiju on the map; rivals never duplicate it. `npm run story-balance` simulates every chapter to check the difficulty ramp.
 
-**Story rewards** (`src/story/unlocks.ts`): 4 kaiju and 3 tables start locked in Free Play and Online, and are earned in Story. Minturtle (beat chapter 4), Freezer Shelf table (chapter 6, slippery ice), Swirlsnail (chapter 8), Candy Shop table (chapter 10, bouncy gumdrop bumpers), Cherrantula + Chef's Nightmare table (chapter 12, burners + toasters + the hand), Sherbetoad (30 stars). The map's 🎁 REWARDS button lists them; the results screen celebrates new ones. Online uses the host's unlocks. `node scripts/shots-unlocks.mjs` screenshots them.
+**Story rewards** (`src/story/unlocks.ts`): 4 kaiju and 3 tables start locked in Free Play and Online, and are earned in Story. Minturtle (beat chapter 4), Freezer Shelf table (chapter 6, slippery ice), Pengwhip (chapter 8), Candy Shop table (chapter 10, bouncy gumdrop bumpers), Velvaroo + Chef's Nightmare table (chapter 12, burners + toasters + the hand), Tacowl (30 stars). The map's 🎁 REWARDS button lists them; the results screen celebrates new ones. Online uses the host's unlocks. `node scripts/shots-unlocks.mjs` screenshots them.
+
+**Cutscenes** (`src/story/cutscenes.ts`): an opening, one punny clip per chapter (auto-plays the first time; 🎬 SCENE replays it) and an ending. Pipeline: `node scripts/make-cut-jobs.mjs` (ref sheets + Gemini still jobs + Flow prompts) → `npm run art:gen -- art-src/jobs-cutscenes.json` → `npm run art` (stills become `public/art/cut-*.webp`, also the offline fallback) → Google Flow, Veo 3.1 Lite, image-to-video (`art-src/flow-task.md`, raw clips in `art-src/clips-raw`) → `node scripts/encode-clips.mjs` → `public/video/*.mp4` (streamed, not precached). Captions are drawn by the game.
 
 ## Online with friends
 
@@ -55,7 +57,7 @@ Menu → **ONLINE** (or press O). One person taps **Host a game** and gets a 4-l
 
 ## Kaiju and tables
 
-16 food kaiju to pick from (each player picks a different one; LEFT/RIGHT on your controller, or KAIJU ▶ on touch): Gobzilla Jr. (strawberry lizard), Squidgeon (blue jelly octopus), Crabbage (cheese crab), Bloblin (lime jelly), Mothball (ube marshmallow moth), Toastbat (toast bat), Dumplord (dumpling), Norigon (sushi-roll dragon), Chocomunch (chocolate golem), Bubblegumbo (bubblegum elephant), Bluebeary (blueberry muffin bear), Pizzaraptor (pizza raptor), Grapehound (grape hound), Avocadrake (avocado dragon), Salmonster (salmon sea monster), Onigirilla (rice-ball gorilla). All play the same for now.
+16 food kaiju to pick from (each player picks a different one; LEFT/RIGHT on your controller, or KAIJU ▶ on touch): Gobzilla Jr. (strawberry lizard), Squidgeon (blue jelly octopus), Crabbage (cheese crab), Bloblin (lime jelly), Mothball (ube marshmallow moth), Toastbat (toast bat), Dumplord (dumpling), Norigon (sushi-roll dragon), Chocomunch (chocolate golem), Bubblegumbo (bubblegum elephant), Bluebeary (blueberry muffin bear), Pizzaraptor (pizza raptor), Grapehound (grape hound), Avocadrake (avocado dragon), Salmonster (salmon sea monster), Onigori (rice-ball gorilla). All play the same for now.
 
 12 tables (M / gamepad Y / TABLE button; default rotates through all):
 - Sunday Roast, Dinner for Four, Leftovers: the giant hand

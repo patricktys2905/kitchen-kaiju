@@ -8,16 +8,17 @@ export interface StorySave {
   stars: number[]; // best stars per chapter (0 = not cleared)
   pick: number; // your kaiju
   endingSeen: boolean;
+  cuts: string[]; // cutscenes already watched (auto-play only the first time)
 }
 
 export function loadStory(): StorySave {
   try {
     const s = JSON.parse(localStorage.getItem(KEY) ?? 'null') as Partial<StorySave> | null;
     if (s && typeof s.unlocked === 'number') {
-      return { unlocked: Math.max(1, Math.min(CHAPTERS.length, s.unlocked)), stars: s.stars ?? [], pick: s.pick ?? 0, endingSeen: !!s.endingSeen };
+      return { unlocked: Math.max(1, Math.min(CHAPTERS.length, s.unlocked)), stars: s.stars ?? [], pick: s.pick ?? 0, endingSeen: !!s.endingSeen, cuts: Array.isArray(s.cuts) ? s.cuts : [] };
     }
   } catch { /* fresh start */ }
-  return { unlocked: 1, stars: [], pick: 0, endingSeen: false };
+  return { unlocked: 1, stars: [], pick: 0, endingSeen: false, cuts: [] };
 }
 
 export function saveStory(s: StorySave): void {

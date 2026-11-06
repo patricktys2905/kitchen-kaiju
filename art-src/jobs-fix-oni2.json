@@ -1,0 +1,20 @@
+[
+  {
+    "name": "bg-title",
+    "newChat": true,
+    "refs": [
+      "art-src/ref-title-cast.png",
+      "art-src/ref-onigori.png"
+    ],
+    "prompt": "Generate an image. The first attached picture shows five characters from my party game Kitchen Kaiju (tiny monsters made of food); the second shows ONIGORI up close. Draw the GAME COVER ART: a wide 16:9 cinematic cartoon scene in the same bold chunky style (thick dark-brown outlines, flat bright colours, soft cel shading, warm candle light). Setting: a long candle-lit banquet table at night with plates, peas and crumbs; in the centre, a glowing GOLDEN SPOON stands on a silver cake stand like a trophy. In front of it the five kaiju pose heroically with giant cutlery, EACH APPEARING EXACTLY ONCE and matching its reference design and colours, left to right: the pink STRAWBERRY lizard holding a giant fork, the pink bubblegum ELEPHANT holding a giant spoon, the cream DUMPLING kaiju with chopsticks, the PIZZA RAPTOR holding a big knife, and the small CUTE baby ONIGIRI rice-ball gorilla (rounded-triangle rice head, big friendly eyes, rosy cheeks, tiny red plum on its forehead, black nori shorts) holding a salt shaker. The background wall behind the table is in soft warm shadow, especially towards the top-left, and the table edge at the bottom is simple. Fill the WHOLE frame with the painted scene edge to edge (no boxes, panels, borders or empty areas). ABSOLUTELY NO buttons, no menus, no user interface, no text, no letters, no logos. Landscape 16:9."
+  },
+  {
+    "name": "cut-11",
+    "newChat": true,
+    "refs": [
+      "art-src/ref-boss.png",
+      "art-src/cut-refs/bg-breakfast.png"
+    ],
+    "prompt": "Generate an image. The first attached picture shows three characters from my game Kitchen Kaiju, left to right: DUMPLORD (a cream steamed-DUMPLING monster with pleated dumpling top and NO fur, NO gorilla features), ONIGORI (a small cute baby rice-ball gorilla with a tiny red plum on its forehead and black nori shorts) and PIZZARAPTOR (a pizza-slice raptor). The second shows their table. Keep this EXACT art style and these EXACT designs: bold chunky cartoon, thick dark-brown outlines, flat bright colours with soft cel shading. Draw a WIDE 16:9 LANDSCAPE cinematic cartoon scene, like a frame from a funny animated film: a grand breakfast feast table with popping toasters, stacks of pancakes and fried eggs; DUMPLORD is the final boss: a BIG smooth cream dumpling with a pleated twist on top, wearing a gold crown, smirking on a throne made of toast slices and holding a GOLDEN SPOON like a sceptre. On either side stand his henchmen, the small cute ONIGORI (same size as the raptor, adorable) and the PIZZARAPTOR cracking its knuckles. Warm cinematic lighting, lots of food detail, space at the bottom. No text, no letters, no logos, no speech bubbles. Landscape 16:9."
+  }
+]

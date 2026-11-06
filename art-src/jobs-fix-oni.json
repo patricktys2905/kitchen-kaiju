@@ -1,0 +1,30 @@
+[
+  {
+    "name": "bg-title",
+    "newChat": true,
+    "refs": [
+      "art-src/ref-title-cast.png",
+      "art-src/ref-onigori.png"
+    ],
+    "prompt": "Generate an image. The first attached picture shows five characters from my party game Kitchen Kaiju (tiny monsters made of food); the second shows ONIGORI up close. Draw the GAME COVER ART: a wide 16:9 cinematic cartoon scene in the same bold chunky style (thick dark-brown outlines, flat bright colours, soft cel shading, warm candle light). Setting: a long candle-lit banquet table at night with plates, peas and crumbs; in the centre, a glowing GOLDEN SPOON stands on a silver cake stand like a trophy. In front of it the five kaiju pose heroically with giant cutlery, EACH APPEARING EXACTLY ONCE and matching its reference design and colours, left to right: the pink STRAWBERRY lizard holding a giant fork, the pink bubblegum ELEPHANT holding a giant spoon, the cream DUMPLING kaiju with chopsticks, the PIZZA RAPTOR holding a big knife, and the small CUTE baby ONIGIRI rice-ball gorilla (rounded-triangle rice head, big friendly eyes, rosy cheeks, tiny red plum on its forehead, black nori shorts) holding a salt shaker. Keep the top-left quarter fairly plain and dark for the title, and the bottom fifth of the image darker and simple. ABSOLUTELY NO buttons, no menus, no user interface, no text, no letters, no logos. Landscape 16:9."
+  },
+  {
+    "name": "cut-open",
+    "newChat": true,
+    "refs": [
+      "art-src/cut-refs/cut-open.png",
+      "art-src/ref-onigori.png"
+    ],
+    "prompt": "Generate an image. The first attached picture shows characters from my game Kitchen Kaiju. Keep this EXACT art style and these EXACT character designs: bold chunky cartoon, thick dark-brown outlines, flat bright colours with soft cel shading, cheeky expressions. The characters are tiny food monsters (\"kaiju\") from my party game. Draw a WIDE 16:9 LANDSCAPE cinematic cartoon scene, like a frame from a funny animated film: a long candle-lit banquet table at night in a grand dining hall; a glowing GOLDEN SPOON stands on a silver cake stand in the centre like a trophy; the tiny food kaiju from the reference peek hungrily over plates and wine glasses at it from both sides. The kaiju are tiny compared with the plates and cutlery around them. Warm cinematic lighting, depth of field, lots of food detail, a clear readable composition with space at the bottom. IMPORTANT: the rice-ball gorilla must look EXACTLY like the separate ONIGORI reference picture: a SMALL, CUTE, chubby BABY gorilla, about the same size as the other kaiju (never bigger or burlier), soft rounded-triangle white rice head and round rice body, big shiny friendly eyes, rosy cheeks, a tiny red plum on its forehead, black nori shorts. NOT a muscular adult gorilla. No text, no letters, no logos, no speech bubbles. Landscape 16:9."
+  },
+  {
+    "name": "cut-11",
+    "newChat": true,
+    "refs": [
+      "art-src/cut-refs/cut-11.png",
+      "art-src/cut-refs/bg-breakfast.png",
+      "art-src/ref-onigori.png"
+    ],
+    "prompt": "Generate an image. The first attached picture shows characters from my game Kitchen Kaiju. The second shows the table they are on. Keep this EXACT art style and these EXACT character designs: bold chunky cartoon, thick dark-brown outlines, flat bright colours with soft cel shading, cheeky expressions. The characters are tiny food monsters (\"kaiju\") from my party game. Draw a WIDE 16:9 LANDSCAPE cinematic cartoon scene, like a frame from a funny animated film: a grand breakfast feast table with popping toasters, stacks of pancakes and eggs; the DUMPLING kaiju is huge, wearing a gold crown and sitting on a throne made of toast, holding the GOLDEN SPOON like a sceptre, the rice-ball gorilla and the pizza raptor flank him as henchmen. The kaiju are tiny compared with the plates and cutlery around them. Warm cinematic lighting, depth of field, lots of food detail, a clear readable composition with space at the bottom. IMPORTANT: the rice-ball gorilla must look EXACTLY like the separate ONIGORI reference picture: a SMALL, CUTE, chubby BABY gorilla, about the same size as the other kaiju (never bigger or burlier), soft rounded-triangle white rice head and round rice body, big shiny friendly eyes, rosy cheeks, a tiny red plum on its forehead, black nori shorts. NOT a muscular adult gorilla. No text, no letters, no logos, no speech bubbles. Landscape 16:9."
+  }
+]

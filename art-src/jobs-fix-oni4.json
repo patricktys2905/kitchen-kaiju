@@ -1,0 +1,11 @@
+[
+  {
+    "name": "cut-11",
+    "newChat": true,
+    "refs": [
+      "art-src/ref-boss2.png",
+      "art-src/cut-refs/bg-breakfast.png"
+    ],
+    "prompt": "Generate an image. The first attached picture shows two characters from my game Kitchen Kaiju: DUMPLORD (left: a cream steamed-DUMPLING monster with a pleated twist on top, smooth, NO fur) and PIZZARAPTOR (right: a raptor made of a pepperoni pizza slice with melted cheese). The second shows their table. Keep this EXACT art style and these EXACT designs: bold chunky cartoon, thick dark-brown outlines, flat bright colours with soft cel shading. Draw a WIDE 16:9 LANDSCAPE cinematic cartoon scene, like a frame from a funny animated film: a grand breakfast feast table with popping toasters, stacks of pancakes and fried eggs; DUMPLORD is the final boss, BIG, wearing a gold crown, smirking on a throne made of toast slices and holding a GOLDEN SPOON like a sceptre; beside him his henchman PIZZARAPTOR cracks its knuckles. Warm cinematic lighting, lots of food detail, space at the bottom. No text, no letters, no logos, no speech bubbles. Landscape 16:9."
+  }
+]

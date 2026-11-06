@@ -490,7 +490,7 @@ describe('story mode', () => {
     const { starsFor } = await import('../src/story/chapters');
     const { recordResult } = await import('../src/story/save');
     expect([starsFor(0), starsFor(1), starsFor(2), starsFor(5)]).toEqual([3, 2, 1, 1]);
-    const s = { unlocked: 1, stars: [] as number[], pick: 0, endingSeen: false };
+    const s = { unlocked: 1, stars: [] as number[], pick: 0, endingSeen: false, cuts: [] as string[] };
     expect(recordResult(s, 0, false, 0)).toBe(false); // a loss unlocks nothing
     expect(s.unlocked).toBe(1);
     expect(recordResult(s, 0, true, 2)).toBe(true);
@@ -507,7 +507,7 @@ describe('story unlockables', () => {
     const { owned, UNLOCKS, newlyEarned, isEarned } = await import('../src/story/unlocks');
     const { SPECIES } = await import('../src/sim/constants');
     const { LAYOUTS } = await import('../src/sim/layouts');
-    const fresh = { unlocked: 1, stars: [] as number[], pick: 0, endingSeen: false };
+    const fresh = { unlocked: 1, stars: [] as number[], pick: 0, endingSeen: false, cuts: [] as string[] };
     const o = owned(fresh);
     expect(o.kaiju.length).toBe(SPECIES.length - UNLOCKS.filter(u => u.kind === 'kaiju').length);
     expect(o.tables.length).toBe(LAYOUTS.length - UNLOCKS.filter(u => u.kind === 'table').length);
@@ -541,5 +541,19 @@ describe('story unlockables', () => {
     const ev = run(w, 0.8, () => [{ ...NO_INPUT, mx: 1 }]);
     expect(ev.some(e => e.type === 'bumper')).toBe(true);
     expect(w.players[0].x).toBeLessThan(640 - 36);
+  });
+});
+
+describe('story cutscenes', () => {
+  it('one punny cutscene per chapter, headings match the chapter titles', async () => {
+    const { CHAPTERS } = await import('../src/story/chapters');
+    const { CHAPTER_CUTS, ALL_CUTS } = await import('../src/story/cutscenes');
+    expect(CHAPTER_CUTS.length).toBe(CHAPTERS.length);
+    CHAPTER_CUTS.forEach((c, i) => {
+      expect(c.key).toBe(`cut-${i}`);
+      expect(c.heading).toBe(`CHAPTER ${i + 1} · ${CHAPTERS[i].title.toUpperCase()}`);
+      expect(c.caption.length).toBeLessThan(70); // fits one caption line
+    });
+    expect(new Set(ALL_CUTS.map(c => c.key)).size).toBe(ALL_CUTS.length);
   });
 });

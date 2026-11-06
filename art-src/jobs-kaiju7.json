@@ -1,0 +1,36 @@
+[
+  {
+    "name": "kaiju-17",
+    "newChat": true,
+    "refs": ["art-src/ref-style2.png"],
+    "prompt": "Generate an image. The attached picture shows character sprites from my party game Kitchen Kaiju. Keep this EXACT art style: bold chunky cartoon, thick dark-brown outlines, flat bright colours with soft cel shading and one crisp white highlight, cheeky (not babyish) expressions, same size. The kaiju is MADE OF FOOD and must have its own body shape (described below), different from the reference characters. Framing: one full-body character, three-quarter view facing RIGHT, centred, filling about 80% of the frame, solid flat magenta (#FF00FF) background, no ground shadow, no text, no props. Square 1:1. Kaiju: FLOSSUM: a small scrappy POSSUM kaiju made of fluffy BLUE-RASPBERRY CANDY FLOSS: its whole round body is a big puffy cloud of vivid ROYAL BLUE (#1a1aff) cotton candy, a long bare curly tail that is a paper candy-floss stick, pointy ears, little pink nose, beady eyes and a mischievous toothy grin, standing on all fours."
+  },
+  {
+    "name": "kaiju-18",
+    "prompt": "Next NEW kaiju in exactly the same art style, framing (three-quarter view facing RIGHT) and solid flat magenta (#FF00FF) background, with its own body shape: VELVAROO: a tall KANGAROO kaiju made of RED VELVET CAKE: deep BERRY-RED (#7e2549) sponge body with visible cake crumb texture, a thick swirl of white cream-cheese frosting on its belly pouch and on top of its head, big strong feet and a thick tail, boxing-glove fists, standing upright in a cocky fighting pose, smug grin. No text, no props. Square 1:1."
+  },
+  {
+    "name": "kaiju-19",
+    "prompt": "Next NEW kaiju in exactly the same art style, framing (three-quarter view facing RIGHT) and solid flat magenta (#FF00FF) background, with its own body shape: BANANACONDA: a long coiled SNAKE kaiju that is a BANANA: bright lemon-lime YELLOW (#e8ff1a) peel skin with little brown speckles, the peel split open into three floppy flaps around its neck like a hood, a creamy banana-flesh face, a forked tongue, sly half-closed eyes and a wicked grin, body coiled in an S shape. No text, no props. Square 1:1."
+  },
+  {
+    "name": "kaiju-15",
+    "prompt": "Next kaiju in exactly the same art style, framing (three-quarter view facing RIGHT) and solid flat magenta (#FF00FF) background: ONIGORI: a CUTE little chubby baby GORILLA made of an ONIGIRI rice ball: a soft rounded-TRIANGLE rice head with big shiny friendly eyes and rosy cheeks, a small happy open-mouth smile, a round fluffy white rice-grain body with short stubby arms and legs, and a neat wrap of dark-black NORI SEAWEED around its tummy and legs like shorts, a tiny red umeboshi plum on its forehead. Cuddly and adorable but still a little mischievous. No text, no props. Square 1:1."
+  },
+  {
+    "name": "kaiju-17-rage",
+    "prompt": "Now FLOSSUM in KAIJU MODE: exactly the same design, shape and colours, same style, framing (facing RIGHT) and magenta background, but roaring furiously with mouth wide open, angry eyebrows, bits of its food flying off. No text. Square 1:1."
+  },
+  {
+    "name": "kaiju-18-rage",
+    "prompt": "Now VELVAROO in KAIJU MODE: exactly the same design, shape and colours, same style, framing (facing RIGHT) and magenta background, but roaring furiously with mouth wide open, angry eyebrows, bits of its food flying off. No text. Square 1:1."
+  },
+  {
+    "name": "kaiju-19-rage",
+    "prompt": "Now BANANACONDA in KAIJU MODE: exactly the same design, shape and colours, same style, framing (facing RIGHT) and magenta background, but roaring furiously with mouth wide open, angry eyebrows, bits of its food flying off. No text. Square 1:1."
+  },
+  {
+    "name": "kaiju-15-rage",
+    "prompt": "Now ONIGORI in KAIJU MODE: exactly the same cute design, shape and colours, same style, framing (facing RIGHT) and magenta background, but throwing a furious little tantrum: mouth wide open roaring, angry eyebrows, rice grains flying off. Still cute. No text. Square 1:1."
+  }
+]

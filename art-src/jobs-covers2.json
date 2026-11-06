@@ -1,0 +1,14 @@
+[
+  {
+    "name": "bg-title",
+    "newChat": true,
+    "refs": ["art-src/ref-old-title.png", "art-src/ref-title-cast.png"],
+    "prompt": "Generate an image. The first attached picture is the current cover art of my game Kitchen Kaiju. Redraw this cover with the SAME composition, candle-lit banquet setting, golden spoon on the cake stand, lighting, giant fork, spoon and knife, and the SAME art style. But the five characters must now match the EXACT current designs in the second attached picture, from left to right: the pink STRAWBERRY lizard (pink strawberry body, green leafy crest), the pink bubblegum ELEPHANT, the cream DUMPLING kaiju, the PIZZA raptor, and the CUTE little baby ONIGIRI rice-ball gorilla (rounded-triangle rice head, big friendly eyes, rosy cheeks, tiny red plum on its forehead, black nori shorts). It replaces the old big burly white gorilla, so it should be smaller and adorable. Keep the characters in roughly the same places, holding the giant cutlery. Keep the top-left area fairly plain for the title and the bottom fifth darker for menu buttons. No text, no letters, no logos. Wide 16:9 landscape."
+  },
+  {
+    "name": "bg-menu",
+    "newChat": true,
+    "refs": ["art-src/ref-menu-cast.png"],
+    "prompt": "Generate an image. The attached picture shows the EXACT current character designs from my party game Kitchen Kaiju: tiny monsters made of food. Draw a WIDE 16:9 menu background in the same bold chunky cartoon style (thick dark-brown outlines, flat bright colours with soft cel shading): a cosy candle-lit wooden dinner table seen from slightly above, with plates, cutlery, napkins, a coffee cup and scattered crumbs and peas. Along the lower half of the table, these eight kaiju from the reference scamper, play and squabble, each looking EXACTLY like its reference design and colours: the pink strawberry lizard, the blue jelly octopus with a teacup hat, the cheese crab, the green lime-jelly blob, the purple marshmallow moth standing upright with spread wings, the toast bat, the cream dumpling, and the green sushi-roll dragon. The kaiju are small compared with the cutlery. Keep the upper half calmer and slightly darker (the menu text goes there). No text, no letters, no logos. Landscape 16:9."
+  }
+]

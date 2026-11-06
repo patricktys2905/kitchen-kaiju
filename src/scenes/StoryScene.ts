@@ -11,6 +11,7 @@ import { LAYOUTS } from '../sim/layouts';
 import { CHAPTERS, chapterRivals, ENDING, type Line } from '../story/chapters';
 import { loadStory, recordResult, saveStory, totalStars, type StorySave } from '../story/save';
 import { setTouchMode } from '../touch';
+import { CHAPTER_CUTS, ENDING_CUT, OPENING, type Cutscene } from '../story/cutscenes';
 import { isEarned, needText, newlyEarned, owned, unlockName, UNLOCKS } from '../story/unlocks';
 
 export interface StoryResult {
@@ -26,7 +27,7 @@ function cardPos(i: number): { x: number; y: number } {
   return { x: 112 + c * 200, y: 178 + r * 148 };
 }
 
-type Mode = 'map' | 'dialogue' | 'result' | 'ending';
+type Mode = 'map' | 'dialogue' | 'result' | 'ending' | 'cut';
 
 export class StoryScene extends Phaser.Scene {
   private save!: StorySave;
@@ -40,6 +41,7 @@ export class StoryScene extends Phaser.Scene {
   private panel: Phaser.GameObjects.GameObject[] = [];
   private pickImg: Phaser.GameObjects.Image | null = null;
   private pickText!: Phaser.GameObjects.Text;
+  private pickFood!: Phaser.GameObjects.Text;
   private buttons: Button[] = [];
   private playBtn!: Button;
   private overlay: Phaser.GameObjects.GameObject[] = [];
@@ -91,13 +93,18 @@ export class StoryScene extends Phaser.Scene {
     });
 
     // your kaiju (bottom-left)
-    this.add.text(40, 640, 'YOUR KAIJU', body(14, '#cdb9a3', 900)).setDepth(5);
-    this.pickText = withShadow(this.add.text(178, 676, '', display(22, '#ffe9c7', { strokeThickness: 4 })).setOrigin(0, 0.5).setDepth(5), 2);
-    this.buttons.push(new Button(this, 60, 676, { w: 44, h: 44, label: '◀', size: 20, onClick: () => this.cyclePick(-1) }, 6));
-    this.buttons.push(new Button(this, 400, 676, { w: 44, h: 44, label: '▶', size: 20, onClick: () => this.cyclePick(1) }, 6));
-    this.buttons.push(new Button(this, 560, 676, { w: 150, h: 50, label: '◀ MODES', size: 20, onClick: () => this.back() }, 6));
+    const pg = this.add.graphics().setDepth(4);
+    pg.fillStyle(0x1c120b, 0.88); pg.fillRoundedRect(18, 582, 456, 128, 18);
+    pg.lineStyle(3, 0x6a4a30, 1); pg.strokeRoundedRect(18, 582, 456, 128, 18);
+    pg.fillStyle(0x2e1d10, 1); pg.fillCircle(132, 652, 46);
+    this.add.text(40, 592, 'YOUR KAIJU', body(13, '#cdb9a3', 900)).setDepth(5);
+    this.pickText = withShadow(this.add.text(192, 640, '', display(24, '#ffe9c7', { strokeThickness: 4 })).setOrigin(0, 0.5).setDepth(5), 2);
+    this.pickFood = this.add.text(193, 672, '', body(14, '#e9dccb', 800)).setOrigin(0, 0.5).setDepth(5);
+    this.buttons.push(new Button(this, 52, 652, { w: 44, h: 64, label: '◀', size: 20, onClick: () => this.cyclePick(-1) }, 6));
+    this.buttons.push(new Button(this, 444, 652, { w: 44, h: 64, label: '▶', size: 20, onClick: () => this.cyclePick(1) }, 6));
+    this.buttons.push(new Button(this, 575, 676, { w: 170, h: 50, label: '◀ MODES', size: 20, onClick: () => this.back() }, 6));
     const earnedCount = UNLOCKS.filter(u => isEarned(u, this.save)).length;
-    this.rewardsBtn = new Button(this, 745, 676, { w: 190, h: 50, label: `🎁 REWARDS ${earnedCount}/${UNLOCKS.length}`, size: 18, accent: 0xffd24a, onClick: () => this.showRewards() }, 6);
+    this.rewardsBtn = new Button(this, 775, 676, { w: 210, h: 50, label: `🎁 REWARDS ${earnedCount}/${UNLOCKS.length}`, size: 18, accent: 0xffd24a, onClick: () => this.showRewards() }, 6);
     this.buttons.push(this.rewardsBtn);
     this.add.text(1070, 712, 'arrows choose · ENTER play · Q / E kaiju · Esc back', body(12, '#a89680', 700)).setOrigin(0.5, 1).setDepth(5);
 
@@ -106,7 +113,17 @@ export class StoryScene extends Phaser.Scene {
     this.drawPanel();
     this.drawPick();
 
+    this.buttons.push(new Button(this, 1172, 560, { w: 150, h: 38, label: '🎬 SCENE', size: 16, onClick: () => this.watchScene() }, 6));
+
     if (this.pendingResult) this.showResult(this.pendingResult);
+    else if (!this.save.cuts.includes(OPENING.key)) this.time.delayedCall(250, () => this.playCut(OPENING, () => {}));
+  }
+
+  /** Replays the selected chapter's cutscene (or the opening for a locked chapter). */
+  private watchScene(): void {
+    if (this.mode !== 'map') return;
+    sfx.pickup();
+    this.playCut(this.sel < this.save.unlocked ? CHAPTER_CUTS[this.sel] : OPENING, () => {});
   }
 
   // ---------------------------------------------------------------- map
@@ -130,10 +147,12 @@ export class StoryScene extends Phaser.Scene {
 
   private drawPick(): void {
     const sp = SPECIES[this.save.pick];
-    if (!this.pickImg) this.pickImg = this.add.image(120, 676, '__MISSING').setDepth(5);
-    if (hasArt(`kaiju-${this.save.pick}`)) fitInside(this.pickImg.setTexture(`kaiju-${this.save.pick}`).setVisible(true), 64, 60);
+    if (!this.pickImg) this.pickImg = this.add.image(132, 652, '__MISSING').setDepth(5);
+    if (hasArt(`kaiju-${this.save.pick}`)) fitInside(this.pickImg.setTexture(`kaiju-${this.save.pick}`).setVisible(true), 86, 82);
     else this.pickImg.setVisible(false);
-    this.pickText.setText(sp.full.toUpperCase()).setColor(sp.css);
+    this.pickText.setText(sp.full.toUpperCase()).setColor(sp.css).setScale(1);
+    if (this.pickText.width > 220) this.pickText.setScale(220 / this.pickText.width); // long names shrink instead of hitting the arrow
+    this.pickFood.setText(sp.food);
   }
 
   private drawMap(): void {
@@ -196,7 +215,7 @@ export class StoryScene extends Phaser.Scene {
     });
     add(this.add.text(1070, 392, '“' + ch.tip + '”', body(14, '#ffe9c7', 700, { align: 'center', wordWrap: { width: 320 }, fontStyle: 'italic 700' })).setOrigin(0.5, 0).setDepth(5));
     const best = this.save.stars[this.sel] ?? 0;
-    add(this.add.text(1070, 560, best ? `Best: ${'★'.repeat(best)}${'☆'.repeat(3 - best)}` : 'Not cleared yet', body(16, '#ffd24a', 900)).setOrigin(0.5).setDepth(5));
+    add(this.add.text(1000, 560, best ? `Best: ${'★'.repeat(best)}${'☆'.repeat(3 - best)}` : 'Not cleared yet', body(16, '#ffd24a', 900)).setOrigin(0.5).setDepth(5));
   }
 
   // ---------------------------------------------------------------- flow
@@ -210,7 +229,10 @@ export class StoryScene extends Phaser.Scene {
     sfx.go();
     const ch = CHAPTERS[this.sel], rivals = chapterRivals(ch, this.save.pick);
     this.lines = [...ch.intro, { speaker: 'chef', text: 'TIP: ' + ch.tip }];
-    this.startDialogue(rivals.map(r => r.species), () => this.launch());
+    const talk = () => this.startDialogue(rivals.map(r => r.species), () => this.launch());
+    const cut = CHAPTER_CUTS[this.sel];
+    if (cut && !this.save.cuts.includes(cut.key)) this.playCut(cut, talk);
+    else talk();
   }
 
   private launch(): void {
@@ -371,6 +393,10 @@ export class StoryScene extends Phaser.Scene {
     this.clearOverlay();
     this.save.endingSeen = true;
     saveStory(this.save);
+    this.playCut(ENDING_CUT, () => this.endingDialogue());
+  }
+
+  private endingDialogue(): void {
     sfx.matchWin();
     this.lines = ENDING;
     this.startDialogue([], () => {
@@ -384,6 +410,67 @@ export class StoryScene extends Phaser.Scene {
       this.overlay.push(end, this.add.text(640, 580, `You collected ★ ${totalStars(this.save)}/${CHAPTERS.length * 3}. Go for all 3 stars, or brawl in Free Play!`, body(18, '#ffe9c7', 800)).setOrigin(0.5).setDepth(31));
       this.overlayButtons.push(new Button(this, 640, 650, { w: 220, h: 60, label: 'BACK TO MAP', size: 22, onClick: () => { this.clearOverlay(); this.mode = 'map'; } }, 33));
     });
+  }
+
+  // ---------------------------------------------------------------- cutscenes
+  private cut: Cutscene | null = null;
+  private cutT = 0;
+  private cutLen = 0;
+  private cutCaption: Phaser.GameObjects.Text | null = null;
+  private afterCut: () => void = () => {};
+
+  /** Plays a story clip full screen (Veo video; the Gemini still with a slow zoom if the video can't load). */
+  private playCut(cut: Cutscene, then: () => void): void {
+    this.clearOverlay();
+    this.mode = 'cut';
+    this.cut = cut;
+    this.afterCut = then;
+    this.cutT = 0;
+    if (!this.save.cuts.includes(cut.key)) { this.save.cuts.push(cut.key); saveStory(this.save); }
+    const bg = this.add.graphics().setDepth(30);
+    bg.fillStyle(0x000000, 1); bg.fillRect(0, 0, 1280, 720);
+    this.overlay.push(bg);
+    const still = hasArt(cut.key) ? this.add.image(640, 360, cut.key).setDisplaySize(1280, 720).setDepth(31) : null;
+    if (still) {
+      this.overlay.push(still);
+      this.tweens.add({ targets: still, scaleX: still.scaleX * 1.08, scaleY: still.scaleY * 1.08, duration: 9000, ease: 'Sine.easeOut' });
+    }
+    this.cutLen = 20; // safety cap; the clip's 'complete' ends it sooner
+    const vid = this.add.video(640, 360).setDepth(32).setVisible(false);
+    this.overlay.push(vid);
+    const fallback = () => { if (this.cut === cut) this.cutLen = still ? 7 : 2.5; vid.setVisible(false); };
+    vid.on('textureready', () => { vid.setDisplaySize(1280, 720).setVisible(true); });
+    vid.on('complete', () => { if (this.cut === cut) this.endCut(); });
+    vid.on('error', fallback);
+    vid.on('unsupported', fallback);
+    vid.on('locked', () => { vid.setMute(true); vid.play(); }); // autoplay with sound blocked: play muted
+    this.time.delayedCall(4000, () => { if (this.cut === cut && !vid.visible) fallback(); });
+    vid.loadURL(`${import.meta.env.BASE_URL}video/${cut.key}.mp4`);
+    vid.setVolume(0.8);
+    vid.play();
+
+    // caption strip
+    const g = this.add.graphics().setDepth(33);
+    for (let i = 0; i < 14; i++) { g.fillStyle(0x000000, 0.055 * i); g.fillRect(0, 560 + i * 12, 1280, 12); }
+    this.overlay.push(g);
+    const head = this.add.text(640, 612, cut.heading, display(20, '#ffcf8a', { strokeThickness: 4 })).setOrigin(0.5).setDepth(34).setAlpha(0);
+    this.cutCaption = withShadow(this.add.text(640, 656, '', display(30, '#ffffff', { strokeThickness: 6, align: 'center', wordWrap: { width: 1100 } })).setOrigin(0.5).setDepth(34), 4);
+    this.tweens.add({ targets: head, alpha: 1, duration: 500, delay: 300 });
+    this.overlay.push(head, this.cutCaption);
+    const zone = this.add.zone(640, 360, 1280, 720).setInteractive().setDepth(34);
+    zone.on('pointerup', () => { if (this.cutT > 0.4) this.endCut(); }); // tap anywhere to skip
+    this.overlay.push(zone);
+    this.overlayButtons.push(new Button(this, 1190, 44, { w: 140, h: 44, label: 'SKIP ▶▶', size: 18, onClick: () => this.endCut() }, 35));
+    this.overlayFocus = 0;
+  }
+
+  private endCut(): void {
+    if (this.mode !== 'cut') return;
+    this.cut = null;
+    this.cutCaption = null;
+    this.clearOverlay();
+    this.mode = 'map';
+    this.afterCut();
   }
 
   // ---------------------------------------------------------------- input
@@ -413,7 +500,14 @@ export class StoryScene extends Phaser.Scene {
     }
     clearTaps();
 
-    if (this.mode === 'dialogue') {
+    if (this.mode === 'cut') {
+      this.cutT += dt;
+      const text = this.cut?.caption ?? '';
+      const shown = Math.max(0, Math.floor((this.cutT - 0.8) * 40));
+      this.cutCaption?.setText(text.slice(0, shown));
+      this.overlayButtons.forEach(b => b.update(dt));
+      if (this.cutT > this.cutLen || ((go || back) && this.cutT > 0.4)) this.endCut();
+    } else if (this.mode === 'dialogue') {
       const line = this.lines[this.lineIdx];
       if (this.lineText && line) {
         this.lineShown = Math.min(line.text.length, this.lineShown + dt * 60);

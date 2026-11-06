@@ -1,0 +1,18 @@
+[
+  {
+    "name": "kaiju-17-rage",
+    "newChat": true,
+    "refs": [
+      "art-src/raw/concept-12.png"
+    ],
+    "prompt": "Generate an image. The attached picture is PENGWHIP, a cookies-and-cream penguin kaiju from my game. Draw it in KAIJU MODE: exactly the same design, shape, colours and art style (thick dark-brown outlines, cel shading), same framing (three-quarter view facing RIGHT, full body, centred, about 80% of the frame) and solid flat magenta (#FF00FF) background, but roaring furiously with beak wide open, angry eyebrows, cookie crumbs and cream flying off. No text, no shadow. Square 1:1."
+  },
+  {
+    "name": "kaiju-19-rage",
+    "newChat": true,
+    "refs": [
+      "art-src/raw/concept-2.png"
+    ],
+    "prompt": "Generate an image. The attached picture is TACOWL, a taco-shell owl kaiju from my game. Draw it in KAIJU MODE: exactly the same design, shape, colours and art style (thick dark-brown outlines, cel shading), same framing (three-quarter view facing RIGHT, full body, centred, about 80% of the frame) and solid flat magenta (#FF00FF) background, but screeching furiously with beak wide open, angry eyebrows, lettuce, cheese and tomato bits flying off. No text, no shadow. Square 1:1."
+  }
+]

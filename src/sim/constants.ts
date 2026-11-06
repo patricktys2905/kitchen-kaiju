@@ -102,10 +102,10 @@ export const SPECIES = [
   { name: 'GRAPEHOUND', full: 'Grapehound', food: 'grape hound', color: 0x6a2aa8, css: '#a066e0' },
   { name: 'AVOCADRAKE', full: 'Avocadrake', food: 'avocado dragon', color: 0x9bb33a, css: '#b6cf52' },
   { name: 'SALMONSTER', full: 'Salmonster', food: 'salmon fish monster', color: 0x2f5f9f, css: '#6f9fdf' },
-  { name: 'ONIGIRILLA', full: 'Onigirilla', food: 'rice-ball gorilla', color: 0xdfe6ee, css: '#eef3f8' },
+  { name: 'ONIGORI', full: 'Onigori', food: 'rice-ball baby gorilla', color: 0xdfe6ee, css: '#eef3f8' },
   // unlocked in Story mode (see src/story/unlocks.ts)
   { name: 'MINTURTLE', full: 'Minturtle', food: 'mint-choc-chip turtle', color: 0x25767e, css: '#4fb8c2' },
-  { name: 'SWIRLSNAIL', full: 'Swirlsnail', food: 'jam-roll snail', color: 0x1a1aff, css: '#6a7aff' },
-  { name: 'CHERRANTULA', full: 'Cherrantula', food: 'cherry tarantula', color: 0x7e2549, css: '#d0507e' },
-  { name: 'SHERBETOAD', full: 'Sherbetoad', food: 'lime sherbet toad', color: 0xe8ff1a, css: '#e8ff1a' },
+  { name: 'PENGWHIP', full: 'Pengwhip', food: 'cookies-and-cream penguin', color: 0x282030, css: '#c8bcd8' },
+  { name: 'VELVAROO', full: 'Velvaroo', food: 'red-velvet kangaroo', color: 0x7e2549, css: '#d0507e' },
+  { name: 'TACOWL', full: 'Tacowl', food: 'taco owl', color: 0xe0f018, css: '#e0f018' },
 ];

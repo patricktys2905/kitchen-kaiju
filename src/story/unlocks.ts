@@ -13,11 +13,11 @@ export interface Unlock {
 export const UNLOCKS: Unlock[] = [
   { kind: 'kaiju', index: 16, need: { chapter: 3 } }, // Minturtle: beat the first boss
   { kind: 'table', index: 12, need: { chapter: 5 } }, // Freezer Shelf
-  { kind: 'kaiju', index: 17, need: { chapter: 7 } }, // Swirlsnail: beat the second boss
+  { kind: 'kaiju', index: 17, need: { chapter: 7 } }, // Pengwhip: beat the second boss
   { kind: 'table', index: 13, need: { chapter: 9 } }, // Candy Shop
-  { kind: 'kaiju', index: 18, need: { chapter: 11 } }, // Cherrantula: beat the final boss
+  { kind: 'kaiju', index: 18, need: { chapter: 11 } }, // Velvaroo: beat the final boss
   { kind: 'table', index: 14, need: { chapter: 11 } }, // Chef's Nightmare
-  { kind: 'kaiju', index: 19, need: { stars: 30 } }, // Sherbetoad: 30 stars
+  { kind: 'kaiju', index: 19, need: { stars: 30 } }, // Tacowl: 30 stars
 ];
 
 const lockedKaiju = new Set(UNLOCKS.filter(u => u.kind === 'kaiju').map(u => u.index));

@@ -1,6 +1,6 @@
 // Story mode: "The Grand Feast". One chapter per table, each with rival kaiju, a little dialogue and a tip.
 // Species: 0 Gobzilla 1 Squidgeon 2 Crabbage 3 Bloblin 4 Mothball 5 Toastbat 6 Dumplord 7 Norigon
-//          8 Chocomunch 9 Bubblegumbo 10 Bluebeary 11 Pizzaraptor 12 Grapehound 13 Avocadrake 14 Salmonster 15 Onigirilla
+//          8 Chocomunch 9 Bubblegumbo 10 Bluebeary 11 Pizzaraptor 12 Grapehound 13 Avocadrake 14 Salmonster 15 Onigori
 // Tables:  0 Sunday Roast 1 Dinner for Four 2 Leftovers 3 Sushi Bar 4 Birthday Bash 5 Chef's Board 6 Diner Griddle
 //          7 Ice Cream Parlour 8 Picnic Blanket 9 Bakery Bench 10 Banquet Lazy Susan 11 Breakfast Rush
 import type { Difficulty } from '../sim/bot';
