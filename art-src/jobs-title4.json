@@ -1,0 +1,11 @@
+[
+  {
+    "name": "bg-title",
+    "newChat": true,
+    "refs": [
+      "art-src/ref-cover-current.png",
+      "art-src/ref-title-cast.png"
+    ],
+    "prompt": "Generate an image. The first attached picture is the current cover art of my game Kitchen Kaiju; the second shows the exact character designs. Redraw this SAME cover in the SAME style, with the SAME five characters in the same order and poses, the same candle-lit table and colours, with exactly these two changes: (1) Move the golden-spoon trophy on its silver cake stand to the RIGHT, so it stands at about 70% of the image width (behind the pizza raptor and the rice-ball gorilla), leaving the whole top-left half of the picture as calm, softly shadowed wall with nothing tall in it. (2) The green sushi-roll dragon has exactly ONE head and ONE body, standing upright; it holds its chopsticks DOWN at its side in one claw, pointing at the floor, so its whole face is clearly visible and nothing crosses its face. Do not duplicate or stack any character. Keep every other character as it is: exactly two arms each, every held object firmly gripped by its own hand, claw or trunk, nothing floating. Fill the whole frame edge to edge. ABSOLUTELY NO buttons, no user interface, no text, no letters, no logos. Landscape 16:9."
+  }
+]
