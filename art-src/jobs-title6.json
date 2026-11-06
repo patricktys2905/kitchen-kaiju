@@ -1,0 +1,20 @@
+[
+  {
+    "name": "bg-title-a",
+    "newChat": true,
+    "refs": [
+      "art-src/ref-cover-current.png",
+      "art-src/ref-norigon.png"
+    ],
+    "prompt": "Generate an image. The first attached picture is the cover art of my game Kitchen Kaiju. Redraw it EXACTLY the same (same layout, golden spoon trophy on the right, candles, table, colours and style; the strawberry lizard with its fork, the pink elephant holding its spoon in its trunk so the whole spoon is visible, the pizza raptor with its knife and the rice-ball gorilla with the salt shaker all unchanged), changing ONLY the green sushi-roll dragon in the middle. Replace it with an exact copy of the second attached picture, NORIGON, in the SAME POSE as that picture: a low, chubby dragon seen from the side in three-quarter view facing RIGHT, ONE continuous body made of evenly lined-up teal sushi-roll segments running smoothly from the head to the curled tail, the round head attached directly on the front of the body, a smooth salmon-nigiri belly underneath, pink ginger spikes in a neat row along its back, two short front legs and two short back legs planted on the table. It holds NOTHING. Every part must connect cleanly, with nothing misaligned, floating or doubled. Same size as in the reference, roughly as tall as the elephant. Fill the whole frame edge to edge. ABSOLUTELY NO buttons, no user interface, no text, no letters, no logos. Landscape 16:9."
+  },
+  {
+    "name": "bg-title-b",
+    "newChat": true,
+    "refs": [
+      "art-src/ref-cover-current.png",
+      "art-src/ref-norigon.png"
+    ],
+    "prompt": "Generate an image. The first attached picture is the cover art of my game Kitchen Kaiju. Redraw it EXACTLY the same (same layout, golden spoon trophy on the right, candles, table, colours and style; the strawberry lizard with its fork, the pink elephant holding its spoon in its trunk so the whole spoon is visible, the pizza raptor with its knife and the rice-ball gorilla with the salt shaker all unchanged), changing ONLY the green sushi-roll dragon in the middle. Replace it with an exact copy of the second attached picture, NORIGON, in the SAME POSE as that picture: a low, chubby dragon seen from the side in three-quarter view facing RIGHT, ONE continuous body made of evenly lined-up teal sushi-roll segments running smoothly from the head to the curled tail, the round head attached directly on the front of the body, a smooth salmon-nigiri belly underneath, pink ginger spikes in a neat row along its back, two short front legs and two short back legs planted on the table. It holds NOTHING. Every part must connect cleanly, with nothing misaligned, floating or doubled. Same size as in the reference, roughly as tall as the elephant. Fill the whole frame edge to edge. ABSOLUTELY NO buttons, no user interface, no text, no letters, no logos. Landscape 16:9."
+  }
+]

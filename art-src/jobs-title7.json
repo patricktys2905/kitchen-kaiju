@@ -1,0 +1,10 @@
+[
+  {
+    "name": "bg-title-gap",
+    "newChat": true,
+    "refs": [
+      "art-src/ref-cover-current.png"
+    ],
+    "prompt": "Generate an image. The attached picture is the cover art of my game Kitchen Kaiju. Redraw it EXACTLY the same (same layout, golden spoon trophy on the right, candles, table, colours and style; the strawberry lizard with its fork on the left, the pink elephant holding its spoon in its trunk so the whole spoon is visible, the pizza raptor with its knife and the rice-ball gorilla with the salt shaker on the right, all unchanged and in the same places), but REMOVE the green sushi-roll dragon completely, including its tail and its chopsticks. Where it stood, show only the empty tablecloth with a few crumbs and peas, leaving a clear open gap in the middle of the line-up. Fill the whole frame edge to edge. ABSOLUTELY NO buttons, no user interface, no text, no letters, no logos. Landscape 16:9."
+  }
+]
