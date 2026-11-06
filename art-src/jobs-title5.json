@@ -1,0 +1,11 @@
+[
+  {
+    "name": "bg-title",
+    "newChat": true,
+    "refs": [
+      "art-src/ref-cover-current.png",
+      "art-src/ref-norigon.png"
+    ],
+    "prompt": "Generate an image. The first attached picture is the cover art of my game Kitchen Kaiju. Redraw it EXACTLY the same (same layout, same golden spoon trophy on the right, same candles, table, colours and style, and the strawberry lizard, pink elephant, pizza raptor and rice-ball gorilla unchanged), changing ONLY the green sushi-roll dragon in the middle: redraw it to match the second attached picture exactly: NORIGON, a SHORT, CHUBBY, stocky dragon built from sushi-roll segments (teal nori with white rice rings), a big rounded head with a wide grin, a salmon-nigiri belly, pink pickled-ginger spikes on its back, a curled sushi-roll tail, standing low on two short thick legs, with exactly TWO short arms. It is about the same height as the pink elephant, not tall. It holds a pair of chopsticks in ONE claw, down at its side, so its face is fully visible. No extra arms or hands. Fill the whole frame edge to edge. ABSOLUTELY NO buttons, no user interface, no text, no letters, no logos. Landscape 16:9."
+  }
+]
