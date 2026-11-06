@@ -8,7 +8,7 @@ const RAW = 'art-src/clips-raw', OUT = 'public/video';
 fs.mkdirSync(OUT, { recursive: true });
 const want = process.argv.slice(2);
 // seconds to keep (Veo drifts off-model near the end of some clips); everything else keeps ~7.8s
-const KEEP = { 'cut-2': 4.4, 'cut-6': 5.4, 'cut-open': 6.8, 'cut-0': 7.0, 'cut-3': 7.0, 'cut-5': 4.2, 'cut-8': 4.5, 'cut-9': 4.0, 'cut-10': 4.5 };
+const KEEP = { 'cut-end': 6.0, 'cut-2': 4.4, 'cut-6': 5.4, 'cut-open': 6.8, 'cut-0': 7.0, 'cut-3': 7.0, 'cut-5': 4.2, 'cut-8': 4.5, 'cut-9': 4.0, 'cut-10': 4.5 };
 for (const f of fs.readdirSync(RAW).filter(f => f.endsWith('.mp4'))) {
   const key = f.replace(/\.mp4$/, '');
   if (want.length && !want.includes(key)) continue;
