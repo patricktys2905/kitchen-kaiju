@@ -1,0 +1,18 @@
+[
+  {
+    "name": "kaiju-12-rage",
+    "newChat": true,
+    "refs": [
+      "art-src/raw/concept-9.png"
+    ],
+    "prompt": "Generate an image. The attached picture is SLOBA, a bubble-tea sloth kaiju hanging from a big straw from my game. Draw it in KAIJU MODE: exactly the same design, shape, colours and art style (thick dark-brown outlines, cel shading), same framing (three-quarter view facing RIGHT, full body, centred, about 80% of the frame) and solid flat magenta (#FF00FF) background, but roaring furiously with mouth wide open, angry eyebrows, tapioca pearls and milk-tea drops flying off. Keep its face exactly as designed (no extra nose or human features). No text, no shadow. Square 1:1."
+  },
+  {
+    "name": "kaiju-15-rage",
+    "newChat": true,
+    "refs": [
+      "art-src/raw/concept-11.png"
+    ],
+    "prompt": "Generate an image. The attached picture is HOTCHOG, a hot-dog hedgehog kaiju from my game. Draw it in KAIJU MODE: exactly the same design, shape, colours and art style (thick dark-brown outlines, cel shading), same framing (three-quarter view facing RIGHT, full body, centred, about 80% of the frame) and solid flat magenta (#FF00FF) background, but roaring furiously with mouth wide open, angry eyebrows, squirts of ketchup and mustard flying off. Keep its face exactly as designed (no extra nose or human features). No text, no shadow. Square 1:1."
+  }
+]

@@ -1,0 +1,10 @@
+[
+  {
+    "name": "cut-end",
+    "newChat": true,
+    "refs": [
+      "art-src/cut-refs/cut-end.png"
+    ],
+    "prompt": "Generate an image. The first attached picture shows the characters, the second their table. Keep this EXACT art style and these EXACT character designs: bold chunky cartoon, thick dark-brown outlines, flat bright colours with soft cel shading, cheeky expressions. The characters are food monsters (\"kaiju\") from my party game Kitchen Kaiju. Draw every face exactly as in the reference (do not add noses or human features). Draw a WIDE 16:9 LANDSCAPE cinematic cartoon scene, like a frame from a funny animated film: the banquet hall after a huge food fight, confetti in the air; ONE single golden spoon stands upright in the centre on top of a pile of pastries, glowing with light (there is only one spoon in the whole picture), these five kaiju cheer in a row in front of it (the strawberry lizard, the green jelly blob, the pink bubblegum elephant, the blueberry-muffin bear and the hot-dog hedgehog), and behind them stands a comically gigantic tower of dirty dishes. Each character appears EXACTLY ONCE, LARGE and clearly visible, matching its reference exactly, and there are NO other creatures. Warm cinematic lighting, space at the bottom. Absolutely NO text, words, labels or signs anywhere, no letters, no logos, no speech bubbles. Landscape 16:9."
+  }
+]

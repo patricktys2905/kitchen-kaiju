@@ -1,6 +1,6 @@
 // Story mode: "The Grand Feast". One chapter per table, each with rival kaiju, a little dialogue and a tip.
 // Species: 0 Gobzilla 1 Squidgeon 2 Crabbage 3 Bloblin 4 Mothball 5 Toastbat 6 Dumplord 7 Norigon
-//          8 Chocomunch 9 Bubblegumbo 10 Bluebeary 11 Pizzaraptor 12 Grapehound 13 Avocadrake 14 Salmonster 15 Onigori
+//          8 Chocomunch 9 Bubblegumbo 10 Bluebeary 11 Pizzaraptor 12 Sloba 13 Avocadrake 14 Salmonster 15 Hotchog
 // Tables:  0 Sunday Roast 1 Dinner for Four 2 Leftovers 3 Sushi Bar 4 Birthday Bash 5 Chef's Board 6 Diner Griddle
 //          7 Ice Cream Parlour 8 Picnic Blanket 9 Bakery Bench 10 Banquet Lazy Susan 11 Breakfast Rush
 import type { Difficulty } from '../sim/bot';
@@ -115,12 +115,12 @@ export const CHAPTERS: Chapter[] = [
     title: 'Picnic Panic', table: 8, rounds: 3,
     rivals: [{ species: 12, level: 'normal' }, { species: 13, level: 'hard' }, { species: 14, level: 'normal' }],
     intro: [
-      { speaker: 0, text: 'WOOF! Grapes! Ants! CHAOS!' },
+      { speaker: 0, text: 'Mmm… picnic… nap… slurp. Oh, a fight? Fine. I\'ll get to it… eventually.' },
       { speaker: 1, text: 'Back from the chopping board, and greener than ever.' },
       { speaker: 2, text: 'And I\'m back from the sea. Hungry.' },
     ],
     tip: 'The ant trail carries everything down the blanket: use it to sneak, or to steal dropped cutlery.',
-    win: { speaker: 0, text: 'Good kaiju… good kaiju. You win this picnic.' },
+    win: { speaker: 0, text: 'Too… much… effort. You win. I\'ll be hanging off my straw.' },
   },
   {
     title: 'Proving the Dough', table: 9, rounds: 3,
@@ -137,12 +137,12 @@ export const CHAPTERS: Chapter[] = [
     title: 'Round and Round', table: 10, rounds: 3,
     rivals: [{ species: 15, level: 'hard' }, { species: 7, level: 'normal' }, { species: 9, level: 'normal' }],
     intro: [
-      { speaker: 0, text: 'The Lazy Susan spins for no one. Except me.' },
+      { speaker: 0, text: 'Round and round, like a frank on the roller grill. I LIVE for this.' },
       { speaker: 1, text: 'I told you the feast gets hotter. I\'m back, and I\'m not alone.' },
       { speaker: 2, text: 'Second birthday this week. Still not inviting you.' },
     ],
     tip: 'The turntable carries you round in circles. Ride it to dodge, or get flung into a throw.',
-    win: { speaker: 0, text: 'Dizzy… so dizzy. The Grand Feast awaits you. Good luck with HIM.' },
+    win: { speaker: 0, text: 'Dizzy… and to be frank, a bit sick. The Grand Feast awaits you. Good luck with HIM.' },
   },
   {
     title: 'The Grand Feast', table: 11, rounds: 3, boss: true,
@@ -150,7 +150,7 @@ export const CHAPTERS: Chapter[] = [
     intro: [
       { speaker: 'chef', text: 'Breakfast is served. The last table. The Golden Spoon sits on its cake stand, waiting.' },
       { speaker: 0, text: 'Every kaiju in this kitchen bows to DUMPLORD. The Golden Spoon stays with ME!' },
-      { speaker: 1, text: 'We stand with the Lord. Toast them.' },
+      { speaker: 1, text: 'We stand with the Lord. Relish the moment, it\'s your last.' },
     ],
     tip: 'FINAL BOSS: Dumplord starts every round ready to go KAIJU, and the toasters never stop. Everything you\'ve learned, now!',
     win: { speaker: 0, text: 'My… my spoon… Fine. FINE. You are the true Kitchen Kaiju.' },

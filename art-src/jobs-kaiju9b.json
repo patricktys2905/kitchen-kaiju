@@ -1,0 +1,10 @@
+[
+  {
+    "name": "kaiju-15-rage",
+    "newChat": true,
+    "refs": [
+      "art-src/raw/concept-11.png"
+    ],
+    "prompt": "Generate an image. The attached picture is HOTCHOG, a hot-dog hedgehog kaiju from my game: a little hedgehog whose body is a sausage lying in a soft bun, with spikes of ketchup and mustard, on four tiny legs, side view facing RIGHT. Draw the EXACT SAME character in the EXACT SAME POSE, size, framing, colours and art style (thick dark-brown outlines, cel shading), lying in its bun on four tiny legs, NOT standing up, no arms. Change ONLY its face and spikes: angry eyebrows, its small snout opened in a furious roar showing little teeth, its ketchup and mustard spikes bristling up taller, a few drops of ketchup and mustard flying off. Solid flat magenta (#FF00FF) background, no text, no shadow. Square 1:1."
+  }
+]

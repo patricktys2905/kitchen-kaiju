@@ -5,7 +5,7 @@ import { execFileSync } from 'node:child_process';
 import sharp from 'sharp';
 
 // kaiju indices: 0 Gobzilla 1 Squidgeon 2 Crabbage 3 Bloblin 4 Mothball 5 Toastbat 6 Dumplord 7 Norigon 8 Chocomunch
-// 9 Bubblegumbo 10 Bluebeary 11 Pizzaraptor 12 Grapehound 13 Avocadrake 14 Salmonster 15 Onigori
+// 9 Bubblegumbo 10 Bluebeary 11 Pizzaraptor 12 Sloba 13 Avocadrake 14 Salmonster 15 Hotchog
 const SCENES = [
   { key: 'cut-open', cast: [0, 6, 9, 15, 11], table: null,
     still: 'a long candle-lit banquet table at night in a grand dining hall; a glowing GOLDEN SPOON stands on a silver cake stand in the centre like a trophy; the tiny food kaiju from the reference peek hungrily over plates and wine glasses at it from both sides',

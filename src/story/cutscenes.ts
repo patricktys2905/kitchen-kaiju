@@ -22,6 +22,7 @@ export const OPENING: Cutscene = {
 
 export const ENDING_CUT: Cutscene = {
   key: 'cut-end',
+  noVideo: true, // new cast; clip being re-made
   heading: 'CHAMPION OF THE FEAST',
   caption: 'The Golden Spoon is yours! Now… who’s doing the dishes?',
 };
@@ -36,9 +37,9 @@ export const CHAPTER_CUTS: Cutscene[] = [
   { key: 'cut-5', heading: 'CHAPTER 6 · ON THE CHOPPING BLOCK', caption: 'Things are about to get… dicey.' },
   { key: 'cut-6', heading: 'CHAPTER 7 · SHORT ORDER SHOWDOWN', caption: 'Order up! Today’s special: you, extra crispy.' },
   { key: 'cut-7', heading: 'CHAPTER 8 · THE BIG MELT', caption: 'Bloblin has a cold heart and a short fuse. Chill.' },
-  { key: 'cut-8', heading: 'CHAPTER 9 · PICNIC PANIC', caption: 'Ants in their pants. Grapes in their… everything.' },
+  { key: 'cut-8', rev: 2, noVideo: true, heading: 'CHAPTER 9 · PICNIC PANIC', caption: 'A picnic! Sloba will get to it… eventually.' },
   { key: 'cut-9', heading: 'CHAPTER 10 · PROVING THE DOUGH', caption: 'Let’s see who rises to the occasion.' },
-  { key: 'cut-10', heading: 'CHAPTER 11 · ROUND AND ROUND', caption: 'The lazy Susan spins. So does Onigori. Wheee.' },
+  { key: 'cut-10', rev: 2, noVideo: true, heading: 'CHAPTER 11 · ROUND AND ROUND', caption: 'The lazy Susan spins. Hotchog relishes every second.' },
   { key: 'cut-11', heading: 'CHAPTER 12 · THE GRAND FEAST', caption: 'Dumplord has waited all night. He’s stuffed… with rage.' },
 ];
 

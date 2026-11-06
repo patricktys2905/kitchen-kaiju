@@ -57,7 +57,7 @@ Menu → **ONLINE** (or press O). One person taps **Host a game** and gets a 4-l
 
 ## Kaiju and tables
 
-16 food kaiju to pick from (each player picks a different one; LEFT/RIGHT on your controller, or KAIJU ▶ on touch): Gobzilla Jr. (strawberry lizard), Squidgeon (blue jelly octopus), Crabbage (cheese crab), Bloblin (lime jelly), Mothball (ube marshmallow moth), Toastbat (toast bat), Dumplord (dumpling), Norigon (sushi-roll dragon), Chocomunch (chocolate golem), Bubblegumbo (bubblegum elephant), Bluebeary (blueberry muffin bear), Pizzaraptor (pizza raptor), Grapehound (grape hound), Avocadrake (avocado dragon), Salmonster (salmon sea monster), Onigori (rice-ball gorilla). All play the same for now.
+16 base food kaiju to pick from (incl. Sloba, Hotchog) (each player picks a different one; LEFT/RIGHT on your controller, or KAIJU ▶ on touch): Gobzilla Jr. (strawberry lizard), Squidgeon (blue jelly octopus), Crabbage (cheese crab), Bloblin (lime jelly), Mothball (ube marshmallow moth), Toastbat (toast bat), Dumplord (dumpling), Norigon (sushi-roll dragon), Chocomunch (chocolate golem), Bubblegumbo (bubblegum elephant), Bluebeary (blueberry muffin bear), Pizzaraptor (pizza raptor), Grapehound (grape hound), Avocadrake (avocado dragon), Salmonster (salmon sea monster), Onigori (rice-ball gorilla). All play the same for now.
 
 12 tables (M / gamepad Y / TABLE button; default rotates through all):
 - Sunday Roast, Dinner for Four, Leftovers: the giant hand

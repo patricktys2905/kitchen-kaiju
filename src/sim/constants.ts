@@ -99,10 +99,10 @@ export const SPECIES = [
   { name: 'BUBBLEGUMBO', full: 'Bubblegumbo', food: 'bubblegum elephant', color: 0xff7ad9, css: '#ff7ad9' },
   { name: 'BLUEBEARY', full: 'Bluebeary', food: 'blueberry muffin bear', color: 0x4a6cff, css: '#7a93ff' },
   { name: 'PIZZARAPTOR', full: 'Pizzaraptor', food: 'pizza raptor', color: 0xe03a2a, css: '#ff6a4a' },
-  { name: 'GRAPEHOUND', full: 'Grapehound', food: 'grape hound', color: 0x6a2aa8, css: '#a066e0' },
+  { name: 'SLOBA', full: 'Sloba', food: 'bubble-tea sloth', color: 0xf8a090, css: '#f8a090' },
   { name: 'AVOCADRAKE', full: 'Avocadrake', food: 'avocado dragon', color: 0x9bb33a, css: '#b6cf52' },
   { name: 'SALMONSTER', full: 'Salmonster', food: 'salmon fish monster', color: 0x2f5f9f, css: '#6f9fdf' },
-  { name: 'ONIGORI', full: 'Onigori', food: 'rice-ball baby gorilla', color: 0xdfe6ee, css: '#eef3f8' },
+  { name: 'HOTCHOG', full: 'Hotchog', food: 'hot-dog hedgehog', color: 0x801810, css: '#e0604a' },
   // unlocked in Story mode (see src/story/unlocks.ts)
   { name: 'MINTURTLE', full: 'Minturtle', food: 'mint-choc-chip turtle', color: 0x25767e, css: '#4fb8c2' },
   { name: 'PENGWHIP', full: 'Pengwhip', food: 'cookies-and-cream penguin', color: 0x282030, css: '#c8bcd8' },
