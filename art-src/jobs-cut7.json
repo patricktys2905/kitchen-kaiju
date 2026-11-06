@@ -1,0 +1,11 @@
+[
+  {
+    "name": "cut-7",
+    "newChat": true,
+    "refs": [
+      "art-src/cut-refs/cut-7b.png",
+      "art-src/cut-refs/bg-parlour.png"
+    ],
+    "prompt": "Generate an image. The first attached picture shows two characters from my game Kitchen Kaiju: BLOBLIN (left: a green lime-jelly blob shaped like a smooth jelly mould dome, with whipped cream and a cherry on top and a lime slice, a face with eyes and a mouth only, NO nose, and NO arms) and MOTHBALL (right: a purple marshmallow moth). The second shows their table. Keep this EXACT art style and these EXACT designs: bold chunky cartoon, thick dark-brown outlines, flat bright colours with soft cel shading. Draw a WIDE 16:9 LANDSCAPE cinematic cartoon scene: an ice cream parlour with tall sundaes and milkshakes on the counter; BLOBLIN is the boss here, drawn HUGE (filling the upper middle of the picture behind the counter) but exactly the same simple shape as its reference: ONE smooth rounded jelly dome with no lumps, bulges, limbs, arms or hands, a small gold crown on its whipped cream, a grumpy frown and narrowed eyes, a little frost on the counter in front of it. In the foreground MOTHBALL peeks nervously from behind a tall pink milkshake. Exactly these two characters and no other creatures. No text, no letters, no logos. Landscape 16:9."
+  }
+]
