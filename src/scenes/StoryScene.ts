@@ -417,6 +417,7 @@ export class StoryScene extends Phaser.Scene {
   private cutT = 0;
   private cutLen = 0;
   private cutCaption: Phaser.GameObjects.Text | null = null;
+  private cutVid: Phaser.GameObjects.Video | null = null;
   private afterCut: () => void = () => {};
 
   /** Plays a story clip full screen (Veo video; the Gemini still with a slow zoom if the video can't load). */
@@ -437,17 +438,21 @@ export class StoryScene extends Phaser.Scene {
     }
     this.cutLen = 20; // safety cap; the clip's 'complete' ends it sooner
     const vid = this.add.video(640, 360).setDepth(32).setVisible(false);
+    this.cutVid = vid;
     this.overlay.push(vid);
     const fallback = () => { if (this.cut === cut) this.cutLen = still ? 7 : 2.5; vid.setVisible(false); };
-    vid.on('textureready', () => { vid.setDisplaySize(1280, 720).setVisible(true); });
-    vid.on('complete', () => { if (this.cut === cut) this.endCut(); });
+    vid.on('textureready', () => vid.setVisible(true));
+    vid.on('complete', () => { if (this.cut === cut) this.cutLen = Math.max(this.cutT + 0.6, 5.2); }); // linger so the caption can be read
     vid.on('error', fallback);
     vid.on('unsupported', fallback);
     vid.on('locked', () => { vid.setMute(true); vid.play(); }); // autoplay with sound blocked: play muted
     this.time.delayedCall(4000, () => { if (this.cut === cut && !vid.visible) fallback(); });
-    vid.loadURL(`${import.meta.env.BASE_URL}video/${cut.key}.mp4`);
-    vid.setVolume(0.8);
-    vid.play();
+    if (cut.noVideo) fallback();
+    else {
+      vid.loadURL(`${import.meta.env.BASE_URL}video/${cut.key}.mp4`);
+      vid.setVolume(0.8);
+      vid.play();
+    }
 
     // caption strip
     const g = this.add.graphics().setDepth(33);
@@ -468,6 +473,7 @@ export class StoryScene extends Phaser.Scene {
     if (this.mode !== 'cut') return;
     this.cut = null;
     this.cutCaption = null;
+    this.cutVid = null;
     this.clearOverlay();
     this.mode = 'map';
     this.afterCut();
@@ -502,6 +508,9 @@ export class StoryScene extends Phaser.Scene {
 
     if (this.mode === 'cut') {
       this.cutT += dt;
+      // the frame size is only known once the video decodes, so keep it filling the screen
+      const v = this.cutVid?.video;
+      if (this.cutVid?.visible && v?.videoWidth) this.cutVid.setScale(1280 / v.videoWidth, 720 / v.videoHeight);
       const text = this.cut?.caption ?? '';
       const shown = Math.max(0, Math.floor((this.cutT - 0.8) * 40));
       this.cutCaption?.setText(text.slice(0, shown));

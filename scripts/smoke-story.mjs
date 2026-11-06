@@ -46,7 +46,9 @@ try {
     await pg.screenshot({ path: `smoke-story-${tag}-2-map.png` });
     await tapAt(1070, 640); // PLAY
     await wait(600);
-    await pg.screenshot({ path: `smoke-story-${tag}-3-dialogue.png` });
+    check(await until(() => pg.evaluate(() => window.__game.scene.getScene('story').children.list.some(o => o.type === 'Video' && o.visible)), 8000), `${tag}: chapter 1 cutscene video plays`);
+    await wait(1500);
+    await pg.screenshot({ path: `smoke-story-${tag}-3-cutscene.png` });
     for (let i = 0; i < 12 && !(await active('game')); i++) { await tapAt(640, 360); await tapAt(640, 360); await wait(150); }
     check(await until(() => active('game')), `${tag}: dialogue leads into the chapter 1 match`);
     const setup = await pg.evaluate(() => { const s = window.__game.scene.getScene('game'); return { n: s.world.players.length, table: s.world.layout.name, target: s.world.opts.target }; });

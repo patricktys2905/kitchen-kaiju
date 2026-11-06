@@ -555,5 +555,10 @@ describe('story cutscenes', () => {
       expect(c.caption.length).toBeLessThan(70); // fits one caption line
     });
     expect(new Set(ALL_CUTS.map(c => c.key)).size).toBe(ALL_CUTS.length);
+    const fs = await import('node:fs');
+    for (const c of ALL_CUTS) {
+      expect(fs.existsSync(`public/art/${c.key}.webp`), `${c.key} still`).toBe(true);
+      if (!c.noVideo) expect(fs.existsSync(`public/video/${c.key}.mp4`), `${c.key} clip`).toBe(true);
+    }
   });
 });
