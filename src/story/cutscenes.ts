@@ -13,7 +13,6 @@ export const OPENING: Cutscene = {
   key: 'cut-open',
   heading: 'THE GRAND FEAST',
   caption: 'One table. One Golden Spoon. Dinner is served… and so are you.',
-  noVideo: true, // Veo kept turning the tiny kaiju into other animals
 };
 
 export const ENDING_CUT: Cutscene = {

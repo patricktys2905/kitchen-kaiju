@@ -6,7 +6,7 @@ The user asked for these clips. Their Google AI Pro plan covers them: Veo 3.1 Li
 ## Inputs
 - Stills: `art-src/raw/<key>.png` (16:9 Gemini images).
 - Prompts: `art-src/flow-cutscenes.json`. The full prompt for a key is `_base` with `{X}` replaced by the text under that key.
-- Keys, in order: cut-open, cut-0, cut-1, cut-2, cut-3, cut-4, cut-5, cut-6, cut-7, cut-8, cut-9, cut-10, cut-11, cut-end
+- Keys, in order: cut-open, cut-4
 
 For each key, skip it if `art-src/clips-raw/<key>.mp4` already exists.
 
@@ -31,7 +31,7 @@ For each key, skip it if `art-src/clips-raw/<key>.mp4` already exists.
 8. If Flow refuses a prompt, retry it once. Simplify the wording if needed: drop words like "furious", "menacingly" or "villain". If it still refuses, skip that key and note it.
 
 ## Rules
-- After each clip downloads, look at it: grab frames (e.g. open it in a tab) and check that no new characters appeared and nobody changed shape. If it drifted badly, generate it ONE more time and keep the better one. Do at most 3 such retries in the whole run (credit budget). Save the retry as `<key>.mp4` and the other as `<key>-alt.mp4`.
+- After each clip downloads, look at it: grab frames (e.g. open it in a tab) and check that no new characters appeared and nobody changed shape. If it drifted badly, generate it ONE more time and keep the better one. Do at most 1 such retry in the whole run (credit budget). Save the retry as `<key>.mp4` and the other as `<key>-alt.mp4`.
 - Only generate the listed keys. One output each. Don't buy credits or change plan or account settings.
 - If you run out of credits, or a sign-in or captcha is needed, stop and report it.
 - At the end, print one line per key: `<key>: saved` / `skipped (exists)` / `failed: <reason>`, plus the credits remaining if shown.

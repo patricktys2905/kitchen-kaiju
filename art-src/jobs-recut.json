@@ -1,0 +1,20 @@
+[
+  {
+    "name": "cut-open",
+    "newChat": true,
+    "refs": [
+      "art-src/cut-refs/cut-open2.png"
+    ],
+    "prompt": "Generate an image. The attached picture shows three characters from my game, left to right: BLUEBEARY (a blue blueberry-muffin bear), GOBZILLA JR. (a pink-red STRAWBERRY lizard with a green leafy crest) and BLOBLIN (a green lime-jelly blob with a whipped-cream-and-cherry top). Keep this EXACT art style and these EXACT character designs: bold chunky cartoon, thick dark-brown outlines, flat bright colours with soft cel shading, cheeky expressions. The characters are food monsters (\"kaiju\") from my party game Kitchen Kaiju. Draw a WIDE 16:9 LANDSCAPE cinematic cartoon scene like a frame from a funny animated film: a long candle-lit banquet table at night in a grand dining hall; in the centre a glowing GOLDEN SPOON stands on a silver cake stand like a trophy. In the foreground, LARGE and clearly visible (each about a third of the image height), these three kaiju peek over the edge of a plate side by side, staring at the spoon with hungry, scheming eyes: Bluebeary on the left, Gobzilla Jr. in the middle, Bloblin on the right. Exactly these three characters and NO other creatures anywhere. Each must match its reference design exactly. Warm candle light, space at the bottom. No text, no letters, no logos. Landscape 16:9."
+  },
+  {
+    "name": "cut-4",
+    "newChat": true,
+    "refs": [
+      "art-src/cut-refs/cut-4.png",
+      "art-src/ref-choco.png",
+      "art-src/cut-refs/bg-party.png"
+    ],
+    "prompt": "Generate an image. The first attached picture shows two characters from my game: BUBBLEGUMBO (a pink bubblegum elephant) and CHOCOMUNCH (a golem built from chocolate-bar squares). The second shows CHOCOMUNCH up close: its face is drawn ON the flat chocolate squares, with just two cartoon eyes, eyebrows and a mouth with a little fang. It has NO nose and NO human features. The third shows the table. Keep this EXACT art style and these EXACT character designs: bold chunky cartoon, thick dark-brown outlines, flat bright colours with soft cel shading, cheeky expressions. The characters are food monsters (\"kaiju\") from my party game Kitchen Kaiju. Draw a WIDE 16:9 LANDSCAPE cinematic cartoon scene like a frame from a funny animated film: a birthday party table with a big frosted cake, candles, presents and confetti; on the left the pink bubblegum ELEPHANT blows a big pink bubblegum bubble; on the right CHOCOMUNCH sits beside the cake holding a huge slice, its face clearly visible and facing us, with frosting smeared on its chocolate cheeks and a guilty, cheeky grin. Both characters large and clear, exactly matching their references, and no other creatures. No text, no letters, no logos. Landscape 16:9."
+  }
+]
