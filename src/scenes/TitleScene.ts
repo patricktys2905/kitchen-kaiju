@@ -30,10 +30,10 @@ export class TitleScene extends Phaser.Scene {
     for (let i = 0; i < 12; i++) { g.fillStyle(0x0d0805, 0.06 * i); g.fillRect(0, 520 + i * 17, 1280, 17); }
     g.fillStyle(0x0d0805, 0.35); g.fillRect(0, 0, 1280, 8);
 
-    const title = this.add.text(372, 76, 'KITCHEN KAIJU', display(94, '#ffe9c7', { strokeThickness: 14, padding: { x: 8, y: 8 } })).setOrigin(0.5).setDepth(2);
+    const title = this.add.text(360, 76, 'KITCHEN KAIJU', display(86, '#ffe9c7', { strokeThickness: 14, padding: { x: 8, y: 8 } })).setOrigin(0.5).setDepth(2);
     withShadow(withGradient(title, '#fff6cf', '#ffb347'), 8);
     popIn(this, title, 1.3, 700);
-    withShadow(this.add.text(372, 150, 'Tiny monsters. Giant dinner.', body(24, '#ffd9a0', 900)).setOrigin(0.5).setDepth(2), 3);
+    withShadow(this.add.text(360, 146, 'Tiny monsters. Giant dinner.', body(24, '#ffd9a0', 900)).setOrigin(0.5).setDepth(2), 3);
 
     const save = loadStory();
     const storySub = save.stars.some(s => s) ? `Chapter ${Math.min(save.unlocked, CHAPTERS.length)}/${CHAPTERS.length} · ★ ${totalStars(save)}/${CHAPTERS.length * 3}` : 'Solo campaign · 12 chapters';

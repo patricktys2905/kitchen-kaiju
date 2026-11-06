@@ -1,0 +1,11 @@
+[
+  {
+    "name": "bg-title",
+    "newChat": true,
+    "refs": [
+      "art-src/ref-title-cast.png",
+      "art-src/ref-onigori.png"
+    ],
+    "prompt": "Generate an image. The first attached picture shows five characters from my party game Kitchen Kaiju (tiny monsters made of food); the second shows ONIGORI up close. Draw the GAME COVER ART: a wide 16:9 cinematic cartoon scene in the same bold chunky style (thick dark-brown outlines, flat bright colours, soft cel shading, warm candle light). Setting: a long candle-lit banquet table at night with plates, peas and crumbs; in the centre, a glowing GOLDEN SPOON stands on a silver cake stand like a trophy. In front of it the five kaiju pose heroically, EACH APPEARING EXACTLY ONCE and matching its reference design and colours, left to right: the pink-red STRAWBERRY lizard GRIPPING a giant fork in BOTH of its own two little hands; the pink bubblegum ELEPHANT holding a giant spoon curled in its trunk; the green SUSHI-ROLL DRAGON (sushi-roll body segments, salmon and rice) holding a pair of chopsticks firmly in its claw like a weapon; the PIZZA RAPTOR holding a big knife in its claws; and the small CUTE baby ONIGIRI rice-ball gorilla (rounded-triangle rice head, big friendly eyes, rosy cheeks, tiny red plum on its forehead, black nori shorts) hugging a salt shaker. ANATOMY RULES: every character has exactly two arms (the elephant has two front legs and a trunk), no extra arms or hands anywhere, and every held object is firmly gripped by that character's own hand, claw or trunk, nothing floating in the air. The background wall behind the table is in soft warm shadow, especially towards the top-left, and the table edge at the bottom is simple. Fill the WHOLE frame with the painted scene edge to edge (no boxes, panels, borders or empty areas). ABSOLUTELY NO buttons, no menus, no user interface, no text, no letters, no logos. Landscape 16:9."
+  }
+]
