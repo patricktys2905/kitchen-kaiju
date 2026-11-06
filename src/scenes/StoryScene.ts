@@ -11,7 +11,7 @@ import { LAYOUTS } from '../sim/layouts';
 import { CHAPTERS, chapterRivals, ENDING, type Line } from '../story/chapters';
 import { loadStory, recordResult, saveStory, totalStars, type StorySave } from '../story/save';
 import { setTouchMode } from '../touch';
-import { CHAPTER_CUTS, ENDING_CUT, OPENING, type Cutscene } from '../story/cutscenes';
+import { CHAPTER_CUTS, ENDING_CUT, OPENING, seenId, type Cutscene } from '../story/cutscenes';
 import { isEarned, needText, newlyEarned, owned, unlockName, UNLOCKS } from '../story/unlocks';
 
 export interface StoryResult {
@@ -113,17 +113,18 @@ export class StoryScene extends Phaser.Scene {
     this.drawPanel();
     this.drawPick();
 
+    this.buttons.push(new Button(this, 640, 50, { w: 200, h: 44, label: '🎬 OPENING', size: 18, accent: 0xffd24a, onClick: () => { if (this.mode === 'map') { sfx.pickup(); this.playCut(OPENING, () => {}); } } }, 6));
     this.buttons.push(new Button(this, 1172, 560, { w: 150, h: 38, label: '🎬 SCENE', size: 16, onClick: () => this.watchScene() }, 6));
 
     if (this.pendingResult) this.showResult(this.pendingResult);
-    else if (!this.save.cuts.includes(OPENING.key)) this.time.delayedCall(250, () => this.playCut(OPENING, () => {}));
+    else if (!this.save.cuts.includes(seenId(OPENING))) this.time.delayedCall(250, () => this.playCut(OPENING, () => {}));
   }
 
   /** Replays the selected chapter's cutscene (or the opening for a locked chapter). */
   private watchScene(): void {
     if (this.mode !== 'map') return;
     sfx.pickup();
-    this.playCut(this.sel < this.save.unlocked ? CHAPTER_CUTS[this.sel] : OPENING, () => {});
+    if (this.sel < this.save.unlocked) this.playCut(CHAPTER_CUTS[this.sel], () => {});
   }
 
   // ---------------------------------------------------------------- map
@@ -231,7 +232,7 @@ export class StoryScene extends Phaser.Scene {
     this.lines = [...ch.intro, { speaker: 'chef', text: 'TIP: ' + ch.tip }];
     const talk = () => this.startDialogue(rivals.map(r => r.species), () => this.launch());
     const cut = CHAPTER_CUTS[this.sel];
-    if (cut && !this.save.cuts.includes(cut.key)) this.playCut(cut, talk);
+    if (cut && !this.save.cuts.includes(seenId(cut))) this.playCut(cut, talk);
     else talk();
   }
 
@@ -427,7 +428,7 @@ export class StoryScene extends Phaser.Scene {
     this.cut = cut;
     this.afterCut = then;
     this.cutT = 0;
-    if (!this.save.cuts.includes(cut.key)) { this.save.cuts.push(cut.key); saveStory(this.save); }
+    if (!this.save.cuts.includes(seenId(cut))) { this.save.cuts.push(seenId(cut)); saveStory(this.save); }
     const bg = this.add.graphics().setDepth(30);
     bg.fillStyle(0x000000, 1); bg.fillRect(0, 0, 1280, 720);
     this.overlay.push(bg);

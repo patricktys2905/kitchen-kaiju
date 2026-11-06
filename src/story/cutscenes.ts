@@ -7,10 +7,15 @@ export interface Cutscene {
   heading: string; // small line above the caption
   caption: string;
   noVideo?: boolean; // no usable clip: show the still with a slow zoom
+  rev?: number; // bump when a clip is remade so it auto-plays once more for players who saw the old one
 }
+
+/** The id stored in the save once a cutscene has been watched. */
+export const seenId = (c: Cutscene) => (c.rev ? `${c.key}#${c.rev}` : c.key);
 
 export const OPENING: Cutscene = {
   key: 'cut-open',
+  rev: 2, // new opening (Bluebeary, Gobzilla Jr., Bloblin)
   heading: 'THE GRAND FEAST',
   caption: 'One table. One Golden Spoon. Dinner is served… and so are you.',
 };
