@@ -12,6 +12,9 @@ const want = process.argv.slice(2);
 const KEEP = { 'cut-4': 4.5, 'cut-11': 3.5, 'cut-7': 4.6, 'cut-end': 6.0, 'cut-2': 2.8, 'cut-6': 5.4, 'cut-open': 5.8, 'cut-0': 7.0, 'cut-3': 7.0, 'cut-5': 4.2, 'cut-8': 3.6, 'cut-9': 3, 'cut-10': 4.5, 's2-0': 3.8, 's2-4': 2.3 };
 // Frame patches: a cleaned-up image laid over part of a raw clip (e.g. to hide a face Gemini/Veo drew on a prop).
 // x/y are ffmpeg expressions in raw-clip pixels (1280x720) and may use t to follow slow camera drift.
+// Crops (raw-clip pixels) to frame out extra characters Veo added at the edges.
+const CROPS = {
+};
 const PATCHES = {
   'cut-2': { img: 'art-src/patch-cut-2.png', x: '125-2.7*min(t,2.2)', y: '364+0.9*min(t,2.2)' }, // takeaway carton had a face
 };
@@ -21,7 +24,7 @@ for (const f of fs.readdirSync(RAW).filter(f => f.endsWith('.mp4'))) {
   if (key.endsWith('-alt')) continue;
   const t = KEEP[key] ?? 7.8, fo = (t - 0.5).toFixed(2);
   const out = `${OUT}/${key}.mp4`;
-  const vf = `scale=960:540:force_original_aspect_ratio=increase,crop=960:540,fade=t=out:st=${fo}:d=0.5`, pt = PATCHES[key];
+  const vf = `${CROPS[key] ? `crop=${CROPS[key]},` : ""}scale=960:540:force_original_aspect_ratio=increase,crop=960:540,fade=t=out:st=${fo}:d=0.5`, pt = PATCHES[key];
   const video = pt ? ['-i', pt.img, '-filter_complex', `[0:v][1:v]overlay=x='${pt.x}':y='${pt.y}':eval=frame,${vf}[v]`, '-map', '[v]', '-map', '0:a?'] : ['-vf', vf];
   execFileSync(ffmpeg, ['-y', '-loglevel', 'error', '-i', `${RAW}/${f}`, ...video,
     '-t', String(t), '-af', `afade=t=out:st=${fo}:d=0.5`, '-c:v', 'libx264', '-profile:v', 'main', '-preset', 'slow', '-crf', '27', '-pix_fmt', 'yuv420p',

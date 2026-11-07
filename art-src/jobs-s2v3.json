@@ -1,0 +1,28 @@
+[
+  {
+    "name": "s2-2",
+    "newChat": true,
+    "refs": [
+      "art-src/cut-refs/s2-2.png",
+      "art-src/cut-refs/bg-pancake.png"
+    ],
+    "prompt": "Generate an image. The first attached picture shows characters from my game Kitchen Kaiju. The second shows the table they are on. Keep this EXACT art style and these EXACT character designs: bold chunky cartoon, thick dark-brown outlines, flat bright colours with soft cel shading, cheeky expressions. The characters are tiny food monsters (\"kaiju\") from my party game. Every kaiju has exactly the body, limbs and face shown in the reference: no extra arms or legs, and NO nose (only the eyes and mouth as drawn). Draw a WIDE 16:9 LANDSCAPE cinematic cartoon scene, like a frame from a funny animated film: a tall stack of fluffy pancakes dripping with syrup and butter on a breakfast table; three kaiju stand side by side in a row on top of the huge pancake stack, not touching or overlapping: the HOT-DOG HEDGEHOG, the blueberry-muffin BEAR and the TOAST BAT (a slice of toast with big brown BAT WINGS spread wide open on both sides, exactly as in the reference); a giant metal spatula rests at the side of the plate; all faces fully visible.  Warm cinematic lighting, depth of field, lots of food detail, a clear readable composition with space at the bottom. No text, no letters, no logos, no speech bubbles. Landscape 16:9. IMPORTANT: each kaiju appears ONLY ONCE (no extra small copies anywhere), there are NO people or hands, and the kaiju are BIG and clear: each one is about a third of the picture height, standing in the foreground, apart from each other with nothing in front of their faces. EVERY kaiju smiles with its MOUTH CLOSED: no teeth showing at all, just a small curved smile line."
+  },
+  {
+    "name": "s2-5",
+    "newChat": true,
+    "refs": [
+      "art-src/cut-refs/s2-5.png",
+      "art-src/cut-refs/bg-nightmare.png"
+    ],
+    "prompt": "Generate an image. The first attached picture shows characters from my game Kitchen Kaiju. The second shows the table they are on. Keep this EXACT art style and these EXACT character designs: bold chunky cartoon, thick dark-brown outlines, flat bright colours with soft cel shading, cheeky expressions. The characters are tiny food monsters (\"kaiju\") from my party game. Every kaiju has exactly the body, limbs and face shown in the reference: no extra arms or legs, and NO nose (only the eyes and mouth as drawn). Draw a WIDE 16:9 LANDSCAPE cinematic cartoon scene, like a frame from a funny animated film: an empty steamy restaurant back kitchen at night with gas burners, pans and toasters (no people); the red-velvet KANGAROO kaiju is the boss: bigger than the others, wearing a gold crown, its belly pouch stuffed with shiny spoons; the hot-dog HEDGEHOG and the cookies-and-cream PENGUIN stand close either side of it like henchmen. A tight medium shot: the three kaiju fill most of the picture from left to right, with no empty floor or counter space at the sides; all faces fully visible.  Warm cinematic lighting, depth of field, lots of food detail, a clear readable composition with space at the bottom. No text, no letters, no logos, no speech bubbles. Landscape 16:9. IMPORTANT: each kaiju appears ONLY ONCE (no extra small copies anywhere), there are NO people or hands, and the kaiju are BIG and clear: each one is about a third of the picture height, standing in the foreground, apart from each other with nothing in front of their faces. The hot-dog HEDGEHOG is a hedgehog lying in a hot-dog bun with mustard and ketchup on its spiky back, exactly as in the reference. EVERY kaiju smiles with its MOUTH CLOSED: no teeth showing at all, just a small curved smile line."
+  },
+  {
+    "name": "s2-end",
+    "newChat": true,
+    "refs": [
+      "art-src/cut-refs/s2-end.png"
+    ],
+    "prompt": "Generate an image. The first attached picture shows characters from my game Kitchen Kaiju. Keep this EXACT art style and these EXACT character designs: bold chunky cartoon, thick dark-brown outlines, flat bright colours with soft cel shading, cheeky expressions. The characters are tiny food monsters (\"kaiju\") from my party game. Every kaiju has exactly the body, limbs and face shown in the reference: no extra arms or legs, and NO nose (only the eyes and mouth as drawn). Draw a WIDE 16:9 LANDSCAPE cinematic cartoon scene, like a frame from a funny animated film: a grand dining hall at night with confetti in the air; TWO glowing golden spoons stand side by side on a silver cake stand like trophies; the PENGUIN, the KANGAROO and the taco OWL kaiju stand close together in a row right in front of the camera, big and clear, filling most of the picture, cheering and clapping; all faces fully visible.  Warm cinematic lighting, depth of field, lots of food detail, a clear readable composition with space at the bottom. No text, no letters, no logos, no speech bubbles. Landscape 16:9. IMPORTANT: each kaiju appears ONLY ONCE (no extra small copies anywhere), there are NO people or hands, and the kaiju are BIG and clear: each one is about a third of the picture height, standing in the foreground, apart from each other with nothing in front of their faces. EVERY kaiju smiles with its MOUTH CLOSED: no teeth showing at all, just a small curved smile line."
+  }
+]
