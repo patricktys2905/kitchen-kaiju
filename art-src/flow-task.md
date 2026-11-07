@@ -6,7 +6,7 @@ The user asked for these clips. Their Google AI Pro plan covers them: Veo 3.1 Li
 ## Inputs
 - Stills: `art-src/raw/<key>.png` (16:9 Gemini images).
 - Prompts: `art-src/flow-cutscenes.json`. The full prompt for a key is `_base` with `{X}` replaced by the text under that key.
-- Keys, in order: cut-7
+- Keys, in order: cut-11
 
 For each key, skip it if `art-src/clips-raw/<key>.mp4` already exists.
 

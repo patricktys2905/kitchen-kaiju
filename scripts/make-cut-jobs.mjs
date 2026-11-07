@@ -43,7 +43,7 @@ const SCENES = [
   { key: 'cut-10', cast: [15, 7, 9], table: 'bg-banquet',
     still: 'a fancy banquet table with a big rotating lazy Susan turntable full of dishes; the cute baby ONIGIRI rice-ball gorilla kaiju sits happily in the middle of the turntable spinning round, while the sushi dragon and the bubblegum elephant look dizzy',
     move: 'The lazy Susan spins faster and faster with the happy rice-ball gorilla giggling in the middle, dishes whirl past, the sushi dragon and bubblegum elephant wobble and get dizzy, swirling stars over their heads. Merry-go-round music with whoosh sound effects.' },
-  { key: 'cut-11', cast: [6, 11], table: 'bg-breakfast',
+  { key: 'cut-11', cast: [6, 11, 15], table: 'bg-breakfast',
     still: 'a grand breakfast feast table with popping toasters, stacks of pancakes and eggs; the DUMPLING kaiju is huge, wearing a gold crown and sitting on a throne made of toast, holding the GOLDEN SPOON like a sceptre, the pizza raptor stands beside him as his henchman',
     move: 'The crowned dumpling kaiju rises from the toast throne and points the golden spoon at the camera, toasters pop toast into the air behind him like fireworks, the pizza raptor cracks its knuckles. Epic final-boss orchestral music with toaster pops.' },
   { key: 'cut-end', cast: [0, 3, 9, 10, 15], table: null,
