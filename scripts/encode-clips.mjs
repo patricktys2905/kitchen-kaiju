@@ -16,6 +16,7 @@ const KEEP = { 'cut-4': 4.5, 'cut-7': 4.6, 'cut-end': 6.0, 'cut-2': 2.8, 'cut-6'
 const CROPS = {
 };
 const PATCHES = {
+  'cut-6': { img: 'art-src/patch-cut-6.png', x: '223', y: '257' }, // Gemini drew a nose dot on Toastbat: blend it away
   'cut-10': { img: 'art-src/patch-cut-10.png', x: '495', y: '195' }, // Hotchog climbed out of its bun: keep it as drawn
   's2-4': { img: 'art-src/patch-s2-4.png', x: '480', y: '190' }, // Bloblin got a spring, Velvaroo lost its swirl: keep both as drawn
   's2-5': { img: 'art-src/patch-s2-5.png', x: '440', y: '10' }, // Velvaroo grew a toothy grin: keep its drawn face

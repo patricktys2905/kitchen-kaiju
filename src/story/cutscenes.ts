@@ -35,7 +35,7 @@ export const CHAPTER_CUTS: Cutscene[] = [
   { key: 'cut-3', heading: 'CHAPTER 4 · BOSS OF THE BELT', caption: 'Norigon runs this joint. Better roll with it.' },
   { key: 'cut-4', heading: 'CHAPTER 5 · PARTY CRASHERS', caption: 'Not invited. Came anyway. Ate the cake. Typical.' },
   { key: 'cut-5', heading: 'CHAPTER 6 · ON THE CHOPPING BLOCK', caption: 'Things are about to get… dicey.' },
-  { key: 'cut-6', rev: 3, heading: 'CHAPTER 7 · SHORT ORDER SHOWDOWN', caption: 'Order up! Today’s special: you, extra crispy.' },
+  { key: 'cut-6', rev: 4, heading: 'CHAPTER 7 · SHORT ORDER SHOWDOWN', caption: 'Order up! Today’s special: you, extra crispy.' },
   { key: 'cut-7', rev: 3, heading: 'CHAPTER 8 · THE BIG MELT', caption: 'Bloblin has a cold heart and a short fuse. Chill.' },
   { key: 'cut-8', rev: 2, heading: 'CHAPTER 9 · PICNIC PANIC', caption: 'A picnic! Sloba will get to it… eventually.' },
   { key: 'cut-9', heading: 'CHAPTER 10 · PROVING THE DOUGH', caption: 'Let’s see who rises to the occasion.' },
