@@ -842,3 +842,26 @@ describe('party cup', () => {
     expect(cupGames(4).length).toBe(CUP.games.length);
   });
 });
+
+describe('fondue night cheese', () => {
+  it('warns, splats (knocking out anyone under it) and leaves a sticky puddle', async () => {
+    const { RULES } = await import('../src/sim/constants');
+    const { LAYOUTS } = await import('../src/sim/layouts');
+    const li = LAYOUTS.findIndex(l => l.hazards.includes('cheese'));
+    expect(li).toBeGreaterThanOrEqual(0);
+    const w = new World({ players: [{ name: 'a' }, { name: 'b' }], seed: 5, layout: li, crumbSpawns: false, pickupSpawns: false });
+    while (w.phase !== 'play') w.step(DT, []);
+    place(w, 0, 300, 600); place(w, 1, 1000, 160);
+    const ev = run(w, RULES.cheeseFirst + 0.05);
+    const warn = ev.find(e => e.type === 'cheeseWarn');
+    expect(warn).toBeTruthy();
+    const d = w.cheeseDrops[0];
+    const target = w.players.find(p => Math.hypot(p.x - d.x, p.y - d.y) < RULES.cheeseAim + 5)!;
+    place(w, target.id, d.x, d.y);
+    const ev2 = run(w, RULES.cheeseWarn);
+    expect(ev2.some(e => e.type === 'cheeseSplat')).toBe(true);
+    expect(ev2.some(e => e.type === 'ko' && e.cause === 'cheese' && e.id === target.id)).toBe(true);
+    expect(w.puddles.length).toBeGreaterThan(0);
+    expect(w.onSticky(d.x, d.y)).toBe(true);
+  });
+});

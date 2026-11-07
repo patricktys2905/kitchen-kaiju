@@ -1,0 +1,26 @@
+[
+  {
+    "name": "bg-fondue",
+    "newChat": true,
+    "refs": ["art-src/cut-refs/ref-table-breakfast.png"],
+    "prompt": "Generate an image. The attached picture is a table surface from my party game, seen straight from above. Draw a NEW table surface in exactly the same style, framing, size and straight top-down view: a cosy alpine FONDUE NIGHT table: warm dark wooden planks with a red-and-white checkered runner across the middle, a few drips of melted cheese, crumbs and a couple of small herb leaves. The surface fills the whole image edge to edge, with no objects, no characters, no text. Wide landscape about 1.9:1."
+  },
+  {
+    "name": "ob-fondue",
+    "newChat": true,
+    "refs": ["art-src/ref-props2.png"],
+    "prompt": "Generate an image. The attached picture shows prop sprites from my party game (top-down, chunky cartoon style, thick dark outlines, cel shading). Draw ONE new prop in exactly the same style, seen STRAIGHT FROM ABOVE, centred, on a solid flat magenta (#FF00FF) background: a round red cast-iron FONDUE POT full of bubbling golden melted cheese, seen from directly above, with three long fondue forks with bread cubes poking into it. Perfectly round. No text, no shadow. Square 1:1."
+  },
+  {
+    "name": "ob-breadcubes",
+    "prompt": "Next prop, exactly the same style, straight top-down view, centred, solid flat magenta (#FF00FF) background: a small round wooden bowl full of golden toasted BREAD CUBES, seen from above. No text, no shadow. Square 1:1."
+  },
+  {
+    "name": "ob-cheesewheel",
+    "prompt": "Next prop, exactly the same style, straight top-down view, centred, solid flat magenta (#FF00FF) background: a whole round yellow CHEESE WHEEL seen from above with one wedge cut out, holes in the cheese. No text, no shadow. Square 1:1."
+  },
+  {
+    "name": "ob-grapes",
+    "prompt": "Next prop, exactly the same style, straight top-down view, centred, solid flat magenta (#FF00FF) background: a bunch of purple GRAPES on a small round plate, seen from above. No text, no shadow. Square 1:1."
+  }
+]

@@ -4,13 +4,14 @@ export type ObstacleStyle =
   | 'ketchup' | 'mustard' | 'pancakes' | 'egg' | 'sundae' | 'shake' | 'cone' | 'basket' | 'melon' | 'lemonade' | 'sandwich'
   | 'croissant' | 'flour' | 'rollingpin' | 'cupcakes' | 'dumplings' | 'noodles' | 'teacup' | 'toaster' | 'jam' | 'cereal'
   | 'icetray' | 'peas' | 'popsicle' | 'tub' | 'gumdrop' | 'lollipop' | 'candyjar' | 'knifeblock' | 'pot' | 'pan'
-  | 'smoothie' | 'pineapple' | 'banana' | 'strawberry';
+  | 'smoothie' | 'pineapple' | 'banana' | 'strawberry'
+  | 'fondue' | 'breadcubes' | 'cheesewheel' | 'grapes';
 
 export type Obstacle =
   | { shape: 'circle'; x: number; y: number; r: number; style: ObstacleStyle }
   | { shape: 'rect'; x: number; y: number; w: number; h: number; style: ObstacleStyle };
 
-export type HazardKind = 'hand' | 'wind' | 'cleaver' | 'burner' | 'toaster' | 'blender';
+export type HazardKind = 'hand' | 'wind' | 'cleaver' | 'burner' | 'toaster' | 'blender' | 'cheese';
 
 /** A conveyor strip: anything sitting on it is carried sideways at vx px/s. */
 export interface Belt {
@@ -48,7 +49,7 @@ export interface Layout {
   name: string;
   /** Art key of the table surface. */
   table: 'bg-table' | 'bg-sushi' | 'bg-party' | 'bg-board' | 'bg-griddle' | 'bg-parlour' | 'bg-picnic' | 'bg-bakery' | 'bg-banquet' | 'bg-breakfast'
-    | 'bg-freezer' | 'bg-candy' | 'bg-nightmare' | 'bg-smoothie';
+    | 'bg-freezer' | 'bg-candy' | 'bg-nightmare' | 'bg-smoothie' | 'bg-fondue';
   hazards: HazardKind[];
   belts?: Belt[];
   spills?: Zone[]; // slippery: you slide instead of stopping
@@ -308,6 +309,20 @@ export const LAYOUTS: Layout[] = [
       { shape: 'circle', x: 330, y: 545, r: 32, style: 'strawberry' },
       { shape: 'rect', x: 590, y: 120, w: 100, h: 40, style: 'banana' },
       { shape: 'rect', x: 590, y: 610, w: 100, h: 40, style: 'banana' },
+    ],
+    spawns: [[170, 150], [1110, 615], [1110, 150], [170, 615], [160, 382], [1120, 382]],
+  },
+  {
+    name: 'Fondue Night',
+    table: 'bg-fondue',
+    hazards: ['cheese'],
+    blurb: 'Hot cheese splats down from the pot. Dodge the shadows; the puddles are sticky!',
+    obstacles: [
+      { shape: 'circle', x: 640, y: 382, r: 56, style: 'fondue' },
+      { shape: 'circle', x: 360, y: 230, r: 32, style: 'breadcubes' },
+      { shape: 'circle', x: 920, y: 535, r: 32, style: 'breadcubes' },
+      { shape: 'circle', x: 920, y: 230, r: 38, style: 'cheesewheel' },
+      { shape: 'circle', x: 360, y: 535, r: 30, style: 'grapes' },
     ],
     spawns: [[170, 150], [1110, 615], [1110, 150], [170, 615], [160, 382], [1120, 382]],
   },

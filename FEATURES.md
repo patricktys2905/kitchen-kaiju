@@ -248,3 +248,10 @@ Each section says **where to customise it**.
 - Points per game by placing: 5 / 3 / 2 / 1. Ties share the better place, and team members share their team's place. Standings show after each game ("1 / START to continue"); the last one crowns the cup winner.
 - New achievement: 🏆 **Cup Champion**.
 - **Customise:** `src/cup.ts` → `CUP.games` (order, modes, rounds) and `CUP.points`.
+
+## 28. New table: Fondue Night (new Hot Cheese hazard, Gemini art)
+
+- A cosy alpine table: a red fondue pot in the middle, a checkered runner, bread cubes, a cheese wheel and grapes. Free (not locked).
+- **Hot cheese:** every 1.6–2.6 s a cheese blob drops near a random kaiju. A growing shadow and ring warn you for 1.3 s; then it SPLATS, knocking out anyone under it, and leaves a **sticky cheese puddle** for 7 s that slows you like dough. Drops come faster in sudden death.
+- Bots dodge the shadows and avoid puddles. Works online.
+- **Customise:** `RULES.cheese*` in `src/sim/constants.ts`; the table is the last entry in `src/sim/layouts.ts`. Art: `art-src/jobs-fondue.json`.

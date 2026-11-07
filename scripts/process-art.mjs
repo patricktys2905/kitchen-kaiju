@@ -26,7 +26,7 @@ const SPRITES = [
   [/^lazysusan$/, 640],
   [/^spoon$/, 420],
 ];
-const TABLES = ['bg-table', 'bg-sushi', 'bg-party', 'bg-board', 'bg-griddle', 'bg-parlour', 'bg-picnic', 'bg-bakery', 'bg-banquet', 'bg-breakfast', 'bg-freezer', 'bg-candy', 'bg-nightmare', 'bg-smoothie']; // table surfaces get rounded corners
+const TABLES = ['bg-table', 'bg-sushi', 'bg-party', 'bg-board', 'bg-griddle', 'bg-parlour', 'bg-picnic', 'bg-bakery', 'bg-banquet', 'bg-breakfast', 'bg-freezer', 'bg-candy', 'bg-nightmare', 'bg-smoothie', 'bg-fondue']; // table surfaces get rounded corners
 const CUTS = ['cut-open', 'cut-end', ...Array.from({ length: 12 }, (_, i) => `cut-${i}`)]; // story cutscene stills (video posters)
 const BACKGROUNDS = { ...Object.fromEntries(CUTS.map(c => [c, [1280, 720]])), 'bg-floor': [1280, 720], 'bg-menu': [1280, 720], 'bg-title': [1280, 720], 'bg-story': [1280, 720], ...Object.fromEntries(TABLES.map(t => [t, [1080, 575]])) };
 

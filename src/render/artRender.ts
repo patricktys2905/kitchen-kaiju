@@ -5,7 +5,7 @@ import type { Layout } from '../sim/layouts';
 import type { Cutlery, Player, World } from '../sim/world';
 import { CUTLERY_LEN, fitInside, hasArt, SpritePool } from './art';
 import {
-  cutleryAngle, drawBelt, drawBlender, drawBurner, drawSpill, drawSticky, drawToast, drawToasterWarn, drawTurnArrows, drawTurntable, drawChopMark, drawCleaverBlade, drawCleaverWarn, drawCrumbs, drawCutlery, drawCutleryGlow, drawFloor,
+  cutleryAngle, drawBelt, drawBlender, drawBurner, drawCheesePuddle, drawCheeseWarn, drawSpill, drawSticky, drawToast, drawToasterWarn, drawTurnArrows, drawTurntable, drawChopMark, drawCleaverBlade, drawCleaverWarn, drawCrumbs, drawCutlery, drawCutleryGlow, drawFloor,
   drawHand, drawKaiju, drawObstacle, drawObstacleShadow, drawMat, drawPlayerOver, drawPlayerUnder, drawTableFrame, drawTableRim,
   drawTableSurface, drawWind, playerAlpha,
 } from './draw';
@@ -136,6 +136,8 @@ export class ArtRenderer {
     }
     if (w.toaster) { const z = w.layout.toasters?.[w.toaster.i]; if (z) drawToasterWarn(under, z, w.toaster, t); }
     (w.layout.burners ?? []).forEach((z, i) => drawBurner(under, z, w.burner, i, t));
+    w.puddles.forEach((z, i) => drawCheesePuddle(under, z, i));
+    for (const d of w.cheeseDrops) drawCheeseWarn(over, d.x, d.y, Math.min(1, d.t / RULES.cheeseWarn), RULES.cheeseRadius, t);
     const bz = w.layout.blender;
     if (bz) {
       const art = hasArt('ob-blender');

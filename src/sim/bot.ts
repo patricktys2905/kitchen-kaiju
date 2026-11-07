@@ -125,6 +125,16 @@ export class BotBrain {
       if (p.meter >= 100 && d < 320) out.stomp = !p.prev.stomp;
     }
 
+    // Fondue Night: get out from under falling cheese, and around sticky puddles.
+    for (const d of w.cheeseDrops) {
+      const dx = p.x - d.x, dy = p.y - d.y, dd = Math.hypot(dx, dy) || 1;
+      if (dd < RULES.cheeseRadius + p.r + 40) {
+        add(dx / dd, dy / dd, 4.5);
+        if (d.t > RULES.cheeseWarn * 0.55 && p.dashCD <= 0 && this.rng.next() < T.dodge + 0.3) { mx = dx / dd; my = dy / dd; out.dash = !p.prev.dash; }
+      }
+    }
+    for (const z of w.puddles) { const dx = p.x - z.x, dy = p.y - z.y, dd = Math.hypot(dx, dy) || 1; if (dd < z.r + 30) add(dx / dd, dy / dd, 0.8); }
+
     // Smoothie Bar: run from the blender while it rumbles or spins.
     const bz = w.layout.blender;
     if (bz && w.blender) {

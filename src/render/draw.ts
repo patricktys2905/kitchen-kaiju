@@ -62,7 +62,7 @@ const SURFACE: Record<Layout['table'], number> = {
   'bg-table': 0x9a6438, 'bg-sushi': 0xd9c08a, 'bg-party': 0xf3b6cc, 'bg-board': 0xb88452,
   'bg-griddle': 0x8d939b, 'bg-parlour': 0xbfe8d6, 'bg-picnic': 0xe8a0a0,
   'bg-bakery': 0xe8d3a8, 'bg-banquet': 0xa8283a, 'bg-breakfast': 0xf6e7a0,
-  'bg-freezer': 0xd6eef8, 'bg-candy': 0xffc4de, 'bg-nightmare': 0x3a3836, 'bg-smoothie': 0xfff1c8,
+  'bg-freezer': 0xd6eef8, 'bg-candy': 0xffc4de, 'bg-nightmare': 0x3a3836, 'bg-smoothie': 0xfff1c8, 'bg-fondue': 0x8a5a32,
 };
 export function drawTableSurface(g: G, table: Layout['table'] = 'bg-table'): void {
   g.fillStyle(SURFACE[table], 1);
@@ -102,6 +102,7 @@ const FRAMES: Record<Layout['table'], FrameStyle> = {
   'bg-candy': { frame: 0xe0457f, hi: 0xff9cc4, lip: 0xa82a5c, depth: 14 },
   'bg-nightmare': { frame: 0x2a2624, hi: 0x6a625c, lip: 0x161210, depth: 16 },
   'bg-smoothie': { frame: 0x2fb39a, hi: 0x7fe3cf, lip: 0x1f7a68, depth: 14 },
+  'bg-fondue': { frame: 0x5a2a1a, hi: 0x9a5a3a, lip: 0x3a160a, depth: 16 },
 };
 
 /** Soft floor shadow, the table's 3D front lip and its frame, styled per table. */
@@ -142,7 +143,7 @@ export function drawMat(g: G, x: number, y: number, color: number, table: Layout
     'bg-table': 0xd9b878, 'bg-sushi': 0x9fc26a, 'bg-party': 0xfff1f6, 'bg-board': 0x4a4e57,
     'bg-griddle': 0xf4f0e6, 'bg-parlour': 0xe8fff4, 'bg-picnic': 0xfff3a8,
     'bg-bakery': 0xf7f4ee, 'bg-banquet': 0xc0303c, 'bg-breakfast': 0xfff4c0,
-    'bg-freezer': 0xeaf6fc, 'bg-candy': 0xffe0ee, 'bg-nightmare': 0x5a3a30, 'bg-smoothie': 0xfff6dc,
+    'bg-freezer': 0xeaf6fc, 'bg-candy': 0xffe0ee, 'bg-nightmare': 0x5a3a30, 'bg-smoothie': 0xfff6dc, 'bg-fondue': 0xd8b070,
   };
   g.fillStyle(0x000000, 0.18); g.fillRoundedRect(x - 54, y - 38, 112, 82, 12);
   g.fillStyle(fill[table], 0.9); g.fillRoundedRect(x - 56, y - 41, 112, 82, 12);
@@ -165,6 +166,7 @@ export function drawObstacleShadow(g: G, o: Obstacle): void {
 }
 
 const FALLBACK_COLORS: Partial<Record<Obstacle['style'], number>> = {
+  fondue: 0xffd24a, breadcubes: 0xe0a24a, cheesewheel: 0xf2c418, grapes: 0x6a2aa8,
   smoothie: 0xff8ab0, pineapple: 0xf2c418, banana: 0xffe066, strawberry: 0xe8392f,
   icetray: 0xbfe6f5, peas: 0x6fbf4a, popsicle: 0xff6a5a, tub: 0xf2ead8, gumdrop: 0xff4fa0, lollipop: 0xffd24a, candyjar: 0xcfeefa, knifeblock: 0x6a4a30, pot: 0x8a8f96, pan: 0x2f2f33,
   soy: 0x3a2214, sushi: 0x24407a, teapot: 0x3f6b3a, cake: 0xff9ec4, gift: 0x4f8fe0, cupcake: 0x9ff0d0,
@@ -701,6 +703,25 @@ export function drawSpill(g: G, z: Zone, i: number, t: number): void {
 }
 
 /** Diner Griddle burner: dark coils at rest, glowing while it warns, roaring flames when it flares. */
+/** Fondue Night: a growing shadow where cheese will land. k = 0..1 progress. */
+export function drawCheeseWarn(g: G, x: number, y: number, k: number, r: number, t: number): void {
+  g.fillStyle(0x000000, 0.12 + 0.28 * k); g.fillEllipse(x, y, r * 2 * (0.4 + 0.6 * k), r * 1.4 * (0.4 + 0.6 * k));
+  g.lineStyle(3, 0xffb347, 0.4 + 0.5 * Math.abs(Math.sin(t * (6 + 10 * k)))); g.strokeEllipse(x, y, r * 2, r * 1.4);
+  const h = (1 - k) * 260, s = 10 + 16 * k;
+  g.fillStyle(0xffd24a, 0.9); g.fillCircle(x, y - h, s);
+  g.fillStyle(0xfff1a0, 0.9); g.fillCircle(x - s * 0.3, y - h - s * 0.3, s * 0.35);
+}
+
+/** Fondue Night: a sticky cheese puddle (fades out at the end). */
+export function drawCheesePuddle(g: G, z: { x: number; y: number; r: number; t: number }, i: number): void {
+  const a = Math.min(1, z.t / 1.2);
+  g.fillStyle(0xd8a020, 0.85 * a); g.fillCircle(z.x + 3, z.y + 4, z.r);
+  g.fillStyle(0xffd24a, 0.95 * a); g.fillCircle(z.x, z.y, z.r);
+  for (let k = 0; k < 6; k++) { const an = k * 1.05 + i, rr = z.r * (0.75 + 0.2 * Math.sin(k * 2.1 + i)); g.fillCircle(z.x + Math.cos(an) * rr, z.y + Math.sin(an) * rr, z.r * 0.28); }
+  g.fillStyle(0xfff1a0, 0.7 * a);
+  for (let k = 0; k < 5; k++) g.fillCircle(z.x + Math.cos(k * 2.3 + i) * z.r * 0.5, z.y + Math.sin(k * 1.9 + i) * z.r * 0.45, 3 + (k % 3));
+}
+
 /** Smoothie Bar blender: base, spinning blades, warning ring and pull swirl. */
 export function drawBlender(g: G, z: { x: number; y: number; r: number }, state: 'warn' | 'spin' | null, angle: number, t: number, range: number, withBase: boolean): void {
   if (state) {

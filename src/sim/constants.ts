@@ -91,6 +91,14 @@ export const RULES = {
   blenderSpin: 2.6, // how long it pulls
   blenderRange: 520, // pull reaches this far
   blenderPull: 1500, // pull strength (px/s² at the centre; weaker further out)
+  // Fondue Night: cheese blobs
+  cheeseFirst: 3.5,
+  cheeseInterval: [1.6, 2.6] as [number, number],
+  cheeseSuddenDeath: [0.8, 1.4] as [number, number],
+  cheeseWarn: 1.3, // the shadow grows before it lands
+  cheeseRadius: 46, // knockout radius where it lands
+  cheesePuddle: 7, // seconds the sticky puddle stays
+  cheeseAim: 90, // how far from its target kaiju it may land (px)
 };
 
 /** The kaiju roster. Each player picks a different one; its colour is that player's colour. */
