@@ -289,3 +289,8 @@ Each section says **where to customise it**.
 
 - First load (or a slow connection) shows "KITCHEN KAIJU", a progress bar with a percentage, and playful lines: "Laying the tablecloth… Polishing the cutlery… Waking the kaiju…".
 - **Customise:** `LOADING_LINES` in `src/render/art.ts`.
+
+## 34. Kaiju voices
+
+- Every kaiju has its own synth voice (pitch, wave, wobble): a **cry** when knocked out, a **roar** when it goes KAIJU, and a **chirp** for emotes. You can tell who just got splatted by ear.
+- **Customise:** `VOICES` in `src/audio.ts` (one entry per kaiju, in SPECIES order).

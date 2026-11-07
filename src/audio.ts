@@ -54,7 +54,23 @@ function noise(dur: number, vol = 0.15, filter = 2000, delay = 0): void {
   s.stop(t + dur + 0.02);
 }
 
+/** Each kaiju's voice: base pitch (Hz) and wave. EASY TO CUSTOMISE: one entry per kaiju in SPECIES order. */
+export const VOICES: { pitch: number; wave: OscillatorType; wobble: number }[] = [
+  { pitch: 520, wave: 'square', wobble: 30 }, { pitch: 760, wave: 'sine', wobble: 80 }, { pitch: 300, wave: 'square', wobble: 10 }, { pitch: 640, wave: 'sine', wobble: 120 },
+  { pitch: 880, wave: 'triangle', wobble: 40 }, { pitch: 440, wave: 'sawtooth', wobble: 20 }, { pitch: 220, wave: 'triangle', wobble: 15 }, { pitch: 360, wave: 'sawtooth', wobble: 25 },
+  { pitch: 180, wave: 'square', wobble: 10 }, { pitch: 600, wave: 'sine', wobble: 90 }, { pitch: 260, wave: 'triangle', wobble: 20 }, { pitch: 480, wave: 'sawtooth', wobble: 35 },
+  { pitch: 200, wave: 'sine', wobble: 10 }, { pitch: 700, wave: 'triangle', wobble: 50 }, { pitch: 340, wave: 'sine', wobble: 60 }, { pitch: 560, wave: 'square', wobble: 45 },
+  { pitch: 280, wave: 'triangle', wobble: 15 }, { pitch: 820, wave: 'sine', wobble: 30 }, { pitch: 400, wave: 'square', wobble: 25 }, { pitch: 660, wave: 'triangle', wobble: 70 },
+];
+const voice = (sp: number) => VOICES[sp % VOICES.length];
+
 export const sfx = {
+  /** Knocked out: a short falling cry in that kaiju's voice. */
+  cry: (sp: number) => { const v = voice(sp); tone(v.pitch, 0.22, v.wave, 0.05, -v.pitch * 0.55); tone(v.pitch + v.wobble, 0.12, v.wave, 0.03, -v.wobble, 0.04); },
+  /** Going KAIJU: a low roar in that kaiju's voice. */
+  roar: (sp: number) => { const v = voice(sp); tone(v.pitch * 0.25, 0.6, 'sawtooth', 0.08, v.wobble); tone(v.pitch * 0.5, 0.45, v.wave, 0.04, -v.pitch * 0.2, 0.05); },
+  /** Emote: a cheeky chirp. */
+  chirp: (sp: number) => { const v = voice(sp); tone(v.pitch, 0.08, v.wave, 0.05, v.wobble); tone(v.pitch * 1.25, 0.1, v.wave, 0.04, v.wobble, 0.08); },
   join: (i: number) => tone(440 + i * 110, 0.12, 'triangle', 0.07),
   leave: () => tone(300, 0.1, 'triangle', 0.05, -120),
   throw: () => { noise(0.12, 0.08, 3500); tone(500, 0.1, 'triangle', 0.04, 400); },

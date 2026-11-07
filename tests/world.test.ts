@@ -908,3 +908,12 @@ describe('quick tips', () => {
     expect([...seen].some(t => t.includes('blender'))).toBe(true);
   });
 });
+
+describe('kaiju voices', () => {
+  it('every kaiju has its own voice', async () => {
+    const { VOICES } = await import('../src/audio');
+    const { SPECIES } = await import('../src/sim/constants');
+    expect(VOICES.length).toBeGreaterThanOrEqual(SPECIES.length);
+    expect(new Set(VOICES.slice(0, SPECIES.length).map(v => `${v.pitch}/${v.wave}`)).size).toBe(SPECIES.length);
+  });
+});

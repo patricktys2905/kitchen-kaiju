@@ -514,6 +514,7 @@ export class GameScene extends Phaser.Scene {
         }
         case 'kaiju':
           sfx.kaiju();
+          sfx.roar(this.species[e.id]);
           this.shake(0.012, 350);
           this.popup(e.x, e.y - 60, 'KAIJU!', this.css[e.id], 40);
           this.rings.push({ x: e.x, y: e.y, r: 0, t: 0, max: 160, color: this.colors[e.id] });
@@ -704,7 +705,7 @@ export class GameScene extends Phaser.Scene {
     b.text.setText(EMOTES[n % EMOTES.length]).setVisible(true);
     b.t = EMOTE_TIME;
     popIn(this, b.text, 1.5, 220);
-    sfx.pickup();
+    sfx.chirp(this.species[id]);
   }
 
   private updateEmotes(dt: number): void {
@@ -823,6 +824,7 @@ export class GameScene extends Phaser.Scene {
     const victim = names[e.id], killer = e.by !== null ? names[e.by] : null;
     const x = Phaser.Math.Clamp(e.x, TABLE.x, TABLE.x + TABLE.w), y = Phaser.Math.Clamp(e.y, TABLE.y, TABLE.y + TABLE.h);
     if (e.cause === 'fall' || e.cause === 'wind') sfx.fall(); else sfx.ko();
+    sfx.cry(this.species[e.id]);
     this.shake(0.008, 180);
     this.burst(x, y, this.colors[e.id], 36, 360, 0.9, 300);
     this.burst(x, y, 0xffffff, 12, 260, 0.6, 300);
