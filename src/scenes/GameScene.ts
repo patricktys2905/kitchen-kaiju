@@ -353,12 +353,13 @@ export class GameScene extends Phaser.Scene {
     if (!this.paused) {
       const human: PlayerInput[] = this.slots.map((s, i) => {
         if (s.kind === 'bot') return { mx: 0, my: 0, throw: false, swipe: false, dash: false, stomp: false };
-        if (s.kind === 'remote') return this.net?.role === 'host' ? this.net.host.inputOf(s.index) ?? NO_INPUT : NO_INPUT;
+        if (s.kind === 'remote') { const ri = this.net?.role === 'host' ? this.net.host.inputOf(s.index) ?? NO_INPUT : NO_INPUT; return this.world.mutator === 'mirror' ? { ...ri, mx: -ri.mx, my: -ri.my } : ri; }
         const inp: PlayerInput = readSlot(s);
         if (s.kind === 'touch' || (s.kind === 'local' && isTouchDevice)) this.touchAimAssist(i, inp);
         if (s.kind === 'kb' && (s.index === 0 ? emoteTaps.kb0 : emoteTaps.kb1)) inp.emote = true;
         if (s.kind === 'touch' && emoteTaps.touch) inp.emote = true;
         if (s.kind === 'local' && (emoteTaps.kb0 || emoteTaps.kb1 || emoteTaps.touch)) inp.emote = true;
+        if (this.world.mutator === 'mirror') { inp.mx = -inp.mx; inp.my = -inp.my; }
         return inp;
       });
       this.checkEmotes(human, dt);

@@ -355,6 +355,8 @@ export class World {
         prev: { throw: true, swipe: true, dash: true, stomp: true }, // require a fresh press after the countdown
       });
       p.swipeHit.clear();
+      if (this.mutator === 'tiny') p.r = P.radius * MUTATOR_RULES.tinySize;
+      if (this.mutator === 'fists') continue; // Fists Only: nobody gets cutlery
       const c = this.newCutlery(this.opts.starterKind ?? this.rng.pick(STARTER_KINDS), sx, sy);
       c.state = 'held';
       c.holder = p.id;
@@ -447,7 +449,7 @@ export class World {
     p.bumpT -= dt;
     if (p.lastHitT <= 0) p.lastHitBy = null;
     const kaiju = p.kaijuT > 0;
-    const targetR = kaiju ? P.kaijuRadius : P.radius;
+    const targetR = (kaiju ? P.kaijuRadius : P.radius) * (this.mutator === 'tiny' ? MUTATOR_RULES.tinySize : 1);
     p.r += (targetR - p.r) * Math.min(1, dt * 10);
 
     let mx = inp.mx, my = inp.my;
@@ -487,7 +489,7 @@ export class World {
     }
 
     // Swipe
-    if (pressed('swipe') && p.holding !== null && p.swipeCD <= 0 && !kaiju) {
+    if (pressed('swipe') && (p.holding !== null || this.mutator === 'fists') && p.swipeCD <= 0 && !kaiju) {
       p.swipeT = P.swipeWindup + P.swipeTime;
       p.swipeCD = P.swipeCD;
       p.swipeHit.clear();
@@ -502,7 +504,7 @@ export class World {
     p.prev = { throw: inp.throw, swipe: inp.swipe, dash: inp.dash, stomp: inp.stomp };
 
     // Movement
-    const spd = P.speed * (p.charging ? P.chargeSlow : 1) * (p.kaijuT > 0 ? P.kaijuSpeed : 1) * (this.onSticky(p.x, p.y) ? RULES.stickySlow : 1) * (this.hot?.id === p.id ? MODE_RULES.hotDumpling.holderSpeed : 1) * (p.speedT > 0 ? POWERUPS.hotsauceSpeed : 1);
+    const spd = P.speed * (p.charging ? P.chargeSlow : 1) * (p.kaijuT > 0 ? P.kaijuSpeed : 1) * (this.onSticky(p.x, p.y) ? RULES.stickySlow : 1) * (this.hot?.id === p.id ? MODE_RULES.hotDumpling.holderSpeed : 1) * (p.speedT > 0 ? POWERUPS.hotsauceSpeed : 1) * (this.mutator === 'tiny' ? MUTATOR_RULES.tinySpeed : 1);
     if (p.dashT > 0) {
       p.dashT -= dt;
     } else {
@@ -523,7 +525,16 @@ export class World {
 
     // Table edge: walking can't take you off, knockback can.
     const strong = Math.hypot(p.kx, p.ky) > P.fallSpeed;
-    if (!strong) {
+    if (this.mutator === 'bouncy') {
+      // Bouncy Castle: the edges push you back instead of letting you fall
+      const inset = p.r * 0.6, B = MUTATOR_RULES.bounce;
+      let hit = false;
+      if (p.x < TABLE.x + inset) { p.x = TABLE.x + inset; p.kx = Math.abs(p.kx) * B; p.vx = Math.abs(p.vx); hit = true; }
+      if (p.x > TABLE.x + TABLE.w - inset) { p.x = TABLE.x + TABLE.w - inset; p.kx = -Math.abs(p.kx) * B; p.vx = -Math.abs(p.vx); hit = true; }
+      if (p.y < TABLE.y + inset) { p.y = TABLE.y + inset; p.ky = Math.abs(p.ky) * B; p.vy = Math.abs(p.vy); hit = true; }
+      if (p.y > TABLE.y + TABLE.h - inset) { p.y = TABLE.y + TABLE.h - inset; p.ky = -Math.abs(p.ky) * B; p.vy = -Math.abs(p.vy); hit = true; }
+      if (hit && strong && p.bumpT <= 0) { p.bumpT = 0.25; this.emit({ type: 'bumper', x: p.x, y: p.y }); }
+    } else if (!strong) {
       const inset = p.r * 0.6;
       p.x = clamp(p.x, TABLE.x + inset, TABLE.x + TABLE.w - inset);
       p.y = clamp(p.y, TABLE.y + inset, TABLE.y + TABLE.h - inset);
@@ -995,7 +1006,7 @@ export class World {
         if (this.crumbs.length < (rush ? MODE_RULES.crumbRush.maxCrumbs : RULES.maxCrumbs)) this.spawnCrumb();
       }
     }
-    if (this.opts.pickupSpawns) {
+    if (this.opts.pickupSpawns && this.mutator !== 'fists') {
       this.pickupTimer -= dt;
       if (this.pickupTimer <= 0) {
         this.pickupTimer = RULES.pickupEvery;
@@ -1388,7 +1399,7 @@ export class World {
         p.respawnT = 0;
         const s = this.freeSpot(60, 90) ?? this.layout.spawns[p.id % this.layout.spawns.length];
         Object.assign(p, { x: s[0], y: s[1], vx: 0, vy: 0, kx: 0, ky: 0, alive: true, invT: MODE_RULES.crumbRush.respawnShield, lastHitBy: null, lastHitT: 0, prev: { throw: true, swipe: true, dash: true, stomp: true } });
-        if (p.holding === null) {
+        if (p.holding === null && this.mutator !== 'fists') {
           const c = this.newCutlery(this.rng.pick(STARTER_KINDS), p.x, p.y);
           c.state = 'held'; c.holder = p.id; c.owner = p.id; p.holding = c.id;
         }

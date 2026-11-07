@@ -982,3 +982,26 @@ describe('table workshop', () => {
     delete (globalThis as Record<string, unknown>).localStorage;
   });
 });
+
+describe('more twists', () => {
+  it('fists only: no cutlery anywhere; tiny: smaller kaiju; bouncy: knocked into the edge you bounce back', () => {
+    const fi = makeWorld(3, 'fork', { mutator: 'fists', pickupSpawns: true });
+    expect(fi.cutlery.length).toBe(0);
+    run(fi, 30);
+    expect(fi.cutlery.length).toBe(0);
+    const ti = makeWorld(2, 'fork', { mutator: 'tiny' });
+    run(ti, 0.5);
+    expect(ti.players[0].r).toBeLessThan(P.radius * 0.8);
+    const bo = makeWorld(2, 'fork', { mutator: 'bouncy' });
+    place(bo, 0, TABLE.x + 40, 380);
+    bo.players[0].kx = -2000;
+    run(bo, 0.5);
+    expect(bo.players[0].alive).toBe(true);
+    expect(bo.players[0].x).toBeGreaterThan(TABLE.x);
+    const nb = makeWorld(2, 'fork');
+    place(nb, 0, TABLE.x + 40, 380);
+    nb.players[0].kx = -2000;
+    run(nb, 0.5);
+    expect(nb.players[0].alive).toBe(false); // without the twist that shove is a fall
+  });
+});

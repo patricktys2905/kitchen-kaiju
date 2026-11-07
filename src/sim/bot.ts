@@ -87,7 +87,7 @@ export class BotBrain {
         const fd = Math.hypot(f.x - p.x, f.y - p.y) || 1;
         if (fd < 340) add((p.x - f.x) / fd, (p.y - f.y) / fd, 2.5 * (1 - fd / 340) + 0.6);
       }
-      if (p.holding === null) {
+      if (p.holding === null && w.mutator !== 'fists') {
         // Find something to throw. Anything loose is fair game.
         let best: { x: number; y: number } | null = null, bd = Infinity;
         for (const c of w.cutlery) {
@@ -104,7 +104,7 @@ export class BotBrain {
           if (p.dashCD <= 0 && d < 110 && this.rng.next() < dt * T.shove) out.dash = !p.prev.dash;
         }
       } else {
-        const want = 230;
+        const want = w.mutator === 'fists' ? 40 : 230; // Fists Only: get up close and swipe
         if (d > want + 70) add(ux, uy, 1);
         else if (d < want - 70 && d > 70) add(-ux, -uy, 1);
         add(-uy * this.strafe, ux * this.strafe, 0.7);

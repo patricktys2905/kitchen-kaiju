@@ -54,6 +54,7 @@ Each section says **where to customise it**.
 - 47. 🛠 Table Workshop
 - 48. Free Play and Party Modes separated
 - 49. Gemini hats
+- 50. Four more twists
 
 **Where to find things:** title screen cards (Story · Free Play · Online · Party Modes · Daily · Gauntlet), the top-right row (Settings · How to Play · Kaiju · Records), and Free Play keys (G mode · U power-ups · H hazards · X twist · C cup).
 
@@ -439,3 +440,12 @@ Each section says **where to customise it**.
   - Golden Ladle (worn as a helmet), Chili Pepper beret, and the Dessert Crown with cherries.
 - They sit on the head and follow the kaiju's bob and tilt in matches, online included. The Gallery's hat row and preview use the new art. The old drawn-in-code hats stay as a fallback.
 - **Customise:** `HAT_FIT` (size and how low each sits) and `HAT_SCALE` (overall size) in `src/hats.ts`. Art: `public/art/hat-*.webp`, from `art-src/jobs-hats.json`.
+
+## 50. Four more twists
+
+- **Fists Only:** no cutlery anywhere. Swipe bare-handed, dash-shove and stomp. Bots get up close and swipe.
+- **Bouncy Castle:** the table edges bounce you back with a boing, so nobody falls off. Cutlery and hazards still knock you out.
+- **Mirror Moves:** players' movement is reversed (bots aren't affected, so it's a handicap for the brave). Aiming stays normal.
+- **Mini Kaiju:** everyone is about 30% smaller and 12% faster, so harder to hit.
+- Bot sims: every twist plays out to normal-length rounds of 20–29 s.
+- **Customise:** `src/sim/mutators.ts` (`tinySize`, `tinySpeed`, `bounce`, names, `enabled`).
