@@ -1,3 +1,4 @@
+import { getSettings, onSettings } from './settings';
 // On-screen touch controls (HTML overlay above the canvas so buttons stay thumb-sized at any scale).
 // Game: floating joystick (left) + THROW (hold = charge, drag = aim, release = throw), SWIPE, DASH, STOMP.
 // Menu / match end: big buttons that inject the same "taps" the keyboard shortcuts use.
@@ -44,6 +45,10 @@ const CSS = `
 #tc #b-swipe { width: 14vmin; height: 14vmin; right: calc(6vmin + env(safe-area-inset-right)); bottom: 28vmin; font-size: 2.8vmin; }
 #tc #b-stomp { width: 13vmin; height: 13vmin; right: calc(23vmin + env(safe-area-inset-right)); bottom: 21vmin; font-size: 2.6vmin; opacity: 0.4; }
 #tc #b-stomp.ready { opacity: 1; border-color: #ff3b3b; background: #ff3b3b88; animation: kkpulse 0.5s infinite alternate; }
+body.bigbtns #tc #b-throw { width: 26vmin; height: 26vmin; font-size: 4.4vmin; }
+body.bigbtns #tc #b-dash { width: 17.5vmin; height: 17.5vmin; right: calc(32vmin + env(safe-area-inset-right)); font-size: 3.4vmin; }
+body.bigbtns #tc #b-swipe { width: 17.5vmin; height: 17.5vmin; bottom: 33vmin; font-size: 3.4vmin; }
+body.bigbtns #tc #b-stomp { width: 16vmin; height: 16vmin; right: calc(30vmin + env(safe-area-inset-right)); bottom: 25vmin; font-size: 3.2vmin; }
 @keyframes kkpulse { from { transform: scale(1); } to { transform: scale(1.1); } }
 #tc #aim { position: absolute; left: 50%; top: 50%; width: 46%; height: 6px; margin-top: -3px; background: #ffcf8a; border-radius: 3px;
   transform-origin: 0 50%; display: none; }
@@ -187,6 +192,9 @@ export function initTouch(injectTap: (code: string) => void): void {
   inject = injectTap;
   if (!isTouchDevice) return;
   document.body.classList.add('touch');
+  const big = (on: boolean) => document.body.classList.toggle('bigbtns', on);
+  big(getSettings().bigButtons);
+  onSettings(st => big(st.bigButtons));
   el('style', document.head).textContent = CSS;
   const rot = el('div', document.body, { id: 'tc-rotate' });
   el('div', rot, {}, '↻');
