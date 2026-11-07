@@ -186,3 +186,10 @@ Each section says **where to customise it**.
 - Replays the chapter with every rival one level tougher (easy→normal, normal→hard). Spicy wins are saved separately, shown as "🌶️ 3" on the panel and a 🌶️ on the chapter card. They never change normal stars or unlocks.
 - New achievements: 🌶️ Feeling Spicy (clear 1 on Spicy) and 🔥 Ghost Pepper (all 12). New hat: **Chili Pepper** (from Feeling Spicy).
 - **Customise:** `SPICY_BUMP` in `src/story/chapters.ts` (how much tougher).
+
+## 20. Instant replay
+
+- At the end of each round, the last knockout plays again in **slow motion** (⏪ INSTANT REPLAY), from about 1.6 s before it to 0.5 s after, at 40% speed. Press throw, Enter or Space to skip.
+- Not shown in online matches, Crumb Rush (rounds end on time) or Practice.
+- **Settings → INSTANT REPLAYS** turns it off.
+- **Customise:** `src/replay.ts` → `REPLAY` (on/off, how long before/after, speed, frame rate).

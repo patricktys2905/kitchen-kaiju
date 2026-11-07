@@ -22,6 +22,7 @@ import { owned } from '../story/unlocks';
 import { currentHat } from '../hats';
 import { PRACTICE, PRACTICE_STEPS } from '../practice';
 import { DAILY, dailySetup, loadDaily, recordDaily } from '../daily';
+import { REPLAY, ReplayBuffer } from '../replay';
 import { BOT_EMOTE_CHANCE, EMOTE_COOLDOWN, EMOTE_KEYS, EMOTE_TIME, EMOTES } from '../emotes';
 import type { NetGuest, NetHost, NetMsg } from '../net/net';
 import { applySnapshot, extrapolate, makeSnapshot, type Snapshot } from '../net/snapshot';
@@ -70,6 +71,8 @@ export class GameScene extends Phaser.Scene {
   private emoteCd: number[] = [];
   private emoteNext: number[] = [];
   private guestEmote = false;
+  private replayBuf = new ReplayBuffer();
+  private replay: { frames: { t: number; s: Snapshot }[]; t: number; world: World; label: Phaser.GameObjects.Text } | null = null;
   private practice: { done: boolean[]; moved: number; lx: number; ly: number; text: Phaser.GameObjects.Text; g: Phaser.GameObjects.Graphics } | null = null;
   private padPrevStart = false;
 
@@ -140,6 +143,8 @@ export class GameScene extends Phaser.Scene {
     this.world = new World({ players: this.species.map(s => ({ name: SPECIES[s].name })), seed, layouts: this.tables ?? undefined, target: this.rounds, mode: this.mode, powerups: this.powerups, hazards: this.hazards });
     this.story = data.story;
     this.practice = null;
+    this.replayBuf = new ReplayBuffer();
+    this.replay = null;
     this.bots = this.slots.map((s, i) => (s.kind === 'bot' && this.mode !== 'practice' ? new BotBrain(i, data.botLevels?.[i] ?? this.difficulty, seed + i * 101) : null));
     this.net = data.net;
     this.netAcc = 0;
@@ -286,6 +291,7 @@ export class GameScene extends Phaser.Scene {
     clearTaps();
     this.syncTouchUi();
 
+    if (this.replay) { this.tickReplay(dt); return; }
     if (!this.paused) {
       const human: PlayerInput[] = this.slots.map((s, i) => {
         if (s.kind === 'bot') return { mx: 0, my: 0, throw: false, swipe: false, dash: false, stomp: false };
@@ -303,6 +309,7 @@ export class GameScene extends Phaser.Scene {
       while (this.acc >= STEP && n < 12) {
         const inputs = this.slots.map((_, i) => this.bots[i]?.decide(this.world, STEP) ?? human[i]);
         this.world.step(STEP, inputs);
+        this.replayBuf.record(this.world, STEP);
         this.handleEvents(this.world.drainEvents());
         this.acc -= STEP;
         n++;
@@ -424,6 +431,7 @@ export class GameScene extends Phaser.Scene {
       this.track(e);
       switch (e.type) {
         case 'roundStart':
+          this.replayBuf.reset();
           this.art.setupTable(w.layout, this.world.players.map(p => ({ x: p.x, y: p.y, color: this.colors[p.id] })));
           for (const b of this.bossSeats()) if (w.players[b]) w.players[b].meter = 100; // bosses can go KAIJU straight away
           this.parts = [];
@@ -472,6 +480,7 @@ export class GameScene extends Phaser.Scene {
         case 'shrink': sfx.shrink(); break;
         case 'ko':
           this.onKO(e);
+          this.replayBuf.markKo();
           if (e.by !== null && e.by !== e.id && this.net?.role !== 'guest' && this.slots[e.by]?.kind === 'bot' && Math.random() < BOT_EMOTE_CHANCE) this.time.delayedCall(250, () => this.handleEvents([{ type: 'emote', id: e.by!, n: Math.floor(Math.random() * EMOTES.length) }]));
           if (this.initData.gauntlet && e.id === 0 && w.phase === 'play') w.endRound(w.alivePlayers().slice(0, 1)); // one life: the wave is lost
           break;
@@ -515,6 +524,7 @@ export class GameScene extends Phaser.Scene {
         case 'spawnCutlery': sfx.spawn(); this.burst(e.x, e.y, 0xffffff, 14, 140, 0.5); break;
         case 'roundEnd':
           sfx.roundWin();
+          this.maybeReplay();
           break;
         case 'matchEnd':
           sfx.matchWin();
@@ -553,6 +563,38 @@ export class GameScene extends Phaser.Scene {
     if (this.mode !== 'teams') return this.isHuman(winner);
     const tm = this.world.players[winner].team;
     return this.slots.some((_, i) => this.isHuman(i) && this.world.players[i].team === tm);
+  }
+
+  // ---------------------------------------------------------------- instant replay
+  private maybeReplay(): void {
+    if (!REPLAY.enabled || !getSettings().replays || this.net || this.mode === 'crumbRush' || this.mode === 'practice' || this.world.players.length < REPLAY.minPlayers) return;
+    const frames = this.replayBuf.clip();
+    if (!frames.length) return;
+    const world = new World({ players: this.world.players.map(p => ({ name: p.name })), mode: this.mode, layout: this.world.layoutIndex });
+    const label = withShadow(this.add.text(VIEW.w / 2, 104, '⏪ INSTANT REPLAY', display(30, '#ffffff', { strokeThickness: 6 })).setOrigin(0.5, 0).setDepth(12), 3);
+    this.add.tween({ targets: label, alpha: { from: 1, to: 0.55 }, yoyo: true, repeat: -1, duration: 420 });
+    this.replay = { frames, t: frames[0].t, world, label };
+  }
+
+  private tickReplay(dt: number): void {
+    const r = this.replay!;
+    const skip = consumeTap('Space') || consumeTap('Enter') || consumeTap('Digit1') || this.slots.some(s => s.kind !== 'bot' && s.kind !== 'remote' && readSlot(s).throw);
+    r.t += dt * REPLAY.speed;
+    const f = r.frames.find(x => x.t >= r.t) ?? r.frames[r.frames.length - 1];
+    applySnapshot(r.world, f.s);
+    const live = this.world;
+    this.world = r.world;
+    this.updateFx(dt * REPLAY.speed);
+    this.render();
+    this.world = live;
+    if (skip || r.t >= r.frames[r.frames.length - 1].t) this.endReplay();
+  }
+
+  private endReplay(): void {
+    if (!this.replay) return;
+    this.replay.label.destroy();
+    this.replay = null;
+    clearTaps();
   }
 
   // ---------------------------------------------------------------- emotes
@@ -899,6 +941,7 @@ export class GameScene extends Phaser.Scene {
 
   private renderBanner(): void {
     const w = this.world;
+    if (this.replay) { this.banner.setText(''); this.bannerSub.setText(''); return; }
     let main = '', sub = '', color = '#ffe9c7';
     if (this.netNotice) {
       main = 'DISCONNECTED';

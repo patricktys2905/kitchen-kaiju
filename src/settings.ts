@@ -7,9 +7,10 @@ export interface Settings {
   shake: boolean; // camera shake on hits and explosions
   reducedFx: boolean; // fewer particles and flashes
   nameTags: boolean; // show each kaiju's name above it during matches
+  replays: boolean; // slow-motion replay of each round's final knockout
 }
 
-export const DEFAULTS: Settings = { volume: 0.75, music: 0.35, shake: true, reducedFx: false, nameTags: false };
+export const DEFAULTS: Settings = { volume: 0.75, music: 0.35, shake: true, reducedFx: false, nameTags: false, replays: true };
 
 const KEY = 'kk-settings-v1';
 let cache: Settings | null = null;
@@ -39,5 +40,6 @@ export const SETTINGS_ROWS: { key: keyof Settings; label: string; kind: 'level' 
   { key: 'music', label: 'MUSIC', kind: 'level', help: 'Background tunes (0 = off)' },
   { key: 'shake', label: 'SCREEN SHAKE', kind: 'toggle', help: 'Shake on big hits and explosions' },
   { key: 'reducedFx', label: 'REDUCED EFFECTS', kind: 'toggle', help: 'Fewer particles and flashes' },
+  { key: 'replays', label: 'INSTANT REPLAYS', kind: 'toggle', help: 'Slow-mo replay of the last knockout of each round' },
   { key: 'nameTags', label: 'NAME TAGS', kind: 'toggle', help: 'Show every kaiju\'s name above it in matches' },
 ];
