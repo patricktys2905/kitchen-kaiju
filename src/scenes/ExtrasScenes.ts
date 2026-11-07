@@ -68,7 +68,7 @@ export class SettingsScene extends PanelScene {
 
   protected build(): void {
     SETTINGS_ROWS.forEach((row, i) => {
-      const b = new Button(this, 640, 140 + i * 86, { w: 700, h: 72, label: '', sub: row.help, size: 26, onClick: () => { this.cycle(row.key, row.kind); b.setText(this.label(row.key, row.kind, row.label)); } }, 6);
+      const b = new Button(this, 640, 128 + i * 76, { w: 700, h: 64, label: '', sub: row.help, size: 26, onClick: () => { this.cycle(row.key, row.kind); b.setText(this.label(row.key, row.kind, row.label)); } }, 6);
       b.setText(this.label(row.key, row.kind, row.label));
       this.buttons.push(b);
     });

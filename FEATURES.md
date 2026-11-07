@@ -193,3 +193,9 @@ Each section says **where to customise it**.
 - Not shown in online matches, Crumb Rush (rounds end on time) or Practice.
 - **Settings → INSTANT REPLAYS** turns it off.
 - **Customise:** `src/replay.ts` → `REPLAY` (on/off, how long before/after, speed, frame rate).
+
+## 21. Player numbers (accessibility) and 📸 Share
+
+- **Settings → PLAYER NUMBERS:** shows a P1–P6 badge in each player's colour under every kaiju, and puts the number in front of names in the scoreboard. Makes players easy to tell apart without relying on colour.
+- **📸 SHARE:** a small button in the bottom-left of the final results screen. On phones it opens the share sheet (send the screenshot to a chat); on computers it saves `kitchen-kaiju.png`.
+- **Customise:** share text in `share()` in `src/scenes/GameScene.ts`.

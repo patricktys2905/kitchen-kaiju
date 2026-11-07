@@ -119,6 +119,8 @@ export class GameScene extends Phaser.Scene {
   private hazards = true;
   private modeText!: Phaser.GameObjects.Text;
   private tagTexts: Phaser.GameObjects.Text[] = [];
+  private badgeTexts: Phaser.GameObjects.Text[] = [];
+  private shareBtn: HTMLButtonElement | null = null;
   private stats: Stats | null = null; // lifetime stats (null for online guests)
 
   constructor() {
@@ -190,6 +192,8 @@ export class GameScene extends Phaser.Scene {
     }
     this.feedTexts = [0, 1].map(i => this.add.text(VIEW.w / 2, 680 + i * 19, '', body(16, '#fff', 900, { stroke: '#140b05', strokeThickness: 4 })).setOrigin(0.5, 0).setDepth(6));
     playMusic('battle');
+    this.badgeTexts = this.world.players.map((_, i) => this.add.text(0, 0, `P${i + 1}`, display(16, '#ffffff', { strokeThickness: 4, stroke: '#000000', padding: { x: 4, y: 1 } })).setOrigin(0.5, 0).setDepth(3.9).setVisible(false));
+    this.events.once('shutdown', () => { this.shareBtn?.remove(); this.shareBtn = null; });
     this.tagTexts = this.world.players.map((_, i) => withShadow(this.add.text(0, 0, SPECIES[this.species[i]].name, display(14, this.css[i], { strokeThickness: 4 })).setOrigin(0.5, 1).setDepth(3.9).setVisible(false), 2));
     this.modeText = withShadow(this.add.text(VIEW.w / 2, 96, '', display(26, '#ffe9c7', { strokeThickness: 5 })).setOrigin(0.5, 0).setDepth(6), 3);
     this.banner = withShadow(this.add.text(VIEW.w / 2, VIEW.h / 2 - 20, '', display(90, '#ffe9c7', { strokeThickness: 13, align: 'center', padding: { x: 10, y: 10 } })).setOrigin(0.5).setDepth(10), 8);
@@ -565,6 +569,40 @@ export class GameScene extends Phaser.Scene {
     return this.slots.some((_, i) => this.isHuman(i) && this.world.players[i].team === tm);
   }
 
+  // ---------------------------------------------------------------- share
+  /** A small 📸 SHARE button on the results screen: shares (phones) or downloads (computers) a screenshot. */
+  private updateShareButton(): void {
+    const show = this.world.phase === 'matchEnd' && !this.replay;
+    if (show && !this.shareBtn) {
+      const b = document.createElement('button');
+      b.textContent = '📸 SHARE';
+      b.style.cssText = 'position:fixed;left:calc(1.5vmin + env(safe-area-inset-left));bottom:calc(1.5vmin + env(safe-area-inset-bottom));z-index:30;padding:1.4vmin 2.2vmin;border-radius:2vmin;border:3px solid #ffd24a;background:#2a1408e6;color:#ffe9c7;font:900 2.4vmin Nunito,sans-serif;cursor:pointer';
+      b.addEventListener('click', () => this.share());
+      document.body.appendChild(b);
+      this.shareBtn = b;
+    } else if (!show && this.shareBtn) { this.shareBtn.remove(); this.shareBtn = null; }
+  }
+
+  private share(): void {
+    this.game.renderer.snapshot(img => {
+      const c = document.createElement('canvas'), el = img as HTMLImageElement;
+      c.width = el.width; c.height = el.height;
+      c.getContext('2d')!.drawImage(el, 0, 0);
+      c.toBlob(async blob => {
+        if (!blob) return;
+        const file = new File([blob], 'kitchen-kaiju.png', { type: 'image/png' });
+        const nav = navigator as Navigator & { canShare?: (d: object) => boolean };
+        try {
+          if (nav.canShare?.({ files: [file] })) { await navigator.share({ files: [file], title: 'Kitchen Kaiju', text: 'Dinner is served 🍴 #KitchenKaiju' }); return; }
+        } catch { /* cancelled */ }
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob); a.download = 'kitchen-kaiju.png'; a.click();
+        setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+        this.popup(VIEW.w / 2, 640, 'SCREENSHOT SAVED', '#8dff6a', 18);
+      }, 'image/png');
+    });
+  }
+
   // ---------------------------------------------------------------- instant replay
   private maybeReplay(): void {
     if (!REPLAY.enabled || !getSettings().replays || this.net || this.mode === 'crumbRush' || this.mode === 'practice' || this.world.players.length < REPLAY.minPlayers) return;
@@ -792,8 +830,11 @@ export class GameScene extends Phaser.Scene {
     if (!hasArt('ob-candle')) drawTableLive(g, w.layout, t);
     this.art.frame(w, t, g, this.overG);
     this.renderModeFx();
+    this.updateShareButton();
     this.updatePractice();
-    const tags = getSettings().nameTags;
+    const tags = getSettings().nameTags, badges = getSettings().badges;
+    w.players.forEach((p, i) => this.badgeTexts[i]?.setVisible(badges && p.alive).setPosition(p.x, p.y + p.r * 0.95).setBackgroundColor(this.css[i]));
+    this.nameTexts.forEach((t, i) => t.setText(badges ? `P${i + 1} ${SPECIES[this.species[i]].name}` : SPECIES[this.species[i]].name));
     w.players.forEach((p, i) => this.tagTexts[i]?.setVisible(tags && p.alive).setPosition(p.x, p.y - p.r * (p.kaijuT > 0 ? 2.6 : 1.6) - 6));
 
     const fx = this.fxG;
