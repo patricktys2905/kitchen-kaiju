@@ -305,3 +305,12 @@ Each section says **where to customise it**.
 - The online host lobby shows a **QR code** next to the room code. Scan it with a phone camera and the game opens and joins the room straight away, no typing. Pairs nicely with 📺 TV mode.
 - The link is `…/kitchen-kaiju/?join=CODE`, so it can also be sent in a chat.
 - Uses the small `qrcode-generator` library (works offline).
+
+## 37. Announcer callouts
+
+- Big pop-up words in the scorer's colour for great moments:
+  - **FIRST BITE!** for the first knockout of the match.
+  - **DOUBLE SKEWER! / TRIPLE TREAT! / QUAD-RUPLE DIP! / FULL BUFFET!!** for knockouts within 2.2 s of each other.
+  - **ON A ROLL! / UNSTOPPABLE APPETITE! / KITCHEN NIGHTMARE!** for 3 / 5 / 8 knockouts without being knocked out.
+  - **REVENGE IS SWEET!** when you knock out whoever last got you.
+- **Customise:** `src/callouts.ts` (all the words, the multi-KO window, streak thresholds, on/off).

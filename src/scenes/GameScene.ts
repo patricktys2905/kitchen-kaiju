@@ -27,6 +27,7 @@ import { PRACTICE, PRACTICE_STEPS } from '../practice';
 import { DAILY, dailySetup, loadDaily, recordDaily } from '../daily';
 import { REPLAY, ReplayBuffer } from '../replay';
 import { randomTip } from '../tips';
+import { CALLOUTS } from '../callouts';
 import { BOT_EMOTE_CHANCE, EMOTE_COOLDOWN, EMOTE_KEYS, EMOTE_TIME, EMOTES } from '../emotes';
 import type { NetGuest, NetHost, NetMsg } from '../net/net';
 import { applySnapshot, extrapolate, makeSnapshot, type Snapshot } from '../net/snapshot';
@@ -82,6 +83,7 @@ export class GameScene extends Phaser.Scene {
   private guestEmote = false;
   private attractWake = false;
   private tip = '';
+  private callout = { first: false, recent: [] as number[][], streak: [] as number[], nemesis: [] as (number | null)[] };
   private attractText: Phaser.GameObjects.Text | null = null;
   private replayBuf = new ReplayBuffer();
   private replay: { frames: { t: number; s: Snapshot }[]; t: number; world: World; label: Phaser.GameObjects.Text } | null = null;
@@ -157,6 +159,7 @@ export class GameScene extends Phaser.Scene {
     this.world = new World({ players: this.species.map(s => ({ name: SPECIES[s].name })), seed, layouts: this.tables ?? undefined, target: this.rounds, mode: this.mode, powerups: this.powerups, hazards: this.hazards, mutator: data.story || data.gauntlet || data.dessert || data.daily ? 'none' : data.mutator });
     this.story = data.story;
     this.practice = null;
+    this.callout = { first: false, recent: data.slots.map(() => []), streak: data.slots.map(() => 0), nemesis: data.slots.map(() => null) };
     this.replayBuf = new ReplayBuffer();
     this.replay = null;
     this.bots = this.slots.map((s, i) => (s.kind === 'bot' && this.mode !== 'practice' ? new BotBrain(i, data.botLevels?.[i] ?? this.difficulty, seed + i * 101) : null));
@@ -528,6 +531,7 @@ export class GameScene extends Phaser.Scene {
         case 'shrink': sfx.shrink(); break;
         case 'ko':
           this.onKO(e);
+          this.announce(e);
           this.replayBuf.markKo();
           if (e.by !== null && e.by !== e.id && this.net?.role !== 'guest' && this.slots[e.by]?.kind === 'bot' && Math.random() < BOT_EMOTE_CHANCE) this.time.delayedCall(250, () => this.handleEvents([{ type: 'emote', id: e.by!, n: Math.floor(Math.random() * EMOTES.length) }]));
           if (this.initData.gauntlet && e.id === 0 && w.phase === 'play') w.endRound(w.alivePlayers().slice(0, 1)); // one life: the wave is lost
@@ -681,6 +685,26 @@ export class GameScene extends Phaser.Scene {
     this.replay.label.destroy();
     this.replay = null;
     clearTaps();
+  }
+
+  // ---------------------------------------------------------------- announcer
+  private announce(e: Extract<GameEvent, { type: 'ko' }>): void {
+    if (!CALLOUTS.enabled || this.mode === 'practice' || this.initData.attract) return;
+    const C = this.callout, by = e.by;
+    C.streak[e.id] = 0;
+    if (by !== null) C.nemesis[e.id] = by;
+    if (by === null || by === e.id) return;
+    const words: string[] = [];
+    if (!C.first) { C.first = true; words.push(CALLOUTS.first); }
+    const now = this.t, list = (C.recent[by] = [...(C.recent[by] ?? []).filter(t => now - t < CALLOUTS.multiWindow), now]);
+    if (list.length >= 2) words.push(CALLOUTS.multi[Math.min(list.length, CALLOUTS.multi.length - 1)]);
+    C.streak[by] = (C.streak[by] ?? 0) + 1;
+    if (CALLOUTS.streak[C.streak[by]]) words.push(CALLOUTS.streak[C.streak[by]]);
+    if (C.nemesis[by] === e.id) { words.push(CALLOUTS.revenge); C.nemesis[by] = null; }
+    const word = words[words.length - 1];
+    if (!word) return;
+    const p = this.world.players[by];
+    this.time.delayedCall(120, () => { this.popup(p.x, p.y - 70, word, this.css[by], 30); if (words.length > 1 || list.length >= 2) sfx.meterFull(); });
   }
 
   // ---------------------------------------------------------------- emotes
