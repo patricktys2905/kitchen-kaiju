@@ -55,6 +55,7 @@ Each section says **where to customise it**.
 - 48. Free Play and Party Modes separated
 - 49. Gemini hats
 - 50. Four more twists
+- 51. 12 more Gemini hats
 
 **Where to find things:** title screen cards (Story · Free Play · Online · Party Modes · Daily · Gauntlet), the top-right row (Settings · How to Play · Kaiju · Records), and Free Play keys (G mode · U power-ups · H hazards · X twist · C cup).
 
@@ -449,3 +450,23 @@ Each section says **where to customise it**.
 - **Mini Kaiju:** everyone is about 30% smaller and 12% faster, so harder to hit.
 - Bot sims: every twist plays out to normal-length rounds of 20–29 s.
 - **Customise:** `src/sim/mutators.ts` (`tinySize`, `tinySpeed`, `bounce`, names, `enabled`).
+
+## 51. 12 more Gemini hats (25 in total) and 2 new achievements
+
+| Hat | Unlocked by |
+|---|---|
+| Sushi Topper | Speed Eater |
+| Teacup | Daily Special |
+| Pirate Hat (crossed-forks emblem) | Cutlery Drawer |
+| Wizard Hat | World Tour |
+| Cowboy Hat | Cup Champion |
+| Bunny Ears | Mix It Up |
+| Smoothie Cup | Smoothie Operator |
+| Knight Helmet | Gauntlet Master |
+| Noodle Bowl | Bottomless Belly |
+| Hard Hat | **Table Maker** (new: save a Workshop table) |
+| Jester Hat | **Plot Twist** (new: win with a twist on) |
+| Spoon Crown | Head of the Table |
+
+- The Gallery hat picker now has pages (**▶** button). Locked hats show as dark silhouettes, and the label says which achievement unlocks them.
+- **Customise:** the new hats are at the end of `HATS` in `src/hats.ts` (name and unlocking achievement); size and fit are in `HAT_FIT`. Art: `art-src/jobs-hats3.json`.

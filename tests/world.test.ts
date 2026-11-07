@@ -631,7 +631,7 @@ describe('stats, achievements and settings', () => {
   it('achievements unlock once from stats', async () => {
     const { ACHIEVEMENTS, checkAchievements } = await import('../src/stats');
     expect(new Set(ACHIEVEMENTS.map(a => a.id)).size).toBe(ACHIEVEMENTS.length);
-    const s = { matches: 1, wins: 1, roundsWon: 3, kos: 0, crumbs: 0, kaijuForms: 0, pops: 0, streak: 1, bestStreak: 1, gauntlet: 0, cups: 0, blends: 0, modeWins: { teams: 1 }, kaijuWins: { 0: 1 }, kaijuPlays: { 0: 1 }, tables: [0], achieved: [] as string[] };
+    const s = { matches: 1, wins: 1, roundsWon: 3, kos: 0, crumbs: 0, kaijuForms: 0, pops: 0, streak: 1, bestStreak: 1, gauntlet: 0, cups: 0, blends: 0, twistWins: 0, modeWins: { teams: 1 }, kaijuWins: { 0: 1 }, kaijuPlays: { 0: 1 }, tables: [0], achieved: [] as string[] };
     expect(checkAchievements(s).map(a => a.id).sort()).toEqual(['first-win', 'teams']);
     expect(checkAchievements(s)).toEqual([]); // never twice
   });

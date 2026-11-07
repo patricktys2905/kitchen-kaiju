@@ -1,0 +1,58 @@
+[
+  {
+    "name": "hat-sushi",
+    "newChat": true,
+    "refs": [
+      "art-src/ref-hats.png"
+    ],
+    "prompt": "Generate an image. The attached picture shows sprites from my party game Kitchen Kaiju. Keep EXACTLY this art style: bold chunky cartoon, thick dark-brown outlines, flat bright colours with soft cel shading and one crisp white highlight. Draw ONE HAT on its own for a little monster to wear, seen from the FRONT (slightly from above), upright, centred, filling about 80% of the frame, the bottom edge of the hat flat and level where it sits on a head, on a solid flat magenta (#FF00FF) background. NO pink glow, no head, no character, no text, no shadow. Square 1:1. Hat: a big piece of SALMON NIGIRI SUSHI worn as a hat: an orange salmon slice with white stripes draped over a block of rice, with a nori band."
+  },
+  {
+    "name": "hat-teacup",
+    "prompt": "Next HAT in exactly the same art style. Draw ONE HAT on its own for a little monster to wear, seen from the FRONT (slightly from above), upright, centred, filling about 80% of the frame, the bottom edge of the hat flat and level where it sits on a head, on a solid flat magenta (#FF00FF) background. NO pink glow, no head, no character, no text, no shadow. Square 1:1. Hat: a dainty white-and-blue porcelain TEACUP worn upside down as a little hat, with a tiny saucer brim."
+  },
+  {
+    "name": "hat-pirate",
+    "prompt": "Next HAT in exactly the same art style. Draw ONE HAT on its own for a little monster to wear, seen from the FRONT (slightly from above), upright, centred, filling about 80% of the frame, the bottom edge of the hat flat and level where it sits on a head, on a solid flat magenta (#FF00FF) background. NO pink glow, no head, no character, no text, no shadow. Square 1:1. Hat: a black PIRATE TRICORN HAT with a white skull-and-crossed-forks emblem and gold trim."
+  },
+  {
+    "name": "hat-wizard",
+    "prompt": "Next HAT in exactly the same art style. Draw ONE HAT on its own for a little monster to wear, seen from the FRONT (slightly from above), upright, centred, filling about 80% of the frame, the bottom edge of the hat flat and level where it sits on a head, on a solid flat magenta (#FF00FF) background. NO pink glow, no head, no character, no text, no shadow. Square 1:1. Hat: a tall pointy purple WIZARD HAT with yellow stars and moons and a floppy tip."
+  },
+  {
+    "name": "hat-cowboy",
+    "prompt": "Next HAT in exactly the same art style. Draw ONE HAT on its own for a little monster to wear, seen from the FRONT (slightly from above), upright, centred, filling about 80% of the frame, the bottom edge of the hat flat and level where it sits on a head, on a solid flat magenta (#FF00FF) background. NO pink glow, no head, no character, no text, no shadow. Square 1:1. Hat: a brown leather COWBOY HAT with a wide curled brim and a red band."
+  },
+  {
+    "name": "hat-bunny",
+    "prompt": "Next HAT in exactly the same art style. Draw ONE HAT on its own for a little monster to wear, seen from the FRONT (slightly from above), upright, centred, filling about 80% of the frame, the bottom edge of the hat flat and level where it sits on a head, on a solid flat magenta (#FF00FF) background. NO pink glow, no head, no character, no text, no shadow. Square 1:1. Hat: a pink headband with two tall fluffy white BUNNY EARS with pink insides."
+  },
+  {
+    "name": "hat-smoothie",
+    "newChat": true,
+    "refs": [
+      "art-src/ref-hats.png"
+    ],
+    "prompt": "Generate an image. The attached picture shows sprites from my party game Kitchen Kaiju. Keep EXACTLY this art style: bold chunky cartoon, thick dark-brown outlines, flat bright colours with soft cel shading and one crisp white highlight. Draw ONE HAT on its own for a little monster to wear, seen from the FRONT (slightly from above), upright, centred, filling about 80% of the frame, the bottom edge of the hat flat and level where it sits on a head, on a solid flat magenta (#FF00FF) background. NO pink glow, no head, no character, no text, no shadow. Square 1:1. Hat: a pink SMOOTHIE CUP with a striped bendy straw and a strawberry on the rim, worn as a hat."
+  },
+  {
+    "name": "hat-knight",
+    "prompt": "Next HAT in exactly the same art style. Draw ONE HAT on its own for a little monster to wear, seen from the FRONT (slightly from above), upright, centred, filling about 80% of the frame, the bottom edge of the hat flat and level where it sits on a head, on a solid flat magenta (#FF00FF) background. NO pink glow, no head, no character, no text, no shadow. Square 1:1. Hat: a shiny silver KNIGHT HELMET with a visor and a red feather plume on top."
+  },
+  {
+    "name": "hat-noodle",
+    "prompt": "Next HAT in exactly the same art style. Draw ONE HAT on its own for a little monster to wear, seen from the FRONT (slightly from above), upright, centred, filling about 80% of the frame, the bottom edge of the hat flat and level where it sits on a head, on a solid flat magenta (#FF00FF) background. NO pink glow, no head, no character, no text, no shadow. Square 1:1. Hat: an upside-down RAMEN BOWL worn as a hat, with noodles dangling over the rim and a pair of chopsticks stuck in it."
+  },
+  {
+    "name": "hat-hardhat",
+    "prompt": "Next HAT in exactly the same art style. Draw ONE HAT on its own for a little monster to wear, seen from the FRONT (slightly from above), upright, centred, filling about 80% of the frame, the bottom edge of the hat flat and level where it sits on a head, on a solid flat magenta (#FF00FF) background. NO pink glow, no head, no character, no text, no shadow. Square 1:1. Hat: a bright yellow CONSTRUCTION HARD HAT with a little lamp on the front."
+  },
+  {
+    "name": "hat-jester",
+    "prompt": "Next HAT in exactly the same art style. Draw ONE HAT on its own for a little monster to wear, seen from the FRONT (slightly from above), upright, centred, filling about 80% of the frame, the bottom edge of the hat flat and level where it sits on a head, on a solid flat magenta (#FF00FF) background. NO pink glow, no head, no character, no text, no shadow. Square 1:1. Hat: a JESTER HAT with three floppy points in red, yellow and green, each with a gold bell."
+  },
+  {
+    "name": "hat-spoon",
+    "prompt": "Next HAT in exactly the same art style. Draw ONE HAT on its own for a little monster to wear, seen from the FRONT (slightly from above), upright, centred, filling about 80% of the frame, the bottom edge of the hat flat and level where it sits on a head, on a solid flat magenta (#FF00FF) background. NO pink glow, no head, no character, no text, no shadow. Square 1:1. Hat: a CROWN shaped like a ring of shiny GOLDEN SPOONS standing upright around a band with a ruby."
+  }
+]

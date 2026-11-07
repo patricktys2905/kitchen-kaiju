@@ -107,12 +107,19 @@ export const HATS: Hat[] = [
       g.lineStyle(2, 0x8a6a10, 1); g.strokeRect(x - s * 0.5, y - s * 0.3, s, s * 0.3);
     },
   },
+  ...([
+    ['sushi', 'Sushi Topper', 'rush'], ['teacup', 'Teacup', 'daily'], ['pirate', 'Pirate Hat', 'kos-250'], ['wizard', 'Wizard Hat', 'tables-all'],
+    ['cowboy', 'Cowboy Hat', 'cup'], ['bunny', 'Bunny Ears', 'kaiju-8'], ['smoothie', 'Smoothie Cup', 'blend'], ['knight', 'Knight Helmet', 'gauntlet-10'],
+    ['noodle', 'Noodle Bowl', 'crumbs-1000'], ['hardhat', 'Hard Hat', 'workshop'], ['jester', 'Jester Hat', 'twist'], ['spoon', 'Spoon Crown', 'wins-50'],
+  ] as [string, string, string][]).map(([id, name, unlock]): Hat => ({ id, name, unlock, draw: (g, x, y, s) => { g.fillStyle(0xffd24a, 1); g.slice(x, y, s * 0.5, Math.PI, 0, false); g.fillPath(); } })),
 ];
 
 /** Gemini hat art (public/art/hat-<id>.webp): [width × kaiju radius, how far it sits down into the head × radius]. EASY TO TUNE. */
 export const HAT_FIT: Record<string, [number, number]> = {
   party: [1.0, 0.3], chef: [1.35, 0.3], top: [1.35, 0.3], viking: [1.7, 0.4], propeller: [1.35, 0.35], flower: [1.6, 0.35],
   halo: [1.4, -0.25], beanie: [1.3, 0.4], candle: [0.6, 0.2], ladle: [1.35, 0.4], chili: [1.5, 0.3], crown: [1.25, 0.3],
+  sushi: [1.4, 0.35], teacup: [1.2, 0.3], pirate: [1.6, 0.35], wizard: [1.3, 0.3], cowboy: [1.8, 0.4], bunny: [1.3, 0.45],
+  smoothie: [0.9, 0.2], knight: [1.3, 0.55], noodle: [1.4, 0.35], hardhat: [1.4, 0.4], jester: [1.6, 0.35], spoon: [1.3, 0.3],
 };
 export const hatArtKey = (h: Hat) => `hat-${h.id}`;
 /** Overall hat size in matches (1 = as in HAT_FIT). */

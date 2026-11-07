@@ -12,6 +12,7 @@ import { TABLE } from '../sim/constants';
 import { LAYOUTS } from '../sim/layouts';
 import { owned } from '../story/unlocks';
 import { setTouchMode } from '../touch';
+import { checkAchievements, loadStats, saveStats } from '../stats';
 
 // the table preview is drawn scaled down on the right
 const PS = 0.72, PX = 470, PY = 150;
@@ -105,7 +106,9 @@ export class WorkshopScene extends Phaser.Scene {
     saveCustom(this.list.filter(Boolean));
     this.list = loadCustom();
     sfx.meterFull();
-    this.redraw('Saved! Pick it in Free Play with [M] / TABLE.');
+    const st = loadStats(), got = checkAchievements(st);
+    saveStats(st);
+    this.redraw(got.length ? `Saved! 🏆 ${got.map(a => a.name).join(', ')} unlocked!` : 'Saved! Pick it in Free Play with [M] / TABLE.');
   }
 
   private playIt(): void {

@@ -277,6 +277,8 @@ export class HelpScene extends PanelScene {
 }
 
 // ------------------------------------------------------------------ Kaiju gallery
+const HAT_SLOTS = 13; // hats per page in the Gallery
+
 export class GalleryScene extends PanelScene {
   protected title = '📖 KAIJU GALLERY';
   protected cols = 10;
@@ -285,6 +287,8 @@ export class GalleryScene extends PanelScene {
   private hatG!: Phaser.GameObjects.Graphics;
   private hatLabel!: Phaser.GameObjects.Text;
   private hatIcons: (Phaser.GameObjects.Image | null)[] = [];
+  private hatPage = 0;
+  private slotHat(k: number) { return HATS[this.hatPage * HAT_SLOTS + k]; }
   private hatPreview: Phaser.GameObjects.Image | null = null;
   private previewTop = 470;
   constructor() { super('gallery'); }
@@ -305,15 +309,20 @@ export class GalleryScene extends PanelScene {
     this.add.text(60, 398, 'YOUR HAT', display(18, '#ffd24a', { strokeThickness: 3 })).setOrigin(0, 0.5).setDepth(6);
     this.hatLabel = this.add.text(1240, 364, '', body(14, '#e9dccb', 800)).setOrigin(1, 0.5).setDepth(6);
     this.hatG = this.add.graphics().setDepth(8);
-    this.hatIcons = HATS.map((h, k) => (hasArt(hatArtKey(h)) ? fitInside(this.add.image(210 + k * 76, 398, hatArtKey(h)), 52, 46).setDepth(8) : null));
+    this.hatIcons = Array.from({ length: HAT_SLOTS }, (_, k) => this.add.image(210 + k * 76, 398, '__MISSING').setDepth(8).setVisible(false));
     this.hatPreview = this.add.image(0, 0, '__MISSING').setOrigin(0.5, 1).setDepth(7).setVisible(false);
-    HATS.forEach((h, k) => {
-      const b = new Button(this, 210 + k * 76, 398, { w: 66, h: 58, label: '', size: 12, accent: hatUnlocked(h) ? 0xffd24a : 0x5a4a3e, onClick: () => {
+    for (let k = 0; k < HAT_SLOTS; k++) {
+      const b = new Button(this, 210 + k * 76, 398, { w: 66, h: 58, label: '', size: 12, accent: 0xffd24a, onClick: () => {
+        const h = this.slotHat(k);
+        if (!h) return;
+        this.nav.index = SPECIES.length + k;
         if (!hatUnlocked(h)) { sfx.thwock(); return; }
         setHat(h.id); sfx.pickup(); this.showDetail(this.shown < 0 ? 0 : this.shown, false);
       } }, 6);
       this.buttons.push(b);
-    });
+    }
+    const pages = Math.ceil(HATS.length / HAT_SLOTS);
+    if (pages > 1) this.buttons.push(new Button(this, 1210, 398, { w: 64, h: 58, label: '▶', size: 22, onClick: () => { this.hatPage = (this.hatPage + 1) % pages; sfx.pickup(); } }, 6));
   }
 
   protected tick(): void {
@@ -322,17 +331,21 @@ export class GalleryScene extends PanelScene {
     // hat icons (animated) + label for the focused hat
     const g = this.hatG, cur = currentHat();
     g.clear();
-    HATS.forEach((h, k) => {
-      const x = 210 + k * 76;
+    for (let k = 0; k < HAT_SLOTS; k++) {
+      const h = this.slotHat(k), x = 210 + k * 76, icon = this.hatIcons[k];
+      icon?.setVisible(false);
+      if (!h) continue;
       if (h.id === cur.id) { g.lineStyle(3, 0x8dff6a, 1); g.strokeRoundedRect(x - 36, 366, 72, 64, 14); }
-      const icon = this.hatIcons[k];
-      if (icon) icon.setVisible(hatUnlocked(h)).setTint(0xffffff);
-      if (hatUnlocked(h)) { if (!icon) h.draw(g, x, 414, 22, this.t); } else { g.fillStyle(0x5a4a3e, 1); g.fillCircle(x, 398, 8); }
-    });
+      const got = hatUnlocked(h);
+      if (icon && hasArt(hatArtKey(h))) fitInside(icon.setTexture(hatArtKey(h)).setVisible(true), 52, 46).setTint(got ? 0xffffff : 0x2a2420);
+      else if (got) h.draw(g, x, 414, 22, this.t);
+      else { g.fillStyle(0x5a4a3e, 1); g.fillCircle(x, 398, 8); }
+    }
+    const pageCount = Math.ceil(HATS.length / HAT_SLOTS);
     const hk = i - SPECIES.length;
-    const focus = hk >= 0 && hk < HATS.length ? HATS[hk] : cur;
+    const focus = (hk >= 0 && hk < HAT_SLOTS ? this.slotHat(hk) : undefined) ?? cur;
     const u = focus.unlock ? ACHIEVEMENTS.find(a => a.id === focus.unlock) : null;
-    this.hatLabel.setText(hatUnlocked(focus) ? `${focus.name}${focus.id === cur.id ? ' (wearing)' : ''}` : `🔒 ${focus.name}: unlock with "${u?.name}" (${u?.desc})`);
+    this.hatLabel.setText(`${pageCount > 1 ? `Hats ${this.hatPage + 1}/${pageCount} · ` : ''}${hatUnlocked(focus) ? `${focus.name}${focus.id === cur.id ? ' (wearing)' : ''}` : `🔒 ${focus.name}: unlock with "${u?.name}" (${u?.desc})`}`);
     this.hatPreview?.setVisible(false);
     if (this.shown >= 0 && hatUnlocked(cur) && cur.id !== 'none') {
       if (this.hatPreview && hasArt(hatArtKey(cur))) {

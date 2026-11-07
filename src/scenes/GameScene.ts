@@ -888,6 +888,7 @@ export class GameScene extends Phaser.Scene {
           st.streak++;
           st.bestStreak = Math.max(st.bestStreak, st.streak);
           st.modeWins[this.mode] = (st.modeWins[this.mode] ?? 0) + 1;
+          if (this.world.mutator !== 'none') st.twistWins = (st.twistWins ?? 0) + 1;
           st.kaijuWins[this.species[e.winner]] = (st.kaijuWins[this.species[e.winner]] ?? 0) + 1;
         } else st.streak = 0;
         const got = checkAchievements(st);
