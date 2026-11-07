@@ -45,7 +45,7 @@ try {
   await guest.fill('#lb-code', code);
   await guest.fill('#lb-name', 'Phone');
   await guest.getByText('Join', { exact: true }).tap();
-  check(await until(() => guest.getByText("You're in!").isVisible()), 'phone joined the room');
+  check(await until(() => guest.getByText("You're in!").isVisible(), ROUTE === 'backup' ? 45000 : 20000), 'phone joined the room'); // backup: 7 s direct attempt + relay connect
   check(await until(() => host.getByText('Phone', { exact: false }).first().isVisible()), 'host sees the phone player');
   check(await until(() => host.getByText(ROUTE === 'backup' ? 'backup route' : 'direct link', { exact: false }).first().isVisible()), `phone joined via the ${ROUTE} route`);
 
