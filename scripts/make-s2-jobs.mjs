@@ -1,5 +1,6 @@
 // Builds Gemini jobs (stills) + Flow prompts for the "Second Helpings" story cutscenes.
 // Usage: node scripts/make-s2-jobs.mjs  -> art-src/jobs-s2.json, and merges the clip prompts into art-src/flow-cutscenes.json
+// Clip prompts that drifted were replaced by ambient-only ones in art-src/flow-cutscenes.json (2nd pass).
 // Rules learned the hard way: at most 3 kaiju per scene, every face fully visible, nobody behind anything, simple motion.
 import fs from 'node:fs';
 import { execFileSync } from 'node:child_process';

@@ -536,6 +536,15 @@ describe('second helpings campaign', () => {
     });
   });
 
+  it('every cutscene has its still, and its clip unless marked noVideo', async () => {
+    const { SECONDS_CUTS, SECONDS_OPENING, SECONDS_END_CUT } = await import('../src/story/seconds');
+    const fs = await import('node:fs');
+    for (const c of [SECONDS_OPENING, ...SECONDS_CUTS, SECONDS_END_CUT]) {
+      expect(fs.existsSync(`public/art/${c.key}.webp`), `${c.key} still`).toBe(true);
+      if (!c.noVideo) expect(fs.existsSync(`public/video/${c.key}.mp4`), `${c.key} clip`).toBe(true);
+    }
+  });
+
   it('keeps its own save, capped at its own chapter count', async () => {
     const { recordResult } = await import('../src/story/save');
     const s = { unlocked: 1, stars: [] as number[], pick: 0, endingSeen: false, cuts: [] as string[], spicy: [] as number[] };

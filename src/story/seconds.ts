@@ -76,13 +76,14 @@ export const SECONDS_ENDING: Line[] = [
   { speaker: 'chef', text: 'You are the KITCHEN KAIJU, twice over. (Go for 3 stars, try 🌶️ Spicy, or brawl in Free Play!)' },
 ];
 
-export const SECONDS_OPENING: Cutscene = { key: 's2-open', heading: 'SECOND HELPINGS', caption: 'You won the Golden Spoon. The back of the fridge wants a rematch.' };
-export const SECONDS_END_CUT: Cutscene = { key: 's2-end', heading: 'SECONDS: SERVED', caption: 'Two crowns, one kaiju. Save room for dessert!' };
+// noVideo: Veo drifted off-model in these clips (Nov 2026); the still plays instead. Remove it once a clean clip is in public/video.
+export const SECONDS_OPENING: Cutscene = { key: 's2-open', noVideo: true, heading: 'SECOND HELPINGS', caption: 'You won the Golden Spoon. The back of the fridge wants a rematch.' };
+export const SECONDS_END_CUT: Cutscene = { key: 's2-end', noVideo: true, heading: 'SECONDS: SERVED', caption: 'Two crowns, one kaiju. Save room for dessert!' };
 export const SECONDS_CUTS: Cutscene[] = [
   { key: 's2-0', heading: 'CHAPTER 1 · SMOOTHIE OPERATORS', caption: 'Sloba is too lazy to run from the blender. Are you?' },
-  { key: 's2-1', heading: 'CHAPTER 2 · SAY CHEESE', caption: 'Tacowl has a gouda feeling about this.' },
-  { key: 's2-2', heading: 'CHAPTER 3 · FLIPPING OUT', caption: 'Everyone\'s bite-sized. The spatula is not.' },
+  { key: 's2-1', noVideo: true, heading: 'CHAPTER 2 · SAY CHEESE', caption: 'Tacowl has a gouda feeling about this.' },
+  { key: 's2-2', noVideo: true, heading: 'CHAPTER 3 · FLIPPING OUT', caption: 'Everyone\'s bite-sized. The spatula is not.' },
   { key: 's2-3', heading: 'CHAPTER 4 · COLD SHOULDER', caption: 'Pengwhip rules the freezer. Chill out… or wipe out.' },
   { key: 's2-4', heading: 'CHAPTER 5 · SUGAR HIGH', caption: 'Too many sweets. Not enough self-control.' },
-  { key: 's2-5', heading: 'CHAPTER 6 · SECOND HELPINGS', caption: 'Velvaroo wants a rematch. And a pouch full of spoons.' },
+  { key: 's2-5', noVideo: true, heading: 'CHAPTER 6 · SECOND HELPINGS', caption: 'Velvaroo wants a rematch. And a pouch full of spoons.' },
 ];
