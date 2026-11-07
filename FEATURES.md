@@ -68,3 +68,24 @@ Each section says **where to customise it**.
 - **Where:** Title → **📖 KAIJU**. All 20 kaiju; locked ones show as silhouettes with "???".
 - Selecting one shows its normal and KAIJU-mode art, food description, your matches and wins as it, and how to unlock it if locked.
 - Screenshots of all the extras: `node scripts/shots-extras.mjs`.
+
+## 7. Condiment power-ups
+
+- **Four pick-ups** appear on the table every 9–15 s, at most 2 at a time. They flash, then fizzle out if nobody grabs them within 12 s.
+  - **🌶️ Hot Sauce:** 40% faster for 6 s; you leave a flame trail.
+  - **🛡️ Mustard Shield:** a golden bubble that blocks the next hit (cutlery, swipe, squash, cleaver, burner, toast). It doesn't save you from falls, wind, the giant hand or a popping Hot Dumpling.
+  - **🍲 Gravy Boat:** +50% belly, towards KAIJU.
+  - **🍬 Sugar Rush:** dash and swipe almost without cooldown for 6 s.
+- Active buffs show as icons in the scoreboard. Bots go for nearby power-ups.
+- **Where:** Free Play → **[U] power-ups** (touch: **POWER-UPS** pill). On by default; never in Story, so chapter difficulty is unchanged.
+- **Customise:** `src/sim/powerups.ts`.
+  - Names, colours, descriptions; `enabled` per kind.
+  - Spawn rate, cap and lifetime.
+  - Every duration and strength.
+  - `POWERUPS.enabled` sets the default.
+  - Icon size: `POWER_ICON_SCALE` in `src/scenes/GameScene.ts`.
+
+## 8. Party modes and power-ups online
+
+- The online lobby host now has **Mode** and **Power-ups** buttons, and friends see the choice.
+- Snapshots carry teams, crumb points, respawn timers, buffs, power-ups on the table and the hot dumpling, so every mode plays online.

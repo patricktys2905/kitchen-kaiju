@@ -9,12 +9,12 @@ let browser;
 try {
   for (let i = 0; i < 60; i++) { try { if ((await fetch(url)).ok) break; } catch { /* */ } await wait(250); }
   browser = await chromium.launch({ executablePath: 'C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe', headless: true });
-  for (const m of ['teams', 'crumbRush', 'hotDumpling']) {
+  for (const m of ['teams', 'crumbRush', 'hotDumpling', 'classic']) {
     const page = await browser.newPage({ viewport: { width: 1280, height: 720 } });
     page.on('pageerror', e => errors.push(`${m}: ${e}`));
     page.on('console', c => { if (c.type() === 'error') errors.push(`${m}: ${c.text()}`); });
     await page.goto(`${url}?mode=free&demo=4&gmode=${m}`);
-    await wait(9000);
+    await wait(m === 'classic' ? 16000 : 9000);
     await page.screenshot({ path: `art-src/shot-mode-${m}.png` });
     const st = await page.evaluate(() => { const w = window.__game?.scene.getScene('game')?.world; return w && { mode: w.mode, phase: w.phase, round: w.round, pts: w.players.map(p => p.pts), hot: w.hot?.id ?? null, scores: w.players.map(p => p.score) }; });
     console.log(m, JSON.stringify(st));

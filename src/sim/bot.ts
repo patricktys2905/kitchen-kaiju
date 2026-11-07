@@ -125,6 +125,11 @@ export class BotBrain {
       if (p.meter >= 100 && d < 320) out.stomp = !p.prev.stomp;
     }
 
+    // Grab nearby condiment power-ups.
+    let it: { x: number; y: number } | null = null, itd = 300;
+    for (const q of w.items) { const qd = Math.hypot(q.x - p.x, q.y - p.y); if (qd < itd) { itd = qd; it = q; } }
+    if (it && p.kaijuT <= 0) add((it.x - p.x) / (itd || 1), (it.y - p.y) / (itd || 1), 1.3 * T.greed);
+
     // Hot Dumpling: the carrier hunts the nearest rival, everyone else keeps away from the carrier.
     if (w.hot && w.phase === 'play') {
       const h = w.players[w.hot.id];

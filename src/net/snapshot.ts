@@ -3,6 +3,8 @@
 import type { CutleryKind } from '../sim/cutlery';
 import { LAYOUTS } from '../sim/layouts';
 import type { Cutlery, CutleryState, Phase, World } from '../sim/world';
+import type { PowerKind } from '../sim/powerups';
+const POWERS: PowerKind[] = ['hotsauce', 'mustard', 'gravy', 'sugar'];
 
 const KINDS: CutleryKind[] = ['fork', 'spoon', 'knife', 'chopstick', 'ladle', 'spork'];
 const STATES: CutleryState[] = ['held', 'flying', 'stuck', 'returning'];
@@ -22,6 +24,8 @@ export interface Snapshot {
   ts: number[][];
   to: number[] | null;
   ta: number;
+  it?: number[][]; // power-ups [id, kind, x, y, age]
+  hd?: number[] | null; // hot dumpling [holder, fuse, cooldown]
 }
 
 export function makeSnapshot(w: World): Snapshot {
@@ -30,6 +34,7 @@ export function makeSnapshot(w: World): Snapshot {
     p: w.players.map(p => [
       r1(p.x), r1(p.y), r1(p.vx + p.kx), r1(p.vy + p.ky), r3(p.aim), r1(p.r), p.alive ? 1 : 0, p.holding ?? -1,
       p.charging ? 1 : 0, r3(p.charge), r3(p.dashT), r3(p.swipeT), r1(p.meter), r3(p.kaijuT), r3(p.invT), p.score, p.kos,
+      p.team, p.pts, r1(p.respawnT), r1(p.speedT), r1(p.shieldT), r1(p.sugarT),
     ]),
     c: w.cutlery.map(c => [
       c.id, KINDS.indexOf(c.kind), STATES.indexOf(c.state), r1(c.x), r1(c.y), r3(c.angle), r3(c.spin), c.owner ?? -1, c.holder ?? -1, r1(c.vx), r1(c.vy),
@@ -42,6 +47,8 @@ export function makeSnapshot(w: World): Snapshot {
     ts: w.toasts.map(t => [r1(t.x), r1(t.y), r1(t.vx), r1(t.vy), r3(t.spin)]),
     to: w.toaster ? [w.toaster.i, r3(w.toaster.t)] : null,
     ta: r3(w.turnAngle),
+    it: w.items.map(i => [i.id, POWERS.indexOf(i.kind), r1(i.x), r1(i.y), r1(i.t)]),
+    hd: w.hot ? [w.hot.id, r1(w.hot.fuse), r1(w.hot.cd)] : null,
   };
 }
 
@@ -64,6 +71,7 @@ export function applySnapshot(w: World, s: Snapshot): boolean {
     p.holding = a[7] < 0 ? null : a[7];
     p.charging = a[8] === 1;
     [p.charge, p.dashT, p.swipeT, p.meter, p.kaijuT, p.invT, p.score, p.kos] = a.slice(9);
+    if (a.length > 17) [p.team, p.pts, p.respawnT, p.speedT, p.shieldT, p.sugarT] = a.slice(17);
   });
   w.cutlery = s.c.map(a => ({
     id: a[0], kind: KINDS[a[1]], state: STATES[a[2]], x: a[3], y: a[4], angle: a[5], spin: a[6],
@@ -78,6 +86,8 @@ export function applySnapshot(w: World, s: Snapshot): boolean {
   w.toasts = (s.ts ?? []).map(a => ({ x: a[0], y: a[1], vx: a[2], vy: a[3], spin: a[4] }));
   w.toaster = s.to ? { state: 'warn', i: s.to[0], t: s.to[1] } : null;
   w.turnAngle = s.ta ?? 0;
+  w.items = (s.it ?? []).map(a => ({ id: a[0], kind: POWERS[a[1]], x: a[2], y: a[3], t: a[4] }));
+  w.hot = s.hd ? { id: s.hd[0], fuse: s.hd[1], cd: s.hd[2] } : null;
   return tableChanged;
 }
 

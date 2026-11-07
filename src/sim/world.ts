@@ -5,6 +5,7 @@ import { CUTLERY, STARTER_KINDS, type CutleryKind } from './cutlery';
 import { LAYOUTS, type Layout } from './layouts';
 import { angleDiff, circCircle, circRect, clamp, type Hit } from './math';
 import { MODE_RULES, type GameMode } from './modes';
+import { enabledPowers, POWER_DEFS, POWERUPS, type PowerKind } from './powerups';
 import { Rng } from './rng';
 
 export interface PlayerInput {
@@ -53,6 +54,9 @@ export type GameEvent =
   | { type: 'toastBreak'; x: number; y: number }
   | { type: 'bumper'; x: number; y: number }
   | { type: 'respawn'; id: number; x: number; y: number }
+  | { type: 'powerSpawn'; kind: PowerKind; x: number; y: number }
+  | { type: 'powerup'; id: number; kind: PowerKind; x: number; y: number }
+  | { type: 'shieldPop'; id: number; x: number; y: number }
   | { type: 'hotGive'; id: number; from: number | null; x: number; y: number }
   | { type: 'hotBoom'; id: number; x: number; y: number }
   | { type: 'spawnCutlery'; kind: CutleryKind; x: number; y: number }
@@ -93,6 +97,9 @@ export interface Player {
   team: number; // Team Feast: 0 = red, 1 = blue (other modes: own id)
   pts: number; // Crumb Rush: crumbs eaten this round
   respawnT: number; // Crumb Rush: seconds until back in (0 = not waiting)
+  speedT: number; // Hot Sauce time left
+  shieldT: number; // Mustard Shield time left
+  sugarT: number; // Sugar Rush time left
   moving: boolean;
   score: number;
   kos: number;
@@ -131,6 +138,15 @@ export interface Crumb {
   variant: number;
 }
 
+/** A condiment power-up lying on the table. */
+export interface PowerItem {
+  id: number;
+  kind: PowerKind;
+  x: number;
+  y: number;
+  t: number; // age in seconds
+}
+
 export interface Hand {
   state: 'warn' | 'sweep';
   y: number;
@@ -154,6 +170,7 @@ export interface WorldOptions {
   starterKind?: CutleryKind; // force everyone's starting cutlery
   mode?: GameMode; // party mode (default classic)
   teams?: number[]; // Team Feast: team per player (default: alternate seats)
+  powerups?: boolean; // condiment power-ups (off unless asked for; Free Play default is POWERUPS.enabled)
 }
 
 /** Birthday Bash wind. dir is an angle (radians) the gust blows towards. */
@@ -195,8 +212,11 @@ export interface Cleaver {
 
 export class World {
   readonly rng: Rng;
-  readonly opts: Required<Omit<WorldOptions, 'layout' | 'starterKind' | 'layouts' | 'mode' | 'teams'>> & Pick<WorldOptions, 'layout' | 'starterKind' | 'layouts'>;
+  readonly opts: Required<Omit<WorldOptions, 'layout' | 'starterKind' | 'layouts' | 'mode' | 'teams' | 'powerups'>> & Pick<WorldOptions, 'layout' | 'starterKind' | 'layouts'>;
   readonly mode: GameMode;
+  readonly powerups: boolean;
+  items: PowerItem[] = [];
+  private itemTimer = 0;
   /** Hot Dumpling: who is carrying it and how long until it pops. */
   hot: { id: number; fuse: number; cd: number } | null = null;
   players: Player[] = [];
@@ -241,6 +261,7 @@ export class World {
       starterKind: o.starterKind,
     };
     this.mode = o.mode ?? 'classic';
+    this.powerups = o.powerups ?? false; // opt-in: Free Play turns it on (see GameScene)
     this.rng = new Rng(this.opts.seed);
     const pool = o.layouts?.filter(i => i >= 0 && i < LAYOUTS.length);
     this.layoutOrder = this.rng.shuffle(pool && pool.length ? pool.slice() : LAYOUTS.map((_, i) => i));
@@ -255,7 +276,7 @@ export class World {
       id, name, x: 0, y: 0, vx: 0, vy: 0, kx: 0, ky: 0, r: P.radius, aim: 0, alive: true,
       holding: null, charging: false, charge: 0, dashT: 0, dashCD: 0, dashBumped: false,
       swipeT: 0, swipeCD: 0, swipeHit: new Set(), meter: 0, kaijuT: 0, stepT: 0, invT: 0,
-      lastHitBy: null, lastHitT: 0, bumpT: 0, team: id, pts: 0, respawnT: 0, moving: false, score: 0, kos: 0,
+      lastHitBy: null, lastHitT: 0, bumpT: 0, team: id, pts: 0, respawnT: 0, speedT: 0, shieldT: 0, sugarT: 0, moving: false, score: 0, kos: 0,
       prev: { throw: false, swipe: false, dash: false, stomp: false },
     };
   }
@@ -286,6 +307,8 @@ export class World {
     this.roundT = 0;
     this.lastCount = 0;
     this.hot = null;
+    this.items = [];
+    this.itemTimer = this.rng.range(POWERUPS.every[0], POWERUPS.every[1]) * 0.6;
     const spawns = this.rng.shuffle(this.layout.spawns.slice());
     for (const p of this.players) {
       const [sx, sy] = spawns[p.id % spawns.length];
@@ -293,7 +316,7 @@ export class World {
         x: sx, y: sy, vx: 0, vy: 0, kx: 0, ky: 0, r: P.radius,
         aim: Math.atan2(TABLE.y + TABLE.h / 2 - sy, TABLE.x + TABLE.w / 2 - sx),
         alive: true, holding: null, charging: false, charge: 0, dashT: 0, dashCD: 0, dashBumped: false,
-        swipeT: 0, swipeCD: 0, meter: 0, kaijuT: 0, stepT: 0, invT: 0, lastHitBy: null, lastHitT: 0, moving: false, pts: 0, respawnT: 0,
+        swipeT: 0, swipeCD: 0, meter: 0, kaijuT: 0, stepT: 0, invT: 0, lastHitBy: null, lastHitT: 0, moving: false, pts: 0, respawnT: 0, speedT: 0, shieldT: 0, sugarT: 0,
         prev: { throw: true, swipe: true, dash: true, stomp: true }, // require a fresh press after the countdown
       });
       p.swipeHit.clear();
@@ -378,6 +401,9 @@ export class World {
     p.invT -= dt;
     p.dashCD -= dt;
     p.swipeCD -= dt;
+    if (p.speedT > 0) p.speedT -= dt;
+    if (p.shieldT > 0) p.shieldT -= dt;
+    if (p.sugarT > 0) { p.sugarT -= dt; p.dashCD = Math.min(p.dashCD, POWERUPS.sugarCooldown); p.swipeCD = Math.min(p.swipeCD, POWERUPS.sugarCooldown); }
     p.lastHitT -= dt;
     p.bumpT -= dt;
     if (p.lastHitT <= 0) p.lastHitBy = null;
@@ -437,7 +463,7 @@ export class World {
     p.prev = { throw: inp.throw, swipe: inp.swipe, dash: inp.dash, stomp: inp.stomp };
 
     // Movement
-    const spd = P.speed * (p.charging ? P.chargeSlow : 1) * (p.kaijuT > 0 ? P.kaijuSpeed : 1) * (this.onSticky(p.x, p.y) ? RULES.stickySlow : 1) * (this.hot?.id === p.id ? MODE_RULES.hotDumpling.holderSpeed : 1);
+    const spd = P.speed * (p.charging ? P.chargeSlow : 1) * (p.kaijuT > 0 ? P.kaijuSpeed : 1) * (this.onSticky(p.x, p.y) ? RULES.stickySlow : 1) * (this.hot?.id === p.id ? MODE_RULES.hotDumpling.holderSpeed : 1) * (p.speedT > 0 ? POWERUPS.hotsauceSpeed : 1);
     if (p.dashT > 0) {
       p.dashT -= dt;
     } else {
@@ -616,6 +642,12 @@ export class World {
 
   ko(p: Player, by: number | null, cause: KOCause): void {
     if (!p.alive || this.phase !== 'play') return;
+    if (p.shieldT > 0 && cause !== 'fall' && cause !== 'wind' && cause !== 'hand' && cause !== 'boom') {
+      p.shieldT = 0;
+      p.invT = Math.max(p.invT, 0.6);
+      this.emit({ type: 'shieldPop', id: p.id, x: p.x, y: p.y });
+      return;
+    }
     p.alive = false;
     const killer = this.player(by);
     if (killer && killer !== p) killer.kos++;
@@ -873,7 +905,48 @@ export class World {
     if (s) this.addCrumb(s[0], s[1]);
   }
 
+  private updateItems(dt: number): void {
+    if (!this.powerups) return;
+    const kinds = enabledPowers();
+    if (!kinds.length) return;
+    this.itemTimer -= dt;
+    if (this.itemTimer <= 0) {
+      this.itemTimer = this.rng.range(POWERUPS.every[0], POWERUPS.every[1]);
+      if (this.items.length < POWERUPS.max) {
+        const s = this.freeSpot(50, 90);
+        if (s) {
+          const kind = this.rng.pick(kinds);
+          this.items.push({ id: this.nextId++, kind, x: s[0], y: s[1], t: 0 });
+          this.emit({ type: 'powerSpawn', kind, x: s[0], y: s[1] });
+        }
+      }
+    }
+    for (const it of this.items) it.t += dt;
+    this.items = this.items.filter(it => it.t < POWERUPS.lifetime);
+    for (const p of this.players) {
+      if (!p.alive) continue;
+      const it = this.items.find(i => Math.hypot(i.x - p.x, i.y - p.y) < p.r + 24);
+      if (!it) continue;
+      this.items = this.items.filter(i => i !== it);
+      if (it.kind === 'hotsauce') p.speedT = POWERUPS.hotsauceTime;
+      if (it.kind === 'mustard') p.shieldT = POWERUPS.mustardTime;
+      if (it.kind === 'sugar') p.sugarT = POWERUPS.sugarTime;
+      if (it.kind === 'gravy' && p.kaijuT <= 0) {
+        const was = p.meter;
+        p.meter = Math.min(100, p.meter + POWERUPS.gravyMeter);
+        if (was < 100 && p.meter >= 100) this.emit({ type: 'meterFull', id: p.id });
+      }
+      this.emit({ type: 'powerup', id: p.id, kind: it.kind, x: it.x, y: it.y });
+    }
+  }
+
+  /** Name of a power-up kind (for menus/HUD). */
+  static powerName(k: PowerKind): string {
+    return POWER_DEFS[k].name;
+  }
+
   private spawnTimers(dt: number): void {
+    this.updateItems(dt);
     if (this.opts.crumbSpawns) {
       this.crumbTimer -= dt;
       if (this.crumbTimer <= 0) {

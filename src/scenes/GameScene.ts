@@ -13,6 +13,7 @@ import { P, SPECIES, TABLE, VIEW } from '../sim/constants';
 import { CUTLERY } from '../sim/cutlery';
 import { angleDiff } from '../sim/math';
 import { MODE_RULES, modeDef, type GameMode } from '../sim/modes';
+import { POWER_DEFS, POWERUPS } from '../sim/powerups';
 import { NO_INPUT, World, type GameEvent, type PlayerInput } from '../sim/world';
 import { starsFor } from '../story/chapters';
 import type { NetGuest, NetHost, NetMsg } from '../net/net';
@@ -20,6 +21,7 @@ import { applySnapshot, extrapolate, makeSnapshot, type Snapshot } from '../net/
 import { isTouchDevice, setTouchHud, setTouchMode } from '../touch';
 
 const STEP = 1 / 120;
+const POWER_ICON_SCALE = 1.6; // size of condiment power-ups on the table
 const TOUCH_ASSIST_ANGLE = 0.45; // radians either side of facing
 
 interface Particle { x: number; y: number; vx: number; vy: number; life: number; max: number; color: number; size: number; grav: number }
@@ -34,6 +36,7 @@ export interface GameData {
   rounds?: number; // first to this many round wins
   botLevels?: (Difficulty | null)[]; // per-seat bot level (story mode)
   mode?: GameMode; // party mode (Free Play)
+  powerups?: boolean; // condiment power-ups (Free Play; default POWERUPS.enabled, never in Story)
   story?: { chapter: number; bosses: number[] }; // story chapter: seat 0 is you; bosses start rounds with a full belly
   net?: { role: 'host'; host: NetHost } | { role: 'guest'; guest: NetGuest; seat: number };
   seed?: number;
@@ -88,6 +91,7 @@ export class GameScene extends Phaser.Scene {
   private lastBanner = '';
   private eatSfxT = 0;
   private mode: GameMode = 'classic';
+  private powerups = false;
   private modeText!: Phaser.GameObjects.Text;
   private tagTexts: Phaser.GameObjects.Text[] = [];
   private stats: Stats | null = null; // lifetime stats (null for online guests)
@@ -106,7 +110,8 @@ export class GameScene extends Phaser.Scene {
     this.css = this.species.map(s => SPECIES[s].css);
     this.rounds = data.rounds ?? 5;
     this.mode = data.mode ?? 'classic';
-    this.world = new World({ players: this.species.map(s => ({ name: SPECIES[s].name })), seed, layouts: this.tables ?? undefined, target: this.rounds, mode: this.mode });
+    this.powerups = data.story ? false : data.powerups ?? POWERUPS.enabled;
+    this.world = new World({ players: this.species.map(s => ({ name: SPECIES[s].name })), seed, layouts: this.tables ?? undefined, target: this.rounds, mode: this.mode, powerups: this.powerups });
     this.story = data.story;
     this.bots = this.slots.map((s, i) => (s.kind === 'bot' ? new BotBrain(i, data.botLevels?.[i] ?? this.difficulty, seed + i * 101) : null));
     this.net = data.net;
@@ -222,7 +227,7 @@ export class GameScene extends Phaser.Scene {
         if (m.t === 'snap') this.inbox.push({ s: m.s, ev: m.ev });
         if (m.t === 'start') {
           const slots = m.species.map((_, i) => (i === m.seat ? { kind: 'local' as const, index: 0 } : { kind: 'remote' as const, index: i }));
-          this.scene.restart({ slots, difficulty: this.difficulty, species: m.species, tables: m.tables, rounds: m.rounds, net: { role: 'guest', guest: net.guest, seat: m.seat } });
+          this.scene.restart({ slots, difficulty: this.difficulty, species: m.species, tables: m.tables, rounds: m.rounds, mode: m.mode as GameMode | undefined, powerups: m.powerups, net: { role: 'guest', guest: net.guest, seat: m.seat } });
         }
       };
       net.guest.onClosed = reason => { this.netNotice = reason; this.time.delayedCall(2500, () => this.scene.start('menu', { difficulty: this.difficulty })); };
@@ -234,15 +239,15 @@ export class GameScene extends Phaser.Scene {
     if (this.net?.role === 'host') this.net.host.close();
     if (this.net?.role === 'guest') this.net.guest.close();
     if (this.net) { this.scene.start('title'); return; }
-    this.scene.start('menu', { slots: this.net ? [] : this.slots, difficulty: this.difficulty, species: this.net ? [] : this.species, tables: this.tables, rounds: this.rounds, mode: this.mode });
+    this.scene.start('menu', { slots: this.net ? [] : this.slots, difficulty: this.difficulty, species: this.net ? [] : this.species, tables: this.tables, rounds: this.rounds, mode: this.mode, powerups: this.powerups });
   }
 
   private rematch(): void {
-    const data: GameData = { slots: this.slots, difficulty: this.difficulty, species: this.species, tables: this.tables, net: this.net, rounds: this.rounds, mode: this.mode };
+    const data: GameData = { slots: this.slots, difficulty: this.difficulty, species: this.species, tables: this.tables, net: this.net, rounds: this.rounds, mode: this.mode, powerups: this.powerups };
     const net = this.net;
     if (net?.role === 'host') {
       const names = this.world.players.map(p => p.name);
-      this.slots.forEach((sl, i) => { if (sl.kind === 'remote') net.host.send(sl.index, { t: 'start', species: this.species, names, seat: i, tables: this.tables, rounds: this.rounds }); });
+      this.slots.forEach((sl, i) => { if (sl.kind === 'remote') net.host.send(sl.index, { t: 'start', species: this.species, names, seat: i, tables: this.tables, rounds: this.rounds, mode: this.mode, powerups: this.powerups }); });
     }
     this.scene.restart(data);
   }
@@ -372,6 +377,18 @@ export class GameScene extends Phaser.Scene {
         case 'toastBreak': sfx.thwock(); this.burst(e.x, e.y, 0xe0a050, 18, 220, 0.5, 200); break;
         case 'burnerFlare': sfx.burnerFlare(); this.shake(0.006, 300); this.burst(e.x, e.y, 0xff7a1a, 30, 260, 0.6); this.burst(e.x, e.y, 0xffd040, 16, 180, 0.5); break;
         case 'cleaverChop': sfx.cleaverChop(); this.shake(0.014, 260); this.burst(e.x, 380, 0x8a5a32, 30, 300, 0.6); break;
+        case 'powerSpawn': sfx.spawn(); this.rings.push({ x: e.x, y: e.y, r: 0, t: 0, max: 40, color: POWER_DEFS[e.kind].color }); break;
+        case 'powerup':
+          sfx.meterFull();
+          this.popup(e.x, e.y - 40, POWER_DEFS[e.kind].name + '!', POWER_DEFS[e.kind].css, 20);
+          this.burst(e.x, e.y, POWER_DEFS[e.kind].color, 18, 200, 0.5);
+          break;
+        case 'shieldPop':
+          sfx.clink();
+          this.popup(e.x, e.y - 40, 'BLOCKED!', '#ffd24a', 20);
+          this.rings.push({ x: e.x, y: e.y, r: 0, t: 0, max: 70, color: 0xffd24a });
+          this.burst(e.x, e.y, 0xf2c418, 16, 220, 0.4);
+          break;
         case 'respawn': sfx.spawn(); this.burst(e.x, e.y, this.colors[e.id], 20, 180, 0.5); this.rings.push({ x: e.x, y: e.y, r: 0, t: 0, max: 60, color: this.colors[e.id] }); break;
         case 'hotGive':
           sfx.steal();
@@ -537,9 +554,36 @@ export class GameScene extends Phaser.Scene {
     this.renderBanner();
   }
 
-  /** Team rings under kaiju, the hot dumpling over its carrier. */
+  /** Team rings under kaiju, the hot dumpling over its carrier, power-ups and their effects. */
   private renderModeFx(): void {
     const w = this.world, o = this.overG, t = this.t;
+    for (const it of w.items) {
+      const d = POWER_DEFS[it.kind], bob = Math.sin(t * 4 + it.id) * 3, x = it.x, y = it.y + bob, S = POWER_ICON_SCALE;
+      const fade = it.t > POWERUPS.lifetime - 3 ? 0.4 + 0.6 * Math.abs(Math.sin(t * 10)) : 1;
+      o.fillStyle(d.color, 0.28 * fade); o.fillCircle(x, y, (22 + Math.sin(t * 5) * 3) * S);
+      o.fillStyle(0x000000, 0.25 * fade); o.fillEllipse(it.x + 3, it.y + 16 * S, 26 * S, 8 * S);
+      if (it.kind === 'gravy') {
+        o.fillStyle(0xf2ece0, fade); o.fillEllipse(x, y + 4 * S, 30 * S, 16 * S);
+        o.fillStyle(0xf2ece0, fade); o.fillTriangle(x + 13 * S, y, x + 24 * S, y - 4 * S, x + 13 * S, y + 6 * S);
+        o.fillStyle(d.color, fade); o.fillEllipse(x, y + S, 24 * S, 10 * S);
+        o.lineStyle(2, 0x5a3a20, fade); o.strokeEllipse(x, y + 4 * S, 30 * S, 16 * S);
+      } else if (it.kind === 'sugar') {
+        o.fillStyle(0xffffff, fade); o.fillRoundedRect(x - 10 * S, y - 10 * S, 20 * S, 20 * S, 3 * S);
+        o.lineStyle(2, 0xc0b8d8, fade); o.strokeRoundedRect(x - 10 * S, y - 10 * S, 20 * S, 20 * S, 3 * S);
+        o.fillStyle(0xffd24a, fade); o.fillCircle(x + 14 * S * Math.cos(t * 6), y - 16 * S + 4 * Math.sin(t * 6), 2.5 * S);
+      } else {
+        o.fillStyle(d.color, fade); o.fillRoundedRect(x - 8 * S, y - 10 * S, 16 * S, 24 * S, 5 * S);
+        o.fillStyle(it.kind === 'hotsauce' ? 0x2f8a2f : 0xd8281e, fade); o.fillRect(x - 4 * S, y - 18 * S, 8 * S, 9 * S);
+        o.fillStyle(0xffffff, 0.45 * fade); o.fillRect(x - 5 * S, y - 6 * S, 3 * S, 14 * S);
+        o.lineStyle(2, 0x3a2412, fade); o.strokeRoundedRect(x - 8 * S, y - 10 * S, 16 * S, 24 * S, 5 * S);
+      }
+    }
+    for (const p of w.players) {
+      if (!p.alive) continue;
+      if (p.shieldT > 0) { o.lineStyle(3, 0xffd24a, 0.55 + 0.3 * Math.sin(t * 8)); o.strokeCircle(p.x, p.y, p.r * (p.kaijuT > 0 ? 2.2 : 1.35)); o.fillStyle(0xffd24a, 0.12); o.fillCircle(p.x, p.y, p.r * (p.kaijuT > 0 ? 2.2 : 1.35)); }
+      if (p.speedT > 0 && Math.random() < 0.5) this.parts.push({ x: p.x + (Math.random() - 0.5) * p.r, y: p.y + p.r * 0.6, vx: -p.vx * 0.2, vy: -30 - Math.random() * 40, life: 0.35, max: 0.35, color: Math.random() < 0.5 ? 0xff5a1a : 0xffd040, size: 3, grav: 0 });
+      if (p.sugarT > 0 && Math.random() < 0.3) this.parts.push({ x: p.x + (Math.random() - 0.5) * p.r * 2, y: p.y - p.r, vx: 0, vy: -40, life: 0.5, max: 0.5, color: 0xffffff, size: 2, grav: 0 });
+    }
     if (w.mode === 'teams') {
       for (const p of w.players) {
         if (!p.alive) continue;
@@ -615,6 +659,8 @@ export class GameScene extends Phaser.Scene {
       if (w.mode === 'crumbRush') info = !p.alive && p.respawnT > 0 ? `BACK IN ${Math.ceil(p.respawnT)} · 🍪 ${p.pts}` : `🍪 ${p.pts} crumbs · KOs ${p.kos}`;
       if (w.mode === 'teams') info = `${MODE_RULES.teams.names[p.team] ?? ''} · ${status}`;
       if (w.mode === 'hotDumpling' && w.hot?.id === p.id && p.alive) info = '🥟 HOT! PASS IT!';
+      const buffs = (p.speedT > 0 ? POWER_DEFS.hotsauce.short : '') + (p.shieldT > 0 ? POWER_DEFS.mustard.short : '') + (p.sugarT > 0 ? POWER_DEFS.sugar.short : '');
+      if (buffs && p.alive) info = `${buffs} ${info}`;
       this.infoTexts[i].setText(info);
       if (w.mode === 'teams') { g.fillStyle(MODE_RULES.teams.colors[p.team] ?? 0xffffff, 0.9); g.fillRoundedRect(x - 4, 70, pw, 4, 2); }
     });

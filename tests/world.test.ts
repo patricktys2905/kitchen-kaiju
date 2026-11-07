@@ -652,3 +652,50 @@ describe('stats, achievements and settings', () => {
     }
   });
 });
+
+describe('condiment power-ups', () => {
+  it('spawn on the table, get picked up, and do their thing', async () => {
+    const { POWERUPS } = await import('../src/sim/powerups');
+    const w = makeWorld(2, 'fork', { powerups: true });
+    run(w, POWERUPS.every[1] + 0.5);
+    expect(w.items.length).toBeGreaterThan(0);
+    const p = w.players[0];
+    w.items = [{ id: 999, kind: 'mustard', x: 500, y: 360, t: 0 }];
+    place(w, 0, 500, 360);
+    run(w, 0.02);
+    expect(p.shieldT).toBeGreaterThan(0);
+    w.ko(p, 1, 'cutlery');
+    expect(p.alive).toBe(true); // the shield took the hit
+    expect(p.shieldT).toBe(0);
+    w.items = [{ id: 998, kind: 'gravy', x: 500, y: 360, t: 0 }];
+    p.meter = 0;
+    run(w, 0.02);
+    expect(p.meter).toBe(POWERUPS.gravyMeter);
+  });
+
+  it('hot sauce makes you faster', () => {
+    const dist = (sauce: boolean) => {
+      const w = makeWorld(1, 'fork', { powerups: true });
+      w.layout = { ...w.layout, obstacles: [] };
+      place(w, 0, 300, 360);
+      if (sauce) w.players[0].speedT = 5;
+      run(w, 0.5, () => [{ ...NO_INPUT, mx: 1 }]);
+      return w.players[0].x - 300;
+    };
+    expect(dist(true)).toBeGreaterThan(dist(false) * 1.25);
+  });
+
+  it('online snapshots carry party-mode and power-up state', async () => {
+    const { makeSnapshot, applySnapshot } = await import('../src/net/snapshot');
+    const host = makeWorld(3, 'fork', { mode: 'hotDumpling', powerups: true });
+    run(host, 0.05);
+    host.items = [{ id: 5, kind: 'sugar', x: 400, y: 300, t: 1 }];
+    host.players[1].pts = 4; host.players[2].shieldT = 3;
+    const guest = new World({ players: [0, 1, 2].map(i => ({ name: 'P' + i })), mode: 'hotDumpling' });
+    applySnapshot(guest, JSON.parse(JSON.stringify(makeSnapshot(host))));
+    expect(guest.items.map(i => i.kind)).toEqual(['sugar']);
+    expect(guest.hot?.id).toBe(host.hot?.id);
+    expect(guest.players[1].pts).toBe(4);
+    expect(guest.players[2].shieldT).toBe(3);
+  });
+});
