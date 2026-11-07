@@ -15,6 +15,7 @@ import { gauntletBest } from '../gauntlet';
 import { dailySetup, loadDaily, todayKey } from '../daily';
 import { modeDef } from '../sim/modes';
 import { GameScene } from './GameScene';
+import { owned } from '../story/unlocks';
 
 function dailySub(): string {
   const d = loadDaily(), today = d.date === todayKey();
@@ -22,8 +23,12 @@ function dailySub(): string {
   return modeDef(dailySetup().mode).name;
 }
 
+/** Attract mode: after this many idle seconds on the title, a bot demo plays (0 = never). */
+export const ATTRACT_AFTER = 40;
+
 export class TitleScene extends Phaser.Scene {
   private nav!: FocusNav;
+  private idle = 0;
   private t = 0;
   private art: Phaser.GameObjects.Image | null = null;
 
@@ -32,6 +37,10 @@ export class TitleScene extends Phaser.Scene {
   }
 
   create(): void {
+    this.idle = 0;
+    const wake = () => { this.idle = 0; };
+    this.input.on('pointerdown', wake);
+    this.input.keyboard?.on('keydown', wake);
     clearTaps();
     setTouchMode('title');
     playMusic('menu');
@@ -75,12 +84,25 @@ export class TitleScene extends Phaser.Scene {
     if (Number(new URLSearchParams(location.search).get('demo') ?? 0) >= 2 && !this.registry.get('demoStarted')) this.scene.start('menu');
   }
 
+  /** A bot-only demo match on a random table; any input returns to the title (see GameScene attract). */
+  private startAttract(): void {
+    const own = owned();
+    const pool = own.kaiju.slice().sort(() => Math.random() - 0.5).slice(0, 4);
+    this.scene.start('game', {
+      slots: pool.map(() => ({ kind: 'bot', index: 0 })), difficulty: 'normal', species: pool,
+      tables: [own.tables[Math.floor(Math.random() * own.tables.length)]], rounds: 3, powerups: true, attract: true,
+    });
+  }
+
   update(_t: number, delta: number): void {
     const dt = delta / 1000;
     this.t += dt;
     applyPendingUpdate();
     this.art?.setScale(this.art.scaleX * 0 + (1300 / this.art.width) * (1 + Math.sin(this.t * 0.25) * 0.008)); // slow breathing zoom
     this.nav.update(dt);
+    this.idle += dt;
+    if (navigator.getGamepads && Array.from(navigator.getGamepads()).some(g => g?.buttons.some(b => b.pressed))) this.idle = 0;
+    if (ATTRACT_AFTER > 0 && this.idle > ATTRACT_AFTER) { this.idle = 0; this.startAttract(); return; }
     clearTaps();
   }
 }

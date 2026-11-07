@@ -3,7 +3,7 @@ import { sfx } from '../audio';
 import { playMusic } from '../music';
 import { getSettings, setSetting } from '../settings';
 import { checkAchievements, loadStats, saveStats, type Stats } from '../stats';
-import { clearTaps, consumeTap, readSlot, slotLabel, type Slot } from '../input';
+import { clearTaps, consumeTap, listDevices, readSlot, slotLabel, type Slot } from '../input';
 import { CUTLERY_LEN, fitInside, hasArt } from '../render/art';
 import { ArtRenderer } from '../render/artRender';
 import { drawCutleryShape, drawKaiju, drawTableLive } from '../render/draw';
@@ -48,6 +48,7 @@ export interface GameData {
   hazards?: boolean; // table hazards (hand, wind, cleaver…); default on
   gauntlet?: { wave: number; bosses: number[] }; // Gauntlet: seat 0 is you, one round per wave
   daily?: { date: string }; // Daily Challenge: seat 0 is you
+  attract?: boolean; // title-screen demo: any input goes back to the title
   story?: { chapter: number; bosses: number[]; spicy?: boolean }; // story chapter: seat 0 is you; bosses start rounds with a full belly
   net?: { role: 'host'; host: NetHost } | { role: 'guest'; guest: NetGuest; seat: number };
   seed?: number;
@@ -71,6 +72,8 @@ export class GameScene extends Phaser.Scene {
   private emoteCd: number[] = [];
   private emoteNext: number[] = [];
   private guestEmote = false;
+  private attractWake = false;
+  private attractText: Phaser.GameObjects.Text | null = null;
   private replayBuf = new ReplayBuffer();
   private replay: { frames: { t: number; s: Snapshot }[]; t: number; world: World; label: Phaser.GameObjects.Text } | null = null;
   private practice: { done: boolean[]; moved: number; lx: number; ly: number; text: Phaser.GameObjects.Text; g: Phaser.GameObjects.Graphics } | null = null;
@@ -208,6 +211,14 @@ export class GameScene extends Phaser.Scene {
     this.emotePrev = this.world.players.map(() => false);
     this.emoteCd = this.world.players.map(() => 0);
     this.emoteNext = this.world.players.map((_, i) => i % EMOTES.length);
+    this.attractWake = false;
+    this.attractText = null;
+    if (this.initData.attract) {
+      this.attractText = withShadow(this.add.text(VIEW.w / 2, VIEW.h - 30, 'DEMO  ·  PRESS ANY KEY OR TAP TO PLAY', display(24, '#ffe9c7', { strokeThickness: 5 })).setOrigin(0.5, 1).setDepth(12), 3);
+      this.tweens.add({ targets: this.attractText, alpha: { from: 1, to: 0.4 }, yoyo: true, repeat: -1, duration: 700 });
+      this.input.on('pointerdown', () => { this.attractWake = true; });
+      this.input.keyboard?.on('keydown', () => { this.attractWake = true; });
+    }
     this.awardsText = withShadow(this.add.text(VIEW.w / 2, VIEW.h - 22, '', body(17, '#ffd24a', 900, { stroke: '#2a1408', strokeThickness: 4, align: 'center' })).setOrigin(0.5, 1).setDepth(10), 2);
     this.handleEvents(this.world.drainEvents());
   }
@@ -269,6 +280,10 @@ export class GameScene extends Phaser.Scene {
     const dt = Math.min(0.1, delta / 1000);
     this.t += dt;
 
+    if (this.initData.attract) {
+      const any = this.attractWake || listDevices().some(d => { const i = readSlot(d); return i.throw || i.dash || i.start || i.swipe; });
+      if (any || this.world.phase === 'matchEnd') { this.attractWake = false; clearTaps(); this.scene.start('title'); return; }
+    }
     if (consumeTap('Escape')) { this.leave(); return; }
     if (consumeTap('KeyP') && this.world.phase !== 'matchEnd' && !this.net) this.setPaused(!this.paused);
     const anyStart = this.slots.some(s => s.kind === 'pad' && readSlot(s).start);
@@ -709,6 +724,7 @@ export class GameScene extends Phaser.Scene {
   }
 
   private track(e: GameEvent): void {
+    if (this.initData.attract) return; // demo matches don't count
     if (this.practice) { PRACTICE_STEPS.forEach((st, i) => { if (!this.practice!.done[i] && st.done(e, this.practice!.moved)) this.tick(i); }); return; } // practice doesn't count towards stats
     const T = this.tally;
     if (e.type === 'eat') T.crumbs[e.id]++;

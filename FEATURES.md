@@ -217,3 +217,8 @@ Each section says **where to customise it**.
 - Keys the menus need can't be used: Esc, P, 1, 2, Tab, and the Free Play shortcuts B N M R G U H O.
 - The Free Play menu and How to Play show your current keys. Saved on the device (`kk-keys-v1`).
 - **Customise:** `src/keybinds.ts` (`RESERVED`, `ACTIONS`); the defaults are still `KEYMAPS` in `src/input.ts`.
+
+## 24. Attract mode (title demo)
+
+- After **40 s idle** on the title screen, a 4-bot demo match plays on a random owned table with "DEMO · PRESS ANY KEY OR TAP TO PLAY". Any key, tap or gamepad button goes back to the title, as does the end of the demo match. Demo matches don't count towards stats.
+- **Customise:** `ATTRACT_AFTER` in `src/scenes/TitleScene.ts` (seconds; 0 = never).
