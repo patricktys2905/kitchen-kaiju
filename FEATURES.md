@@ -58,7 +58,7 @@ Each section says **where to customise it**.
 
 ## 1. Party modes (Team Feast, Crumb Rush, Hot Dumpling)
 
-- **Where:** Title screen → **PARTY MODES** card (was the disabled "More modes" card), or Free Play → **[G] mode** (touch: **MODE** pill).
+- **Where:** Title screen → **PARTY MODES** card (was the disabled "More modes" card); change mode with **[G]**, the **MODE** pill, or by tapping the mode name. (Free Play itself is Classic only, see 48.)
 - **Team Feast:** seats alternate RED / BLUE. Cutlery, swipes and kaiju-squash pass through teammates. The last team standing scores a point for everyone on it.
 - **Crumb Rush:** 45-second rounds. Every crumb eaten is a point, shown as 🍪 in the scoreboard with a ⏱ timer at the top. Knocked-out kaiju drop half their crumbs and come back after 2.5 s with a short shield. Most crumbs wins the round; a tie scores nobody.
 - **Hot Dumpling:** one kaiju carries a steaming dumpling, shown above its head and pulsing faster as the fuse gets shorter. Touch a rival to pass it on. When the fuse runs out it POPS, knocking out the carrier. Last one standing wins. Needs 3+ players, so bots are added automatically.
