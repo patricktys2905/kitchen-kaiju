@@ -84,6 +84,8 @@ let layers: Record<Exclude<TouchMode, 'off'>, HTMLElement> | null = null;
 let pauseBtn: HTMLElement | null = null;
 let stompBtn: HTMLElement, throwBtn: HTMLElement, joinPill: HTMLElement, diffPill: HTMLElement, tablePill: HTMLElement, roundsPill: HTMLElement, aimEl: HTMLElement;
 let modePill: HTMLElement | null = null;
+let cupPill: HTMLElement | null = null;
+let onlinePill: HTMLElement | null = null;
 let powerPill: HTMLElement | null = null;
 let hazPill: HTMLElement | null = null;
 let mutPill: HTMLElement | null = null;
@@ -324,9 +326,11 @@ export function initTouch(injectTap: (code: string) => void): void {
   tapButton(hazPill, 'TouchHazards');
   mutPill = el('div', row, { class: 'pill' }, 'TWIST: NONE');
   tapButton(mutPill, 'TouchMutator');
-  tapButton(el('div', row, { class: 'pill' }, '🌐 ONLINE'), 'TouchOnline');
+  onlinePill = el('div', row, { class: 'pill' }, '🌐 ONLINE');
+  tapButton(onlinePill, 'TouchOnline');
   tapButton(el('div', row, { class: 'pill' }, '🎲'), 'TouchShuffle');
-  tapButton(el('div', row, { class: 'pill' }, '🏆 CUP'), 'TouchCup');
+  cupPill = el('div', row, { class: 'pill' }, '🏆 CUP');
+  tapButton(cupPill, 'TouchCup');
   tapButton(el('div', row, { class: 'pill go' }, '▶ PLAY'), 'Digit1');
 
   // ---- match end
@@ -363,7 +367,7 @@ export function setTouchMode(mode: TouchMode): void {
 }
 
 let lastHud = '';
-export function setTouchHud(h: { stompReady?: boolean; armed?: boolean; joined?: boolean; difficulty?: string; table?: string; canPause?: boolean; rounds?: number; mode?: string; powerups?: boolean; hazards?: boolean; mutator?: string }): void {
+export function setTouchHud(h: { stompReady?: boolean; armed?: boolean; joined?: boolean; difficulty?: string; table?: string; canPause?: boolean; rounds?: number; mode?: string; powerups?: boolean; hazards?: boolean; mutator?: string; party?: boolean }): void {
   if (!layers) return;
   const key = JSON.stringify(h);
   if (key === lastHud) return;
@@ -375,6 +379,7 @@ export function setTouchHud(h: { stompReady?: boolean; armed?: boolean; joined?:
   if (h.table !== undefined) tablePill.textContent = `TABLE: ${h.table}`;
   if (h.rounds !== undefined) roundsPill.textContent = `ROUNDS: ${h.rounds}`;
   if (h.mode !== undefined && modePill) modePill.textContent = `MODE: ${h.mode}`;
+  if (h.party !== undefined) { if (modePill) modePill.style.display = h.party ? '' : 'none'; if (cupPill) cupPill.style.display = h.party ? '' : 'none'; if (onlinePill) onlinePill.style.display = h.party ? 'none' : ''; }
   if (h.mutator !== undefined && mutPill) mutPill.textContent = `TWIST: ${h.mutator}`;
   if (h.hazards !== undefined && hazPill) hazPill.textContent = `HAZARDS: ${h.hazards ? 'ON' : 'OFF'}`;
   if (h.powerups !== undefined && powerPill) powerPill.textContent = `POWER-UPS: ${h.powerups ? 'ON' : 'OFF'}`;

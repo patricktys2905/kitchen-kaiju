@@ -52,6 +52,7 @@ Each section says **where to customise it**.
 - 45. 🎲 Shuffle
 - 46. Party Cup online
 - 47. 🛠 Table Workshop
+- 48. Free Play and Party Modes separated
 
 **Where to find things:** title screen cards (Story · Free Play · Online · Party Modes · Daily · Gauntlet), the top-right row (Settings · How to Play · Kaiju · Records), and Free Play keys (G mode · U power-ups · H hazards · X twist · C cup).
 
@@ -423,3 +424,9 @@ Each section says **where to customise it**.
 - **💾 SAVE** keeps it; **▶ PLAY IT** jumps straight into a match on it.
 - Custom tables show up in Free Play's TABLE picker (and the rotation, Party Cup and Gauntlet), named "My Table 1-3". They're local only, never online, in Story or in the Daily.
 - **Customise:** `src/custom.ts` (which props, hazards, limits).
+
+## 48. Free Play and Party Modes are now separate (requested)
+
+- **FREE PLAY** (title card) is **Classic only**: the screen is titled FREE PLAY and has no mode option. Power-ups, hazards, twists, shuffle and Online stay.
+- **PARTY MODES** (title card) opens its own **PARTY MODES** setup. The mode is shown big under the title (◀ TEAM FEAST ▶; tap it or press **[G]** to change) with its description, and the **🏆 Party Cup** lives here (**[C]**).
+- Leaving a match returns you to whichever of the two you came from. On phones the MODE and CUP buttons only appear in Party Modes.

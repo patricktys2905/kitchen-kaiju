@@ -63,7 +63,7 @@ export class TitleScene extends Phaser.Scene {
       { label: 'STORY', sub: storySub, accent: 0xff9a3c, scene: 'story' },
       { label: 'FREE PLAY', sub: 'Up to 6 · bots', accent: 0x4fd1ff, scene: 'menu' },
       { label: 'ONLINE', sub: 'Play with friends', accent: 0x8dff6a, scene: 'lobby' },
-      { label: 'PARTY MODES', sub: 'Teams · Rush · Dumpling', accent: 0xffd24a, scene: 'menu', data: { mode: 'teams' } },
+      { label: 'PARTY MODES', sub: 'Teams · Rush · Dumpling', accent: 0xffd24a, scene: 'menu', data: { mode: 'teams', party: true } },
       { label: 'DAILY', sub: dailySub(), accent: 0x8dff6a, scene: 'game', data: GameScene.dailyData() },
       { label: 'GAUNTLET', sub: gauntletBest() ? `Best wave ${gauntletBest()}` : 'Solo survival', accent: 0xff5a7a, scene: 'game', data: GameScene.gauntletWave(1, save.pick, { kind: 'local', index: 0 }) },
     ];

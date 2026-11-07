@@ -56,6 +56,7 @@ export interface GameData {
   hats?: string[]; // online: each seat's hat id ('' = none)
   gauntlet?: { wave: number; bosses: number[] }; // Gauntlet: seat 0 is you, one round per wave
   daily?: { date: string }; // Daily Challenge: seat 0 is you
+  party?: boolean; // started from the PARTY MODES setup (go back there afterwards)
   attract?: boolean; // title-screen demo: any input goes back to the title
   dessert?: { course: number; bosses: number[] }; // 🍰 Dessert Course (index into COURSES)
   cup?: { game: number; points: number[] }; // 🏆 Party Cup: which game of the cup, points so far
@@ -406,7 +407,7 @@ export class GameScene extends Phaser.Scene {
     if (this.net?.role === 'host') this.net.host.close();
     if (this.net?.role === 'guest') this.net.guest.close();
     if (this.net) { this.scene.start('title'); return; }
-    this.scene.start('menu', { slots: this.net ? [] : this.slots, difficulty: this.difficulty, species: this.net ? [] : this.species, botLevels: this.initData.botLevels ?? undefined, tables: this.tables, rounds: this.rounds, mode: this.mode, powerups: this.powerups, hazards: this.hazards, mutator: this.initData.mutator });
+    this.scene.start('menu', { slots: this.net ? [] : this.slots, difficulty: this.difficulty, species: this.net ? [] : this.species, botLevels: this.initData.botLevels ?? undefined, tables: this.tables, rounds: this.rounds, mode: this.mode, powerups: this.powerups, hazards: this.hazards, mutator: this.initData.mutator, party: this.initData.party || this.mode !== 'classic' || !!this.initData.cup });
   }
 
   private rematch(): void {

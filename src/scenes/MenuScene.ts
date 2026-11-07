@@ -31,6 +31,7 @@ export interface MenuData {
   rounds?: number;
   botLevels?: (Difficulty | null)[];
   mode?: GameMode;
+  party?: boolean; // opened from the PARTY MODES card: show the mode picker (Free Play is Classic only)
   powerups?: boolean;
   hazards?: boolean;
   mutator?: Mutator;
@@ -74,7 +75,10 @@ export class MenuScene extends Phaser.Scene {
     this.difficulty = data.difficulty ?? this.difficulty;
     this.botLevels = (data.botLevels ?? []).slice(0, this.slots.length);
     if (data.rounds) this.rounds = data.rounds;
+    this.party = !!data.party;
     if (data.mode) this.mode = data.mode;
+    if (!this.party) this.mode = 'classic';
+    else if (this.mode === 'classic') this.mode = enabledModes().find(m => m.id !== 'classic')?.id ?? 'classic';
     if (data.powerups !== undefined) this.powerups = data.powerups;
     if (data.hazards !== undefined) this.hazards = data.hazards;
     if (data.mutator) this.mutator = data.mutator;
@@ -123,14 +127,18 @@ export class MenuScene extends Phaser.Scene {
   /** 🎲 Random mode, table and twist (from what you own / what is enabled). */
   private shuffle(): void {
     const pick = <T,>(a: T[]): T => a[Math.floor(Math.random() * a.length)];
-    this.mode = pick(enabledModes().map(m => m.id));
+    if (this.party) this.mode = pick(enabledModes().map(m => m.id).filter(m => m !== 'classic'));
     this.table = pick(this.own.tables);
     this.mutator = Math.random() < 0.5 ? 'none' : pick(enabledMutators().map(m => m.id));
     for (let i = 0; i < MAX_PLAYERS; i++) this.bump[i] = 1;
     sfx.meterFull();
   }
 
+  private party = false;
+  private tagline!: Phaser.GameObjects.Text;
+
   private cycleMode(): void {
+    if (!this.party) return;
     const list = enabledModes().map(m => m.id);
     this.mode = list[(list.indexOf(this.mode) + 1) % list.length] ?? 'classic';
     sfx.pickup();
@@ -151,10 +159,10 @@ export class MenuScene extends Phaser.Scene {
     this.decoImgs = (['fork', 'spoon', 'knife', 'chopstick', 'ladle', 'spork'] as const)
       .filter(k => hasArt(`cut-${k}`))
       .map(k => this.add.image(0, 0, `cut-${k}`).setDepth(1).setScale((CUTLERY_LEN[k] * 1.5) / this.textures.get(`cut-${k}`).getSourceImage().width));
-    const title = this.add.text(640, 66, 'KITCHEN KAIJU', { ...TITLE, fontSize: '92px', strokeThickness: 12, padding: { x: 8, y: 8 } }).setOrigin(0.5).setDepth(2);
+    const title = this.add.text(640, 66, this.party ? 'PARTY MODES' : 'FREE PLAY', { ...TITLE, fontSize: '92px', strokeThickness: 12, padding: { x: 8, y: 8 } }).setOrigin(0.5).setDepth(2);
     withShadow(withGradient(title, '#fff6cf', '#ffb347'), 7);
     popIn(this, title, 1.25, 600);
-    withShadow(this.add.text(640, 126, 'Tiny monsters. Giant dinner.', { ...BODY, fontStyle: '900', fontSize: '23px', color: '#ffd9a0' }).setOrigin(0.5).setDepth(2), 3);
+    this.tagline = withShadow(this.add.text(640, 126, 'Tiny monsters. Giant dinner.', { ...BODY, fontStyle: '900', fontSize: '23px', color: '#ffd9a0' }).setOrigin(0.5).setDepth(2), 3);
 
     this.slotTexts = [];
     this.slotSub = [];
@@ -178,6 +186,7 @@ export class MenuScene extends Phaser.Scene {
       });
     }
     this.modeText = withShadow(this.add.text(640, 150, '', { ...BODY, fontStyle: '900', fontSize: '17px', color: '#ffd24a', align: 'center' }).setOrigin(0.5).setDepth(3), 2);
+    if (this.party) this.modeText.setInteractive({ useHandCursor: true }).on('pointerup', () => this.cycleMode()); // tap the mode line to change mode
 
     // Controls as key "chips": [KEY] tokens get a keycap behind them.
     const chipG = this.add.graphics().setDepth(2);
@@ -197,7 +206,7 @@ export class MenuScene extends Phaser.Scene {
     this.add.text(640, 560, rules.join('\n'), { ...BODY, fontStyle: '700', fontSize: '15px', align: 'center', color: '#cdb9a3', lineSpacing: 5 }).setOrigin(0.5, 0).setDepth(2);
     if (!isTouchDevice) {
       this.chipLine(chipG, 640, 640, '[THROW] join   [◀ ▶] pick kaiju   [DASH] leave   [B] [N] add / remove bot', 15);
-      this.chipLine(chipG, 640, 670, '[2] bots  [M] table  [R] rounds  [G] mode  [U] power-ups  [H] hazards  [X] twist  [Z] 🎲  [O] ONLINE  [C] CUP  [1] PLAY', 15);
+      this.chipLine(chipG, 640, 670, this.party ? '[G] MODE  [C] PARTY CUP  [2] bots  [M] table  [R] rounds  [U] power-ups  [H] hazards  [X] twist  [Z] 🎲  [1] PLAY' : '[2] bots  [M] table  [R] rounds  [U] power-ups  [H] hazards  [X] twist  [Z] 🎲  [O] ONLINE  [1] PLAY', 15);
     }
     setTouchMode('menu');
     playMusic('menu');
@@ -218,7 +227,7 @@ export class MenuScene extends Phaser.Scene {
       const tbl = Number(new URLSearchParams(location.search).get('table') ?? -1);
       if (tbl >= 0 && tbl < LAYOUTS.length) this.table = tbl;
       const gm = new URLSearchParams(location.search).get('gmode') as GameMode | null;
-      if (gm && enabledModes().some(m => m.id === gm)) this.mode = gm;
+      if (gm && enabledModes().some(m => m.id === gm)) { this.mode = gm; this.party = gm !== 'classic'; }
       this.startGame();
     }
   }
@@ -230,7 +239,7 @@ export class MenuScene extends Phaser.Scene {
     const g = cupGames(this.slots.length)[0];
     this.scene.start('game', {
       slots: this.slots.slice(), difficulty: this.difficulty, species: this.picks.slice(), botLevels: this.slots.map((s, i) => (s.kind === 'bot' ? this.botLevels[i] ?? null : null)),
-      tables: this.table < 0 ? this.own.tables.slice() : [this.table], rounds: g.rounds, mode: g.mode, powerups: this.powerups, hazards: this.hazards, mutator: this.mutator, cup: { game: 0, points: [] },
+      tables: this.table < 0 ? this.own.tables.slice() : [this.table], rounds: g.rounds, mode: g.mode, powerups: this.powerups, hazards: this.hazards, mutator: this.mutator, party: true, cup: { game: 0, points: [] },
     });
   }
 
@@ -238,7 +247,7 @@ export class MenuScene extends Phaser.Scene {
     while (this.slots.length < Math.max(2, modeDef(this.mode).minPlayers)) this.addSlot({ kind: 'bot', index: this.slots.length });
     this.fixPicks();
     this.scene.start('game', {
-      slots: this.slots.slice(), difficulty: this.difficulty, species: this.picks.slice(), botLevels: this.slots.map((s, i) => (s.kind === 'bot' ? this.botLevels[i] ?? null : null)), tables: this.table < 0 ? this.own.tables.slice() : [this.table], rounds: this.rounds, mode: this.mode, powerups: this.powerups, hazards: this.hazards, mutator: this.mutator,
+      slots: this.slots.slice(), difficulty: this.difficulty, species: this.picks.slice(), botLevels: this.slots.map((s, i) => (s.kind === 'bot' ? this.botLevels[i] ?? null : null)), tables: this.table < 0 ? this.own.tables.slice() : [this.table], rounds: this.rounds, mode: this.mode, powerups: this.powerups, hazards: this.hazards, mutator: this.mutator, party: this.party,
     });
   }
 
@@ -275,7 +284,7 @@ export class MenuScene extends Phaser.Scene {
       if (j >= 0) this.cycle(j, 1);
     }
     if (consumeTap('Digit1')) { this.startGame(); return; }
-    if (consumeTap('KeyC') || consumeTap('TouchCup')) { this.startCup(); return; }
+    if (this.party && (consumeTap('KeyC') || consumeTap('TouchCup'))) { this.startCup(); return; }
     if (consumeTap('KeyZ') || consumeTap('TouchShuffle')) this.shuffle();
     if (consumeTap('Escape')) { this.scene.start('title'); return; }
     clearTaps();
@@ -285,6 +294,7 @@ export class MenuScene extends Phaser.Scene {
       table: this.table < 0 ? 'ALL' : LAYOUTS[this.table].name.toUpperCase(),
       rounds: this.rounds,
       mode: modeDef(this.mode).name,
+      party: this.party,
       powerups: this.powerups,
       hazards: this.hazards,
       mutator: mutatorDef(this.mutator).name,
@@ -379,7 +389,9 @@ export class MenuScene extends Phaser.Scene {
       }
     }
     const md = modeDef(this.mode);
-    this.modeText.setText(`MODE: ${md.name}  ·  ${md.blurb}   ·   POWER-UPS: ${this.powerups ? 'ON' : 'OFF'}   ·   HAZARDS: ${this.hazards ? 'ON' : 'OFF'}${this.mutator !== 'none' ? `   ·   ⚡ ${mutatorDef(this.mutator).name}` : ''}`);
+    this.modeText.setFontSize(this.party ? 20 : 17).setY(150);
+    this.tagline.setText(this.party ? md.blurb : 'Tiny monsters. Giant dinner.');
+    this.modeText.setText(`${this.party ? `◀ ${md.name} ▶` : 'CLASSIC'}   ·   POWER-UPS: ${this.powerups ? 'ON' : 'OFF'}   ·   HAZARDS: ${this.hazards ? 'ON' : 'OFF'}${this.mutator !== 'none' ? `   ·   ⚡ ${mutatorDef(this.mutator).name}` : ''}`);
     this.infoText.setText(`Bot difficulty: ${this.difficulty.toUpperCase()}   ·   Up to ${MAX_PLAYERS} players   ·   First to ${this.rounds} round${this.rounds === 1 ? '' : 's'}   ·   ${this.own.kaiju.length < SPECIES.length ? `${this.own.kaiju.length}/${SPECIES.length} kaiju (unlock more in Story)` : `${SPECIES.length} kaiju`}`);
     const tl = this.table < 0 ? null : LAYOUTS[this.table];
     this.tableText.setText(tl ? `TABLE: ${tl.name.toUpperCase()}  —  ${tl.blurb}` : `TABLE: ALL ${this.own.tables.length} (a different one every round)${this.own.tables.length < LAYOUTS.length ? ` · ${LAYOUTS.length - this.own.tables.length} more to unlock in Story` : ''}`);
