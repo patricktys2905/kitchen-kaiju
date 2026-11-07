@@ -179,3 +179,10 @@ Each section says **where to customise it**.
   - `src/sim/cutlery.ts`: each one's speed, range, size, bounces and heavy flag; `RARE_KINDS` and `RARE_CHANCE`.
   - Art: `public/art/cut-pizzacutter.webp`, `cut-rollingpin.webp`, from `art-src/jobs-cutlery2.json`.
   - New kinds must be **appended** to `KINDS` in `src/net/snapshot.ts`.
+
+## 19. 🌶️ Spicy Story replays (hard mode)
+
+- **Where:** Story map → the **🌶️ SPICY** button on the chapter panel, for chapters you've already cleared.
+- Replays the chapter with every rival one level tougher (easy→normal, normal→hard). Spicy wins are saved separately, shown as "🌶️ 3" on the panel and a 🌶️ on the chapter card. They never change normal stars or unlocks.
+- New achievements: 🌶️ Feeling Spicy (clear 1 on Spicy) and 🔥 Ghost Pepper (all 12). New hat: **Chili Pepper** (from Feeling Spicy).
+- **Customise:** `SPICY_BUMP` in `src/story/chapters.ts` (how much tougher).

@@ -90,6 +90,13 @@ export const HATS: Hat[] = [
       g.lineStyle(2, 0x8a6a10, 1); g.beginPath(); g.arc(x, y, s * 0.45, Math.PI, 0, false); g.strokePath();
     },
   },
+  {
+    id: 'chili', name: 'Chili Pepper', unlock: 'spicy-1', draw: (g, x, y, s) => {
+      g.fillStyle(0xd8281e, 1); g.fillEllipse(x, y - s * 0.25, s * 1.1, s * 0.42);
+      g.fillStyle(0xff6a4a, 1); g.fillEllipse(x - s * 0.15, y - s * 0.32, s * 0.5, s * 0.14);
+      g.fillStyle(0x2f8a2f, 1); g.fillRect(x + s * 0.5, y - s * 0.4, s * 0.22, s * 0.12); g.fillRect(x + s * 0.66, y - s * 0.55, s * 0.08, s * 0.2);
+    },
+  },
 ];
 
 const KEY = 'kk-hat';

@@ -174,6 +174,9 @@ export function chapterRivals(ch: Chapter, playerSpecies: number): Rival[] {
   });
 }
 
+/** 🌶️ Spicy: every rival one level tougher. EASY TO CUSTOMISE: change the bump table. */
+export const SPICY_BUMP: Record<string, 'easy' | 'normal' | 'hard'> = { easy: 'normal', normal: 'hard', hard: 'hard' };
+
 /** Stars for a win: 3 = never lost a round, 2 = lost one, 1 = otherwise. */
 export function starsFor(roundsLost: number): number {
   return roundsLost <= 0 ? 3 : roundsLost === 1 ? 2 : 1;

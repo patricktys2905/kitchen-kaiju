@@ -8,8 +8,8 @@ import { body, display, popIn, withShadow } from '../render/fonts';
 import { Button } from '../render/ui';
 import { SPECIES } from '../sim/constants';
 import { LAYOUTS } from '../sim/layouts';
-import { CHAPTERS, chapterRivals, ENDING, type Line } from '../story/chapters';
-import { loadStory, recordResult, saveStory, totalStars, type StorySave } from '../story/save';
+import { CHAPTERS, chapterRivals, ENDING, SPICY_BUMP, type Line } from '../story/chapters';
+import { loadStory, recordResult, recordSpicy, saveStory, totalStars, type StorySave } from '../story/save';
 import { setTouchMode } from '../touch';
 import { playMusic } from '../music';
 import { CHAPTER_CUTS, ENDING_CUT, OPENING, seenId, type Cutscene } from '../story/cutscenes';
@@ -19,6 +19,7 @@ export interface StoryResult {
   chapter: number;
   won: boolean;
   stars: number;
+  spicy?: boolean; // a 🌶️ Spicy replay
 }
 
 const CARD_W = 178, CARD_H = 112;
@@ -56,6 +57,8 @@ export class StoryScene extends Phaser.Scene {
   private overlayButtons: Button[] = [];
   private overlayFocus = 0;
   private rewardsBtn: Button | null = null;
+  private spicy = false;
+  private spicyBtn: Button | null = null;
 
   constructor() {
     super('story');
@@ -116,10 +119,20 @@ export class StoryScene extends Phaser.Scene {
     this.drawPick();
 
     this.buttons.push(new Button(this, 640, 50, { w: 200, h: 44, label: '🎬 OPENING', size: 18, accent: 0xffd24a, onClick: () => { if (this.mode === 'map') { sfx.pickup(); this.playCut(OPENING, () => {}); } } }, 6));
+    this.spicyBtn = new Button(this, 1070, 518, { w: 240, h: 36, label: '', size: 15, accent: 0xff5a1a, onClick: () => this.toggleSpicy() }, 6);
+    this.buttons.push(this.spicyBtn);
+    this.drawPanel(); // fills in the SPICY button label
     this.buttons.push(new Button(this, 1172, 560, { w: 150, h: 38, label: '🎬 SCENE', size: 16, onClick: () => this.watchScene() }, 6));
 
     if (this.pendingResult) this.showResult(this.pendingResult);
     else if (!this.save.cuts.includes(seenId(OPENING))) this.time.delayedCall(250, () => this.playCut(OPENING, () => {}));
+  }
+
+  private toggleSpicy(): void {
+    if (this.mode !== 'map' || !(this.save.stars[this.sel] > 0)) { sfx.thwock(); return; }
+    this.spicy = !this.spicy;
+    sfx.pickup();
+    this.drawPanel();
   }
 
   /** Replays the selected chapter's cutscene (or the opening for a locked chapter). */
@@ -187,7 +200,7 @@ export class StoryScene extends Phaser.Scene {
         g.fillStyle(0xcdb9a3, 1); g.fillRoundedRect(x - 12, y - 18, 24, 20, 4);
         g.lineStyle(4, 0xcdb9a3, 1); g.beginPath(); g.arc(x, y - 18, 8, Math.PI, 0); g.strokePath();
       }
-      this.cardTexts[i].setText(`${i + 1}. ${ch.title}${ch.boss ? '  👑' : ''}`).setAlpha(open ? 1 : 0.45);
+      this.cardTexts[i].setText(`${i + 1}. ${ch.title}${ch.boss ? '  👑' : ''}${(this.save.spicy?.[i] ?? 0) > 0 ? ' 🌶️' : ''}`).setAlpha(open ? 1 : 0.45);
     });
   }
 
@@ -218,7 +231,10 @@ export class StoryScene extends Phaser.Scene {
     });
     add(this.add.text(1070, 392, '“' + ch.tip + '”', body(14, '#ffe9c7', 700, { align: 'center', wordWrap: { width: 320 }, fontStyle: 'italic 700' })).setOrigin(0.5, 0).setDepth(5));
     const best = this.save.stars[this.sel] ?? 0;
-    add(this.add.text(1000, 560, best ? `Best: ${'★'.repeat(best)}${'☆'.repeat(3 - best)}` : 'Not cleared yet', body(16, '#ffd24a', 900)).setOrigin(0.5).setDepth(5));
+    const hot = this.save.spicy?.[this.sel] ?? 0;
+    add(this.add.text(1000, 560, best ? `Best: ${'★'.repeat(best)}${'☆'.repeat(3 - best)}${hot ? `  🌶️${hot}` : ''}` : 'Not cleared yet', body(16, '#ffd24a', 900)).setOrigin(0.5).setDepth(5));
+    this.spicyBtn?.setText(best ? `🌶️ SPICY: ${this.spicy ? 'ON (tougher rivals)' : 'OFF'}` : '🌶️ SPICY: clear it first');
+    if (this.spicyBtn) this.spicyBtn.disabled = !best;
   }
 
   // ---------------------------------------------------------------- flow
@@ -238,13 +254,18 @@ export class StoryScene extends Phaser.Scene {
     else talk();
   }
 
+  /** Spicy only applies to chapters you have already cleared. */
+  private spicyOn(): boolean {
+    return this.spicy && (this.save.stars[this.sel] ?? 0) > 0;
+  }
+
   private launch(): void {
     const ch = CHAPTERS[this.sel], rivals = chapterRivals(ch, this.save.pick);
     const slots: Slot[] = [{ kind: 'local', index: 0 }, ...rivals.map((): Slot => ({ kind: 'bot', index: 0 }))];
     this.scene.start('game', {
       slots, difficulty: 'normal', species: [this.save.pick, ...rivals.map(r => r.species)], tables: [ch.table], rounds: ch.rounds,
-      botLevels: [null, ...rivals.map(r => r.level)],
-      story: { chapter: this.sel, bosses: rivals.map((r, k) => (r.boss ? k + 1 : -1)).filter(k => k > 0) },
+      botLevels: [null, ...rivals.map(r => (this.spicyOn() ? SPICY_BUMP[r.level] : r.level))],
+      story: { chapter: this.sel, bosses: rivals.map((r, k) => (r.boss ? k + 1 : -1)).filter(k => k > 0), spicy: this.spicyOn() },
     });
   }
 
@@ -307,7 +328,8 @@ export class StoryScene extends Phaser.Scene {
   private showResult(r: StoryResult): void {
     const ch = CHAPTERS[r.chapter], last = r.chapter === CHAPTERS.length - 1;
     const before = { ...this.save, stars: this.save.stars.slice() };
-    const unlockedNew = recordResult(this.save, r.chapter, r.won, r.stars);
+    const unlockedNew = r.spicy ? false : recordResult(this.save, r.chapter, r.won, r.stars);
+    if (r.spicy) { recordSpicy(this.save, r.chapter, r.won, r.stars); this.spicy = true; }
     const rewards = newlyEarned(before, this.save);
     this.rewardsBtn?.setText(`🎁 REWARDS ${UNLOCKS.filter(u => isEarned(u, this.save)).length}/${UNLOCKS.length}`);
     this.drawMap();
@@ -319,7 +341,7 @@ export class StoryScene extends Phaser.Scene {
     g.fillStyle(0x2a1408, 0.97); g.fillRoundedRect(290, 120, 700, 480, 26);
     g.lineStyle(5, r.won ? 0xffd24a : 0xff5a4a, 1); g.strokeRoundedRect(290, 120, 700, 480, 26);
     this.overlay.push(g);
-    const title = withShadow(this.add.text(640, 175, r.won ? 'CHAPTER CLEAR!' : 'DEFEATED', display(56, r.won ? '#ffd24a' : '#ff8a7a', { strokeThickness: 9 })).setOrigin(0.5).setDepth(31), 6);
+    const title = withShadow(this.add.text(640, 175, r.won ? (r.spicy ? '🌶️ SPICY CLEAR!' : 'CHAPTER CLEAR!') : 'DEFEATED', display(56, r.won ? '#ffd24a' : '#ff8a7a', { strokeThickness: 9 })).setOrigin(0.5).setDepth(31), 6);
     popIn(this, title, 1.6, 500);
     this.overlay.push(title);
     if (r.won) {

@@ -490,7 +490,7 @@ describe('story mode', () => {
     const { starsFor } = await import('../src/story/chapters');
     const { recordResult } = await import('../src/story/save');
     expect([starsFor(0), starsFor(1), starsFor(2), starsFor(5)]).toEqual([3, 2, 1, 1]);
-    const s = { unlocked: 1, stars: [] as number[], pick: 0, endingSeen: false, cuts: [] as string[] };
+    const s = { unlocked: 1, stars: [] as number[], pick: 0, endingSeen: false, cuts: [] as string[], spicy: [] as number[] };
     expect(recordResult(s, 0, false, 0)).toBe(false); // a loss unlocks nothing
     expect(s.unlocked).toBe(1);
     expect(recordResult(s, 0, true, 2)).toBe(true);
@@ -507,7 +507,7 @@ describe('story unlockables', () => {
     const { owned, UNLOCKS, newlyEarned, isEarned } = await import('../src/story/unlocks');
     const { SPECIES } = await import('../src/sim/constants');
     const { LAYOUTS } = await import('../src/sim/layouts');
-    const fresh = { unlocked: 1, stars: [] as number[], pick: 0, endingSeen: false, cuts: [] as string[] };
+    const fresh = { unlocked: 1, stars: [] as number[], pick: 0, endingSeen: false, cuts: [] as string[], spicy: [] as number[] };
     const o = owned(fresh);
     expect(o.kaiju.length).toBe(SPECIES.length - UNLOCKS.filter(u => u.kind === 'kaiju').length);
     expect(o.tables.length).toBe(LAYOUTS.length - UNLOCKS.filter(u => u.kind === 'table').length);

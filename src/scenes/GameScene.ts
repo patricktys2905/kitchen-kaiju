@@ -47,7 +47,7 @@ export interface GameData {
   hazards?: boolean; // table hazards (hand, wind, cleaver…); default on
   gauntlet?: { wave: number; bosses: number[] }; // Gauntlet: seat 0 is you, one round per wave
   daily?: { date: string }; // Daily Challenge: seat 0 is you
-  story?: { chapter: number; bosses: number[] }; // story chapter: seat 0 is you; bosses start rounds with a full belly
+  story?: { chapter: number; bosses: number[]; spicy?: boolean }; // story chapter: seat 0 is you; bosses start rounds with a full belly
   net?: { role: 'host'; host: NetHost } | { role: 'guest'; guest: NetGuest; seat: number };
   seed?: number;
 }
@@ -267,7 +267,7 @@ export class GameScene extends Phaser.Scene {
     if (this.pauseUi && this.pauseUi.nav.update(dt) === 'back') this.setPaused(false);
     if (this.story && this.world.phase === 'matchEnd' && (this.world.phaseT > 2.8 || consumeTap('Digit1') || consumeTap('Space') || consumeTap('Enter'))) {
       const me = this.world.players[0], won = this.world.winner === 0;
-      this.scene.start('story', { result: { chapter: this.story.chapter, won, stars: won ? starsFor(this.world.round - me.score) : 0 } });
+      this.scene.start('story', { result: { chapter: this.story.chapter, won, stars: won ? starsFor(this.world.round - me.score) : 0, spicy: !!this.story.spicy } });
       return;
     }
     const gw = this.initData.gauntlet;

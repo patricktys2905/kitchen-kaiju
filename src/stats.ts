@@ -1,6 +1,7 @@
 // Lifetime stats for the people playing on this device (bots don't count), plus achievements.
 // EASY TO CUSTOMISE: add/edit achievements in ACHIEVEMENTS; each one is a test on the stats.
 import type { GameMode } from './sim/modes';
+import { loadStory } from './story/save';
 
 export interface Stats {
   matches: number; // matches finished with at least one human playing
@@ -62,8 +63,15 @@ export const ACHIEVEMENTS: Achievement[] = [
   { id: 'gauntlet-5', icon: '⚔️', name: 'Gauntlet Runner', desc: 'Clear 5 Gauntlet waves', test: s => s.gauntlet >= 5 },
   { id: 'gauntlet-10', icon: '🏰', name: 'Gauntlet Master', desc: 'Clear 10 Gauntlet waves', test: s => s.gauntlet >= 10 },
   { id: 'daily', icon: '📅', name: 'Daily Special', desc: 'Win a Daily Challenge', test: () => { try { return JSON.parse(localStorage.getItem('kk-daily-v1') ?? '{}').won === true || !!JSON.parse(localStorage.getItem('kk-daily-v1') ?? '{}').lastWin; } catch { return false; } } },
+  { id: 'spicy-1', icon: '🌶️', name: 'Feeling Spicy', desc: 'Clear a Story chapter on Spicy', test: () => safeSpicy() >= 1 },
+  { id: 'spicy-12', icon: '🔥', name: 'Ghost Pepper', desc: 'Clear all 12 Story chapters on Spicy', test: () => safeSpicy() >= 12 },
   { id: 'matches-25', icon: '🍲', name: 'Dinner Party Animal', desc: 'Finish 25 matches', test: s => s.matches >= 25 },
 ];
+
+/** How many chapters are cleared on Spicy (0 when storage is unavailable, e.g. tests). */
+function safeSpicy(): number {
+  try { return loadStory().spicy.filter(x => x > 0).length; } catch { return 0; }
+}
 
 /** Marks any newly earned achievements; returns them. */
 export function checkAchievements(s: Stats): Achievement[] {
