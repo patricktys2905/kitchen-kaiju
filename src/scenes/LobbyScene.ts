@@ -90,6 +90,7 @@ export class LobbyScene extends Phaser.Scene {
     this.difficulty = data.difficulty ?? 'normal';
     this.rounds = data.rounds ?? DEFAULT_ROUNDS;
     this.own = owned();
+    this.own.tables = this.own.tables.filter(i => !LAYOUTS[i]?.custom); // custom tables are local-only
     this.view = 'choose';
     this.host = this.guest = null;
     this.seats = [];

@@ -62,6 +62,8 @@ export interface Layout {
   blender?: Zone; // Smoothie Bar: the blades (r = KO radius); it pulls from RULES.blenderRange
   /** Unlocked in Story mode (see src/story/unlocks.ts). */
   locked?: boolean;
+  /** Built in the Table Workshop (src/custom.ts): local play only. */
+  custom?: boolean;
   obstacles: Obstacle[];
   spawns: [number, number][];
   blurb: string;

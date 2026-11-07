@@ -51,6 +51,7 @@ Each section says **where to customise it**.
 - 44. Rumble
 - 45. 🎲 Shuffle
 - 46. Party Cup online
+- 47. 🛠 Table Workshop
 
 **Where to find things:** title screen cards (Story · Free Play · Online · Party Modes · Daily · Gauntlet), the top-right row (Settings · How to Play · Kaiju · Records), and Free Play keys (G mode · U power-ups · H hazards · X twist · C cup).
 
@@ -411,3 +412,14 @@ Each section says **where to customise it**.
 ## 46. Party Cup online
 
 - Online lobby (host) → **🏆 Party Cup: ON**. The whole five-game cup plays online. After each game the host presses 1 / START to continue, and every friend's device moves on together with the same points and standings. Friends see "waiting for the host…".
+
+## 47. 🛠 Table Workshop (build your own tables)
+
+- **Where:** Title → **🛠 WORKSHOP** (top-right row).
+- Build up to **3 custom tables**:
+  - Pick a **surface** (any table you own).
+  - Pick a **hazard** (none, giant hand, wind, cleaver, hot cheese, spatula).
+  - Place up to **12 props**: tap a prop, then tap the table; tap a placed prop to remove it. **BUMPER** gumdrops bounce kaiju away. Start spots (white circles) are kept clear.
+- **💾 SAVE** keeps it; **▶ PLAY IT** jumps straight into a match on it.
+- Custom tables show up in Free Play's TABLE picker (and the rotation, Party Cup and Gauntlet), named "My Table 1-3". They're local only, never online, in Story or in the Daily.
+- **Customise:** `src/custom.ts` (which props, hazards, limits).

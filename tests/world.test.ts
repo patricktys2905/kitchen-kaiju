@@ -960,3 +960,25 @@ describe('save backup', () => {
     delete G.localStorage;
   });
 });
+
+describe('table workshop', () => {
+  it('custom tables are appended after the built-in ones and never used by the Daily', async () => {
+    const store: Record<string, string> = {};
+    (globalThis as Record<string, unknown>).localStorage = { getItem: (k: string) => store[k] ?? null, setItem: (k: string, v: string) => { store[k] = v; }, removeItem: (k: string) => { delete store[k]; } };
+    const { saveCustom, BASE_COUNT, loadCustom, applyCustomTables } = await import('../src/custom');
+    const { LAYOUTS } = await import('../src/sim/layouts');
+    const { dailySetup } = await import('../src/daily');
+    saveCustom([{ name: 'Test Table', surface: 0, hazard: 'wind', props: [{ style: 'gumdrop', x: 640, y: 382, r: 32 }] }]);
+    expect(LAYOUTS.length).toBe(BASE_COUNT + 1);
+    expect(LAYOUTS[BASE_COUNT].custom).toBe(true);
+    expect(LAYOUTS[BASE_COUNT].spawns.length).toBe(6);
+    const w = new World({ players: [{ name: 'a' }, { name: 'b' }], layout: BASE_COUNT, hazards: true });
+    expect(w.layout.name).toBe('Test Table');
+    for (let d = 1; d <= 28; d++) expect(LAYOUTS[dailySetup(`2026-03-${String(d).padStart(2, '0')}`).table].custom).toBeFalsy();
+    saveCustom([]);
+    expect(loadCustom().length).toBe(0);
+    applyCustomTables();
+    expect(LAYOUTS.length).toBe(BASE_COUNT);
+    delete (globalThis as Record<string, unknown>).localStorage;
+  });
+});

@@ -2,6 +2,7 @@ import * as Phaser from 'phaser';
 import { unlockAudio } from './audio';
 import { initInput, injectTap } from './input';
 import { applyKeybinds } from './keybinds';
+import { applyCustomTables } from './custom';
 import { BootScene } from './render/art';
 import { ControlsScene, GalleryScene, HelpScene, RecordsScene, SettingsScene } from './scenes/ExtrasScenes';
 import { GameScene } from './scenes/GameScene';
@@ -9,11 +10,13 @@ import { LobbyScene } from './scenes/LobbyScene';
 import { MenuScene } from './scenes/MenuScene';
 import { StoryScene } from './scenes/StoryScene';
 import { TitleScene } from './scenes/TitleScene';
+import { WorkshopScene } from './scenes/WorkshopScene';
 import { VIEW } from './sim/constants';
 import { initPwa } from './pwa';
 import { initTouch } from './touch';
 
 applyKeybinds();
+applyCustomTables();
 initInput(unlockAudio);
 initTouch(injectTap);
 initPwa();
@@ -29,7 +32,7 @@ const game = new Phaser.Game({
     height: VIEW.h,
   },
   render: { antialias: true },
-  scene: [BootScene, TitleScene, MenuScene, GameScene, LobbyScene, StoryScene, SettingsScene, HelpScene, GalleryScene, RecordsScene, ControlsScene],
+  scene: [BootScene, TitleScene, MenuScene, GameScene, LobbyScene, StoryScene, SettingsScene, HelpScene, GalleryScene, RecordsScene, ControlsScene, WorkshopScene],
 });
 
 // Handy for debugging / automated smoke tests.

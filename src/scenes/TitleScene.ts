@@ -73,8 +73,8 @@ export class TitleScene extends Phaser.Scene {
       onClick: () => { if (m.scene) go(m.scene, m.data); },
     }));
     // small extras row (top right): keyboard ↑ from the mode cards reaches it
-    const EXTRAS: [string, string][] = [['⚙ SETTINGS', 'settings'], ['❓ HOW TO PLAY', 'help'], ['📖 KAIJU', 'gallery'], ['🏆 RECORDS', 'records']];
-    const extras = EXTRAS.map(([label, key], i) => new Button(this, 760 + i * 136, 40, { w: 128, h: 46, label, size: 14, accent: 0xcdb9a3, onClick: () => go(key) }, 6));
+    const EXTRAS: [string, string][] = [['⚙ SETTINGS', 'settings'], ['❓ HELP', 'help'], ['📖 KAIJU', 'gallery'], ['🏆 RECORDS', 'records'], ['🛠 WORKSHOP', 'workshop']];
+    const extras = EXTRAS.map(([label, key], i) => new Button(this, 746 + i * 110, 32, { w: 104, h: 40, label, size: 12, accent: 0xcdb9a3, onClick: () => go(key) }, 6));
     this.nav = new FocusNav([...extras, ...buttons], extras.length);
     this.nav.index = extras.length; // start on STORY
     this.add.text(1272, 712, `v${__APP_VERSION__}`, body(11, '#a89680', 700)).setOrigin(1, 1).setDepth(5);

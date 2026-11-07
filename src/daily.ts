@@ -29,7 +29,7 @@ export function dailySetup(date = todayKey()): DailySetup {
   const seed = [...date].reduce((h, c) => (h * 31 + c.charCodeAt(0)) >>> 0, 7);
   const rng = new Rng(seed);
   const kaiju = SPECIES.map((_, i) => i).filter(i => i < 16);
-  const tables = LAYOUTS.map((_, i) => i).filter(i => !LAYOUTS[i].locked);
+  const tables = LAYOUTS.map((_, i) => i).filter(i => !LAYOUTS[i].locked && !LAYOUTS[i].custom);
   const pool = rng.shuffle(kaiju.slice());
   return { date, mode: rng.pick(DAILY.modes), table: rng.pick(tables), you: pool[0], rivals: pool.slice(1, 1 + DAILY.rivals) };
 }
