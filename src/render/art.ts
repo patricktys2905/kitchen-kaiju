@@ -23,7 +23,7 @@ export class BootScene extends Phaser.Scene {
     const list = (this.cache.json.get('art-manifest') as string[] | undefined) ?? [];
     // ?mode=free|story|online jumps straight to a mode (handy for tests and shortcuts)
     const mode = new URLSearchParams(location.search).get('mode');
-    const first = mode === 'free' ? 'menu' : mode === 'story' ? 'story' : mode === 'online' ? 'lobby' : 'title';
+    const first = mode === 'free' ? 'menu' : mode === 'story' ? 'story' : mode === 'online' || new URLSearchParams(location.search).has('join') ? 'lobby' : 'title';
     const go = () => { void fontsReady().then(() => this.scene.start(first)); };
     if (!list.length) { go(); return; }
     // loading screen: title, bar, percentage and a rotating "setting the table" line

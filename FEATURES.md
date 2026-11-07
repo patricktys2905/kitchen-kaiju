@@ -299,3 +299,9 @@ Each section says **where to customise it**.
 
 - Online lobby (host) → **📺 TV mode: ON**. The host's screen (laptop or TV) just shows the match, and everyone plays on their own phone through the normal online join (room code). Bots still fill empty seats.
 - Perfect for a living room: put the host on the TV, and friends join from their phones and play on the big screen. Each phone also shows the game.
+
+## 36. QR code to join
+
+- The online host lobby shows a **QR code** next to the room code. Scan it with a phone camera and the game opens and joins the room straight away, no typing. Pairs nicely with 📺 TV mode.
+- The link is `…/kitchen-kaiju/?join=CODE`, so it can also be sent in a chat.
+- Uses the small `qrcode-generator` library (works offline).

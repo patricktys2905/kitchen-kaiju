@@ -15,6 +15,19 @@ import { owned, type Owned } from '../story/unlocks';
 import { enabledModes, modeDef, type GameMode } from '../sim/modes';
 import { POWERUPS } from '../sim/powerups';
 import { currentHat } from '../hats';
+import qrcode from 'qrcode-generator';
+
+/** Link that opens the game and joins room `code` straight away (shown as a QR code to the host). */
+export function joinLink(code: string): string {
+  return `${location.origin}${location.pathname}?join=${code}`;
+}
+
+function qrDataUrl(text: string): string {
+  const q = qrcode(0, 'M');
+  q.addData(text);
+  q.make();
+  return q.createDataURL(5, 2);
+}
 import { enabledMutators, mutatorDef, type Mutator } from '../sim/mutators';
 
 const CSS = `
@@ -24,7 +37,7 @@ const CSS = `
 #lobby p { margin: 6px 0; line-height: 1.4; }
 #lobby .muted { color: #cdb9a3; font-weight: 700; font-size: 15px; }
 #lobby .row { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 14px; align-items: center; }
-#lobby button { font-family: 'Luckiest Guy', 'Arial Black', sans-serif; font-weight: 400; letter-spacing: 0.04em; font-size: 20px; padding: 12px 20px; border-radius: 14px;
+#lobby button { font-family: 'Luckiest Guy', 'Arial Black', sans-serif; font-weight: 400; letter-spacing: 0.04em; font-size: 18px; padding: 9px 16px; border-radius: 14px;
   border: 3px solid #ffcf8a; background: #3a1f0e; color: #ffe9c7; cursor: pointer; }
 #lobby button.go { background: #ff9a3c; color: #2a1408; }
 #lobby button:disabled { opacity: 0.4; cursor: default; }
@@ -39,6 +52,11 @@ const CSS = `
 #lobby .seat button { font-size: 16px; padding: 6px 12px; }
 #lobby .status { margin-top: 12px; font-size: 16px; }
 #lobby .status.bad { color: #ff8a7a; }
+
+#lobby .coderow { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+#lobby .qr { display: flex; align-items: center; gap: 12px; }
+#lobby .qr img { width: 96px; height: 96px; image-rendering: pixelated; border-radius: 8px; background: #fff; }
+#lobby .qr span { font-size: 15px; opacity: 0.85; max-width: 180px; text-align: left; }
 `;
 
 export class LobbyScene extends Phaser.Scene {
@@ -96,6 +114,14 @@ export class LobbyScene extends Phaser.Scene {
     document.body.appendChild(this.root);
     this.events.once('shutdown', () => { this.root?.remove(); this.root = null; });
     this.render();
+    // opened from a QR code / join link: go straight into the room
+    const join = new URLSearchParams(location.search).get('join');
+    if (join && /^[A-Za-z]{4}$/.test(join) && !this.registry.get('joinedFromLink')) {
+      this.registry.set('joinedFromLink', true);
+      history.replaceState(null, '', location.pathname);
+      this.view = 'join';
+      this.joinRoom(join.toUpperCase(), localStorage.getItem('kk-name') ?? '');
+    }
   }
 
   update(): void {
@@ -221,7 +247,7 @@ export class LobbyScene extends Phaser.Scene {
       const tl = this.table < 0 ? `All ${this.own.tables.length} (rotate)` : LAYOUTS[this.table].name;
       const guests = this.seats.filter(s => s.who === 'guest').length;
       html = `<h1>Your room</h1>
-        <div class="code">${this.host?.code || '····'}</div>
+        <div class="coderow"><div class="code">${this.host?.code || '····'}</div>${this.host?.code ? `<div class="qr"><img alt="QR code to join" src="${qrDataUrl(joinLink(this.host.code))}"><span>Scan with a phone camera to join</span></div>` : ''}</div>
         <p class="muted">Friends tap ONLINE → Join a game and type this code. Up to ${MAX_GUESTS} friends.</p>
         ${seatsHtml}
         <div class="row">
