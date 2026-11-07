@@ -569,7 +569,7 @@ describe('cutscene casts', () => {
     const fs = await import('node:fs');
     const src = fs.readFileSync('scripts/make-cut-jobs.mjs', 'utf8');
     CHAPTERS.forEach((ch, i) => {
-      const m = src.match(new RegExp(`key: 'cut-${i}', cast: \[([^\]]*)\]`));
+      const m = src.match(new RegExp(`key: 'cut-${i}', cast: \\[([^\\]]*)\\]`));
       expect(m, `cut-${i} cast`).toBeTruthy();
       const cast = m![1].split(',').map(Number).sort((a, b) => a - b);
       expect(cast, ch.title).toEqual(ch.rivals.map(r => r.species).sort((a, b) => a - b));
