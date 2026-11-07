@@ -1,5 +1,8 @@
 import * as Phaser from 'phaser';
 import { sfx } from '../audio';
+import { playMusic } from '../music';
+import { getSettings } from '../settings';
+import { checkAchievements, loadStats, saveStats, type Stats } from '../stats';
 import { clearTaps, consumeTap, readSlot, slotLabel, type Slot } from '../input';
 import { CUTLERY_LEN, fitInside, hasArt } from '../render/art';
 import { ArtRenderer } from '../render/artRender';
@@ -86,6 +89,8 @@ export class GameScene extends Phaser.Scene {
   private eatSfxT = 0;
   private mode: GameMode = 'classic';
   private modeText!: Phaser.GameObjects.Text;
+  private tagTexts: Phaser.GameObjects.Text[] = [];
+  private stats: Stats | null = null; // lifetime stats (null for online guests)
 
   constructor() {
     super('game');
@@ -147,6 +152,8 @@ export class GameScene extends Phaser.Scene {
       if (!isTouchDevice) this.add.text(VIEW.w - 16, 36, 'P pause · Esc menu', body(12, '#9c8a78', 700)).setOrigin(1, 0).setDepth(6);
     }
     this.feedTexts = [0, 1].map(i => this.add.text(VIEW.w / 2, 680 + i * 19, '', body(16, '#fff', 900, { stroke: '#140b05', strokeThickness: 4 })).setOrigin(0.5, 0).setDepth(6));
+    playMusic('battle');
+    this.tagTexts = this.world.players.map((_, i) => withShadow(this.add.text(0, 0, SPECIES[this.species[i]].name, display(14, this.css[i], { strokeThickness: 4 })).setOrigin(0.5, 1).setDepth(3.9).setVisible(false), 2));
     this.modeText = withShadow(this.add.text(VIEW.w / 2, 96, '', display(26, '#ffe9c7', { strokeThickness: 5 })).setOrigin(0.5, 0).setDepth(6), 3);
     this.banner = withShadow(this.add.text(VIEW.w / 2, VIEW.h / 2 - 20, '', display(90, '#ffe9c7', { strokeThickness: 13, align: 'center', padding: { x: 10, y: 10 } })).setOrigin(0.5).setDepth(10), 8);
     this.bannerSub = withShadow(this.add.text(VIEW.w / 2, VIEW.h / 2 + 50, '', body(22, '#ffffff', 900, { stroke: '#2a1408', strokeThickness: 5, align: 'center' })).setOrigin(0.5).setDepth(10), 3);
@@ -303,6 +310,7 @@ export class GameScene extends Phaser.Scene {
     if (this.net?.role === 'host') this.netEvents.push(...events);
     const w = this.world;
     for (const e of events) {
+      this.track(e);
       switch (e.type) {
         case 'roundStart':
           this.art.setupTable(w.layout, this.world.players.map(p => ({ x: p.x, y: p.y, color: this.colors[p.id] })));
@@ -387,6 +395,50 @@ export class GameScene extends Phaser.Scene {
     }
   }
 
+  /** Lifetime stats + achievements for the humans on this device. */
+  private isHuman(id: number | null): boolean {
+    const s = id === null ? undefined : this.slots[id];
+    return !!s && s.kind !== 'bot' && s.kind !== 'remote';
+  }
+
+  /** A human won: the winner is human, or (Team Feast) a human is on the winning team. */
+  private humanWon(winner: number | null): boolean {
+    if (winner === null) return false;
+    if (this.mode !== 'teams') return this.isHuman(winner);
+    const tm = this.world.players[winner].team;
+    return this.slots.some((_, i) => this.isHuman(i) && this.world.players[i].team === tm);
+  }
+
+  private track(e: GameEvent): void {
+    if (this.net?.role === 'guest' || !this.slots.some((_, i) => this.isHuman(i))) return;
+    const st = (this.stats ??= loadStats()), w = this.world;
+    switch (e.type) {
+      case 'roundStart': if (!st.tables.includes(w.layoutIndex)) st.tables.push(w.layoutIndex); break;
+      case 'ko': if (e.by !== null && e.by !== e.id && this.isHuman(e.by)) st.kos++; if (e.cause === 'boom' && !this.isHuman(e.id)) st.pops++; break;
+      case 'eat': if (this.isHuman(e.id)) st.crumbs++; break;
+      case 'kaiju': if (this.isHuman(e.id)) st.kaijuForms++; break;
+      case 'roundEnd': if (this.humanWon(e.winner)) st.roundsWon++; break;
+      case 'matchEnd': {
+        st.matches++;
+        this.slots.forEach((_, i) => { if (this.isHuman(i)) st.kaijuPlays[this.species[i]] = (st.kaijuPlays[this.species[i]] ?? 0) + 1; });
+        if (this.humanWon(e.winner)) {
+          st.wins++;
+          st.streak++;
+          st.bestStreak = Math.max(st.bestStreak, st.streak);
+          st.modeWins[this.mode] = (st.modeWins[this.mode] ?? 0) + 1;
+          st.kaijuWins[this.species[e.winner]] = (st.kaijuWins[this.species[e.winner]] ?? 0) + 1;
+        } else st.streak = 0;
+        const got = checkAchievements(st);
+        got.forEach((a, k) => this.time.delayedCall(1200 + k * 1600, () => {
+          sfx.meterFull();
+          this.popup(VIEW.w / 2, 130, `🏆 ${a.name.toUpperCase()}: ${a.desc}`, '#ffd24a', 22);
+        }));
+        break;
+      }
+    }
+    if (e.type === 'matchEnd' || e.type === 'roundEnd') saveStats(st);
+  }
+
   private onKO(e: Extract<GameEvent, { type: 'ko' }>): void {
     const names = this.world.players.map(p => p.name);
     const victim = names[e.id], killer = e.by !== null ? names[e.by] : null;
@@ -416,6 +468,7 @@ export class GameScene extends Phaser.Scene {
 
   // ---------------------------------------------------------------- fx helpers
   private burst(x: number, y: number, color: number, n: number, speed: number, life: number, grav = 0): void {
+    if (getSettings().reducedFx) n = Math.ceil(n / 3);
     for (let i = 0; i < n; i++) {
       const a = Math.random() * Math.PI * 2, s = Math.random() * speed;
       this.parts.push({ x, y, vx: Math.cos(a) * s, vy: Math.sin(a) * s, life: life * (0.5 + Math.random() * 0.5), max: life, color, size: 2 + Math.random() * 3, grav });
@@ -429,6 +482,7 @@ export class GameScene extends Phaser.Scene {
   }
 
   private shake(intensity: number, ms: number): void {
+    if (!getSettings().shake) return;
     this.cameras.main.shake(ms, intensity);
   }
 
@@ -466,6 +520,8 @@ export class GameScene extends Phaser.Scene {
     if (!hasArt('ob-candle')) drawTableLive(g, w.layout, t);
     this.art.frame(w, t, g, this.overG);
     this.renderModeFx();
+    const tags = getSettings().nameTags;
+    w.players.forEach((p, i) => this.tagTexts[i]?.setVisible(tags && p.alive).setPosition(p.x, p.y - p.r * (p.kaijuT > 0 ? 2.6 : 1.6) - 6));
 
     const fx = this.fxG;
     fx.clear();

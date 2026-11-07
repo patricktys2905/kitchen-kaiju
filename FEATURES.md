@@ -19,3 +19,52 @@ Each section says **where to customise it**.
   - All the numbers: round time, respawn delay, crumb rate, fuse range, pass cooldown, carrier speed, team names and colours, friendly fire.
 - **Not yet:** Online play still uses Classic only.
 - **Tests:** `tests/world.test.ts` → "party modes". Screenshots: `node scripts/shots-modes.mjs`. Demo URL: `?mode=free&demo=4&gmode=teams|crumbRush|hotDumpling`.
+
+## 2. Settings screen
+
+- **Where:** Title → **⚙ SETTINGS** (top-right row).
+- **Options:**
+  - Sound effects volume.
+  - Music volume (0 = off).
+  - Screen shake on/off.
+  - Reduced effects: about a third of the particles.
+  - Name tags: each kaiju's name floats above it in matches.
+- Saved on the device (`kk-settings-v1`).
+- **Customise:** `src/settings.ts`. Change `DEFAULTS`, or add a field plus one line in `SETTINGS_ROWS`; the screen builds itself from that list.
+
+## 3. Background music
+
+- Three looping tunes, synthesised live, so there are no audio files and it still works offline:
+  - `menu`: title, Free Play, Online lobby and the extras screens.
+  - `battle`: matches.
+  - `story`: the Story map.
+- Music pauses during Story cutscene videos, which have their own sound.
+- **Customise:** `src/music.ts` → `TRACKS`. Each track is a tempo plus note lists (`'C5'`, `'G#3'`, `'-'` = rest, one per 8th note) for lead, bass and drums (`k` kick, `s` snare, `h` hat). Add a track and call `playMusic('name')` from any scene.
+
+## 4. Stats and achievements
+
+- Lifetime stats for people on this device (bots don't count): matches, wins, win rate, rounds, KOs, crumbs, times gone KAIJU, best win streak, tables visited, favourite kaiju, and Story stars.
+- **17 achievements**, e.g.:
+  - First Bite: win a match.
+  - Too Hot to Handle: 5 wins in a row.
+  - World Tour: play 12 tables.
+  - Not It!: win Hot Dumpling.
+  - Mix It Up: win with 8 kaiju.
+- A 🏆 pop-up appears at the end of the match that earns one.
+- **Where:** Title → **🏆 RECORDS**.
+- **Customise:** `src/stats.ts` → `ACHIEVEMENTS`. Each one is an icon, name, description and a one-line test on the stats.
+
+## 5. How to Play
+
+- **Where:** Title → **❓ HOW TO PLAY**. Four tabs:
+  - **Basics:** goal, moves and controls for keyboard, gamepad and phone.
+  - **Cutlery:** every cutlery type with art; traits are worked out from the real numbers in `src/sim/cutlery.ts`, so they stay correct when you tune them.
+  - **Tables:** every table with its picture and blurb, and what unlocks the locked ones.
+  - **Modes:** every enabled party mode.
+- **Customise:** text in `src/scenes/ExtrasScenes.ts` (HelpScene). Table blurbs live in `src/sim/layouts.ts`, mode text in `src/sim/modes.ts`.
+
+## 6. Kaiju Gallery
+
+- **Where:** Title → **📖 KAIJU**. All 20 kaiju; locked ones show as silhouettes with "???".
+- Selecting one shows its normal and KAIJU-mode art, food description, your matches and wins as it, and how to unlock it if locked.
+- Screenshots of all the extras: `node scripts/shots-extras.mjs`.

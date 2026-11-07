@@ -10,6 +10,7 @@ import { Button, FocusNav } from '../render/ui';
 import { loadStory, totalStars } from '../story/save';
 import { CHAPTERS } from '../story/chapters';
 import { setTouchMode } from '../touch';
+import { playMusic } from '../music';
 
 export class TitleScene extends Phaser.Scene {
   private nav!: FocusNav;
@@ -23,6 +24,7 @@ export class TitleScene extends Phaser.Scene {
   create(): void {
     clearTaps();
     setTouchMode('title');
+    playMusic('menu');
     if (hasArt('bg-title')) this.art = this.add.image(640, 360, 'bg-title').setDisplaySize(1300, 731).setDepth(-2);
     else drawFloor(this.add.graphics());
     // darken the bottom so the mode cards read well
@@ -48,7 +50,11 @@ export class TitleScene extends Phaser.Scene {
       w: 290, h: 104, label: m.label, sub: m.sub, accent: m.accent, size: 32, disabled: m.disabled,
       onClick: () => { if (m.scene) go(m.scene, m.data); },
     }));
-    this.nav = new FocusNav(buttons, buttons.length);
+    // small extras row (top right): keyboard ↑ from the mode cards reaches it
+    const EXTRAS: [string, string][] = [['⚙ SETTINGS', 'settings'], ['❓ HOW TO PLAY', 'help'], ['📖 KAIJU', 'gallery'], ['🏆 RECORDS', 'records']];
+    const extras = EXTRAS.map(([label, key], i) => new Button(this, 760 + i * 136, 40, { w: 128, h: 46, label, size: 14, accent: 0xcdb9a3, onClick: () => go(key) }, 6));
+    this.nav = new FocusNav([...extras, ...buttons], buttons.length);
+    this.nav.index = extras.length; // start on STORY
     this.add.text(1272, 712, `v${__APP_VERSION__}`, body(11, '#a89680', 700)).setOrigin(1, 1).setDepth(5);
     this.add.text(640, 574, '◀ ▶ choose   ·   ENTER / A / tap to start', body(15, '#f1e4d2', 800)).setOrigin(0.5).setDepth(2).setAlpha(0.85);
 

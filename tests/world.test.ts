@@ -626,3 +626,29 @@ describe('party modes', () => {
     expect(w.players[other].alive).toBe(false);
   });
 });
+
+describe('stats, achievements and settings', () => {
+  it('achievements unlock once from stats', async () => {
+    const { ACHIEVEMENTS, checkAchievements } = await import('../src/stats');
+    expect(new Set(ACHIEVEMENTS.map(a => a.id)).size).toBe(ACHIEVEMENTS.length);
+    const s = { matches: 1, wins: 1, roundsWon: 3, kos: 0, crumbs: 0, kaijuForms: 0, pops: 0, streak: 1, bestStreak: 1, modeWins: { teams: 1 }, kaijuWins: { 0: 1 }, kaijuPlays: { 0: 1 }, tables: [0], achieved: [] as string[] };
+    expect(checkAchievements(s).map(a => a.id).sort()).toEqual(['first-win', 'teams']);
+    expect(checkAchievements(s)).toEqual([]); // never twice
+  });
+
+  it('every settings row has a default and level settings start on a valid step', async () => {
+    const { DEFAULTS, LEVELS, SETTINGS_ROWS } = await import('../src/settings');
+    for (const r of SETTINGS_ROWS) {
+      expect(DEFAULTS[r.key], r.key).not.toBeUndefined();
+      if (r.kind === 'level') expect(LEVELS).toContain(DEFAULTS[r.key]);
+    }
+  });
+
+  it('every music track is playable note data', async () => {
+    const { TRACKS } = await import('../src/music');
+    for (const [name, t] of Object.entries(TRACKS)) {
+      for (const n of [...t.lead, ...t.bass]) expect(n === '-' || /^[A-G]#?\d$/.test(n), `${name}: ${n}`).toBe(true);
+      for (const d of t.drums) expect(['-', 'k', 's', 'h']).toContain(d);
+    }
+  });
+});

@@ -10,6 +10,7 @@ import { DIFFICULTIES, type Difficulty } from '../sim/bot';
 import { DEFAULT_ROUNDS, ROUND_CHOICES, SPECIES } from '../sim/constants';
 import { LAYOUTS } from '../sim/layouts';
 import { setTouchMode } from '../touch';
+import { playMusic } from '../music';
 import { owned, type Owned } from '../story/unlocks';
 
 const CSS = `
@@ -70,6 +71,7 @@ export class LobbyScene extends Phaser.Scene {
   create(): void {
     clearTaps();
     setTouchMode('off');
+    playMusic('menu');
     const g = this.add.graphics();
     if (hasArt('bg-menu')) this.add.image(640, 360, 'bg-menu').setDisplaySize(1280, 720).setDepth(-2);
     else drawFloor(g);

@@ -11,6 +11,7 @@ import { DEFAULT_ROUNDS, MAX_PLAYERS, ROUND_CHOICES, SPECIES } from '../sim/cons
 import { LAYOUTS } from '../sim/layouts';
 import { isTouchDevice, setTouchHud, setTouchMode } from '../touch';
 import { owned, type Owned } from '../story/unlocks';
+import { playMusic } from '../music';
 import { enabledModes, modeDef, type GameMode } from '../sim/modes';
 
 const TITLE = { fontFamily: DISPLAY, color: '#ffe9c7', stroke: INK, strokeThickness: 10 };
@@ -163,6 +164,7 @@ export class MenuScene extends Phaser.Scene {
       this.chipLine(chipG, 640, 670, '[2] bots   [M] table   [R] rounds   [G] mode   [O] ONLINE   [1] PLAY', 15);
     }
     setTouchMode('menu');
+    playMusic('menu');
     this.backBtn = new Button(this, 1192, 34, { w: 150, h: 44, label: '◀ MODES', size: 18, onClick: () => this.scene.start('title') }, 6);
     this.add.text(1272, 712, `v${__APP_VERSION__}`, { ...BODY, fontSize: '11px', color: '#8a7a6a' }).setOrigin(1, 1).setDepth(5);
     // First visit on a phone: seat the touch player straight away.

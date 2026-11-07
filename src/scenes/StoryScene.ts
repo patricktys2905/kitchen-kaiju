@@ -11,6 +11,7 @@ import { LAYOUTS } from '../sim/layouts';
 import { CHAPTERS, chapterRivals, ENDING, type Line } from '../story/chapters';
 import { loadStory, recordResult, saveStory, totalStars, type StorySave } from '../story/save';
 import { setTouchMode } from '../touch';
+import { playMusic } from '../music';
 import { CHAPTER_CUTS, ENDING_CUT, OPENING, seenId, type Cutscene } from '../story/cutscenes';
 import { isEarned, needText, newlyEarned, owned, unlockName, UNLOCKS } from '../story/unlocks';
 
@@ -75,6 +76,7 @@ export class StoryScene extends Phaser.Scene {
   create(): void {
     clearTaps();
     setTouchMode('title');
+    playMusic('story');
     if (hasArt('bg-story')) this.add.image(640, 360, 'bg-story').setDisplaySize(1280, 720).setDepth(-3);
     else drawFloor(this.add.graphics().setDepth(-3));
     this.add.graphics().setDepth(-2).fillStyle(0x0d0805, 0.55).fillRect(0, 0, 1280, 720);
@@ -425,6 +427,7 @@ export class StoryScene extends Phaser.Scene {
   private playCut(cut: Cutscene, then: () => void): void {
     this.clearOverlay();
     this.mode = 'cut';
+    playMusic(null); // the clip has its own soundtrack
     this.cut = cut;
     this.afterCut = then;
     this.cutT = 0;
@@ -473,6 +476,7 @@ export class StoryScene extends Phaser.Scene {
   private endCut(): void {
     if (this.mode !== 'cut') return;
     this.cut = null;
+    playMusic('story');
     this.cutCaption = null;
     this.cutVid = null;
     this.clearOverlay();

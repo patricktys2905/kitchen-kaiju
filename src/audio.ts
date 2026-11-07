@@ -1,4 +1,6 @@
 // Tiny synth SFX: no audio files needed for the shapes-first build.
+import { initMusic } from './music';
+import { getSettings, onSettings } from './settings';
 let ac: AudioContext | null = null;
 let master: GainNode | null = null;
 let noiseBuf: AudioBuffer | null = null;
@@ -11,8 +13,10 @@ export function unlockAudio(): void {
   try {
     ac = new AudioContext();
     master = ac.createGain();
-    master.gain.value = 0.7;
+    master.gain.value = getSettings().volume;
     master.connect(ac.destination);
+    onSettings(st => { if (master) master.gain.value = st.volume; });
+    initMusic(ac);
     const n = ac.sampleRate;
     noiseBuf = ac.createBuffer(1, n, ac.sampleRate);
     const ch = noiseBuf.getChannelData(0);
