@@ -57,7 +57,7 @@ const CSS = `
 #tc .row { position: absolute; left: 0; right: 0; bottom: calc(2vmin + env(safe-area-inset-bottom)); display: flex; justify-content: center; gap: 2vmin; }
 #tc .row .pill { pointer-events: auto; padding: 1.8vmin 1.6vmin; border-radius: 2vmin; background: #2a1408e6; color: #ffe9c7; border: 3px solid #ffcf8a;
   font-size: 2.3vmin; touch-action: none; white-space: nowrap; }
-#tc .row { gap: 1vmin; }
+#tc .row { gap: 1vmin; flex-wrap: wrap; padding: 0 1vmin; row-gap: 1.2vmin; }
 #tc .row .pill.go { background: #ff9a3c; color: #2a1408; }
 #tc .row .pill.down { transform: scale(0.95); filter: brightness(1.3); }
 #tc-rotate { position: fixed; inset: 0; z-index: 20; background: #140e0a; color: #ffe9c7; display: none; align-items: center; justify-content: center;
