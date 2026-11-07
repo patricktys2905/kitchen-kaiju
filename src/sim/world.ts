@@ -674,6 +674,7 @@ export class World {
       }
       p.respawnT = MODE_RULES.crumbRush.respawnDelay;
     }
+    if (this.mode === 'practice') p.respawnT = MODE_RULES.practice.respawnDelay;
     this.emit({ type: 'ko', id: p.id, by: killer && killer !== p ? killer.id : null, cause, x: p.x, y: p.y });
   }
 
@@ -1241,7 +1242,7 @@ export class World {
   }
 
   private updateMode(dt: number): void {
-    if (this.mode === 'crumbRush') {
+    if (this.mode === 'crumbRush' || this.mode === 'practice') {
       for (const p of this.players) {
         if (p.alive || p.respawnT <= 0) continue;
         p.respawnT -= dt;
@@ -1298,7 +1299,9 @@ export class World {
   }
 
   private checkRound(): void {
-    if (this.phase === 'play' && this.players.length > 1 && this.mode === 'crumbRush') {
+    if (this.mode === 'practice') {
+      // endless: no rounds end
+    } else if (this.phase === 'play' && this.players.length > 1 && this.mode === 'crumbRush') {
       if (this.roundT >= MODE_RULES.crumbRush.roundTime) {
         const best = Math.max(...this.players.map(p => p.pts));
         const top = this.players.filter(p => p.pts === best);

@@ -20,6 +20,7 @@ import { starsFor } from '../story/chapters';
 import { GAUNTLET, gauntletBest, gauntletTables, saveGauntletBest, waveSetup } from '../gauntlet';
 import { owned } from '../story/unlocks';
 import { currentHat } from '../hats';
+import { PRACTICE, PRACTICE_STEPS } from '../practice';
 import type { NetGuest, NetHost, NetMsg } from '../net/net';
 import { applySnapshot, extrapolate, makeSnapshot, type Snapshot } from '../net/snapshot';
 import { isTouchDevice, setTouchHud, setTouchMode } from '../touch';
@@ -61,6 +62,7 @@ export class GameScene extends Phaser.Scene {
   /** Per-match tallies for the end-of-match awards. */
   private tally = { crumbs: [] as number[], kaiju: [] as number[], falls: [] as number[], deaths: [] as number[], powers: [] as number[] };
   private awardsText!: Phaser.GameObjects.Text;
+  private practice: { done: boolean[]; moved: number; lx: number; ly: number; text: Phaser.GameObjects.Text; g: Phaser.GameObjects.Graphics } | null = null;
   private padPrevStart = false;
 
   private baseG!: Phaser.GameObjects.Graphics;
@@ -129,7 +131,8 @@ export class GameScene extends Phaser.Scene {
     this.hazards = data.story ? true : data.hazards ?? true;
     this.world = new World({ players: this.species.map(s => ({ name: SPECIES[s].name })), seed, layouts: this.tables ?? undefined, target: this.rounds, mode: this.mode, powerups: this.powerups, hazards: this.hazards });
     this.story = data.story;
-    this.bots = this.slots.map((s, i) => (s.kind === 'bot' ? new BotBrain(i, data.botLevels?.[i] ?? this.difficulty, seed + i * 101) : null));
+    this.practice = null;
+    this.bots = this.slots.map((s, i) => (s.kind === 'bot' && this.mode !== 'practice' ? new BotBrain(i, data.botLevels?.[i] ?? this.difficulty, seed + i * 101) : null));
     this.net = data.net;
     this.netAcc = 0;
     this.netEvents = [];
@@ -178,6 +181,12 @@ export class GameScene extends Phaser.Scene {
     this.modeText = withShadow(this.add.text(VIEW.w / 2, 96, '', display(26, '#ffe9c7', { strokeThickness: 5 })).setOrigin(0.5, 0).setDepth(6), 3);
     this.banner = withShadow(this.add.text(VIEW.w / 2, VIEW.h / 2 - 20, '', display(90, '#ffe9c7', { strokeThickness: 13, align: 'center', padding: { x: 10, y: 10 } })).setOrigin(0.5).setDepth(10), 8);
     this.bannerSub = withShadow(this.add.text(VIEW.w / 2, VIEW.h / 2 + 50, '', body(22, '#ffffff', 900, { stroke: '#2a1408', strokeThickness: 5, align: 'center' })).setOrigin(0.5).setDepth(10), 3);
+    if (this.mode === 'practice') {
+      const g = this.add.graphics().setDepth(9);
+      const text = this.add.text(VIEW.w - 300, 96, '', body(15, '#f1e4d2', 800, { lineSpacing: 5, wordWrap: { width: 280 } })).setDepth(10);
+      const p0 = this.world.players[0];
+      this.practice = { done: PRACTICE_STEPS.map(() => false), moved: 0, lx: p0.x, ly: p0.y, text, g };
+    }
     this.awardsText = withShadow(this.add.text(VIEW.w / 2, VIEW.h - 22, '', body(17, '#ffd24a', 900, { stroke: '#2a1408', strokeThickness: 4, align: 'center' })).setOrigin(0.5, 1).setDepth(10), 2);
     this.handleEvents(this.world.drainEvents());
   }
@@ -524,7 +533,35 @@ export class GameScene extends Phaser.Scene {
     return this.slots.some((_, i) => this.isHuman(i) && this.world.players[i].team === tm);
   }
 
+  /** Static helper: GameData for Practice (you vs a dummy). */
+  static practiceData(pick: number): GameData {
+    return { slots: [{ kind: 'local', index: 0 }, { kind: 'bot', index: 0 }], difficulty: 'easy', species: [pick, pick === PRACTICE.dummySpecies ? (pick + 1) % SPECIES.length : PRACTICE.dummySpecies], tables: [PRACTICE.table], rounds: 99, mode: 'practice', powerups: PRACTICE.powerups, hazards: PRACTICE.hazards };
+  }
+
+  private updatePractice(): void {
+    const P0 = this.practice;
+    if (!P0) return;
+    const p = this.world.players[0];
+    if (p.alive) { P0.moved += Math.hypot(p.x - P0.lx, p.y - P0.ly); P0.lx = p.x; P0.ly = p.y; }
+    PRACTICE_STEPS.forEach((st, i) => { if (!P0.done[i] && st.done({ type: 'go' }, P0.moved)) this.tick(i); });
+    const next = P0.done.indexOf(false);
+    const lines = PRACTICE_STEPS.map((st, i) => `${P0.done[i] ? '✅' : i === next ? '👉' : '⬜'} ${st.text}${i === next ? `\n      ${st.keys}` : ''}`);
+    const all = next < 0;
+    P0.text.setText(`PRACTICE  ${P0.done.filter(Boolean).length}/${PRACTICE_STEPS.length}\n${lines.join('\n')}${all ? '\n\n🎉 All done! Esc / pause → quit' : ''}`);
+    P0.g.clear(); P0.g.fillStyle(0x0d0805, 0.78); P0.g.fillRoundedRect(VIEW.w - 312, 86, 300, P0.text.height + 20, 14);
+    P0.g.lineStyle(2, all ? 0x8dff6a : 0xffb347, 1); P0.g.strokeRoundedRect(VIEW.w - 312, 86, 300, P0.text.height + 20, 14);
+  }
+
+  private tick(i: number): void {
+    if (!this.practice || this.practice.done[i]) return;
+    this.practice.done[i] = true;
+    sfx.meterFull();
+    const p = this.world.players[0];
+    this.popup(p.x, p.y - 50, '✔ ' + PRACTICE_STEPS[i].text.toUpperCase(), '#8dff6a', 18);
+  }
+
   private track(e: GameEvent): void {
+    if (this.practice) { PRACTICE_STEPS.forEach((st, i) => { if (!this.practice!.done[i] && st.done(e, this.practice!.moved)) this.tick(i); }); return; } // practice doesn't count towards stats
     const T = this.tally;
     if (e.type === 'eat') T.crumbs[e.id]++;
     if (e.type === 'kaiju') T.kaiju[e.id]++;
@@ -646,6 +683,7 @@ export class GameScene extends Phaser.Scene {
     if (!hasArt('ob-candle')) drawTableLive(g, w.layout, t);
     this.art.frame(w, t, g, this.overG);
     this.renderModeFx();
+    this.updatePractice();
     const tags = getSettings().nameTags;
     w.players.forEach((p, i) => this.tagTexts[i]?.setVisible(tags && p.alive).setPosition(p.x, p.y - p.r * (p.kaijuT > 0 ? 2.6 : 1.6) - 6));
 

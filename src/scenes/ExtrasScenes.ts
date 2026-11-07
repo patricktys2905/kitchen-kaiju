@@ -18,6 +18,7 @@ import { loadStory, totalStars } from '../story/save';
 import { needText, owned, UNLOCKS } from '../story/unlocks';
 import { setTouchMode } from '../touch';
 import { currentHat, hatUnlocked, HATS, setHat } from '../hats';
+import { GameScene } from './GameScene';
 
 /** Shared backdrop, title, BACK button and keyboard/pad focus handling. */
 abstract class PanelScene extends Phaser.Scene {
@@ -107,6 +108,7 @@ export class HelpScene extends PanelScene {
   protected build(): void {
     const tabs: [HelpPage, string][] = [['controls', 'BASICS'], ['cutlery', 'CUTLERY'], ['tables', 'TABLES'], ['modes', 'MODES']];
     tabs.forEach(([id, name], i) => this.buttons.push(new Button(this, 340 + i * 200, 118, { w: 180, h: 50, label: name, size: 20, onClick: () => this.show(id) }, 6)));
+    this.buttons.push(new Button(this, 1140, 118, { w: 210, h: 50, label: '▶ PRACTICE', size: 20, accent: 0x8dff6a, onClick: () => { sfx.go(); this.scene.start('game', GameScene.practiceData(loadStory().pick)); } }, 6));
     this.show('controls');
   }
 

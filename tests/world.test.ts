@@ -721,3 +721,15 @@ describe('hats', () => {
     for (const h of HATS) if (h.unlock) expect(ACHIEVEMENTS.some(a => a.id === h.unlock), h.id).toBe(true);
   });
 });
+
+describe('practice', () => {
+  it('never ends a round and brings knocked-out kaiju back', async () => {
+    const { MODE_RULES } = await import('../src/sim/modes');
+    const w = makeWorld(2, 'fork', { mode: 'practice' });
+    w.ko(w.players[1], 0, 'swipe');
+    run(w, 0.2);
+    expect(w.phase).toBe('play');
+    run(w, MODE_RULES.practice.respawnDelay + 0.2);
+    expect(w.players[1].alive).toBe(true);
+  });
+});

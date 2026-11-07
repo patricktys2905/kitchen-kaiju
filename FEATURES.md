@@ -142,3 +142,11 @@ Each section says **where to customise it**.
 | Golden Ladle | Too Hot to Handle |
 
 - **Customise:** `src/hats.ts` → `HATS`. Each hat is a name, an achievement id, and a small draw function.
+
+## 14. Practice (guided tutorial)
+
+- **Where:** How to Play → **▶ PRACTICE** (top right).
+- You, as your Story pick, against a training dummy (Dumplord) that never moves or fights back, on Sunday Roast with no hazards.
+- **8-step checklist**, top right: walk, throw, pick up, knock out the dummy, swipe, dash, fill your belly, stomp to go KAIJU. The current step shows its controls for keyboard, gamepad and touch. Each step ticks with a ✔ pop-up, and "All done!" shows at the end.
+- Knocked-out kaiju come back after 1.2 s and rounds never end. Practice doesn't count towards stats.
+- **Customise:** `src/practice.ts`. `PRACTICE_STEPS` holds the text, the controls hint, and a one-line test on game events; `PRACTICE` holds the dummy kaiju, table, hazards and power-ups. The mode itself is `practice` in `src/sim/modes.ts`, hidden from mode pickers.

@@ -1,7 +1,7 @@
 // Party modes. EASY TO CUSTOMISE: change names, blurbs and numbers here; set `enabled: false` to hide a mode.
 // The simulation (world.ts) reads MODE_RULES; menus read MODES.
 
-export type GameMode = 'classic' | 'teams' | 'crumbRush' | 'hotDumpling';
+export type GameMode = 'classic' | 'teams' | 'crumbRush' | 'hotDumpling' | 'practice';
 
 export interface ModeDef {
   id: GameMode;
@@ -10,6 +10,7 @@ export interface ModeDef {
   howTo: string; // shown on the menu when the mode is picked
   minPlayers: number;
   enabled: boolean;
+  hidden?: boolean; // not offered in mode pickers (e.g. Practice, reached from How to Play)
 }
 
 export const MODES: ModeDef[] = [
@@ -29,9 +30,13 @@ export const MODES: ModeDef[] = [
     id: 'hotDumpling', name: 'HOT DUMPLING', blurb: 'Pass the steaming dumpling before it pops',
     howTo: 'One kaiju carries a HOT DUMPLING. Touch a rival to pass it on. When the fuse runs out, it POPS. Last one standing wins.', minPlayers: 3, enabled: true,
   },
+  {
+    id: 'practice', name: 'PRACTICE', blurb: 'Learn the moves on a harmless dummy',
+    howTo: 'A training dummy that never fights back. Follow the checklist. Knocked-out kaiju come straight back.', minPlayers: 2, enabled: true, hidden: true,
+  },
 ];
 
-export const enabledModes = () => MODES.filter(m => m.enabled);
+export const enabledModes = () => MODES.filter(m => m.enabled && !m.hidden);
 export const modeDef = (id: GameMode) => MODES.find(m => m.id === id) ?? MODES[0];
 
 /** Tunable numbers for each mode. */
@@ -41,6 +46,9 @@ export const MODE_RULES = {
     colors: [0xff4a4a, 0x4a8aff],
     css: ['#ff6a6a', '#7aa8ff'],
     friendlyFire: false,
+  },
+  practice: {
+    respawnDelay: 1.2,
   },
   crumbRush: {
     roundTime: 45, // seconds per round
