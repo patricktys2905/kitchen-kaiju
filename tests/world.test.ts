@@ -733,3 +733,19 @@ describe('practice', () => {
     expect(w.players[1].alive).toBe(true);
   });
 });
+
+describe('daily challenge', () => {
+  it('is the same all day, changes between days, and only uses base kaiju/tables', async () => {
+    const { dailySetup } = await import('../src/daily');
+    const { LAYOUTS } = await import('../src/sim/layouts');
+    const a = dailySetup('2026-11-07'), b = dailySetup('2026-11-07'), c = dailySetup('2026-11-08');
+    expect(a).toEqual(b);
+    expect(JSON.stringify(a)).not.toEqual(JSON.stringify(c));
+    for (let d = 1; d <= 28; d++) {
+      const s = dailySetup(`2026-02-${String(d).padStart(2, '0')}`);
+      expect(LAYOUTS[s.table].locked).toBeFalsy();
+      expect([s.you, ...s.rivals].every(k => k < 16)).toBe(true);
+      expect(new Set([s.you, ...s.rivals]).size).toBe(4);
+    }
+  });
+});

@@ -21,6 +21,7 @@ import { GAUNTLET, gauntletBest, gauntletTables, saveGauntletBest, waveSetup } f
 import { owned } from '../story/unlocks';
 import { currentHat } from '../hats';
 import { PRACTICE, PRACTICE_STEPS } from '../practice';
+import { DAILY, dailySetup, loadDaily, recordDaily } from '../daily';
 import type { NetGuest, NetHost, NetMsg } from '../net/net';
 import { applySnapshot, extrapolate, makeSnapshot, type Snapshot } from '../net/snapshot';
 import { isTouchDevice, setTouchHud, setTouchMode } from '../touch';
@@ -44,6 +45,7 @@ export interface GameData {
   powerups?: boolean; // condiment power-ups (Free Play; default POWERUPS.enabled, never in Story)
   hazards?: boolean; // table hazards (hand, wind, cleaver…); default on
   gauntlet?: { wave: number; bosses: number[] }; // Gauntlet: seat 0 is you, one round per wave
+  daily?: { date: string }; // Daily Challenge: seat 0 is you
   story?: { chapter: number; bosses: number[] }; // story chapter: seat 0 is you; bosses start rounds with a full belly
   net?: { role: 'host'; host: NetHost } | { role: 'guest'; guest: NetGuest; seat: number };
   seed?: number;
@@ -329,7 +331,7 @@ export class GameScene extends Phaser.Scene {
   }
 
   private rematch(): void {
-    const data: GameData = { slots: this.slots, difficulty: this.difficulty, species: this.species, tables: this.tables, net: this.net, rounds: this.rounds, mode: this.mode, powerups: this.powerups, hazards: this.hazards };
+    const data: GameData = { slots: this.slots, difficulty: this.difficulty, species: this.species, tables: this.tables, net: this.net, rounds: this.rounds, mode: this.mode, powerups: this.powerups, hazards: this.hazards, daily: this.initData.daily, botLevels: this.initData.daily ? this.initData.botLevels : undefined };
     const net = this.net;
     if (net?.role === 'host') {
       const names = this.world.players.map(p => p.name);
@@ -533,6 +535,15 @@ export class GameScene extends Phaser.Scene {
     return this.slots.some((_, i) => this.isHuman(i) && this.world.players[i].team === tm);
   }
 
+  /** Static helper: GameData for today's Daily Challenge. */
+  static dailyData(): GameData {
+    const d = dailySetup();
+    return {
+      slots: [{ kind: 'local', index: 0 }, ...d.rivals.map((): Slot => ({ kind: 'bot', index: 0 }))], difficulty: 'normal',
+      species: [d.you, ...d.rivals], tables: [d.table], rounds: DAILY.rounds, botLevels: [null, ...DAILY.levels], mode: d.mode, powerups: DAILY.powerups, daily: { date: d.date },
+    };
+  }
+
   /** Static helper: GameData for Practice (you vs a dummy). */
   static practiceData(pick: number): GameData {
     return { slots: [{ kind: 'local', index: 0 }, { kind: 'bot', index: 0 }], difficulty: 'easy', species: [pick, pick === PRACTICE.dummySpecies ? (pick + 1) % SPECIES.length : PRACTICE.dummySpecies], tables: [PRACTICE.table], rounds: 99, mode: 'practice', powerups: PRACTICE.powerups, hazards: PRACTICE.hazards };
@@ -568,6 +579,7 @@ export class GameScene extends Phaser.Scene {
     if (e.type === 'powerup') T.powers[e.id]++;
     if (e.type === 'ko') { T.deaths[e.id]++; if (e.cause === 'fall' || e.cause === 'wind') T.falls[e.id]++; }
     if (e.type === 'matchEnd') this.awardsText.setText(this.awards());
+    if (e.type === 'matchEnd' && this.initData.daily) recordDaily(this.world.players[0].score, this.humanWon(e.winner), this.initData.daily.date);
     if (e.type === 'matchEnd' && this.initData.gauntlet) {
       const reached = this.initData.gauntlet.wave - (e.winner === 0 ? 0 : 1);
       if (saveGauntletBest(reached) && e.winner !== 0 && reached > 0) this.time.delayedCall(600, () => { sfx.matchWin(); this.popup(VIEW.w / 2, 140, '🏅 NEW BEST!', '#ffd24a', 30); });
@@ -594,7 +606,7 @@ export class GameScene extends Phaser.Scene {
         const got = checkAchievements(st);
         got.forEach((a, k) => this.time.delayedCall(1200 + k * 1600, () => {
           sfx.meterFull();
-          this.popup(VIEW.w / 2, 130, `🏆 ${a.name.toUpperCase()}: ${a.desc}`, '#ffd24a', 22);
+          this.popup(VIEW.w / 2, 620, `🏆 ${a.name.toUpperCase()}: ${a.desc}`, '#ffd24a', 22);
         }));
         break;
       }
@@ -744,7 +756,7 @@ export class GameScene extends Phaser.Scene {
     if (w.mode === 'crumbRush') {
       for (const p of w.players) if (p.alive && p.invT > 0) { o.lineStyle(3, 0xffffff, 0.4 + 0.4 * Math.sin(t * 20)); o.strokeCircle(p.x, p.y, p.r + 8); }
     }
-    if (w.mode === 'hotDumpling' && w.hot) {
+    if (w.mode === 'hotDumpling' && w.hot && w.phase === 'play') {
       const h = w.players[w.hot.id];
       if (h?.alive) {
         const fuse = w.hot.fuse, rate = fuse < 3 ? 14 : fuse < 6 ? 8 : 4;
@@ -808,7 +820,7 @@ export class GameScene extends Phaser.Scene {
       let info = `${status} · KOs ${p.kos}`;
       if (w.mode === 'crumbRush') info = !p.alive && p.respawnT > 0 ? `BACK IN ${Math.ceil(p.respawnT)} · 🍪 ${p.pts}` : `🍪 ${p.pts} crumbs · KOs ${p.kos}`;
       if (w.mode === 'teams') info = `${MODE_RULES.teams.names[p.team] ?? ''} · ${status}`;
-      if (w.mode === 'hotDumpling' && w.hot?.id === p.id && p.alive) info = '🥟 HOT! PASS IT!';
+      if (w.mode === 'hotDumpling' && w.hot?.id === p.id && p.alive && w.phase === 'play') info = '🥟 HOT! PASS IT!';
       const buffs = (p.speedT > 0 ? POWER_DEFS.hotsauce.short : '') + (p.shieldT > 0 ? POWER_DEFS.mustard.short : '') + (p.sugarT > 0 ? POWER_DEFS.sugar.short : '');
       if (buffs && p.alive) info = `${buffs} ${info}`;
       this.infoTexts[i].setText(info);
@@ -873,7 +885,13 @@ export class GameScene extends Phaser.Scene {
       const ranked = w.players.slice().sort((a, b) => b.score - a.score || b.kos - a.kos);
       const lines = ranked.map((p, i) => `${i + 1}. ${p.name}  ${p.score} round${p.score === 1 ? '' : 's'} · ${p.kos} KO${p.kos === 1 ? '' : 's'}`);
       // more than 4 players: two columns (1st|2nd, 3rd|4th, 5th|6th)
-      const table = lines.length > 4 ? chunk(lines, 2).map(r => r.join('        ')).join('\n') : lines.join('\n');
+      let table = lines.length > 4 ? chunk(lines, 2).map(r => r.join('        ')).join('\n') : lines.join('\n');
+      if (this.initData.daily) {
+        const d = loadDaily(), won = this.humanWon(w.winner);
+        main = won ? 'DAILY CHALLENGE\nCOMPLETE!' : 'DAILY CHALLENGE\nFAILED';
+        color = won ? '#8dff6a' : '#ff8a7a';
+        table = `📅 Today: ${d.won ? 'won ✔' : 'not won yet'} · best ${d.best} round${d.best === 1 ? '' : 's'} · tries ${d.tries} · win streak ${d.streak} day${d.streak === 1 ? '' : 's'}\n\n${table}`;
+      }
       sub = table + (this.net?.role === 'guest' ? '\n\nWaiting for the host to start a rematch… · Esc to leave' : '\n\n1 / START rematch · Esc menu');
     }
     if (main !== this.lastBanner) { this.lastBanner = main; if (main) popIn(this, this.banner, 1.5, 380); }

@@ -150,3 +150,15 @@ Each section says **where to customise it**.
 - **8-step checklist**, top right: walk, throw, pick up, knock out the dummy, swipe, dash, fill your belly, stomp to go KAIJU. The current step shows its controls for keyboard, gamepad and touch. Each step ticks with a ✔ pop-up, and "All done!" shows at the end.
 - Knocked-out kaiju come back after 1.2 s and rounds never end. Practice doesn't count towards stats.
 - **Customise:** `src/practice.ts`. `PRACTICE_STEPS` holds the text, the controls hint, and a one-line test on game events; `PRACTICE` holds the dummy kaiju, table, hazards and power-ups. The mode itself is `practice` in `src/sim/modes.ts`, hidden from mode pickers.
+
+## 15. Daily Challenge
+
+- **Where:** Title → **DAILY** card. It shows today's mode, or "Done ✔" with your streak.
+- The calendar date picks one fixed match: the mode (Classic is twice as likely), a base table, your kaiju and 3 rival kaiju (normal / normal / easy bots). First to 3 rounds, power-ups on. Only base kaiju and tables are used, so everyone can play it.
+- The end screen says COMPLETE / FAILED and shows today's best rounds, tries and your **win streak in days**. Rematch retries the same daily. New achievement: 📅 Daily Special.
+- **Customise:** `src/daily.ts` → `DAILY` (mode list, rival levels, rounds, power-ups) and `dailySetup()`.
+
+## 16. Title screen layout
+
+- Six mode cards now: Story · Free Play · Online · Party Modes · Daily · Gauntlet. Their size adjusts automatically to the number of cards, so adding a mode is one more line in `MODES` in `src/scenes/TitleScene.ts`.
+- Small row top-right: Settings · How to Play · Kaiju · Records.

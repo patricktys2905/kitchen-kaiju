@@ -12,7 +12,15 @@ import { CHAPTERS } from '../story/chapters';
 import { setTouchMode } from '../touch';
 import { playMusic } from '../music';
 import { gauntletBest } from '../gauntlet';
+import { dailySetup, loadDaily, todayKey } from '../daily';
+import { modeDef } from '../sim/modes';
 import { GameScene } from './GameScene';
+
+function dailySub(): string {
+  const d = loadDaily(), today = d.date === todayKey();
+  if (today && d.won) return `Done ✔ · ${d.streak}🔥`;
+  return modeDef(dailySetup().mode).name;
+}
 
 export class TitleScene extends Phaser.Scene {
   private nav!: FocusNav;
@@ -40,14 +48,15 @@ export class TitleScene extends Phaser.Scene {
     withShadow(this.add.text(372, 150, 'Tiny monsters. Giant dinner.', body(24, '#ffd9a0', 900)).setOrigin(0.5).setDepth(2), 3);
 
     const save = loadStory();
-    const storySub = save.stars.some(s => s) ? `Chapter ${Math.min(save.unlocked, CHAPTERS.length)}/${CHAPTERS.length} · ★ ${totalStars(save)}/${CHAPTERS.length * 3}` : 'Solo campaign · 12 chapters';
+    const storySub = save.stars.some(s => s) ? `Ch ${Math.min(save.unlocked, CHAPTERS.length)}/${CHAPTERS.length} · ★ ${totalStars(save)}` : `${CHAPTERS.length} chapters`;
     const go = (key: string, data: object = {}) => { sfx.go(); this.time.delayedCall(80, () => this.scene.start(key, data)); };
     const MODES: { label: string; sub: string; accent: number; scene?: string; disabled?: boolean; data?: object }[] = [
       { label: 'STORY', sub: storySub, accent: 0xff9a3c, scene: 'story' },
-      { label: 'FREE PLAY', sub: 'Up to 6 players · bots', accent: 0x4fd1ff, scene: 'menu' },
-      { label: 'ONLINE', sub: 'Play with friends anywhere', accent: 0x8dff6a, scene: 'lobby' },
-      { label: 'PARTY MODES', sub: 'Teams · Rush · Hot Dumpling', accent: 0xffd24a, scene: 'menu', data: { mode: 'teams' } },
-      { label: 'GAUNTLET', sub: gauntletBest() ? `Solo · best wave ${gauntletBest()}` : 'Solo survival waves', accent: 0xff5a7a, scene: 'game', data: GameScene.gauntletWave(1, save.pick, { kind: 'local', index: 0 }) },
+      { label: 'FREE PLAY', sub: 'Up to 6 · bots', accent: 0x4fd1ff, scene: 'menu' },
+      { label: 'ONLINE', sub: 'Play with friends', accent: 0x8dff6a, scene: 'lobby' },
+      { label: 'PARTY MODES', sub: 'Teams · Rush · Dumpling', accent: 0xffd24a, scene: 'menu', data: { mode: 'teams' } },
+      { label: 'DAILY', sub: dailySub(), accent: 0x8dff6a, scene: 'game', data: GameScene.dailyData() },
+      { label: 'GAUNTLET', sub: gauntletBest() ? `Best wave ${gauntletBest()}` : 'Solo survival', accent: 0xff5a7a, scene: 'game', data: GameScene.gauntletWave(1, save.pick, { kind: 'local', index: 0 }) },
     ];
     const n = MODES.length, cw = Math.min(290, (1240 - (n - 1) * 14) / n);
     const buttons = MODES.map((m, i) => new Button(this, 20 + cw / 2 + i * (cw + 14), 640, {
