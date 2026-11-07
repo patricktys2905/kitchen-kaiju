@@ -316,6 +316,8 @@ export class GalleryScene extends PanelScene {
 }
 
 // ------------------------------------------------------------------ Records + achievements
+const PER_PAGE = 18; // achievements per page (2 columns)
+
 export class RecordsScene extends PanelScene {
   protected title = '🏆 RECORDS';
   constructor() { super('records'); }
@@ -349,14 +351,33 @@ export class RecordsScene extends PanelScene {
 
     const done = ACHIEVEMENTS.filter(a => s.achieved.includes(a.id)).length;
     withShadow(this.add.text(500, 108, `ACHIEVEMENTS ${done}/${ACHIEVEMENTS.length}`, display(24, '#ffd24a', { strokeThickness: 4 })).setDepth(5), 2);
-    ACHIEVEMENTS.forEach((a, i) => {
+    this.drawAch(s, 0);
+    if (ACHIEVEMENTS.length > PER_PAGE) this.buttons.push(new Button(this, 1170, 108, { w: 170, h: 40, label: 'PAGE ▶', size: 16, onClick: () => { this.page = (this.page + 1) % Math.ceil(ACHIEVEMENTS.length / PER_PAGE); sfx.pickup(); this.drawAch(s, this.page); } }, 6));
+  }
+
+  private page = 0;
+  private achObjs: Phaser.GameObjects.GameObject[] = [];
+  private drawAch(s: ReturnType<typeof loadStats>, page: number): void {
+    for (const o of this.achObjs) o.destroy();
+    this.achObjs = [];
+    const g = this.add.graphics().setDepth(4);
+    this.achObjs.push(g);
+    const add = <T extends Phaser.GameObjects.GameObject>(o: T): T => { this.achObjs.push(o); return o; };
+    ACHIEVEMENTS.slice(page * PER_PAGE, (page + 1) * PER_PAGE).forEach((a, i) => {
       const col = i % 2, row = Math.floor(i / 2), x = 500 + col * 380, y = 146 + row * 54;
       const got = s.achieved.includes(a.id);
       g.fillStyle(got ? 0x3a2412 : 0x1c1714, 0.95); g.fillRoundedRect(x, y, 365, 48, 12);
       g.lineStyle(2, got ? 0xffd24a : 0x4a3e34, 1); g.strokeRoundedRect(x, y, 365, 48, 12);
-      this.add.text(x + 12, y + 24, got ? a.icon : '🔒', body(22, '#ffffff', 800)).setOrigin(0, 0.5).setDepth(5).setAlpha(got ? 1 : 0.6);
-      this.add.text(x + 56, y + 5, a.name, display(15, got ? '#ffe9c7' : '#a89680', { strokeThickness: 3 })).setDepth(5);
-      this.add.text(x + 56, y + 27, a.desc, body(12, got ? '#8dff6a' : '#a89680', 800)).setDepth(5);
+      add(this.add.text(x + 12, y + 24, got ? a.icon : '🔒', body(22, '#ffffff', 800)).setOrigin(0, 0.5).setDepth(5).setAlpha(got ? 1 : 0.6));
+      add(this.add.text(x + 56, y + 5, a.name, display(15, got ? '#ffe9c7' : '#a89680', { strokeThickness: 3 })).setDepth(5));
+      add(this.add.text(x + 56, y + 27, a.desc, body(12, got ? '#8dff6a' : '#a89680', 800)).setDepth(5));
+      const pr = !got && a.progress ? a.progress(s) : null;
+      if (pr && pr[0] > 0) {
+        const k = Math.min(1, pr[0] / pr[1]);
+        g.fillStyle(0x000000, 0.5); g.fillRoundedRect(x + 250, y + 30, 100, 8, 4);
+        g.fillStyle(0xffb347, 1); g.fillRoundedRect(x + 250, y + 30, Math.max(8, 100 * k), 8, 4);
+        add(this.add.text(x + 300, y + 8, `${Math.min(pr[0], pr[1])}/${pr[1]}`, body(12, '#ffcf8a', 900)).setOrigin(0.5, 0).setDepth(5));
+      }
     });
   }
 }

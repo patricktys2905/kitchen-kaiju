@@ -278,3 +278,9 @@ Each section says **where to customise it**.
 ## 31. Hats online
 
 - Everyone's chosen hat now shows in online matches. Each friend's device sends its hat when joining, and the host shares all hats at the start and on rematches. Bots never wear hats.
+
+## 32. Achievement progress and pages
+
+- Locked count-style achievements (wins, KOs, crumbs, streaks, tables, kaiju, Gauntlet waves, matches) show a progress bar such as "340/1000" in Records.
+- 25 achievements now, so the list has pages: **PAGE ▶** (18 per page).
+- **Customise:** add `progress: s => [current, goal]` to any achievement in `src/stats.ts`; `PER_PAGE` in `src/scenes/ExtrasScenes.ts`.

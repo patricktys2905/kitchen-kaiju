@@ -43,34 +43,36 @@ export interface Achievement {
   name: string;
   desc: string;
   test: (s: Stats) => boolean;
+  /** Optional [current, goal] for a progress bar on the Records screen. */
+  progress?: (s: Stats) => [number, number];
 }
 
 export const ACHIEVEMENTS: Achievement[] = [
-  { id: 'first-win', icon: '🥇', name: 'First Bite', desc: 'Win a match', test: s => s.wins >= 1 },
-  { id: 'wins-10', icon: '🍽️', name: 'Regular Diner', desc: 'Win 10 matches', test: s => s.wins >= 10 },
-  { id: 'wins-50', icon: '👑', name: 'Head of the Table', desc: 'Win 50 matches', test: s => s.wins >= 50 },
-  { id: 'kos-25', icon: '🍴', name: 'Forked Up', desc: 'Score 25 knockouts', test: s => s.kos >= 25 },
-  { id: 'kos-250', icon: '🔪', name: 'Cutlery Drawer', desc: 'Score 250 knockouts', test: s => s.kos >= 250 },
-  { id: 'crumbs-100', icon: '🍪', name: 'Crumb Muncher', desc: 'Eat 100 crumbs', test: s => s.crumbs >= 100 },
-  { id: 'crumbs-1000', icon: '🥐', name: 'Bottomless Belly', desc: 'Eat 1,000 crumbs', test: s => s.crumbs >= 1000 },
-  { id: 'kaiju-10', icon: '🦖', name: 'Size Matters', desc: 'Go KAIJU 10 times', test: s => s.kaijuForms >= 10 },
-  { id: 'streak-3', icon: '🔥', name: 'On a Roll', desc: 'Win 3 matches in a row', test: s => s.bestStreak >= 3 },
-  { id: 'streak-5', icon: '🌶️', name: 'Too Hot to Handle', desc: 'Win 5 matches in a row', test: s => s.bestStreak >= 5 },
+  { id: 'first-win', icon: '🥇', name: 'First Bite', desc: 'Win a match', test: s => s.wins >= 1, progress: s => [s.wins, 1] },
+  { id: 'wins-10', icon: '🍽️', name: 'Regular Diner', desc: 'Win 10 matches', test: s => s.wins >= 10, progress: s => [s.wins, 10] },
+  { id: 'wins-50', icon: '👑', name: 'Head of the Table', desc: 'Win 50 matches', test: s => s.wins >= 50, progress: s => [s.wins, 50] },
+  { id: 'kos-25', icon: '🍴', name: 'Forked Up', desc: 'Score 25 knockouts', test: s => s.kos >= 25, progress: s => [s.kos, 25] },
+  { id: 'kos-250', icon: '🔪', name: 'Cutlery Drawer', desc: 'Score 250 knockouts', test: s => s.kos >= 250, progress: s => [s.kos, 250] },
+  { id: 'crumbs-100', icon: '🍪', name: 'Crumb Muncher', desc: 'Eat 100 crumbs', test: s => s.crumbs >= 100, progress: s => [s.crumbs, 100] },
+  { id: 'crumbs-1000', icon: '🥐', name: 'Bottomless Belly', desc: 'Eat 1,000 crumbs', test: s => s.crumbs >= 1000, progress: s => [s.crumbs, 1000] },
+  { id: 'kaiju-10', icon: '🦖', name: 'Size Matters', desc: 'Go KAIJU 10 times', test: s => s.kaijuForms >= 10, progress: s => [s.kaijuForms, 10] },
+  { id: 'streak-3', icon: '🔥', name: 'On a Roll', desc: 'Win 3 matches in a row', test: s => s.bestStreak >= 3, progress: s => [s.bestStreak, 3] },
+  { id: 'streak-5', icon: '🌶️', name: 'Too Hot to Handle', desc: 'Win 5 matches in a row', test: s => s.bestStreak >= 5, progress: s => [s.bestStreak, 5] },
   { id: 'teams', icon: '🤝', name: 'Better Together', desc: 'Win a Team Feast match', test: s => (s.modeWins.teams ?? 0) >= 1 },
   { id: 'rush', icon: '⏱️', name: 'Speed Eater', desc: 'Win a Crumb Rush match', test: s => (s.modeWins.crumbRush ?? 0) >= 1 },
   { id: 'hot', icon: '🥟', name: 'Not It!', desc: 'Win a Hot Dumpling match', test: s => (s.modeWins.hotDumpling ?? 0) >= 1 },
-  { id: 'pops-10', icon: '💥', name: 'Dumpling Dodger', desc: 'Watch 10 Hot Dumplings pop on someone else', test: s => s.pops >= 10 },
-  { id: 'tables-all', icon: '🗺️', name: 'World Tour', desc: 'Play on 12 different tables', test: s => s.tables.length >= 12 },
-  { id: 'kaiju-8', icon: '🎭', name: 'Mix It Up', desc: 'Win with 8 different kaiju', test: s => Object.keys(s.kaijuWins).length >= 8 },
-  { id: 'gauntlet-5', icon: '⚔️', name: 'Gauntlet Runner', desc: 'Clear 5 Gauntlet waves', test: s => s.gauntlet >= 5 },
-  { id: 'gauntlet-10', icon: '🏰', name: 'Gauntlet Master', desc: 'Clear 10 Gauntlet waves', test: s => s.gauntlet >= 10 },
+  { id: 'pops-10', icon: '💥', name: 'Dumpling Dodger', desc: 'Watch 10 Hot Dumplings pop on someone else', test: s => s.pops >= 10, progress: s => [s.pops, 10] },
+  { id: 'tables-all', icon: '🗺️', name: 'World Tour', desc: 'Play on 12 different tables', test: s => s.tables.length >= 12, progress: s => [s.tables.length, 12] },
+  { id: 'kaiju-8', icon: '🎭', name: 'Mix It Up', desc: 'Win with 8 different kaiju', test: s => Object.keys(s.kaijuWins).length >= 8, progress: s => [Object.keys(s.kaijuWins).length, 8] },
+  { id: 'gauntlet-5', icon: '⚔️', name: 'Gauntlet Runner', desc: 'Clear 5 Gauntlet waves', test: s => s.gauntlet >= 5, progress: s => [s.gauntlet ?? 0, 5] },
+  { id: 'gauntlet-10', icon: '🏰', name: 'Gauntlet Master', desc: 'Clear 10 Gauntlet waves', test: s => s.gauntlet >= 10, progress: s => [s.gauntlet ?? 0, 10] },
   { id: 'daily', icon: '📅', name: 'Daily Special', desc: 'Win a Daily Challenge', test: () => { try { return JSON.parse(localStorage.getItem('kk-daily-v1') ?? '{}').won === true || !!JSON.parse(localStorage.getItem('kk-daily-v1') ?? '{}').lastWin; } catch { return false; } } },
   { id: 'spicy-1', icon: '🌶️', name: 'Feeling Spicy', desc: 'Clear a Story chapter on Spicy', test: () => safeSpicy() >= 1 },
   { id: 'spicy-12', icon: '🔥', name: 'Ghost Pepper', desc: 'Clear all 12 Story chapters on Spicy', test: () => safeSpicy() >= 12 },
   { id: 'dessert', icon: '🍰', name: 'Clean Plate', desc: 'Finish the whole Dessert Course', test: () => { try { return Number(localStorage.getItem('kk-dessert-v1') ?? 0) >= 4; } catch { return false; } } },
   { id: 'cup', icon: '🏆', name: 'Cup Champion', desc: 'Win a Party Cup', test: s => (s.cups ?? 0) >= 1 },
   { id: 'blend', icon: '🥤', name: 'Smoothie Operator', desc: 'Shove a rival into the blender', test: s => (s.blends ?? 0) >= 1 },
-  { id: 'matches-25', icon: '🍲', name: 'Dinner Party Animal', desc: 'Finish 25 matches', test: s => s.matches >= 25 },
+  { id: 'matches-25', icon: '🍲', name: 'Dinner Party Animal', desc: 'Finish 25 matches', test: s => s.matches >= 25, progress: s => [s.matches, 25] },
 ];
 
 /** How many chapters are cleared on Spicy (0 when storage is unavailable, e.g. tests). */
