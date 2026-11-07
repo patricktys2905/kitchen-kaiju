@@ -62,7 +62,7 @@ const SURFACE: Record<Layout['table'], number> = {
   'bg-table': 0x9a6438, 'bg-sushi': 0xd9c08a, 'bg-party': 0xf3b6cc, 'bg-board': 0xb88452,
   'bg-griddle': 0x8d939b, 'bg-parlour': 0xbfe8d6, 'bg-picnic': 0xe8a0a0,
   'bg-bakery': 0xe8d3a8, 'bg-banquet': 0xa8283a, 'bg-breakfast': 0xf6e7a0,
-  'bg-freezer': 0xd6eef8, 'bg-candy': 0xffc4de, 'bg-nightmare': 0x3a3836,
+  'bg-freezer': 0xd6eef8, 'bg-candy': 0xffc4de, 'bg-nightmare': 0x3a3836, 'bg-smoothie': 0xfff1c8,
 };
 export function drawTableSurface(g: G, table: Layout['table'] = 'bg-table'): void {
   g.fillStyle(SURFACE[table], 1);
@@ -101,6 +101,7 @@ const FRAMES: Record<Layout['table'], FrameStyle> = {
   'bg-freezer': { frame: 0xb8c4cc, hi: 0xeef6fb, lip: 0x7f8f9a, depth: 14 },
   'bg-candy': { frame: 0xe0457f, hi: 0xff9cc4, lip: 0xa82a5c, depth: 14 },
   'bg-nightmare': { frame: 0x2a2624, hi: 0x6a625c, lip: 0x161210, depth: 16 },
+  'bg-smoothie': { frame: 0x2fb39a, hi: 0x7fe3cf, lip: 0x1f7a68, depth: 14 },
 };
 
 /** Soft floor shadow, the table's 3D front lip and its frame, styled per table. */
@@ -141,7 +142,7 @@ export function drawMat(g: G, x: number, y: number, color: number, table: Layout
     'bg-table': 0xd9b878, 'bg-sushi': 0x9fc26a, 'bg-party': 0xfff1f6, 'bg-board': 0x4a4e57,
     'bg-griddle': 0xf4f0e6, 'bg-parlour': 0xe8fff4, 'bg-picnic': 0xfff3a8,
     'bg-bakery': 0xf7f4ee, 'bg-banquet': 0xc0303c, 'bg-breakfast': 0xfff4c0,
-    'bg-freezer': 0xeaf6fc, 'bg-candy': 0xffe0ee, 'bg-nightmare': 0x5a3a30,
+    'bg-freezer': 0xeaf6fc, 'bg-candy': 0xffe0ee, 'bg-nightmare': 0x5a3a30, 'bg-smoothie': 0xfff6dc,
   };
   g.fillStyle(0x000000, 0.18); g.fillRoundedRect(x - 54, y - 38, 112, 82, 12);
   g.fillStyle(fill[table], 0.9); g.fillRoundedRect(x - 56, y - 41, 112, 82, 12);
@@ -164,6 +165,7 @@ export function drawObstacleShadow(g: G, o: Obstacle): void {
 }
 
 const FALLBACK_COLORS: Partial<Record<Obstacle['style'], number>> = {
+  smoothie: 0xff8ab0, pineapple: 0xf2c418, banana: 0xffe066, strawberry: 0xe8392f,
   icetray: 0xbfe6f5, peas: 0x6fbf4a, popsicle: 0xff6a5a, tub: 0xf2ead8, gumdrop: 0xff4fa0, lollipop: 0xffd24a, candyjar: 0xcfeefa, knifeblock: 0x6a4a30, pot: 0x8a8f96, pan: 0x2f2f33,
   soy: 0x3a2214, sushi: 0x24407a, teapot: 0x3f6b3a, cake: 0xff9ec4, gift: 0x4f8fe0, cupcake: 0x9ff0d0,
   tomato: 0xe8392f, onion: 0xa04a8c, carrot: 0xff8a2a, garlic: 0xf2ece0,
@@ -699,6 +701,41 @@ export function drawSpill(g: G, z: Zone, i: number, t: number): void {
 }
 
 /** Diner Griddle burner: dark coils at rest, glowing while it warns, roaring flames when it flares. */
+/** Smoothie Bar blender: base, spinning blades, warning ring and pull swirl. */
+export function drawBlender(g: G, z: { x: number; y: number; r: number }, state: 'warn' | 'spin' | null, angle: number, t: number, range: number, withBase: boolean): void {
+  if (state) {
+    const pulse = 0.5 + 0.5 * Math.sin(t * (state === 'spin' ? 18 : 9));
+    g.fillStyle(0xff3b3b, state === 'spin' ? 0.22 : 0.1 + 0.12 * pulse);
+    g.fillCircle(z.x, z.y, z.r + 18);
+    g.lineStyle(3, 0xff3b3b, 0.5 + 0.4 * pulse);
+    g.strokeCircle(z.x, z.y, z.r + 18);
+    if (state === 'spin') {
+      // swirl lines being sucked in
+      for (let k = 0; k < 10; k++) {
+        const a0 = angle * 0.35 + k * (Math.PI / 5), r0 = range * (0.35 + ((t * 0.9 + k * 0.13) % 1) * 0.6);
+        g.lineStyle(3, 0xffffff, 0.18);
+        g.beginPath();
+        for (let s = 0; s <= 8; s++) { const rr = r0 - s * 18, aa = a0 + s * 0.18; if (rr < z.r) break; const px = z.x + Math.cos(aa) * rr, py = z.y + Math.sin(aa) * rr; if (s === 0) g.moveTo(px, py); else g.lineTo(px, py); }
+        g.strokePath();
+      }
+    } else {
+      g.lineStyle(2, 0xffffff, 0.25 + 0.25 * pulse);
+      g.strokeCircle(z.x, z.y, range * (0.3 + 0.1 * pulse));
+    }
+  }
+  if (withBase) {
+    g.fillStyle(0x000000, 0.3); g.fillCircle(z.x + 5, z.y + 7, z.r + 8);
+    g.fillStyle(0x3a3f46, 1); g.fillCircle(z.x, z.y, z.r + 8);
+    g.fillStyle(0xbfe6f5, 0.6); g.fillCircle(z.x, z.y, z.r);
+  }
+  g.fillStyle(0xd8dde2, 1);
+  for (let k = 0; k < 4; k++) {
+    const a = angle + (k * Math.PI) / 2, c = Math.cos(a), s = Math.sin(a), px = -s, py = c, L = z.r * 0.85, W = 7;
+    g.fillTriangle(z.x + px * W, z.y + py * W, z.x - px * W, z.y - py * W, z.x + c * L, z.y + s * L);
+  }
+  g.fillStyle(0x6a6f76, 1); g.fillCircle(z.x, z.y, 9);
+}
+
 export function drawBurner(g: G, z: Zone, state: Burner | null, i: number, t: number): void {
   const mine = state && state.i === i ? state : null;
   const heat = !mine ? 0 : mine.state === 'warn' ? mine.t / RULES.burnerWarn : 1;

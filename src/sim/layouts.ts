@@ -3,13 +3,14 @@ export type ObstacleStyle =
   | 'soy' | 'sushi' | 'teapot' | 'cake' | 'gift' | 'cupcake' | 'tomato' | 'onion' | 'carrot' | 'garlic'
   | 'ketchup' | 'mustard' | 'pancakes' | 'egg' | 'sundae' | 'shake' | 'cone' | 'basket' | 'melon' | 'lemonade' | 'sandwich'
   | 'croissant' | 'flour' | 'rollingpin' | 'cupcakes' | 'dumplings' | 'noodles' | 'teacup' | 'toaster' | 'jam' | 'cereal'
-  | 'icetray' | 'peas' | 'popsicle' | 'tub' | 'gumdrop' | 'lollipop' | 'candyjar' | 'knifeblock' | 'pot' | 'pan';
+  | 'icetray' | 'peas' | 'popsicle' | 'tub' | 'gumdrop' | 'lollipop' | 'candyjar' | 'knifeblock' | 'pot' | 'pan'
+  | 'smoothie' | 'pineapple' | 'banana' | 'strawberry';
 
 export type Obstacle =
   | { shape: 'circle'; x: number; y: number; r: number; style: ObstacleStyle }
   | { shape: 'rect'; x: number; y: number; w: number; h: number; style: ObstacleStyle };
 
-export type HazardKind = 'hand' | 'wind' | 'cleaver' | 'burner' | 'toaster';
+export type HazardKind = 'hand' | 'wind' | 'cleaver' | 'burner' | 'toaster' | 'blender';
 
 /** A conveyor strip: anything sitting on it is carried sideways at vx px/s. */
 export interface Belt {
@@ -47,7 +48,7 @@ export interface Layout {
   name: string;
   /** Art key of the table surface. */
   table: 'bg-table' | 'bg-sushi' | 'bg-party' | 'bg-board' | 'bg-griddle' | 'bg-parlour' | 'bg-picnic' | 'bg-bakery' | 'bg-banquet' | 'bg-breakfast'
-    | 'bg-freezer' | 'bg-candy' | 'bg-nightmare';
+    | 'bg-freezer' | 'bg-candy' | 'bg-nightmare' | 'bg-smoothie';
   hazards: HazardKind[];
   belts?: Belt[];
   spills?: Zone[]; // slippery: you slide instead of stopping
@@ -56,6 +57,7 @@ export interface Layout {
   turntable?: Turntable; // Banquet Lazy Susan
   toasters?: Toaster[]; // Breakfast Rush (hazard 'toaster')
   slippery?: boolean; // Freezer Shelf: the whole table is ice
+  blender?: Zone; // Smoothie Bar: the blades (r = KO radius); it pulls from RULES.blenderRange
   /** Unlocked in Story mode (see src/story/unlocks.ts). */
   locked?: boolean;
   obstacles: Obstacle[];
@@ -290,6 +292,22 @@ export const LAYOUTS: Layout[] = [
       { shape: 'rect', x: 600, y: 140, w: 80, h: 56, style: 'knifeblock' },
       { shape: 'circle', x: 860, y: 260, r: 32, style: 'pan' },
       { shape: 'circle', x: 420, y: 505, r: 32, style: 'pan' },
+    ],
+    spawns: [[170, 150], [1110, 615], [1110, 150], [170, 615], [160, 382], [1120, 382]],
+  },
+  {
+    name: 'Smoothie Bar',
+    table: 'bg-smoothie',
+    hazards: ['blender'],
+    blurb: 'The giant blender whirs to life and SUCKS everything in. Run!',
+    blender: { x: 640, y: 382, r: 48 },
+    obstacles: [
+      { shape: 'circle', x: 330, y: 220, r: 34, style: 'smoothie' },
+      { shape: 'circle', x: 950, y: 545, r: 34, style: 'smoothie' },
+      { shape: 'circle', x: 950, y: 220, r: 36, style: 'pineapple' },
+      { shape: 'circle', x: 330, y: 545, r: 32, style: 'strawberry' },
+      { shape: 'rect', x: 590, y: 120, w: 100, h: 40, style: 'banana' },
+      { shape: 'rect', x: 590, y: 610, w: 100, h: 40, style: 'banana' },
     ],
     spawns: [[170, 150], [1110, 615], [1110, 150], [170, 615], [160, 382], [1120, 382]],
   },

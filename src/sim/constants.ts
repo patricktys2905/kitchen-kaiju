@@ -83,6 +83,14 @@ export const RULES = {
   toasterWarn: 1.2,
   toastSpeed: 720,
   toastRadius: 16,
+  // Smoothie Bar: the blender
+  blenderFirst: 5,
+  blenderInterval: [5, 7] as [number, number],
+  blenderSuddenDeath: [3, 4.5] as [number, number],
+  blenderWarn: 1.6, // rumbles before it spins
+  blenderSpin: 2.6, // how long it pulls
+  blenderRange: 520, // pull reaches this far
+  blenderPull: 1500, // pull strength (px/s² at the centre; weaker further out)
 };
 
 /** The kaiju roster. Each player picks a different one; its colour is that player's colour. */

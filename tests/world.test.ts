@@ -773,3 +773,25 @@ describe('rare cutlery', () => {
     expect(guest.cutlery.map(c => c.kind)).toContain('pizzacutter');
   });
 });
+
+describe('smoothie bar blender', () => {
+  it('rumbles, then pulls kaiju in and blends anyone who reaches the blades', async () => {
+    const { RULES } = await import('../src/sim/constants');
+    const { LAYOUTS } = await import('../src/sim/layouts');
+    const li = LAYOUTS.findIndex(l => l.blender);
+    expect(li).toBeGreaterThanOrEqual(0);
+    const w = new World({ players: [{ name: 'a' }, { name: 'b' }], seed: 3, layout: li, crumbSpawns: false, pickupSpawns: false });
+    while (w.phase !== 'play') w.step(DT, []);
+    const z = LAYOUTS[li].blender!;
+    place(w, 0, z.x + 200, z.y); place(w, 1, 160, 150);
+    w.layout = { ...w.layout, obstacles: [] };
+    const ev = run(w, RULES.blenderFirst + RULES.blenderWarn + 0.1);
+    expect(ev.some(e => e.type === 'blenderWarn')).toBe(true);
+    expect(ev.some(e => e.type === 'blenderSpin')).toBe(true);
+    const before = Math.hypot(w.players[0].x - z.x, w.players[0].y - z.y);
+    const ev2 = run(w, RULES.blenderSpin - 0.2);
+    const ko = ev2.find(e => e.type === 'ko' && e.id === 0);
+    expect(ko && ko.type === 'ko' && ko.cause).toBe('blend');
+    expect(before).toBeGreaterThan(z.r);
+  });
+});

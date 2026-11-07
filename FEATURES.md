@@ -199,3 +199,13 @@ Each section says **where to customise it**.
 - **Settings → PLAYER NUMBERS:** shows a P1–P6 badge in each player's colour under every kaiju, and puts the number in front of names in the scoreboard. Makes players easy to tell apart without relying on colour.
 - **📸 SHARE:** a small button in the bottom-left of the final results screen. On phones it opens the share sheet (send the screenshot to a chat); on computers it saves `kitchen-kaiju.png`.
 - **Customise:** share text in `share()` in `src/scenes/GameScene.ts`.
+
+## 22. New table: Smoothie Bar (new Blender hazard, Gemini art)
+
+- A mint-and-cream smoothie counter with smoothie cups, a pineapple, bananas and strawberries. Free (not locked), so it's in Free Play, Online, Party modes and the Daily rotation. Story is unchanged.
+- **The Blender** in the middle:
+  - It rumbles and shakes with a red warning ring and "BLENDER WARMING UP!" for 1.6 s.
+  - Then it spins for 2.6 s, swirling and **sucking** kaiju, crumbs and all towards the blades. Reach the blades and you're BLENDED.
+  - KAIJU-sized kaiju are only half as affected. Shoving someone in counts as your knockout.
+- Bots run from it while it warms up or spins, and sometimes dash out.
+- **Customise:** `RULES.blender*` in `src/sim/constants.ts` (timings, reach, pull strength); the table itself is the last entry in `src/sim/layouts.ts`. Art in `art-src/jobs-smoothie.json`.

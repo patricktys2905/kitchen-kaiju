@@ -494,6 +494,8 @@ export class GameScene extends Phaser.Scene {
         case 'windGust': sfx.windGust(); this.shake(0.003, 1300); break;
         case 'cleaverWarn': sfx.cleaverWarn(); break;
         case 'burnerWarn': sfx.burnerWarn(); break;
+        case 'blenderWarn': sfx.burnerWarn(); this.popup(640, 300, 'BLENDER WARMING UP!', '#ff8a7a', 24); break;
+        case 'blenderSpin': sfx.windGust(); this.shake(0.004, 2400); break;
         case 'bumper': sfx.boing(); this.burst(e.x, e.y, 0xff4fa0, 10, 200, 0.35); break;
         case 'toasterWarn': sfx.toasterWarn(); break;
         case 'toasterPop': sfx.toasterPop(); this.burst(e.x, e.y, 0xe8b060, 10, 160, 0.4); break;
@@ -770,6 +772,7 @@ export class GameScene extends Phaser.Scene {
       case 'burn': text = `${victim} got grilled on the burner`; break;
       case 'toast': text = `${victim} got TOASTED`; break;
       case 'boom': text = `The HOT DUMPLING popped on ${victim}!`; break;
+      case 'blend': text = killer ? `${killer} sent ${victim} into the BLENDER` : `${victim} got BLENDED into a smoothie`; break;
     }
     if (e.by === null && e.cause === 'cutlery') text = `${victim} skewered themselves`;
     this.feed.unshift({ text, color: this.css[e.by ?? e.id], t: 4 });

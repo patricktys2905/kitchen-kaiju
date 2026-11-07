@@ -23,7 +23,7 @@ const BOOMERANG_TURN = 10; // rad/s (turn radius = speed / turn)
 
 export const NO_INPUT: PlayerInput = { mx: 0, my: 0, throw: false, swipe: false, dash: false, stomp: false };
 
-export type KOCause = 'cutlery' | 'swipe' | 'squash' | 'fall' | 'hand' | 'wind' | 'chop' | 'burn' | 'toast' | 'boom';
+export type KOCause = 'cutlery' | 'swipe' | 'squash' | 'fall' | 'hand' | 'wind' | 'chop' | 'burn' | 'toast' | 'boom' | 'blend';
 
 export type GameEvent =
   | { type: 'throw'; id: number; kind: CutleryKind; x: number; y: number }
@@ -54,6 +54,8 @@ export type GameEvent =
   | { type: 'toasterPop'; i: number; x: number; y: number }
   | { type: 'toastBreak'; x: number; y: number }
   | { type: 'bumper'; x: number; y: number }
+  | { type: 'blenderWarn' }
+  | { type: 'blenderSpin' }
   | { type: 'respawn'; id: number; x: number; y: number }
   | { type: 'emote'; id: number; n: number } // sent by the scene (never by the simulation)
   | { type: 'powerSpawn'; kind: PowerKind; x: number; y: number }
@@ -205,6 +207,12 @@ export interface Toast {
   spin: number;
 }
 
+/** Smoothie Bar blender: rumbling (warn) or spinning and pulling (spin). */
+export interface BlenderState {
+  state: 'warn' | 'spin';
+  t: number;
+}
+
 /** Chef's Board cleaver: a vertical lane at x. */
 export interface Cleaver {
   state: 'warn' | 'chop';
@@ -230,6 +238,9 @@ export class World {
   burner: Burner | null = null;
   toaster: ToasterState | null = null;
   toasts: Toast[] = [];
+  blender: BlenderState | null = null;
+  bladeAngle = 0; // for drawing
+  private blenderTimer = 0;
   turnAngle = 0; // Lazy Susan rotation, for drawing
   layout: Layout = LAYOUTS[0];
   layoutIndex = 0;
@@ -302,6 +313,8 @@ export class World {
     this.toaster = null;
     this.toasts = [];
     this.toasterTimer = RULES.toasterFirst;
+    this.blender = null;
+    this.blenderTimer = RULES.blenderFirst;
     this.crumbTimer = 0;
     this.pickupTimer = RULES.pickupEvery;
     this.phase = 'countdown';
@@ -384,13 +397,14 @@ export class World {
     this.updateCutlery(dt);
     this.eatCrumbs();
     if (this.phase === 'play') this.updateMode(dt);
-    if (this.phase === 'play' || this.hand || this.wind || this.cleaver || this.burner || this.toaster || this.toasts.length) {
+    if (this.phase === 'play' || this.hand || this.wind || this.cleaver || this.burner || this.toaster || this.toasts.length || this.blender) {
       if (this.phase === 'play') this.spawnTimers(dt);
       this.updateHand(dt);
       this.updateWind(dt);
       this.updateCleaver(dt);
       this.updateBurner(dt);
       this.updateToasters(dt);
+      this.updateBlender(dt);
     }
     this.spinTurntable(dt);
     this.cutlery = this.cutlery.filter(c => !c.dead);
@@ -993,7 +1007,7 @@ export class World {
   }
 
   // ---------------------------------------------------------------- hazards
-  private hazardOn(k: 'hand' | 'wind' | 'cleaver' | 'burner' | 'toaster'): boolean {
+  private hazardOn(k: 'hand' | 'wind' | 'cleaver' | 'burner' | 'toaster' | 'blender'): boolean {
     return this.opts.hazards && this.layout.hazards.includes(k);
   }
 
@@ -1111,6 +1125,48 @@ export class World {
   onSpill(x: number, y: number): boolean {
     for (const z of this.layout.spills ?? []) if (Math.hypot(x - z.x, y - z.y) < z.r) return true;
     return false;
+  }
+
+  private updateBlender(dt: number): void {
+    const z = this.layout.blender;
+    this.bladeAngle += dt * (this.blender?.state === 'spin' ? 30 : this.blender ? 6 : 0.6);
+    if (!z || !this.hazardOn('blender')) return;
+    if (!this.blender) {
+      if (this.phase !== 'play') return;
+      this.blenderTimer -= dt;
+      if (this.blenderTimer > 0) return;
+      this.blender = { state: 'warn', t: 0 };
+      this.emit({ type: 'blenderWarn' });
+      return;
+    }
+    const b = this.blender;
+    b.t += dt;
+    if (b.state === 'warn') {
+      if (b.t >= RULES.blenderWarn) { b.state = 'spin'; b.t = 0; this.emit({ type: 'blenderSpin' }); }
+      return;
+    }
+    for (const p of this.players) {
+      if (!p.alive) continue;
+      const dx = z.x - p.x, dy = z.y - p.y, d = Math.hypot(dx, dy) || 1;
+      if (d < z.r + p.r * 0.4) { this.ko(p, p.lastHitT > 0 ? p.lastHitBy : null, 'blend'); continue; }
+      if (d > RULES.blenderRange) continue;
+      const k = RULES.blenderPull * (1 - d / RULES.blenderRange) * (p.kaijuT > 0 ? 0.5 : 1);
+      p.kx += (dx / d) * k * dt;
+      p.ky += (dy / d) * k * dt;
+      // a little swirl
+      p.kx += (-dy / d) * k * 0.35 * dt;
+      p.ky += (dx / d) * k * 0.35 * dt;
+    }
+    for (const c of this.crumbs) {
+      const dx = z.x - c.x, dy = z.y - c.y, d = Math.hypot(dx, dy) || 1;
+      if (d < RULES.blenderRange) { c.x += (dx / d) * 120 * dt; c.y += (dy / d) * 120 * dt; }
+    }
+    this.crumbs = this.crumbs.filter(c => Math.hypot(c.x - z.x, c.y - z.y) > z.r);
+    if (b.t >= RULES.blenderSpin) {
+      this.blender = null;
+      const iv = this.roundT > RULES.suddenDeathAt ? RULES.blenderSuddenDeath : RULES.blenderInterval;
+      this.blenderTimer = this.rng.range(iv[0], iv[1]);
+    }
   }
 
   private updateBurner(dt: number): void {

@@ -26,6 +26,7 @@ export interface Snapshot {
   ta: number;
   it?: number[][]; // power-ups [id, kind, x, y, age]
   hd?: number[] | null; // hot dumpling [holder, fuse, cooldown]
+  bl?: number[] | null; // blender [state 0 warn / 1 spin, t, blade angle]
 }
 
 export function makeSnapshot(w: World): Snapshot {
@@ -49,6 +50,7 @@ export function makeSnapshot(w: World): Snapshot {
     ta: r3(w.turnAngle),
     it: w.items.map(i => [i.id, POWERS.indexOf(i.kind), r1(i.x), r1(i.y), r1(i.t)]),
     hd: w.hot ? [w.hot.id, r1(w.hot.fuse), r1(w.hot.cd)] : null,
+    bl: w.blender ? [w.blender.state === 'warn' ? 0 : 1, r3(w.blender.t), r3(w.bladeAngle)] : null,
   };
 }
 
@@ -88,6 +90,8 @@ export function applySnapshot(w: World, s: Snapshot): boolean {
   w.turnAngle = s.ta ?? 0;
   w.items = (s.it ?? []).map(a => ({ id: a[0], kind: POWERS[a[1]], x: a[2], y: a[3], t: a[4] }));
   w.hot = s.hd ? { id: s.hd[0], fuse: s.hd[1], cd: s.hd[2] } : null;
+  w.blender = s.bl ? { state: s.bl[0] ? 'spin' : 'warn', t: s.bl[1] } : null;
+  if (s.bl) w.bladeAngle = s.bl[2];
   return tableChanged;
 }
 

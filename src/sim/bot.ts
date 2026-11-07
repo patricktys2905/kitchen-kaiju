@@ -125,6 +125,16 @@ export class BotBrain {
       if (p.meter >= 100 && d < 320) out.stomp = !p.prev.stomp;
     }
 
+    // Smoothie Bar: run from the blender while it rumbles or spins.
+    const bz = w.layout.blender;
+    if (bz && w.blender) {
+      const dx = p.x - bz.x, dy = p.y - bz.y, d = Math.hypot(dx, dy) || 1;
+      if (d < 420) {
+        add(dx / d, dy / d, (w.blender.state === 'spin' ? 5 : 3) * (1 - d / 420) + 0.8);
+        if (w.blender.state === 'spin' && d < 200 && p.dashCD <= 0 && this.rng.next() < T.dodge + 0.3) { mx = dx / d; my = dy / d; out.dash = !p.prev.dash; }
+      }
+    }
+
     // Grab nearby condiment power-ups.
     let it: { x: number; y: number } | null = null, itd = 300;
     for (const q of w.items) { const qd = Math.hypot(q.x - p.x, q.y - p.y); if (qd < itd) { itd = qd; it = q; } }

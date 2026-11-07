@@ -5,7 +5,7 @@ import type { Layout } from '../sim/layouts';
 import type { Cutlery, Player, World } from '../sim/world';
 import { CUTLERY_LEN, fitInside, hasArt, SpritePool } from './art';
 import {
-  cutleryAngle, drawBelt, drawBurner, drawSpill, drawSticky, drawToast, drawToasterWarn, drawTurnArrows, drawTurntable, drawChopMark, drawCleaverBlade, drawCleaverWarn, drawCrumbs, drawCutlery, drawCutleryGlow, drawFloor,
+  cutleryAngle, drawBelt, drawBlender, drawBurner, drawSpill, drawSticky, drawToast, drawToasterWarn, drawTurnArrows, drawTurntable, drawChopMark, drawCleaverBlade, drawCleaverWarn, drawCrumbs, drawCutlery, drawCutleryGlow, drawFloor,
   drawHand, drawKaiju, drawObstacle, drawObstacleShadow, drawMat, drawPlayerOver, drawPlayerUnder, drawTableFrame, drawTableRim,
   drawTableSurface, drawWind, playerAlpha,
 } from './draw';
@@ -136,6 +136,12 @@ export class ArtRenderer {
     }
     if (w.toaster) { const z = w.layout.toasters?.[w.toaster.i]; if (z) drawToasterWarn(under, z, w.toaster, t); }
     (w.layout.burners ?? []).forEach((z, i) => drawBurner(under, z, w.burner, i, t));
+    const bz = w.layout.blender;
+    if (bz) {
+      const art = hasArt('ob-blender');
+      if (art) fitInside(this.pool.take('ob-blender', D.mat), (bz.r + 26) * 2, (bz.r + 26) * 2).setPosition(bz.x + (w.blender?.state === 'warn' ? Math.sin(t * 60) * 2 : 0), bz.y).setRotation(w.blender ? w.bladeAngle : 0);
+      drawBlender(under, bz, w.blender?.state ?? null, w.bladeAngle, t, RULES.blenderRange, !art);
+    }
 
     for (const c of w.crumbs) {
       const key = `crumb-${c.variant}`;

@@ -1,0 +1,30 @@
+[
+  {
+    "name": "bg-smoothie",
+    "newChat": true,
+    "refs": ["art-src/cut-refs/ref-table-breakfast.png"],
+    "prompt": "Generate an image. The attached picture is a table surface from my party game, seen straight from above. Draw a NEW table surface in exactly the same style, framing, size and straight top-down view: a bright SMOOTHIE BAR counter: pastel mint-green and cream checkered tiles with a few scattered fruit slices, seeds and splashes of pink and orange smoothie, and a slightly darker circular area in the exact centre where a blender will sit. The surface fills the whole image edge to edge, with no objects, no characters, no text. Wide landscape about 1.9:1."
+  },
+  {
+    "name": "ob-blender",
+    "newChat": true,
+    "refs": ["art-src/ref-props2.png"],
+    "prompt": "Generate an image. The attached picture shows prop sprites from my party game (top-down, chunky cartoon style, thick dark outlines, cel shading). Draw ONE new prop in exactly the same style, seen STRAIGHT FROM ABOVE, centred, on a solid flat magenta (#FF00FF) background: a big round BLENDER seen from directly above: a thick round dark-grey base rim, a clear glass jug interior looking down with a pink-and-orange swirled smoothie inside, and four steel blades in the middle. Perfectly round. No text, no shadow. Square 1:1."
+  },
+  {
+    "name": "ob-smoothie",
+    "prompt": "Next prop, exactly the same style, straight top-down view, centred, solid flat magenta (#FF00FF) background: a round SMOOTHIE CUP seen from above: pink strawberry smoothie with a striped paper straw and a slice of kiwi on the rim. No text, no shadow. Square 1:1."
+  },
+  {
+    "name": "ob-pineapple",
+    "prompt": "Next prop, exactly the same style, straight top-down view, centred, solid flat magenta (#FF00FF) background: a whole PINEAPPLE seen from above: the spiky green crown in the middle surrounded by the golden diamond-patterned skin. No text, no shadow. Square 1:1."
+  },
+  {
+    "name": "ob-banana",
+    "prompt": "Next prop, exactly the same style, top-down view, solid flat magenta (#FF00FF) background: a bunch of three yellow BANANAS lying flat and perfectly horizontal. No text, no shadow. Square 1:1."
+  },
+  {
+    "name": "ob-strawberry",
+    "prompt": "Next prop, exactly the same style, straight top-down view, centred, solid flat magenta (#FF00FF) background: a small pile of big red STRAWBERRIES with green leafy tops, seen from above, roughly round overall. No text, no shadow. Square 1:1."
+  }
+]
