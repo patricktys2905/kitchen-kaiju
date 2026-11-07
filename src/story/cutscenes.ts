@@ -39,7 +39,7 @@ export const CHAPTER_CUTS: Cutscene[] = [
   { key: 'cut-7', rev: 3, heading: 'CHAPTER 8 · THE BIG MELT', caption: 'Bloblin has a cold heart and a short fuse. Chill.' },
   { key: 'cut-8', rev: 2, heading: 'CHAPTER 9 · PICNIC PANIC', caption: 'A picnic! Sloba will get to it… eventually.' },
   { key: 'cut-9', heading: 'CHAPTER 10 · PROVING THE DOUGH', caption: 'Let’s see who rises to the occasion.' },
-  { key: 'cut-10', rev: 2, noVideo: true, // clip: Hotchog left its bun
+  { key: 'cut-10', rev: 3, // clip: Hotchog patched in place (it used to leave its bun)
     heading: 'CHAPTER 11 · ROUND AND ROUND', caption: 'The lazy Susan spins. Hotchog relishes every second.' },
   { key: 'cut-11', rev: 3, noVideo: true, // clip: Pizzaraptor grew a toothy monster face
     heading: 'CHAPTER 12 · THE GRAND FEAST', caption: 'Dumplord has waited all night. He’s stuffed… with rage.' },
