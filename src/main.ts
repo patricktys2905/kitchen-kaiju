@@ -1,8 +1,9 @@
 import * as Phaser from 'phaser';
 import { unlockAudio } from './audio';
 import { initInput, injectTap } from './input';
+import { applyKeybinds } from './keybinds';
 import { BootScene } from './render/art';
-import { GalleryScene, HelpScene, RecordsScene, SettingsScene } from './scenes/ExtrasScenes';
+import { ControlsScene, GalleryScene, HelpScene, RecordsScene, SettingsScene } from './scenes/ExtrasScenes';
 import { GameScene } from './scenes/GameScene';
 import { LobbyScene } from './scenes/LobbyScene';
 import { MenuScene } from './scenes/MenuScene';
@@ -12,6 +13,7 @@ import { VIEW } from './sim/constants';
 import { initPwa } from './pwa';
 import { initTouch } from './touch';
 
+applyKeybinds();
 initInput(unlockAudio);
 initTouch(injectTap);
 initPwa();
@@ -27,7 +29,7 @@ const game = new Phaser.Game({
     height: VIEW.h,
   },
   render: { antialias: true },
-  scene: [BootScene, TitleScene, MenuScene, GameScene, LobbyScene, StoryScene, SettingsScene, HelpScene, GalleryScene, RecordsScene],
+  scene: [BootScene, TitleScene, MenuScene, GameScene, LobbyScene, StoryScene, SettingsScene, HelpScene, GalleryScene, RecordsScene, ControlsScene],
 });
 
 // Handy for debugging / automated smoke tests.

@@ -9,7 +9,7 @@ export interface DeviceInput extends PlayerInput {
   start: boolean;
 }
 
-export const KEYMAPS = [
+export const KEYMAPS: { name: string; up: string; down: string; left: string; right: string; throw: string[]; swipe: string[]; dash: string[]; stomp: string[]; hint: string }[] = [
   {
     name: 'Keyboard Left',
     up: 'KeyW', down: 'KeyS', left: 'KeyA', right: 'KeyD',

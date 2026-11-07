@@ -795,3 +795,24 @@ describe('smoothie bar blender', () => {
     expect(before).toBeGreaterThan(z.r);
   });
 });
+
+describe('keyboard remapping', () => {
+  it('binding a key that is already used swaps the two actions', async () => {
+    const store: Record<string, string> = {};
+    const G = globalThis as Record<string, unknown>;
+    G.location ??= { search: '' }; G.window ??= {}; G.navigator ??= { maxTouchPoints: 0 };
+    (globalThis as { localStorage?: unknown }).localStorage = { getItem: (k: string) => store[k] ?? null, setItem: (k: string, v: string) => { store[k] = v; }, removeItem: (k: string) => { delete store[k]; } };
+    const { bind, keyFor, resetKeybinds } = await import('../src/keybinds');
+    resetKeybinds();
+    expect(keyFor(0, 'throw')).toBe('Space');
+    bind(0, 'throw', 'KeyF'); // F was swipe
+    expect(keyFor(0, 'throw')).toBe('KeyF');
+    expect(keyFor(0, 'swipe')).toBe('Space');
+    bind(1, 'emote', 'KeyQ'); // Q was the left player's emote
+    expect(keyFor(1, 'emote')).toBe('KeyQ');
+    expect(keyFor(0, 'emote')).toBe('Semicolon');
+    resetKeybinds();
+    expect(keyFor(0, 'swipe')).toBe('KeyF');
+    delete (globalThis as { localStorage?: unknown }).localStorage;
+  });
+});

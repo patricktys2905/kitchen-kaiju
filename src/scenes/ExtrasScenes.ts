@@ -19,6 +19,7 @@ import { needText, owned, UNLOCKS } from '../story/unlocks';
 import { setTouchMode } from '../touch';
 import { currentHat, hatUnlocked, HATS, setHat } from '../hats';
 import { GameScene } from './GameScene';
+import { ACTIONS, bind, keyFor, keyHint, keyLabel, RESERVED, resetKeybinds, type Action } from '../keybinds';
 
 /** Shared backdrop, title, BACK button and keyboard/pad focus handling. */
 abstract class PanelScene extends Phaser.Scene {
@@ -72,7 +73,8 @@ export class SettingsScene extends PanelScene {
       b.setText(this.label(row.key, row.kind, row.label));
       this.buttons.push(b);
     });
-    this.add.text(640, 690, 'Saved on this device · ENTER / tap to change', body(15, '#cdb9a3', 800)).setOrigin(0.5).setDepth(5);
+    this.buttons.push(new Button(this, 640, 128 + SETTINGS_ROWS.length * 76, { w: 360, h: 56, label: '⌨ KEYBOARD CONTROLS', size: 20, accent: 0x4fd1ff, onClick: () => { sfx.go(); this.scene.start('controls'); } }, 6));
+    this.add.text(640, 706, 'Saved on this device · ENTER / tap to change', body(15, '#cdb9a3', 800)).setOrigin(0.5).setDepth(5);
   }
 
   private label(key: keyof Settings, kind: 'level' | 'toggle', name: string): string {
@@ -93,6 +95,58 @@ export class SettingsScene extends PanelScene {
       setSetting(key, LEVELS[(i + 1) % LEVELS.length] as never);
     }
     sfx.pickup();
+  }
+}
+
+// ------------------------------------------------------------------ Keyboard controls
+export class ControlsScene extends PanelScene {
+  protected title = '⌨ KEYBOARD CONTROLS';
+  protected cols = 2;
+  private waiting: { p: number; a: Action; b: Button } | null = null;
+  private note!: Phaser.GameObjects.Text;
+  private onKey = (e: KeyboardEvent) => {
+    if (!this.waiting) return;
+    e.preventDefault();
+    e.stopImmediatePropagation(); // keep the game input from also seeing this key
+    const w = this.waiting;
+    this.waiting = null;
+    if (e.code === 'Escape') { this.refresh(); this.note.setText('Cancelled.'); return; }
+    if (RESERVED.has(e.code)) { this.refresh(); this.note.setText(`${keyLabel(e.code)} is used by the menus. Pick another key.`); sfx.thwock(); return; }
+    bind(w.p, w.a, e.code);
+    sfx.pickup();
+    this.refresh();
+    this.note.setText(`${w.p ? 'Right' : 'Left'} player ${w.a.toUpperCase()} = ${keyLabel(e.code)}. A key already in use swaps over.`);
+  };
+  constructor() { super('controls'); }
+
+  protected back(): void {
+    sfx.leave();
+    this.scene.start('settings');
+  }
+
+  protected build(): void {
+    window.addEventListener('keydown', this.onKey, true);
+    this.events.once('shutdown', () => window.removeEventListener('keydown', this.onKey, true));
+    ['KEYBOARD LEFT', 'KEYBOARD RIGHT'].forEach((h, p) => withShadow(this.add.text(380 + p * 520, 104, h, display(22, '#ffd24a', { strokeThickness: 4 })).setOrigin(0.5).setDepth(5), 2));
+    ACTIONS.forEach((a, i) => {
+      for (let p = 0; p < 2; p++) {
+        const b = new Button(this, 380 + p * 520, 150 + i * 54, { w: 440, h: 46, label: '', size: 18, accent: p ? 0xff9a3c : 0x4fd1ff, onClick: () => {
+          this.refresh();
+          this.waiting = { p, a: a.id, b };
+          b.setText(`${a.label}:  press a key…`);
+          this.note.setText('Press the new key (Esc to cancel).');
+        } }, 6);
+        this.buttons.push(b);
+      }
+    });
+    // grid order is row-major: [L0, R0, L1, R1, …] matches cols = 2
+    this.buttons.push(new Button(this, 640, 650, { w: 300, h: 50, label: '↺ RESET TO DEFAULT', size: 18, onClick: () => { resetKeybinds(); sfx.pickup(); this.refresh(); this.note.setText('Back to the default keys.'); } }, 6));
+    this.note = this.add.text(640, 696, 'Pick an action, then press the key you want.', body(15, '#e9dccb', 800)).setOrigin(0.5).setDepth(5);
+    this.refresh();
+  }
+
+  private refresh(): void {
+    ACTIONS.forEach((a, i) => { for (let p = 0; p < 2; p++) this.buttons[i * 2 + p]?.setText(`${a.label}:  ${keyLabel(keyFor(p, a.id))}`); });
   }
 }
 
@@ -133,8 +187,8 @@ export class HelpScene extends PanelScene {
       ].join('\n'));
       head(90, 470, 'CONTROLS');
       txt(90, 504, [
-        'Keyboard left:  WASD move · SPACE throw · F swipe · L-SHIFT dash · E stomp · Q emote',
-        'Keyboard right: ARROWS move · ENTER throw · / swipe · R-SHIFT dash · . stomp · ; emote',
+        `Keyboard left:  ${keyHint(0)}`,
+        `Keyboard right: ${keyHint(1)}`,
         'Gamepad: left stick move · right stick aim · A throw · X swipe · B dash · Y stomp · LT/BACK emote',
         'Phone: drag the left side to move · hold THROW and drag to aim · SWIPE / DASH / STOMP buttons · 😜 EMOTE',
       ].join('\n'), 16, '#e9dccb');

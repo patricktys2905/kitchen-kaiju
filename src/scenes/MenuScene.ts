@@ -12,6 +12,7 @@ import { LAYOUTS } from '../sim/layouts';
 import { isTouchDevice, setTouchHud, setTouchMode } from '../touch';
 import { owned, type Owned } from '../story/unlocks';
 import { playMusic } from '../music';
+import { keyFor, keyLabel } from '../keybinds';
 import { POWERUPS } from '../sim/powerups';
 import { enabledModes, modeDef, type GameMode } from '../sim/modes';
 
@@ -156,8 +157,7 @@ export class MenuScene extends Phaser.Scene {
           '[LEFT SIDE] drag to move   [THROW] hold, drag to aim, let go   [SWIPE] up close   [DASH] dodge & shove   [STOMP] belly full',
         ]
       : [
-          'Keyboard Left   [W A S D] move  [SPACE] throw  [F] swipe  [L-SHIFT] dash  [E] stomp  [Q] emote',
-          'Keyboard Right   [ARROWS] move  [ENTER] throw  [/] swipe  [R-SHIFT] dash  [.] stomp  [;] emote',
+          ...[0, 1].map(p => { const k = (a: Parameters<typeof keyFor>[1]) => keyLabel(keyFor(p, a)); return `Keyboard ${p ? 'Right' : 'Left'}   [${k('up')} ${k('left')} ${k('down')} ${k('right')}] move  [${k('throw')}] throw  [${k('swipe')}] swipe  [${k('dash')}] dash  [${k('stomp')}] stomp  [${k('emote')}] emote`; }),
           'Gamepad   [L-STICK] move  [R-STICK] aim  [A] throw  [X] swipe  [B] dash  [Y] stomp  [LT] emote',
         ];
     lines.forEach((l, i) => this.chipLine(chipG, 640, 474 + i * 28, l, 14));

@@ -209,3 +209,11 @@ Each section says **where to customise it**.
   - KAIJU-sized kaiju are only half as affected. Shoving someone in counts as your knockout.
 - Bots run from it while it warms up or spins, and sometimes dash out.
 - **Customise:** `RULES.blender*` in `src/sim/constants.ts` (timings, reach, pull strength); the table itself is the last entry in `src/sim/layouts.ts`. Art in `art-src/jobs-smoothie.json`.
+
+## 23. Remappable keyboard controls
+
+- **Where:** Settings → **⌨ KEYBOARD CONTROLS**. Both keyboard players' moves (up/down/left/right, throw, swipe, dash, stomp, emote) can be rebound: pick an action, press a key.
+- Choosing a key that's already used swaps the two actions, so nothing is ever left unbound. **↺ RESET TO DEFAULT** restores everything.
+- Keys the menus need can't be used: Esc, P, 1, 2, Tab, and the Free Play shortcuts B N M R G U H O.
+- The Free Play menu and How to Play show your current keys. Saved on the device (`kk-keys-v1`).
+- **Customise:** `src/keybinds.ts` (`RESERVED`, `ACTIONS`); the defaults are still `KEYMAPS` in `src/input.ts`.
