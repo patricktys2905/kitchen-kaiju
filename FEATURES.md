@@ -42,6 +42,7 @@ Each section says **where to customise it**.
 - 35. 📺 TV mode (phones as controllers)
 - 36. QR code to join
 - 37. Announcer callouts
+- 38. Victory screen and boss intro
 
 **Where to find things:** title screen cards (Story · Free Play · Online · Party Modes · Daily · Gauntlet), the top-right row (Settings · How to Play · Kaiju · Records), and Free Play keys (G mode · U power-ups · H hazards · X twist · C cup).
 
@@ -356,3 +357,8 @@ Each section says **where to customise it**.
   - **ON A ROLL! / UNSTOPPABLE APPETITE! / KITCHEN NIGHTMARE!** for 3 / 5 / 8 knockouts without being knocked out.
   - **REVENGE IS SWEET!** when you knock out whoever last got you.
 - **Customise:** `src/callouts.ts` (all the words, the multi-KO window, streak thresholds, on/off).
+
+## 38. Victory screen and boss intro
+
+- **Victory:** at the end of a match the winner's KAIJU-mode art swings in big on the right of the results, with a shower of confetti in their colour. Reduced Effects turns the confetti off.
+- **Boss intro:** boss fights (Story bosses, Gauntlet every 5th wave, the Dessert Course finale) open with a "👑 BOSS: NAME" card.

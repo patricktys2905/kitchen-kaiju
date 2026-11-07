@@ -481,6 +481,7 @@ export class GameScene extends Phaser.Scene {
       switch (e.type) {
         case 'roundStart':
           this.replayBuf.reset();
+          if (e.round === 1 && this.bossSeats().length) this.time.delayedCall(150, () => this.bossCard());
           this.tip = getSettings().tips && !this.initData.attract && !this.practice ? randomTip(this.mode, w.layout, w.mutator === 'ice') : '';
           this.art.setupTable(w.layout, this.world.players.map(p => ({ x: p.x, y: p.y, color: this.colors[p.id] })));
           for (const b of this.bossSeats()) if (w.players[b]) w.players[b].meter = 100; // bosses can go KAIJU straight away
@@ -584,6 +585,7 @@ export class GameScene extends Phaser.Scene {
           break;
         case 'matchEnd':
           sfx.matchWin();
+          this.celebrate(e.winner);
           break;
       }
     }
@@ -685,6 +687,34 @@ export class GameScene extends Phaser.Scene {
     this.replay.label.destroy();
     this.replay = null;
     clearTaps();
+  }
+
+  // ---------------------------------------------------------------- celebrations
+  /** Winner's kaiju (KAIJU-mode art) slides in big beside the results, with confetti. */
+  private celebrate(winner: number): void {
+    if (this.initData.attract || this.mode === 'practice') return;
+    const sp = this.species[winner], key = hasArt(`kaiju-${sp}-rage`) ? `kaiju-${sp}-rage` : `kaiju-${sp}`;
+    if (hasArt(key)) {
+      const img = fitInside(this.add.image(VIEW.w + 200, 470, key), 280, 280).setDepth(9.5);
+      this.tweens.add({ targets: img, x: VIEW.w - 170, duration: 650, ease: 'Back.easeOut', delay: 300 });
+      this.tweens.add({ targets: img, angle: { from: -4, to: 4 }, yoyo: true, repeat: -1, duration: 900, ease: 'Sine.easeInOut', delay: 950 });
+    }
+    if (getSettings().reducedFx) return;
+    const cols = [this.colors[winner], 0xffd24a, 0xffffff, 0xff7ad9, 0x4fd1ff];
+    for (let k = 0; k < 90; k++) {
+      this.parts.push({ x: Math.random() * VIEW.w, y: -20 - Math.random() * 200, vx: (Math.random() - 0.5) * 80, vy: 120 + Math.random() * 160, life: 3.5, max: 3.5, color: cols[k % cols.length], size: 3 + Math.random() * 3, grav: 30 });
+    }
+  }
+
+  /** A big intro card for boss fights. */
+  private bossCard(): void {
+    const b = this.bossSeats()[0];
+    if (b === undefined) return;
+    const sp = this.species[b];
+    const t = withShadow(this.add.text(VIEW.w / 2, 205, `👑 BOSS: ${SPECIES[sp].full.toUpperCase()}`, display(40, this.css[b], { strokeThickness: 7 })).setOrigin(0.5).setDepth(11), 4);
+    popIn(this, t, 1.6, 420);
+    sfx.kaiju();
+    this.tweens.add({ targets: t, alpha: 0, delay: 1700, duration: 400, onComplete: () => t.destroy() });
   }
 
   // ---------------------------------------------------------------- announcer
