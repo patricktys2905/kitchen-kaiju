@@ -1,0 +1,58 @@
+[
+  {
+    "name": "hat-party",
+    "newChat": true,
+    "refs": [
+      "art-src/ref-hats.png"
+    ],
+    "prompt": "Generate an image. The attached picture shows sprites from my party game Kitchen Kaiju. Keep EXACTLY this art style: bold chunky cartoon, thick dark-brown outlines, flat bright colours with soft cel shading and one crisp white highlight. Draw ONE HAT on its own for a little monster to wear, seen from the FRONT (slightly from above), upright, centred, filling about 80% of the frame, the bottom edge of the hat flat and level where it sits on a head, on a solid flat magenta (#FF00FF) background. No head, no character, no text, no shadow. Square 1:1. Hat: a cone PARTY HAT with pink and yellow stripes, rainbow sprinkles and a fluffy blue pom-pom on top."
+  },
+  {
+    "name": "hat-chef",
+    "prompt": "Next HAT in exactly the same art style. Draw ONE HAT on its own for a little monster to wear, seen from the FRONT (slightly from above), upright, centred, filling about 80% of the frame, the bottom edge of the hat flat and level where it sits on a head, on a solid flat magenta (#FF00FF) background. No head, no character, no text, no shadow. Square 1:1. Hat: a tall puffy white CHEF HAT (toque) with a few flour smudges."
+  },
+  {
+    "name": "hat-top",
+    "prompt": "Next HAT in exactly the same art style. Draw ONE HAT on its own for a little monster to wear, seen from the FRONT (slightly from above), upright, centred, filling about 80% of the frame, the bottom edge of the hat flat and level where it sits on a head, on a solid flat magenta (#FF00FF) background. No head, no character, no text, no shadow. Square 1:1. Hat: a shiny black TOP HAT with a red band and a little silver fork tucked into the band."
+  },
+  {
+    "name": "hat-viking",
+    "prompt": "Next HAT in exactly the same art style. Draw ONE HAT on its own for a little monster to wear, seen from the FRONT (slightly from above), upright, centred, filling about 80% of the frame, the bottom edge of the hat flat and level where it sits on a head, on a solid flat magenta (#FF00FF) background. No head, no character, no text, no shadow. Square 1:1. Hat: a round steel VIKING HELMET with two curved horns made of golden breadsticks."
+  },
+  {
+    "name": "hat-propeller",
+    "prompt": "Next HAT in exactly the same art style. Draw ONE HAT on its own for a little monster to wear, seen from the FRONT (slightly from above), upright, centred, filling about 80% of the frame, the bottom edge of the hat flat and level where it sits on a head, on a solid flat magenta (#FF00FF) background. No head, no character, no text, no shadow. Square 1:1. Hat: a colourful PROPELLER BEANIE cap (blue and yellow panels) with a red propeller on top."
+  },
+  {
+    "name": "hat-flower",
+    "prompt": "Next HAT in exactly the same art style. Draw ONE HAT on its own for a little monster to wear, seen from the FRONT (slightly from above), upright, centred, filling about 80% of the frame, the bottom edge of the hat flat and level where it sits on a head, on a solid flat magenta (#FF00FF) background. No head, no character, no text, no shadow. Square 1:1. Hat: a FLOWER CROWN ring of bright pink, yellow, blue and green little flowers and leaves."
+  },
+  {
+    "name": "hat-halo",
+    "newChat": true,
+    "refs": [
+      "art-src/ref-hats.png"
+    ],
+    "prompt": "Generate an image. The attached picture shows sprites from my party game Kitchen Kaiju. Keep EXACTLY this art style: bold chunky cartoon, thick dark-brown outlines, flat bright colours with soft cel shading and one crisp white highlight. Draw ONE HAT on its own for a little monster to wear, seen from the FRONT (slightly from above), upright, centred, filling about 80% of the frame, the bottom edge of the hat flat and level where it sits on a head, on a solid flat magenta (#FF00FF) background. No head, no character, no text, no shadow. Square 1:1. Hat: a glowing golden HALO ring floating flat, with a soft sparkle."
+  },
+  {
+    "name": "hat-beanie",
+    "prompt": "Next HAT in exactly the same art style. Draw ONE HAT on its own for a little monster to wear, seen from the FRONT (slightly from above), upright, centred, filling about 80% of the frame, the bottom edge of the hat flat and level where it sits on a head, on a solid flat magenta (#FF00FF) background. No head, no character, no text, no shadow. Square 1:1. Hat: a cosy knitted teal BOBBLE BEANIE with a white fold-up brim and a big white bobble."
+  },
+  {
+    "name": "hat-candle",
+    "prompt": "Next HAT in exactly the same art style. Draw ONE HAT on its own for a little monster to wear, seen from the FRONT (slightly from above), upright, centred, filling about 80% of the frame, the bottom edge of the hat flat and level where it sits on a head, on a solid flat magenta (#FF00FF) background. No head, no character, no text, no shadow. Square 1:1. Hat: a single tall blue-and-white striped BIRTHDAY CANDLE with a bright flickering flame, standing on a small round frosting base."
+  },
+  {
+    "name": "hat-ladle",
+    "prompt": "Next HAT in exactly the same art style. Draw ONE HAT on its own for a little monster to wear, seen from the FRONT (slightly from above), upright, centred, filling about 80% of the frame, the bottom edge of the hat flat and level where it sits on a head, on a solid flat magenta (#FF00FF) background. No head, no character, no text, no shadow. Square 1:1. Hat: a shiny GOLDEN LADLE bowl worn upside down like a helmet, with its long handle sticking up at an angle."
+  },
+  {
+    "name": "hat-chili",
+    "prompt": "Next HAT in exactly the same art style. Draw ONE HAT on its own for a little monster to wear, seen from the FRONT (slightly from above), upright, centred, filling about 80% of the frame, the bottom edge of the hat flat and level where it sits on a head, on a solid flat magenta (#FF00FF) background. No head, no character, no text, no shadow. Square 1:1. Hat: a glossy red CHILI PEPPER lying across like a beret, with a green stalk."
+  },
+  {
+    "name": "hat-crown",
+    "prompt": "Next HAT in exactly the same art style. Draw ONE HAT on its own for a little monster to wear, seen from the FRONT (slightly from above), upright, centred, filling about 80% of the frame, the bottom edge of the hat flat and level where it sits on a head, on a solid flat magenta (#FF00FF) background. No head, no character, no text, no shadow. Square 1:1. Hat: a small gold DESSERT CROWN with pink gem and tiny cherries and whipped-cream swirls on its points."
+  }
+]

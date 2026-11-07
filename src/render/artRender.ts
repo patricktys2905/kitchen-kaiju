@@ -23,6 +23,8 @@ type G = Phaser.GameObjects.Graphics;
 const D = { floor: -3, table: -2, mat: -1.5, obstacle: -0.5, light: 3.7, crumb: 0.5, loose: 1, player: 2, flying: 3, hand: 3.5 };
 
 export class ArtRenderer {
+  /** Top-centre of each kaiju sprite this frame (for hats), with its tilt. */
+  heads: ({ x: number; y: number; rot: number } | undefined)[] = [];
   private pool: SpritePool;
   private statics: Phaser.GameObjects.Image[] = [];
   private facing: number[] = [];
@@ -235,6 +237,7 @@ export class ArtRenderer {
     img.setScale(s * squash, s / squash);
     img.setRotation(moving ? Math.sin(t * 13 + i) * 0.06 : 0);
     img.setPosition(p.x, p.y + p.r * 0.85 - bob);
+    this.heads[i] = { x: p.x, y: p.y + p.r * 0.85 - bob - (p.r * 3.1) / squash, rot: img.rotation };
 
     const held = w.cutleryById(p.holding);
     if (held) {

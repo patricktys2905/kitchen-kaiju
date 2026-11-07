@@ -1,0 +1,10 @@
+[
+  {
+    "name": "hat-halo",
+    "newChat": true,
+    "refs": [
+      "art-src/ref-hats.png"
+    ],
+    "prompt": "Generate an image. The attached picture shows sprites from my party game Kitchen Kaiju. Keep EXACTLY this art style: bold chunky cartoon, thick dark-brown outlines, flat bright colours with soft cel shading and one crisp white highlight. Draw ONE golden HALO: a thick solid gold ring seen from the front and slightly above (an oval), with a thick dark-brown outline and a couple of tiny white star sparkles above it. NO glow, NO pink or purple anywhere. Centred, filling about 80% of the frame, on a solid flat magenta (#FF00FF) background. No text, no shadow. Square 1:1."
+  }
+]

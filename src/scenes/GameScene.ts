@@ -22,7 +22,7 @@ import { COURSES, saveDessert } from '../story/dessert';
 import { cupGames, placePoints } from '../cup';
 import { GAUNTLET, gauntletBest, gauntletTables, saveGauntletBest, waveSetup } from '../gauntlet';
 import { owned } from '../story/unlocks';
-import { currentHat, HATS } from '../hats';
+import { currentHat, HAT_FIT, HAT_SCALE, hatArtKey, HATS } from '../hats';
 import { PRACTICE, PRACTICE_STEPS } from '../practice';
 import { DAILY, dailySetup, loadDaily, recordDaily } from '../daily';
 import { REPLAY, ReplayBuffer } from '../replay';
@@ -135,6 +135,7 @@ export class GameScene extends Phaser.Scene {
   private hazards = true;
   private modeText!: Phaser.GameObjects.Text;
   private tagTexts: Phaser.GameObjects.Text[] = [];
+  private hatImgs: Phaser.GameObjects.Image[] = [];
   private badgeTexts: Phaser.GameObjects.Text[] = [];
   private shareBtn: HTMLButtonElement | null = null;
   private stats: Stats | null = null; // lifetime stats (null for online guests)
@@ -209,6 +210,7 @@ export class GameScene extends Phaser.Scene {
     }
     this.feedTexts = [0, 1].map(i => this.add.text(VIEW.w / 2, 680 + i * 19, '', body(16, '#fff', 900, { stroke: '#140b05', strokeThickness: 4 })).setOrigin(0.5, 0).setDepth(6));
     playMusic('battle');
+    this.hatImgs = this.world.players.map(() => this.add.image(0, 0, '__MISSING').setOrigin(0.5, 1).setDepth(2.6).setVisible(false));
     this.badgeTexts = this.world.players.map((_, i) => this.add.text(0, 0, `P${i + 1}`, display(16, '#ffffff', { strokeThickness: 4, stroke: '#000000', padding: { x: 4, y: 1 } })).setOrigin(0.5, 0).setDepth(3.9).setVisible(false));
     this.events.once('shutdown', () => { this.shareBtn?.remove(); this.shareBtn = null; });
     this.tagTexts = this.world.players.map((_, i) => withShadow(this.add.text(0, 0, SPECIES[this.species[i]].name, display(14, this.css[i], { strokeThickness: 4 })).setOrigin(0.5, 1).setDepth(3.9).setVisible(false), 2));
@@ -1030,10 +1032,20 @@ export class GameScene extends Phaser.Scene {
     }
     // hats on the people playing on this device (sprite top ≈ 2.1 radii above the centre)
     for (const p of w.players) {
+      const img = this.hatImgs[p.id];
+      img?.setVisible(false);
       if (!p.alive) continue;
       const id = this.net ? this.initData.hats?.[p.id] : this.isHuman(p.id) ? currentHat().id : '';
       const hat = id ? HATS.find(h => h.id === id) : undefined;
-      if (hat && hat.id !== 'none') hat.draw(o, p.x, p.y - p.r * 2.05, p.r * 0.9, t);
+      if (!hat || hat.id === 'none') continue;
+      const head = this.art.heads[p.id] ?? { x: p.x, y: p.y - p.r * 2.05, rot: 0 };
+      const key = hatArtKey(hat);
+      if (img && hasArt(key)) {
+        const [fw, dy] = HAT_FIT[hat.id] ?? [1.3, 0.3];
+        const float = hat.id === 'halo' ? Math.sin(t * 3) * 3 : 0;
+        img.setTexture(key).setVisible(true);
+        img.setScale((fw * HAT_SCALE * p.r) / img.width).setRotation(head.rot).setPosition(head.x, head.y + dy * p.r + float).setAlpha(p.invT > 0 && Math.sin(t * 30) > 0 ? 0.5 : 1);
+      } else hat.draw(o, head.x, head.y + p.r * 0.2, p.r * 0.9, t);
     }
     for (const p of w.players) {
       if (!p.alive) continue;

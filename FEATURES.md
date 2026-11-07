@@ -53,6 +53,7 @@ Each section says **where to customise it**.
 - 46. Party Cup online
 - 47. 🛠 Table Workshop
 - 48. Free Play and Party Modes separated
+- 49. Gemini hats
 
 **Where to find things:** title screen cards (Story · Free Play · Online · Party Modes · Daily · Gauntlet), the top-right row (Settings · How to Play · Kaiju · Records), and Free Play keys (G mode · U power-ups · H hazards · X twist · C cup).
 
@@ -430,3 +431,11 @@ Each section says **where to customise it**.
 - **FREE PLAY** (title card) is **Classic only**: the screen is titled FREE PLAY and has no mode option. Power-ups, hazards, twists, shuffle and Online stay.
 - **PARTY MODES** (title card) opens its own **PARTY MODES** setup. The mode is shown big under the title (◀ TEAM FEAST ▶; tap it or press **[G]** to change) with its description, and the **🏆 Party Cup** lives here (**[C]**).
 - Leaving a match returns you to whichever of the two you came from. On phones the MODE and CUP buttons only appear in Party Modes.
+
+## 49. Gemini hats (requested)
+
+- All 12 hats are now proper illustrations in the game's art style, drawn in Gemini:
+  - Party Hat with sprinkles, Chef Hat, Top Hat with a fork in the band, Viking Helmet with breadstick horns, Propeller Cap, Flower Crown, golden Halo (floats and bobs), Bobble Beanie, Birthday Candle.
+  - Golden Ladle (worn as a helmet), Chili Pepper beret, and the Dessert Crown with cherries.
+- They sit on the head and follow the kaiju's bob and tilt in matches, online included. The Gallery's hat row and preview use the new art. The old drawn-in-code hats stay as a fallback.
+- **Customise:** `HAT_FIT` (size and how low each sits) and `HAT_SCALE` (overall size) in `src/hats.ts`. Art: `public/art/hat-*.webp`, from `art-src/jobs-hats.json`.

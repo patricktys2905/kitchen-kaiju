@@ -109,6 +109,15 @@ export const HATS: Hat[] = [
   },
 ];
 
+/** Gemini hat art (public/art/hat-<id>.webp): [width × kaiju radius, how far it sits down into the head × radius]. EASY TO TUNE. */
+export const HAT_FIT: Record<string, [number, number]> = {
+  party: [1.0, 0.3], chef: [1.35, 0.3], top: [1.35, 0.3], viking: [1.7, 0.4], propeller: [1.35, 0.35], flower: [1.6, 0.35],
+  halo: [1.4, -0.25], beanie: [1.3, 0.4], candle: [0.6, 0.2], ladle: [1.35, 0.4], chili: [1.5, 0.3], crown: [1.25, 0.3],
+};
+export const hatArtKey = (h: Hat) => `hat-${h.id}`;
+/** Overall hat size in matches (1 = as in HAT_FIT). */
+export const HAT_SCALE = 1.2;
+
 const KEY = 'kk-hat';
 export const hatUnlocked = (h: Hat): boolean => !h.unlock || loadStats().achieved.includes(h.unlock);
 export function currentHat(): Hat {

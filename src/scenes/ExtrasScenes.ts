@@ -18,7 +18,7 @@ import { ACHIEVEMENTS, loadStats } from '../stats';
 import { loadStory, totalStars } from '../story/save';
 import { needText, owned, UNLOCKS } from '../story/unlocks';
 import { isTouchDevice, setTouchMode } from '../touch';
-import { currentHat, hatUnlocked, HATS, setHat } from '../hats';
+import { currentHat, HAT_FIT, hatArtKey, hatUnlocked, HATS, setHat } from '../hats';
 import { GameScene } from './GameScene';
 import { exportSave, importSave } from '../backup';
 import { ACTIONS, bind, keyFor, keyHint, keyLabel, RESERVED, resetKeybinds, type Action } from '../keybinds';
@@ -284,6 +284,9 @@ export class GalleryScene extends PanelScene {
   private shown = -1;
   private hatG!: Phaser.GameObjects.Graphics;
   private hatLabel!: Phaser.GameObjects.Text;
+  private hatIcons: (Phaser.GameObjects.Image | null)[] = [];
+  private hatPreview: Phaser.GameObjects.Image | null = null;
+  private previewTop = 470;
   constructor() { super('gallery'); }
 
   protected build(): void {
@@ -302,6 +305,8 @@ export class GalleryScene extends PanelScene {
     this.add.text(60, 398, 'YOUR HAT', display(18, '#ffd24a', { strokeThickness: 3 })).setOrigin(0, 0.5).setDepth(6);
     this.hatLabel = this.add.text(1240, 364, '', body(14, '#e9dccb', 800)).setOrigin(1, 0.5).setDepth(6);
     this.hatG = this.add.graphics().setDepth(8);
+    this.hatIcons = HATS.map((h, k) => (hasArt(hatArtKey(h)) ? fitInside(this.add.image(210 + k * 76, 398, hatArtKey(h)), 52, 46).setDepth(8) : null));
+    this.hatPreview = this.add.image(0, 0, '__MISSING').setOrigin(0.5, 1).setDepth(7).setVisible(false);
     HATS.forEach((h, k) => {
       const b = new Button(this, 210 + k * 76, 398, { w: 66, h: 58, label: '', size: 12, accent: hatUnlocked(h) ? 0xffd24a : 0x5a4a3e, onClick: () => {
         if (!hatUnlocked(h)) { sfx.thwock(); return; }
@@ -320,13 +325,21 @@ export class GalleryScene extends PanelScene {
     HATS.forEach((h, k) => {
       const x = 210 + k * 76;
       if (h.id === cur.id) { g.lineStyle(3, 0x8dff6a, 1); g.strokeRoundedRect(x - 36, 366, 72, 64, 14); }
-      if (hatUnlocked(h)) h.draw(g, x, 414, 22, this.t); else { g.fillStyle(0x5a4a3e, 1); g.fillCircle(x, 398, 8); }
+      const icon = this.hatIcons[k];
+      if (icon) icon.setVisible(hatUnlocked(h)).setTint(0xffffff);
+      if (hatUnlocked(h)) { if (!icon) h.draw(g, x, 414, 22, this.t); } else { g.fillStyle(0x5a4a3e, 1); g.fillCircle(x, 398, 8); }
     });
     const hk = i - SPECIES.length;
     const focus = hk >= 0 && hk < HATS.length ? HATS[hk] : cur;
     const u = focus.unlock ? ACHIEVEMENTS.find(a => a.id === focus.unlock) : null;
     this.hatLabel.setText(hatUnlocked(focus) ? `${focus.name}${focus.id === cur.id ? ' (wearing)' : ''}` : `🔒 ${focus.name}: unlock with "${u?.name}" (${u?.desc})`);
-    if (this.shown >= 0 && hatUnlocked(cur) && cur.id !== 'none') cur.draw(g, 280, 494, 46, this.t);
+    this.hatPreview?.setVisible(false);
+    if (this.shown >= 0 && hatUnlocked(cur) && cur.id !== 'none') {
+      if (this.hatPreview && hasArt(hatArtKey(cur))) {
+        const [fw, dy] = HAT_FIT[cur.id] ?? [1.3, 0.3];
+        this.hatPreview.setTexture(hatArtKey(cur)).setVisible(true).setScale((fw * 64) / this.hatPreview.width).setPosition(280, this.previewTop + dy * 64 + (cur.id === 'halo' ? Math.sin(this.t * 3) * 3 : 0));
+      } else cur.draw(g, 280, 494, 46, this.t);
+    }
   }
 
   private showDetail(i: number, click: boolean): void {
@@ -342,6 +355,7 @@ export class GalleryScene extends PanelScene {
     for (const [k, x] of [[`kaiju-${i}`, 280], [`kaiju-${i}-rage`, 470]] as const) {
       if (!hasArt(k)) continue;
       const img = fitInside(this.add.image(x, 565, k), 180, 200).setDepth(6);
+      if (x === 280) this.previewTop = 565 - img.displayHeight / 2;
       if (!got) img.setTint(0x1a1410);
       this.detail.push(img);
     }

@@ -25,6 +25,7 @@ const SPRITES = [
   [/^toast$/, 96],
   [/^lazysusan$/, 640],
   [/^spoon$/, 420],
+  [/^hat-[a-z]+$/, 200],
 ];
 const TABLES = ['bg-table', 'bg-sushi', 'bg-party', 'bg-board', 'bg-griddle', 'bg-parlour', 'bg-picnic', 'bg-bakery', 'bg-banquet', 'bg-breakfast', 'bg-freezer', 'bg-candy', 'bg-nightmare', 'bg-smoothie', 'bg-fondue', 'bg-pancake']; // table surfaces get rounded corners
 const CUTS = ['cut-open', 'cut-end', ...Array.from({ length: 12 }, (_, i) => `cut-${i}`)]; // story cutscene stills (video posters)
