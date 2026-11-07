@@ -14,6 +14,7 @@ import { playMusic } from '../music';
 import { owned, type Owned } from '../story/unlocks';
 import { enabledModes, modeDef, type GameMode } from '../sim/modes';
 import { POWERUPS } from '../sim/powerups';
+import { enabledMutators, mutatorDef, type Mutator } from '../sim/mutators';
 
 const CSS = `
 #lobby { position: fixed; inset: 0; z-index: 15; display: flex; align-items: center; justify-content: center; font-family: Nunito, Arial, sans-serif; font-weight: 800; color: #f1e4d2; }
@@ -51,6 +52,7 @@ export class LobbyScene extends Phaser.Scene {
   private mode: GameMode = 'classic';
   private powerups = POWERUPS.enabled;
   private hazards = true;
+  private mutator: Mutator = 'none';
   private own: Owned = { kaiju: [], tables: [] }; // the HOST's unlocks apply to the whole room
   private fillTo: 0 | 4 | 6 = 4; // bots fill empty seats up to this many players (0 = no bots)
   private status = '';
@@ -137,7 +139,7 @@ export class LobbyScene extends Phaser.Scene {
     guest.onStatus = (t, ok) => { this.status = t; this.statusOk = ok; this.render(); };
     guest.onClosed = reason => { this.status = reason; this.statusOk = false; this.seats = []; this.guest = null; this.render(); };
     guest.onMsg = (m: NetMsg) => {
-      if (m.t === 'lobby') { this.seats = m.seats; this.mySeat = m.you; this.table = m.table; this.difficulty = m.difficulty as Difficulty; this.rounds = m.rounds ?? DEFAULT_ROUNDS; this.mode = (m.mode as GameMode) ?? 'classic'; this.powerups = m.powerups ?? false; this.hazards = m.hazards ?? true; this.render(); }
+      if (m.t === 'lobby') { this.seats = m.seats; this.mySeat = m.you; this.table = m.table; this.difficulty = m.difficulty as Difficulty; this.rounds = m.rounds ?? DEFAULT_ROUNDS; this.mode = (m.mode as GameMode) ?? 'classic'; this.powerups = m.powerups ?? false; this.hazards = m.hazards ?? true; this.mutator = (m.mutator as Mutator) ?? 'none'; this.render(); }
       if (m.t === 'start') this.launchGuest(m);
     };
     guest.join(code, name || 'Friend');
@@ -160,7 +162,7 @@ export class LobbyScene extends Phaser.Scene {
   private syncLobby(): void {
     if (!this.host) return;
     this.seats.forEach((s, i) => {
-      if (s.who === 'guest' && s.guest !== undefined) this.host!.send(s.guest, { t: 'lobby', seats: this.seats, you: i, table: this.table, difficulty: this.difficulty, rounds: this.rounds, mode: this.mode, powerups: this.powerups, hazards: this.hazards });
+      if (s.who === 'guest' && s.guest !== undefined) this.host!.send(s.guest, { t: 'lobby', seats: this.seats, you: i, table: this.table, difficulty: this.difficulty, rounds: this.rounds, mode: this.mode, powerups: this.powerups, hazards: this.hazards, mutator: this.mutator });
     });
     this.render();
   }
@@ -177,17 +179,17 @@ export class LobbyScene extends Phaser.Scene {
     const species = seats.map(s => s.species);
     const names = seats.map(s => s.name);
     const tables = this.table < 0 ? this.own.tables.slice() : [this.table];
-    seats.forEach((s, i) => { if (s.who === 'guest' && s.guest !== undefined) host.send(s.guest, { t: 'start', species, names, seat: i, tables, rounds: this.rounds, mode: this.mode, powerups: this.powerups, hazards: this.hazards }); });
+    seats.forEach((s, i) => { if (s.who === 'guest' && s.guest !== undefined) host.send(s.guest, { t: 'start', species, names, seat: i, tables, rounds: this.rounds, mode: this.mode, powerups: this.powerups, hazards: this.hazards, mutator: this.mutator }); });
     const slots: Slot[] = seats.map(s => (s.who === 'host' ? { kind: 'local', index: 0 } : s.who === 'guest' ? { kind: 'remote', index: s.guest! } : { kind: 'bot', index: 0 }));
     this.leaving = true;
-    this.scene.start('game', { slots, difficulty: this.difficulty, species, tables, rounds: this.rounds, mode: this.mode, powerups: this.powerups, hazards: this.hazards, net: { role: 'host', host } });
+    this.scene.start('game', { slots, difficulty: this.difficulty, species, tables, rounds: this.rounds, mode: this.mode, powerups: this.powerups, hazards: this.hazards, mutator: this.mutator, net: { role: 'host', host } });
   }
 
   private launchGuest(m: Extract<NetMsg, { t: 'start' }>): void {
     if (!this.guest) return;
     const slots: Slot[] = m.species.map((_, i) => (i === m.seat ? { kind: 'local', index: 0 } : { kind: 'remote', index: i }));
     this.leaving = true;
-    this.scene.start('game', { slots, difficulty: this.difficulty, species: m.species, tables: m.tables, rounds: m.rounds, mode: m.mode as GameMode | undefined, powerups: m.powerups, hazards: m.hazards, net: { role: 'guest', guest: this.guest, seat: m.seat } });
+    this.scene.start('game', { slots, difficulty: this.difficulty, species: m.species, tables: m.tables, rounds: m.rounds, mode: m.mode as GameMode | undefined, powerups: m.powerups, hazards: m.hazards, mutator: m.mutator as Mutator | undefined, net: { role: 'guest', guest: this.guest, seat: m.seat } });
   }
 
   // ---------------------------------------------------------------- UI
@@ -227,6 +229,7 @@ export class LobbyScene extends Phaser.Scene {
           <button data-act="mode">Mode: ${modeDef(this.mode).name}</button>
           <button data-act="powerups">Power-ups: ${this.powerups ? 'ON' : 'OFF'}</button>
           <button data-act="hazards">Hazards: ${this.hazards ? 'ON' : 'OFF'}</button>
+          <button data-act="mutator">Twist: ${mutatorDef(this.mutator).name}</button>
         </div>
         <p class="muted">${esc(modeDef(this.mode).blurb)}</p>
         <div class="row"><button class="go" data-act="start" ${guests ? '' : 'disabled'}>Start match</button><button data-act="back">Close room</button></div>
@@ -272,6 +275,7 @@ export class LobbyScene extends Phaser.Scene {
     if (a === 'mode') { const list = enabledModes().map(m => m.id); this.mode = list[(list.indexOf(this.mode) + 1) % list.length] ?? 'classic'; this.syncLobby(); }
     if (a === 'powerups') { this.powerups = !this.powerups; this.syncLobby(); }
     if (a === 'hazards') { this.hazards = !this.hazards; this.syncLobby(); }
+    if (a === 'mutator') { const l = enabledMutators().map(m => m.id); this.mutator = l[(l.indexOf(this.mutator) + 1) % l.length] ?? 'none'; this.syncLobby(); }
     if (a === 'start') this.startMatch();
   }
 }

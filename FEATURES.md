@@ -256,3 +256,15 @@ Each section says **where to customise it**.
 - Bots dodge the shadows and avoid puddles. Works online.
 - Themed place mats for Fondue Night and Smoothie Bar (`art-src/jobs-mats6.json`).
 - **Customise:** `RULES.cheese*` in `src/sim/constants.ts`; the table is the last entry in `src/sim/layouts.ts`. Art: `art-src/jobs-fondue.json`.
+
+## 29. Mutators ("twists")
+
+- **Where:** Free Play → **[X] twist** (touch: **TWIST** pill); online lobby host → **Twist** button. One twist at a time; shown on the menu and the countdown banner (⚡).
+  - **Kaiju Frenzy:** everyone starts every round with a full belly.
+  - **Turbo:** the whole game runs 30% faster.
+  - **Boomerangs:** every throw flies back to you.
+  - **Giant Cutlery:** 60% bigger hit areas.
+  - **Ice Rink:** every table is slippery.
+  - **Snack Attack:** crumbs fill your belly 3× faster.
+- Never applied in Story, Gauntlet, Dessert Course or the Daily Challenge. Works with party modes, power-ups and the Party Cup.
+- **Customise:** `src/sim/mutators.ts` (names, blurbs, `enabled`, and the numbers in `MUTATOR_RULES`).

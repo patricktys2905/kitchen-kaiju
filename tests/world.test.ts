@@ -865,3 +865,29 @@ describe('fondue night cheese', () => {
     expect(w.onSticky(d.x, d.y)).toBe(true);
   });
 });
+
+describe('mutators', () => {
+  it('frenzy fills bellies, snack triples crumbs, boomerang brings every throw back, ice is slippery', () => {
+    const fr = makeWorld(2, 'fork', { mutator: 'frenzy' });
+    expect(fr.players.every(p => p.meter === 100)).toBe(true);
+    const sn = makeWorld(1, 'fork', { mutator: 'snack' });
+    sn.crumbs = [{ id: 77, x: sn.players[0].x, y: sn.players[0].y, variant: 0 }];
+    run(sn, 0.02);
+    expect(sn.players[0].meter).toBe(3 * P.crumbValue);
+    const bo = makeWorld(2, 'fork', { mutator: 'boomerang' });
+    place(bo, 0, 400, 360); place(bo, 1, 1100, 160);
+    bo.layout = { ...bo.layout, obstacles: [] };
+    const ev = run(bo, 2.5, t => [tap(1, 0, t)]);
+    expect(ev.some(e => e.type === 'catch' && e.id === 0)).toBe(true);
+    const slide = (mutator: 'ice' | 'none') => {
+      const w = makeWorld(1, 'fork', { mutator });
+      w.layout = { ...w.layout, obstacles: [] };
+      place(w, 0, 300, 360);
+      run(w, 0.6, () => [{ ...NO_INPUT, mx: 1 }]);
+      const x0 = w.players[0].x;
+      run(w, 0.6, () => [NO_INPUT]);
+      return w.players[0].x - x0;
+    };
+    expect(slide('ice')).toBeGreaterThan(slide('none') * 3);
+  });
+});

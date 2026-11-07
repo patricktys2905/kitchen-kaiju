@@ -8,8 +8,8 @@ export const ACTIONS: { id: Action; label: string }[] = [
   { id: 'up', label: 'Move up' }, { id: 'down', label: 'Move down' }, { id: 'left', label: 'Move left' }, { id: 'right', label: 'Move right' },
   { id: 'throw', label: 'Throw' }, { id: 'swipe', label: 'Swipe' }, { id: 'dash', label: 'Dash' }, { id: 'stomp', label: 'Stomp' }, { id: 'emote', label: 'Emote' },
 ];
-// menu shortcuts: Esc back, P pause, 1 play, 2 bots, B/N bots, M table, R rounds, G mode, U power-ups, H hazards, O online, C cup
-export const RESERVED = new Set(['Escape', 'KeyP', 'Digit1', 'Digit2', 'Tab', 'KeyB', 'KeyN', 'KeyM', 'KeyR', 'KeyG', 'KeyU', 'KeyH', 'KeyO', 'KeyC']);
+// menu shortcuts: Esc back, P pause, 1 play, 2 bots, B/N bots, M table, R rounds, G mode, U power-ups, H hazards, O online, C cup, X twist
+export const RESERVED = new Set(['Escape', 'KeyP', 'Digit1', 'Digit2', 'Tab', 'KeyB', 'KeyN', 'KeyM', 'KeyR', 'KeyG', 'KeyU', 'KeyH', 'KeyO', 'KeyC', 'KeyX']);
 
 const KEY = 'kk-keys-v1';
 type Overrides = Record<number, Partial<Record<Action, string>>>;

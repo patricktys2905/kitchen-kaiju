@@ -15,6 +15,7 @@ import { playMusic } from '../music';
 import { keyFor, keyLabel } from '../keybinds';
 import { POWERUPS } from '../sim/powerups';
 import { cupGames } from '../cup';
+import { enabledMutators, mutatorDef, type Mutator } from '../sim/mutators';
 import { enabledModes, modeDef, type GameMode } from '../sim/modes';
 
 const TITLE = { fontFamily: DISPLAY, color: '#ffe9c7', stroke: INK, strokeThickness: 10 };
@@ -32,6 +33,7 @@ export interface MenuData {
   mode?: GameMode;
   powerups?: boolean;
   hazards?: boolean;
+  mutator?: Mutator;
 }
 
 export class MenuScene extends Phaser.Scene {
@@ -44,6 +46,7 @@ export class MenuScene extends Phaser.Scene {
   private mode: GameMode = 'classic';
   private powerups = POWERUPS.enabled;
   private hazards = true;
+  private mutator: Mutator = 'none';
   private modeText!: Phaser.GameObjects.Text;
   private g!: Phaser.GameObjects.Graphics;
   private slotTexts: Phaser.GameObjects.Text[] = [];
@@ -74,6 +77,7 @@ export class MenuScene extends Phaser.Scene {
     if (data.mode) this.mode = data.mode;
     if (data.powerups !== undefined) this.powerups = data.powerups;
     if (data.hazards !== undefined) this.hazards = data.hazards;
+    if (data.mutator) this.mutator = data.mutator;
     if (data.tables !== undefined) this.table = data.tables && data.tables.length === 1 ? data.tables[0] : -1;
     this.devPrev.clear();
     this.fixPicks();
@@ -183,7 +187,7 @@ export class MenuScene extends Phaser.Scene {
     this.add.text(640, 560, rules.join('\n'), { ...BODY, fontStyle: '700', fontSize: '15px', align: 'center', color: '#cdb9a3', lineSpacing: 5 }).setOrigin(0.5, 0).setDepth(2);
     if (!isTouchDevice) {
       this.chipLine(chipG, 640, 640, '[THROW] join   [◀ ▶] pick kaiju   [DASH] leave   [B] [N] add / remove bot', 15);
-      this.chipLine(chipG, 640, 670, '[2] bots  [M] table  [R] rounds  [G] mode  [U] power-ups  [H] hazards  [O] ONLINE  [C] CUP  [1] PLAY', 15);
+      this.chipLine(chipG, 640, 670, '[2] bots  [M] table  [R] rounds  [G] mode  [U] power-ups  [H] hazards  [X] twist  [O] ONLINE  [C] CUP  [1] PLAY', 15);
     }
     setTouchMode('menu');
     playMusic('menu');
@@ -216,7 +220,7 @@ export class MenuScene extends Phaser.Scene {
     const g = cupGames(this.slots.length)[0];
     this.scene.start('game', {
       slots: this.slots.slice(), difficulty: this.difficulty, species: this.picks.slice(), botLevels: this.slots.map((s, i) => (s.kind === 'bot' ? this.botLevels[i] ?? null : null)),
-      tables: this.table < 0 ? this.own.tables.slice() : [this.table], rounds: g.rounds, mode: g.mode, powerups: this.powerups, hazards: this.hazards, cup: { game: 0, points: [] },
+      tables: this.table < 0 ? this.own.tables.slice() : [this.table], rounds: g.rounds, mode: g.mode, powerups: this.powerups, hazards: this.hazards, mutator: this.mutator, cup: { game: 0, points: [] },
     });
   }
 
@@ -224,7 +228,7 @@ export class MenuScene extends Phaser.Scene {
     while (this.slots.length < Math.max(2, modeDef(this.mode).minPlayers)) this.addSlot({ kind: 'bot', index: this.slots.length });
     this.fixPicks();
     this.scene.start('game', {
-      slots: this.slots.slice(), difficulty: this.difficulty, species: this.picks.slice(), botLevels: this.slots.map((s, i) => (s.kind === 'bot' ? this.botLevels[i] ?? null : null)), tables: this.table < 0 ? this.own.tables.slice() : [this.table], rounds: this.rounds, mode: this.mode, powerups: this.powerups, hazards: this.hazards,
+      slots: this.slots.slice(), difficulty: this.difficulty, species: this.picks.slice(), botLevels: this.slots.map((s, i) => (s.kind === 'bot' ? this.botLevels[i] ?? null : null)), tables: this.table < 0 ? this.own.tables.slice() : [this.table], rounds: this.rounds, mode: this.mode, powerups: this.powerups, hazards: this.hazards, mutator: this.mutator,
     });
   }
 
@@ -249,6 +253,7 @@ export class MenuScene extends Phaser.Scene {
     if (consumeTap('KeyG') || consumeTap('TouchMode')) this.cycleMode();
     if (consumeTap('KeyU') || consumeTap('TouchPowerups')) { this.powerups = !this.powerups; sfx.pickup(); }
     if (consumeTap('KeyH') || consumeTap('TouchHazards')) { this.hazards = !this.hazards; sfx.pickup(); }
+    if (consumeTap('KeyX') || consumeTap('TouchMutator')) { const l = enabledMutators().map(m => m.id); this.mutator = l[(l.indexOf(this.mutator) + 1) % l.length] ?? 'none'; sfx.pickup(); }
     if (consumeTap('KeyO') || consumeTap('TouchOnline')) { this.scene.start('lobby', { difficulty: this.difficulty, rounds: this.rounds }); return; }
     if (consumeTap('TouchJoin')) {
       const j = this.slots.findIndex(s => s.kind === 'touch');
@@ -271,6 +276,7 @@ export class MenuScene extends Phaser.Scene {
       mode: modeDef(this.mode).name,
       powerups: this.powerups,
       hazards: this.hazards,
+      mutator: mutatorDef(this.mutator).name,
     });
     this.draw();
   }
@@ -362,7 +368,7 @@ export class MenuScene extends Phaser.Scene {
       }
     }
     const md = modeDef(this.mode);
-    this.modeText.setText(`MODE: ${md.name}  ·  ${md.blurb}   ·   POWER-UPS: ${this.powerups ? 'ON' : 'OFF'}   ·   HAZARDS: ${this.hazards ? 'ON' : 'OFF'}`);
+    this.modeText.setText(`MODE: ${md.name}  ·  ${md.blurb}   ·   POWER-UPS: ${this.powerups ? 'ON' : 'OFF'}   ·   HAZARDS: ${this.hazards ? 'ON' : 'OFF'}${this.mutator !== 'none' ? `   ·   ⚡ ${mutatorDef(this.mutator).name}` : ''}`);
     this.infoText.setText(`Bot difficulty: ${this.difficulty.toUpperCase()}   ·   Up to ${MAX_PLAYERS} players   ·   First to ${this.rounds} round${this.rounds === 1 ? '' : 's'}   ·   ${this.own.kaiju.length < SPECIES.length ? `${this.own.kaiju.length}/${SPECIES.length} kaiju (unlock more in Story)` : `${SPECIES.length} kaiju`}`);
     const tl = this.table < 0 ? null : LAYOUTS[this.table];
     this.tableText.setText(tl ? `TABLE: ${tl.name.toUpperCase()}  —  ${tl.blurb}` : `TABLE: ALL ${this.own.tables.length} (a different one every round)${this.own.tables.length < LAYOUTS.length ? ` · ${LAYOUTS.length - this.own.tables.length} more to unlock in Story` : ''}`);

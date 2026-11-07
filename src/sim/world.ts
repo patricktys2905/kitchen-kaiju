@@ -5,6 +5,7 @@ import { CUTLERY, RARE_CHANCE, RARE_KINDS, STARTER_KINDS, type CutleryKind } fro
 import { LAYOUTS, type Layout } from './layouts';
 import { angleDiff, circCircle, circRect, clamp, type Hit } from './math';
 import { MODE_RULES, type GameMode } from './modes';
+import { MUTATOR_RULES, type Mutator } from './mutators';
 import { enabledPowers, POWER_DEFS, POWERUPS, type PowerKind } from './powerups';
 import { Rng } from './rng';
 
@@ -177,6 +178,7 @@ export interface WorldOptions {
   mode?: GameMode; // party mode (default classic)
   teams?: number[]; // Team Feast: team per player (default: alternate seats)
   powerups?: boolean; // condiment power-ups (off unless asked for; Free Play default is POWERUPS.enabled)
+  mutator?: Mutator; // one wacky rule twist (default none)
 }
 
 /** Birthday Bash wind. dir is an angle (radians) the gust blows towards. */
@@ -224,9 +226,10 @@ export interface Cleaver {
 
 export class World {
   readonly rng: Rng;
-  readonly opts: Required<Omit<WorldOptions, 'layout' | 'starterKind' | 'layouts' | 'mode' | 'teams' | 'powerups'>> & Pick<WorldOptions, 'layout' | 'starterKind' | 'layouts'>;
+  readonly opts: Required<Omit<WorldOptions, 'layout' | 'starterKind' | 'layouts' | 'mode' | 'teams' | 'powerups' | 'mutator'>> & Pick<WorldOptions, 'layout' | 'starterKind' | 'layouts'>;
   readonly mode: GameMode;
   readonly powerups: boolean;
+  readonly mutator: Mutator;
   items: PowerItem[] = [];
   private itemTimer = 0;
   /** Hot Dumpling: who is carrying it and how long until it pops. */
@@ -280,6 +283,7 @@ export class World {
       starterKind: o.starterKind,
     };
     this.mode = o.mode ?? 'classic';
+    this.mutator = o.mutator ?? 'none';
     this.powerups = o.powerups ?? false; // opt-in: Free Play turns it on (see GameScene)
     this.rng = new Rng(this.opts.seed);
     const pool = o.layouts?.filter(i => i >= 0 && i < LAYOUTS.length);
@@ -350,6 +354,7 @@ export class World {
       c.owner = p.id;
       p.holding = c.id;
     }
+    if (this.mutator === 'frenzy') for (const p of this.players) p.meter = 100;
     for (let i = 0; i < RULES.startCrumbs; i++) this.spawnCrumb();
     this.emit({ type: 'roundStart', round: this.round, layout: this.layout.name });
   }
@@ -493,7 +498,7 @@ export class World {
     if (p.dashT > 0) {
       p.dashT -= dt;
     } else {
-      const k = Math.min(1, dt * (this.onSpill(p.x, p.y) ? RULES.spillGrip : this.layout.slippery ? RULES.iceGrip : 14));
+      const k = Math.min(1, dt * (this.onSpill(p.x, p.y) ? RULES.spillGrip : this.layout.slippery || this.mutator === 'ice' ? RULES.iceGrip : 14));
       p.vx += (mx * spd - p.vx) * k;
       p.vy += (my * spd - p.vy) * k;
     }
@@ -837,7 +842,7 @@ export class World {
         return;
       }
       if (!c.boomerang && c.traveled >= c.maxRange) {
-        if (def.returns) c.boomerang = true;
+        if (def.returns || this.mutator === 'boomerang') c.boomerang = true;
         else { this.land(c); return; }
       }
     }
@@ -880,7 +885,7 @@ export class World {
       // Your own cutlery only hurts you after it ricochets (and never on a boomerang return).
       if (isOwner && (!c.bounced || c.boomerang || c.traveled < 40)) continue;
       if (!isOwner && this.friends(p.id, c.owner)) continue; // Team Feast: passes through teammates
-      if (Math.hypot(p.x - c.x, p.y - c.y) > p.r + def.radius) continue;
+      if (Math.hypot(p.x - c.x, p.y - c.y) > p.r + def.radius * (this.mutator === 'giant' ? MUTATOR_RULES.giantRadius : 1)) continue;
       if (p.kaijuT > 0) {
         this.land(c);
         this.emit({ type: 'deflect', x: c.x, y: c.y });
@@ -1006,7 +1011,7 @@ export class World {
       for (const cr of this.crumbs) {
         if (cr.id < 0 || Math.hypot(cr.x - p.x, cr.y - p.y) > p.r + 6) continue;
         const was = p.meter;
-        p.meter = Math.min(100, p.meter + P.crumbValue);
+        p.meter = Math.min(100, p.meter + P.crumbValue * (this.mutator === 'snack' ? MUTATOR_RULES.snackMultiplier : 1));
         if (this.mode === 'crumbRush') p.pts++;
         cr.id = -1;
         this.emit({ type: 'eat', id: p.id, x: cr.x, y: cr.y });

@@ -81,6 +81,7 @@ let stompBtn: HTMLElement, throwBtn: HTMLElement, joinPill: HTMLElement, diffPil
 let modePill: HTMLElement | null = null;
 let powerPill: HTMLElement | null = null;
 let hazPill: HTMLElement | null = null;
+let mutPill: HTMLElement | null = null;
 
 function el(tag: string, parent: HTMLElement, attrs: Record<string, string> = {}, text = ''): HTMLElement {
   const e = document.createElement(tag);
@@ -313,6 +314,8 @@ export function initTouch(injectTap: (code: string) => void): void {
   tapButton(powerPill, 'TouchPowerups');
   hazPill = el('div', row, { class: 'pill' }, 'HAZARDS: ON');
   tapButton(hazPill, 'TouchHazards');
+  mutPill = el('div', row, { class: 'pill' }, 'TWIST: NONE');
+  tapButton(mutPill, 'TouchMutator');
   tapButton(el('div', row, { class: 'pill' }, '🌐 ONLINE'), 'TouchOnline');
   tapButton(el('div', row, { class: 'pill' }, '🏆 CUP'), 'TouchCup');
   tapButton(el('div', row, { class: 'pill go' }, '▶ PLAY'), 'Digit1');
@@ -351,7 +354,7 @@ export function setTouchMode(mode: TouchMode): void {
 }
 
 let lastHud = '';
-export function setTouchHud(h: { stompReady?: boolean; armed?: boolean; joined?: boolean; difficulty?: string; table?: string; canPause?: boolean; rounds?: number; mode?: string; powerups?: boolean; hazards?: boolean }): void {
+export function setTouchHud(h: { stompReady?: boolean; armed?: boolean; joined?: boolean; difficulty?: string; table?: string; canPause?: boolean; rounds?: number; mode?: string; powerups?: boolean; hazards?: boolean; mutator?: string }): void {
   if (!layers) return;
   const key = JSON.stringify(h);
   if (key === lastHud) return;
@@ -363,6 +366,7 @@ export function setTouchHud(h: { stompReady?: boolean; armed?: boolean; joined?:
   if (h.table !== undefined) tablePill.textContent = `TABLE: ${h.table}`;
   if (h.rounds !== undefined) roundsPill.textContent = `ROUNDS: ${h.rounds}`;
   if (h.mode !== undefined && modePill) modePill.textContent = `MODE: ${h.mode}`;
+  if (h.mutator !== undefined && mutPill) mutPill.textContent = `TWIST: ${h.mutator}`;
   if (h.hazards !== undefined && hazPill) hazPill.textContent = `HAZARDS: ${h.hazards ? 'ON' : 'OFF'}`;
   if (h.powerups !== undefined && powerPill) powerPill.textContent = `POWER-UPS: ${h.powerups ? 'ON' : 'OFF'}`;
   if (h.difficulty !== undefined) diffPill.textContent = `BOTS: ${h.difficulty.toUpperCase()}`;

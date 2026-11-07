@@ -25,8 +25,8 @@ export interface LobbySeat {
 export type NetMsg =
   | { t: 'hello'; name: string }
   | { t: 'pick'; dir: number }
-  | { t: 'lobby'; seats: LobbySeat[]; you: number; table: number; difficulty: string; rounds?: number; mode?: string; powerups?: boolean; hazards?: boolean }
-  | { t: 'start'; species: number[]; names: string[]; seat: number; tables: number[] | null; rounds?: number; mode?: string; powerups?: boolean; hazards?: boolean }
+  | { t: 'lobby'; seats: LobbySeat[]; you: number; table: number; difficulty: string; rounds?: number; mode?: string; powerups?: boolean; hazards?: boolean; mutator?: string }
+  | { t: 'start'; species: number[]; names: string[]; seat: number; tables: number[] | null; rounds?: number; mode?: string; powerups?: boolean; hazards?: boolean; mutator?: string }
   | { t: 'in'; i: PlayerInput }
   | { t: 'snap'; s: Snapshot; ev: GameEvent[] }
   | { t: 'ping' }

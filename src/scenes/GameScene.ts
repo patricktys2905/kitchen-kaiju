@@ -15,6 +15,7 @@ import { CUTLERY } from '../sim/cutlery';
 import { angleDiff } from '../sim/math';
 import { MODE_RULES, modeDef, type GameMode } from '../sim/modes';
 import { POWER_DEFS, POWERUPS } from '../sim/powerups';
+import { MUTATOR_RULES, mutatorDef, type Mutator } from '../sim/mutators';
 import { NO_INPUT, World, type GameEvent, type PlayerInput } from '../sim/world';
 import { chapterRivals, starsFor } from '../story/chapters';
 import { COURSES, saveDessert } from '../story/dessert';
@@ -48,6 +49,7 @@ export interface GameData {
   mode?: GameMode; // party mode (Free Play)
   powerups?: boolean; // condiment power-ups (Free Play; default POWERUPS.enabled, never in Story)
   hazards?: boolean; // table hazards (hand, wind, cleaver…); default on
+  mutator?: Mutator; // Free Play / Online rule twist
   gauntlet?: { wave: number; bosses: number[] }; // Gauntlet: seat 0 is you, one round per wave
   daily?: { date: string }; // Daily Challenge: seat 0 is you
   attract?: boolean; // title-screen demo: any input goes back to the title
@@ -149,7 +151,7 @@ export class GameScene extends Phaser.Scene {
     this.mode = data.mode ?? 'classic';
     this.powerups = data.story ? false : data.powerups ?? POWERUPS.enabled;
     this.hazards = data.story ? true : data.hazards ?? true;
-    this.world = new World({ players: this.species.map(s => ({ name: SPECIES[s].name })), seed, layouts: this.tables ?? undefined, target: this.rounds, mode: this.mode, powerups: this.powerups, hazards: this.hazards });
+    this.world = new World({ players: this.species.map(s => ({ name: SPECIES[s].name })), seed, layouts: this.tables ?? undefined, target: this.rounds, mode: this.mode, powerups: this.powerups, hazards: this.hazards, mutator: data.story || data.gauntlet || data.dessert || data.daily ? 'none' : data.mutator });
     this.story = data.story;
     this.practice = null;
     this.replayBuf = new ReplayBuffer();
@@ -344,9 +346,9 @@ export class GameScene extends Phaser.Scene {
         return inp;
       });
       this.checkEmotes(human, dt);
-      this.acc += dt;
+      this.acc += dt * (this.world.mutator === 'turbo' ? MUTATOR_RULES.turboSpeed : 1);
       let n = 0;
-      while (this.acc >= STEP && n < 12) {
+      while (this.acc >= STEP && n < 16) {
         const inputs = this.slots.map((_, i) => this.bots[i]?.decide(this.world, STEP) ?? human[i]);
         this.world.step(STEP, inputs);
         this.replayBuf.record(this.world, STEP);
@@ -377,7 +379,7 @@ export class GameScene extends Phaser.Scene {
         if (m.t === 'snap') this.inbox.push({ s: m.s, ev: m.ev });
         if (m.t === 'start') {
           const slots = m.species.map((_, i) => (i === m.seat ? { kind: 'local' as const, index: 0 } : { kind: 'remote' as const, index: i }));
-          this.scene.restart({ slots, difficulty: this.difficulty, species: m.species, tables: m.tables, rounds: m.rounds, mode: m.mode as GameMode | undefined, powerups: m.powerups, hazards: m.hazards, net: { role: 'guest', guest: net.guest, seat: m.seat } });
+          this.scene.restart({ slots, difficulty: this.difficulty, species: m.species, tables: m.tables, rounds: m.rounds, mode: m.mode as GameMode | undefined, powerups: m.powerups, hazards: m.hazards, mutator: m.mutator as Mutator | undefined, net: { role: 'guest', guest: net.guest, seat: m.seat } });
         }
       };
       net.guest.onClosed = reason => { this.netNotice = reason; this.time.delayedCall(2500, () => this.scene.start('menu', { difficulty: this.difficulty })); };
@@ -391,15 +393,15 @@ export class GameScene extends Phaser.Scene {
     if (this.net?.role === 'host') this.net.host.close();
     if (this.net?.role === 'guest') this.net.guest.close();
     if (this.net) { this.scene.start('title'); return; }
-    this.scene.start('menu', { slots: this.net ? [] : this.slots, difficulty: this.difficulty, species: this.net ? [] : this.species, botLevels: this.initData.botLevels ?? undefined, tables: this.tables, rounds: this.rounds, mode: this.mode, powerups: this.powerups, hazards: this.hazards });
+    this.scene.start('menu', { slots: this.net ? [] : this.slots, difficulty: this.difficulty, species: this.net ? [] : this.species, botLevels: this.initData.botLevels ?? undefined, tables: this.tables, rounds: this.rounds, mode: this.mode, powerups: this.powerups, hazards: this.hazards, mutator: this.initData.mutator });
   }
 
   private rematch(): void {
-    const data: GameData = { slots: this.slots, difficulty: this.difficulty, species: this.species, tables: this.tables, net: this.net, rounds: this.rounds, mode: this.mode, powerups: this.powerups, hazards: this.hazards, daily: this.initData.daily, botLevels: this.initData.botLevels };
+    const data: GameData = { slots: this.slots, difficulty: this.difficulty, species: this.species, tables: this.tables, net: this.net, rounds: this.rounds, mode: this.mode, powerups: this.powerups, hazards: this.hazards, daily: this.initData.daily, botLevels: this.initData.botLevels, mutator: this.initData.mutator };
     const net = this.net;
     if (net?.role === 'host') {
       const names = this.world.players.map(p => p.name);
-      this.slots.forEach((sl, i) => { if (sl.kind === 'remote') net.host.send(sl.index, { t: 'start', species: this.species, names, seat: i, tables: this.tables, rounds: this.rounds, mode: this.mode, powerups: this.powerups, hazards: this.hazards }); });
+      this.slots.forEach((sl, i) => { if (sl.kind === 'remote') net.host.send(sl.index, { t: 'start', species: this.species, names, seat: i, tables: this.tables, rounds: this.rounds, mode: this.mode, powerups: this.powerups, hazards: this.hazards, mutator: this.initData.mutator }); });
     }
     this.scene.restart(data);
   }
@@ -1058,7 +1060,7 @@ export class GameScene extends Phaser.Scene {
     } else if (w.phase === 'countdown') {
       const n = Math.ceil((1.6 - w.phaseT) / (1.6 / 3));
       main = String(Math.max(1, n));
-      sub = `${w.mode !== 'classic' ? modeDef(w.mode).name + ' · ' : ''}Round ${w.round} · ${w.layout.name}`;
+      sub = `${w.mode !== 'classic' ? modeDef(w.mode).name + ' · ' : ''}${w.mutator !== 'none' ? '⚡ ' + mutatorDef(w.mutator).name + ' · ' : ''}Round ${w.round} · ${w.layout.name}`;
       if (this.initData.cup) sub = `🏆 PARTY CUP · GAME ${this.initData.cup.game + 1}/${cupGames(w.players.length).length} · ${modeDef(w.mode).name} · ${w.layout.name}`;
       if (this.initData.dessert) { const c = COURSES[this.initData.dessert.course]; sub = `🍰 DESSERT COURSE ${this.initData.dessert.course + 1}/${COURSES.length} · ${c.title.toUpperCase()} · ${w.layout.name}`; }
       if (this.initData.gauntlet) sub = `GAUNTLET · WAVE ${this.initData.gauntlet.wave} · ${w.players.length - 1} rival${w.players.length > 2 ? 's' : ''}${this.bossSeats().length ? ' + 👑 BOSS' : ''} · ${w.layout.name}`;
