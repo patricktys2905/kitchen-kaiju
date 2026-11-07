@@ -3,6 +3,48 @@
 Everything added in the "keep building" session, newest last. Nothing existing was removed.
 Each section says **where to customise it**.
 
+## Quick index
+
+- 1. Party modes (Team Feast, Crumb Rush, Hot Dumpling)
+- 2. Settings screen
+- 3. Background music
+- 4. Stats and achievements
+- 5. How to Play
+- 6. Kaiju Gallery
+- 7. Condiment power-ups
+- 8. Party modes and power-ups online
+- 9. Pause menu
+- 10. End-of-match awards
+- 11. Gauntlet (solo survival)
+- 12. Hazards on/off
+- 13. Hats (cosmetic rewards)
+- 14. Practice (guided tutorial)
+- 15. Daily Challenge
+- 16. Title screen layout
+- 17. Emotes
+- 18. New rare cutlery: Pizza Cutter and Rolling Pin (Gemini art)
+- 19. 🌶️ Spicy Story replays (hard mode)
+- 20. Instant replay
+- 21. Player numbers (accessibility) and 📸 Share
+- 22. New table: Smoothie Bar (new Blender hazard, Gemini art)
+- 23. Remappable keyboard controls
+- 24. Attract mode (title demo)
+- 25. 🍰 Dessert Course (post-game)
+- 26. Per-bot difficulty (Free Play)
+- 27. 🏆 Party Cup
+- 28. New table: Fondue Night (new Hot Cheese hazard, Gemini art)
+- 29. Mutators ("twists")
+- 30. Quick tips, Smoothie Operator, two-column Settings
+- 31. Hats online
+- 32. Achievement progress and pages
+- 33. Loading screen
+- 34. Kaiju voices
+- 35. 📺 TV mode (phones as controllers)
+- 36. QR code to join
+- 37. Announcer callouts
+
+**Where to find things:** title screen cards (Story · Free Play · Online · Party Modes · Daily · Gauntlet), the top-right row (Settings · How to Play · Kaiju · Records), and Free Play keys (G mode · U power-ups · H hazards · X twist · C cup).
+
 ## 1. Party modes (Team Feast, Crumb Rush, Hot Dumpling)
 
 - **Where:** Title screen → **PARTY MODES** card (was the disabled "More modes" card), or Free Play → **[G] mode** (touch: **MODE** pill).
