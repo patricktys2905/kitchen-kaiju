@@ -1,0 +1,22 @@
+All five clips are saved to `art-src/clips-raw/`, but two have problems:
+
+- **s2-2:** the toast fox turns into a long-eared bunny partway through. The task's naming rule put this retry in `s2-2.mp4`, but the first take (`s2-2-alt.mp4`) is better. It only has the fox growing a small nose and getting rounder, cuter eyes. I'd swap them.
+- **s2-5:** a new mustached bird character walks in at about 2.5s. Both retries were already used, so I saved it as-is. It needs a regenerate or an edit.
+
+```
+s2-open: saved
+s2-1: saved
+s2-2: saved
+s2-5: saved
+s2-end: saved
+Credits remaining: 520 (resets Nov 22)
+```
+
+How each clip came out:
+- **s2-open:** the first take drifted badly, with lightning bolts, the penguin's cherry turning into a party hat and the kangaroo's pose changing. The retry keeps the designs and is `s2-open.mp4`; the first take is `s2-open-alt.mp4`.
+- **s2-1:** fine. The cheese balloons up oddly once, but no new characters or noses.
+- **s2-end:** acceptable. The kaiju cheer and wave more than the prompt asked, but their designs hold and nobody new appears.
+
+The run made 7 generations on Veo 3.1 - Lite at 10 credits each, so 70 credits. All the clips are in one Flow project, "Nov 07 - 18:23". There were no refusals, sign-in prompts or captchas, and I closed the Flow tab at the end.
+
+I checked frames by laying four points of each clip side by side in the Flow tab, because ffmpeg isn't installed. The older `*-v1.mp4` files in `clips-raw` were already there, and I left them alone. `art-src/flow-run2.log` was already untracked before I started, and I didn't commit anything.
