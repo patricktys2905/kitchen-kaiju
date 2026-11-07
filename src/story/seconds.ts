@@ -84,6 +84,6 @@ export const SECONDS_CUTS: Cutscene[] = [
   { key: 's2-1', noVideo: true, heading: 'CHAPTER 2 · SAY CHEESE', caption: 'Tacowl has a gouda feeling about this.' },
   { key: 's2-2', noVideo: true, heading: 'CHAPTER 3 · FLIPPING OUT', caption: 'Everyone\'s bite-sized. The spatula is not.' },
   { key: 's2-3', heading: 'CHAPTER 4 · COLD SHOULDER', caption: 'Pengwhip rules the freezer. Chill out… or wipe out.' },
-  { key: 's2-4', heading: 'CHAPTER 5 · SUGAR HIGH', caption: 'Too many sweets. Not enough self-control.' },
+  { key: 's2-4', noVideo: true, heading: 'CHAPTER 5 · SUGAR HIGH', caption: 'Too many sweets. Not enough self-control.' },
   { key: 's2-5', noVideo: true, heading: 'CHAPTER 6 · SECOND HELPINGS', caption: 'Velvaroo wants a rematch. And a pouch full of spoons.' },
 ];
