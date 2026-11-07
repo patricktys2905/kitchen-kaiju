@@ -57,6 +57,7 @@ Each section says **where to customise it**.
 - 50. Four more twists
 - 51. 12 more Gemini hats
 - 52. Second Helpings: a second Story campaign
+- 53. Second Helpings has its own music
 
 **Where to find things:** title screen cards (Story · Free Play · Online · Party Modes · Daily · Gauntlet), the top-right row (Settings · How to Play · Kaiju · Records), and Free Play keys (G mode · U power-ups · H hazards · X twist · C cup).
 
@@ -496,3 +497,8 @@ A 6-chapter post-game story. It opens once **chapter 6 of The Grand Feast** is c
   - Campaign list, titles, save keys and the unlock rule (`SECONDS_AFTER_CHAPTER`): `src/story/campaigns.ts`.
   - Cutscene art and clip prompts: `scripts/make-s2-jobs.mjs`, which writes `art-src/jobs-s2.json` and the `s2-*` keys in `art-src/flow-cutscenes.json`.
   - Balance check: `CAMPAIGN=seconds RUNS=100 npx vite-node scripts/story-balance.ts`.
+
+## 53. Second Helpings has its own music
+
+- The Second Helpings map plays `story2`: a minor-key "midnight snack" version of the Story tune, a bit faster with a busier beat. The Grand Feast keeps `story`.
+- **Customise:** `TRACKS.story2` in `src/music.ts` (notes, tempo, drums, wave). StoryScene chooses the track by campaign.

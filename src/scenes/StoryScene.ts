@@ -85,7 +85,7 @@ export class StoryScene extends Phaser.Scene {
   create(): void {
     clearTaps();
     setTouchMode('title');
-    playMusic('story');
+    playMusic(this.main ? 'story' : 'story2');
     this.spicyBtn = null; // Phaser reuses this object: drop buttons from the previous visit before redrawing
     this.rewardsBtn = null;
     if (hasArt('bg-story')) this.add.image(640, 360, 'bg-story').setDisplaySize(1280, 720).setDepth(-3);
@@ -541,7 +541,7 @@ export class StoryScene extends Phaser.Scene {
   private endCut(): void {
     if (this.mode !== 'cut') return;
     this.cut = null;
-    playMusic('story');
+    playMusic(this.main ? 'story' : 'story2');
     this.cutCaption = null;
     this.cutVid = null;
     this.clearOverlay();

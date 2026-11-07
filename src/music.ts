@@ -38,6 +38,14 @@ export const TRACKS: Record<string, Track> = {
     drums: r('k - - - h - - -  s - - - h - - -'),
     leadWave: 'sine',
   },
+  // Second Helpings map: the same tune's mischievous cousin, a minor-key midnight-snack sneak.
+  story2: {
+    bpm: 104,
+    lead: r('A4 - C5 - E5 - D5 C5  B4 - - - G4 - - -  F4 - A4 - C5 - B4 A4  G#4 - - - E4 - - -'),
+    bass: r('A2 - - - E2 - - -  G2 - - - D2 - - -  F2 - - - C3 - - -  E2 - - - E2 - B2 -'),
+    drums: r('k - h - s - h h  k - h - s - h -'),
+    leadWave: 'triangle',
+  },
 };
 
 let ac: AudioContext | null = null;
