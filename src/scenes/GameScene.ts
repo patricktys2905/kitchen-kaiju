@@ -26,6 +26,7 @@ import { currentHat } from '../hats';
 import { PRACTICE, PRACTICE_STEPS } from '../practice';
 import { DAILY, dailySetup, loadDaily, recordDaily } from '../daily';
 import { REPLAY, ReplayBuffer } from '../replay';
+import { randomTip } from '../tips';
 import { BOT_EMOTE_CHANCE, EMOTE_COOLDOWN, EMOTE_KEYS, EMOTE_TIME, EMOTES } from '../emotes';
 import type { NetGuest, NetHost, NetMsg } from '../net/net';
 import { applySnapshot, extrapolate, makeSnapshot, type Snapshot } from '../net/snapshot';
@@ -79,6 +80,7 @@ export class GameScene extends Phaser.Scene {
   private emoteNext: number[] = [];
   private guestEmote = false;
   private attractWake = false;
+  private tip = '';
   private attractText: Phaser.GameObjects.Text | null = null;
   private replayBuf = new ReplayBuffer();
   private replay: { frames: { t: number; s: Snapshot }[]; t: number; world: World; label: Phaser.GameObjects.Text } | null = null;
@@ -475,6 +477,7 @@ export class GameScene extends Phaser.Scene {
       switch (e.type) {
         case 'roundStart':
           this.replayBuf.reset();
+          this.tip = getSettings().tips && !this.initData.attract && !this.practice ? randomTip(this.mode, w.layout, w.mutator === 'ice') : '';
           this.art.setupTable(w.layout, this.world.players.map(p => ({ x: p.x, y: p.y, color: this.colors[p.id] })));
           for (const b of this.bossSeats()) if (w.players[b]) w.players[b].meter = 100; // bosses can go KAIJU straight away
           this.parts = [];
@@ -787,7 +790,7 @@ export class GameScene extends Phaser.Scene {
     const st = (this.stats ??= loadStats()), w = this.world;
     switch (e.type) {
       case 'roundStart': if (!st.tables.includes(w.layoutIndex)) st.tables.push(w.layoutIndex); break;
-      case 'ko': if (e.by !== null && e.by !== e.id && this.isHuman(e.by)) st.kos++; if (e.cause === 'boom' && !this.isHuman(e.id)) st.pops++; break;
+      case 'ko': if (e.by !== null && e.by !== e.id && this.isHuman(e.by)) { st.kos++; if (e.cause === 'blend') st.blends = (st.blends ?? 0) + 1; } if (e.cause === 'boom' && !this.isHuman(e.id)) st.pops++; break;
       case 'eat': if (this.isHuman(e.id)) st.crumbs++; break;
       case 'kaiju': if (this.isHuman(e.id)) st.kaijuForms++; break;
       case 'roundEnd': if (this.humanWon(e.winner)) st.roundsWon++; break;
@@ -1064,6 +1067,7 @@ export class GameScene extends Phaser.Scene {
       if (this.initData.cup) sub = `🏆 PARTY CUP · GAME ${this.initData.cup.game + 1}/${cupGames(w.players.length).length} · ${modeDef(w.mode).name} · ${w.layout.name}`;
       if (this.initData.dessert) { const c = COURSES[this.initData.dessert.course]; sub = `🍰 DESSERT COURSE ${this.initData.dessert.course + 1}/${COURSES.length} · ${c.title.toUpperCase()} · ${w.layout.name}`; }
       if (this.initData.gauntlet) sub = `GAUNTLET · WAVE ${this.initData.gauntlet.wave} · ${w.players.length - 1} rival${w.players.length > 2 ? 's' : ''}${this.bossSeats().length ? ' + 👑 BOSS' : ''} · ${w.layout.name}`;
+      if (this.tip) sub += `\n\n💡 ${this.tip}`;
     } else if (w.phase === 'play' && this.bannerT > 0) {
       main = 'DIG IN!';
     } else if (w.phase === 'roundEnd') {

@@ -631,7 +631,7 @@ describe('stats, achievements and settings', () => {
   it('achievements unlock once from stats', async () => {
     const { ACHIEVEMENTS, checkAchievements } = await import('../src/stats');
     expect(new Set(ACHIEVEMENTS.map(a => a.id)).size).toBe(ACHIEVEMENTS.length);
-    const s = { matches: 1, wins: 1, roundsWon: 3, kos: 0, crumbs: 0, kaijuForms: 0, pops: 0, streak: 1, bestStreak: 1, gauntlet: 0, cups: 0, modeWins: { teams: 1 }, kaijuWins: { 0: 1 }, kaijuPlays: { 0: 1 }, tables: [0], achieved: [] as string[] };
+    const s = { matches: 1, wins: 1, roundsWon: 3, kos: 0, crumbs: 0, kaijuForms: 0, pops: 0, streak: 1, bestStreak: 1, gauntlet: 0, cups: 0, blends: 0, modeWins: { teams: 1 }, kaijuWins: { 0: 1 }, kaijuPlays: { 0: 1 }, tables: [0], achieved: [] as string[] };
     expect(checkAchievements(s).map(a => a.id).sort()).toEqual(['first-win', 'teams']);
     expect(checkAchievements(s)).toEqual([]); // never twice
   });
@@ -889,5 +889,22 @@ describe('mutators', () => {
       return w.players[0].x - x0;
     };
     expect(slide('ice')).toBeGreaterThan(slide('none') * 3);
+  });
+});
+
+describe('quick tips', () => {
+  it('only shows tips that fit the mode and the table', async () => {
+    const { randomTip, TIPS } = await import('../src/tips');
+    const { LAYOUTS } = await import('../src/sim/layouts');
+    const sushi = LAYOUTS.find(l => l.name === 'Sushi Bar')!;
+    const modeOnly = TIPS.filter(t => t.mode).map(t => t.text), tableOnly = TIPS.filter(t => t.table).map(t => t.text);
+    for (let i = 0; i < 200; i++) {
+      const tip = randomTip('classic', sushi);
+      expect(modeOnly).not.toContain(tip);
+      expect(tableOnly.filter(t => !t.includes('giant hand'))).not.toContain(tip);
+    }
+    const blender = LAYOUTS.find(l => l.blender)!;
+    const seen = new Set(Array.from({ length: 200 }, () => randomTip('classic', blender)));
+    expect([...seen].some(t => t.includes('blender'))).toBe(true);
   });
 });

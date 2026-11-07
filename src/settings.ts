@@ -9,9 +9,10 @@ export interface Settings {
   nameTags: boolean; // show each kaiju's name above it during matches
   replays: boolean; // slow-motion replay of each round's final knockout
   badges: boolean; // P1–P6 number badges under kaiju (easier than colour alone)
+  tips: boolean; // a quick tip under the countdown
 }
 
-export const DEFAULTS: Settings = { volume: 0.75, music: 0.35, shake: true, reducedFx: false, nameTags: false, replays: true, badges: false };
+export const DEFAULTS: Settings = { volume: 0.75, music: 0.35, shake: true, reducedFx: false, nameTags: false, replays: true, badges: false, tips: true };
 
 const KEY = 'kk-settings-v1';
 let cache: Settings | null = null;
@@ -43,5 +44,6 @@ export const SETTINGS_ROWS: { key: keyof Settings; label: string; kind: 'level' 
   { key: 'reducedFx', label: 'REDUCED EFFECTS', kind: 'toggle', help: 'Fewer particles and flashes' },
   { key: 'replays', label: 'INSTANT REPLAYS', kind: 'toggle', help: 'Slow-mo replay of the last knockout of each round' },
   { key: 'badges', label: 'PLAYER NUMBERS', kind: 'toggle', help: 'P1–P6 badges under kaiju (colour-blind friendly)' },
+  { key: 'tips', label: 'QUICK TIPS', kind: 'toggle', help: 'A handy tip under the countdown' },
   { key: 'nameTags', label: 'NAME TAGS', kind: 'toggle', help: 'Show every kaiju\'s name above it in matches' },
 ];
