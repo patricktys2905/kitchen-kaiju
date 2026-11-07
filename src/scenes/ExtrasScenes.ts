@@ -13,6 +13,7 @@ import { SPECIES } from '../sim/constants';
 import { CUTLERY, RARE_KINDS, type CutleryKind } from '../sim/cutlery';
 import { LAYOUTS } from '../sim/layouts';
 import { enabledModes } from '../sim/modes';
+import { enabledMutators } from '../sim/mutators';
 import { ACHIEVEMENTS, loadStats } from '../stats';
 import { loadStory, totalStars } from '../story/save';
 import { needText, owned, UNLOCKS } from '../story/unlocks';
@@ -211,24 +212,26 @@ export class HelpScene extends PanelScene {
     } else if (p === 'tables') {
       const own = owned().tables;
       LAYOUTS.forEach((l, i) => {
-        const col = i < 8 ? 0 : 1, row = i < 8 ? i : i - 8, x = 80 + col * 580, y = 170 + row * 64;
+        const per = Math.ceil(LAYOUTS.length / 3), col = Math.floor(i / per), row = i % per, x = 40 + col * 410, y = 168 + row * 84;
         const locked = !own.includes(i);
         if (hasArt(l.table)) {
-          const img = this.add.image(x + 40, y + 24, l.table).setDisplaySize(72, 40).setDepth(5);
+          const img = this.add.image(x + 34, y + 24, l.table).setDisplaySize(64, 36).setDepth(5);
           if (locked) img.setTint(0x333333);
           this.content.push(img);
         }
-        this.content.push(this.add.text(x + 90, y + 4, `${locked ? '🔒 ' : ''}${l.name}`, display(18, locked ? '#a89680' : '#ffe9c7', { strokeThickness: 3 })).setDepth(5));
+        this.content.push(this.add.text(x + 76, y + 2, `${locked ? '🔒 ' : ''}${l.name}`, display(17, locked ? '#a89680' : '#ffe9c7', { strokeThickness: 3 })).setDepth(5));
         const u = UNLOCKS.find(q => q.kind === 'table' && q.index === i);
-        txt(x + 90, y + 30, locked && u ? needText(u) : l.blurb, 14, locked ? '#a89680' : '#e9dccb', 470);
+        txt(x + 76, y + 26, locked && u ? needText(u) : l.blurb, 13, locked ? '#a89680' : '#e9dccb', 315);
       });
     } else {
       enabledModes().forEach((m, i) => {
-        const y = 175 + i * 128;
+        const y = 165 + i * 104;
         head(90, y, m.name);
         txt(90, y + 34, `${m.blurb}. ${m.howTo}${m.minPlayers > 2 ? ` (${m.minPlayers}+ players; bots fill in.)` : ''}`, 17);
       });
-      txt(90, 690 - 40, 'Pick a mode in Free Play with [G] or the MODE button. Tune every mode in src/sim/modes.ts.', 14, '#cdb9a3');
+      head(90, 580, 'TWISTS (Free Play [X] · online lobby)');
+      txt(90, 612, enabledMutators().filter(m => m.id !== 'none').map(m => `${m.name}: ${m.blurb}`).join(' · '), 14, '#e9dccb');
+      txt(90, 688, 'Pick a mode in Free Play with [G] or the MODE button.', 13, '#cdb9a3');
     }
   }
 }
