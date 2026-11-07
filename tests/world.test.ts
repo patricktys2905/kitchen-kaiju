@@ -502,6 +502,49 @@ describe('story mode', () => {
   });
 });
 
+describe('second helpings campaign', () => {
+  it('chapters use real tables, kaiju, speakers and twists', async () => {
+    const { SECONDS_CHAPTERS, SECONDS_CUTS } = await import('../src/story/seconds');
+    const { CAMPAIGNS } = await import('../src/story/campaigns');
+    const { LAYOUTS } = await import('../src/sim/layouts');
+    const { SPECIES, MAX_PLAYERS } = await import('../src/sim/constants');
+    const { MUTATORS } = await import('../src/sim/mutators');
+    expect(SECONDS_CHAPTERS.length).toBe(6);
+    expect(SECONDS_CUTS.length).toBe(SECONDS_CHAPTERS.length);
+    expect(CAMPAIGNS.seconds.saveKey).not.toBe(CAMPAIGNS.main.saveKey);
+    SECONDS_CHAPTERS.forEach((ch, i) => {
+      expect(LAYOUTS[ch.table], ch.title).toBeTruthy();
+      expect(ch.rivals.length + 1).toBeLessThanOrEqual(MAX_PLAYERS);
+      for (const r of ch.rivals) expect(SPECIES[r.species], ch.title).toBeTruthy();
+      expect(new Set(ch.rivals.map(r => r.species)).size).toBe(ch.rivals.length);
+      for (const l of [...ch.intro, ch.win]) if (l.speaker !== 'chef') expect(ch.rivals[l.speaker], `${ch.title} speaker ${l.speaker}`).toBeTruthy();
+      if (ch.boss) expect(ch.rivals.some(r => r.boss)).toBe(true);
+      if (ch.mutator) expect(MUTATORS.some(m => m.id === ch.mutator)).toBe(true);
+      expect(SECONDS_CUTS[i].heading).toBe(`CHAPTER ${i + 1} · ${ch.title.toUpperCase()}`);
+      expect(SECONDS_CUTS[i].caption.length).toBeLessThan(70);
+    });
+  });
+
+  it('each clip shows exactly that chapter\'s rivals', async () => {
+    const { SECONDS_CHAPTERS, SECONDS_CUTS } = await import('../src/story/seconds');
+    const fs = await import('node:fs');
+    const src = fs.readFileSync('scripts/make-s2-jobs.mjs', 'utf8');
+    SECONDS_CHAPTERS.forEach((ch, i) => {
+      const m = src.match(new RegExp(`key: '${SECONDS_CUTS[i].key}', cast: \\[([^\\]]*)\\]`));
+      expect(m, `${SECONDS_CUTS[i].key} cast`).toBeTruthy();
+      expect(m![1].split(',').map(Number).sort((a, b) => a - b), ch.title).toEqual(ch.rivals.map(r => r.species).sort((a, b) => a - b));
+    });
+  });
+
+  it('keeps its own save, capped at its own chapter count', async () => {
+    const { recordResult } = await import('../src/story/save');
+    const s = { unlocked: 1, stars: [] as number[], pick: 0, endingSeen: false, cuts: [] as string[], spicy: [] as number[] };
+    Object.defineProperty(s, '_n', { value: 6 });
+    recordResult(s, 5, true, 3);
+    expect(s.unlocked).toBe(6);
+  });
+});
+
 describe('story unlockables', () => {
   it('locked kaiju and tables appear only once earned', async () => {
     const { owned, UNLOCKS, newlyEarned, isEarned } = await import('../src/story/unlocks');

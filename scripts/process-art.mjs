@@ -28,7 +28,7 @@ const SPRITES = [
   [/^hat-[a-z]+$/, 200],
 ];
 const TABLES = ['bg-table', 'bg-sushi', 'bg-party', 'bg-board', 'bg-griddle', 'bg-parlour', 'bg-picnic', 'bg-bakery', 'bg-banquet', 'bg-breakfast', 'bg-freezer', 'bg-candy', 'bg-nightmare', 'bg-smoothie', 'bg-fondue', 'bg-pancake']; // table surfaces get rounded corners
-const CUTS = ['cut-open', 'cut-end', ...Array.from({ length: 12 }, (_, i) => `cut-${i}`)]; // story cutscene stills (video posters)
+const CUTS = ['cut-open', 'cut-end', ...Array.from({ length: 12 }, (_, i) => `cut-${i}`), 's2-open', 's2-end', ...Array.from({ length: 6 }, (_, i) => `s2-${i}`)]; // story cutscene stills (video posters)
 const BACKGROUNDS = { ...Object.fromEntries(CUTS.map(c => [c, [1280, 720]])), 'bg-floor': [1280, 720], 'bg-menu': [1280, 720], 'bg-title': [1280, 720], 'bg-story': [1280, 720], ...Object.fromEntries(TABLES.map(t => [t, [1080, 575]])) };
 
 fs.mkdirSync(OUT, { recursive: true });

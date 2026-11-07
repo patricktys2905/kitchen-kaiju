@@ -21,7 +21,7 @@ try {
     const ctx = await b.newContext(phone ? { viewport: { width: 844, height: 390 }, deviceScaleFactor: 2, isMobile: true, hasTouch: true } : { viewport: { width: 1280, height: 720 } });
     const pg = await ctx.newPage();
     const tag = phone ? 'phone' : 'desktop';
-    pg.on('pageerror', e => errors.push(`${tag}: ${e}`));
+    pg.on('pageerror', e => errors.push(`${tag}: ${String(e.stack ?? e).split('\n').slice(0, 8).join(' | ')}`));
     pg.on('console', m => { if (m.type() === 'error') errors.push(`${tag}: ${m.text()}`); });
     const active = k => pg.evaluate(key => window.__game?.scene.isActive(key), k);
     // tap/click at game coordinates (1280x720 canvas, scaled to fit)
@@ -63,6 +63,39 @@ try {
     await pg.screenshot({ path: `smoke-story-${tag}-4-result.png` });
     const save = await pg.evaluate(() => JSON.parse(localStorage.getItem('kk-story-v1')));
     check(save.unlocked === 2 && save.stars[0] === 3, `${tag}: chapter 1 cleared with 3 stars, chapter 2 unlocked`);
+    if (!phone) {
+      // 🍽 Second Helpings: opens once chapter 6 is cleared, has its own map, save and twists
+      await pg.evaluate(() => { const s = JSON.parse(localStorage.getItem('kk-story-v1')); s.stars = [3, 3, 3, 3, 3, 3]; s.unlocked = 7; localStorage.setItem('kk-story-v1', JSON.stringify(s)); window.__game.scene.getScene('story').scene.start('title'); });
+      await wait(1200);
+      await tapAt(170, 640); // STORY card
+      await until(() => active('story'));
+      await wait(1000);
+      await tapAt(1140, 50); // 🍽 SECOND HELPINGS ▶
+      check(await until(() => pg.evaluate(() => window.__game.scene.getScene('story').camp?.id === 'seconds')), 'second helpings opens from the story map');
+      check(await until(() => pg.evaluate(() => window.__game.scene.getScene('story').mode === 'cut')), 'second helpings plays its own opening');
+      await wait(2000);
+      await pg.screenshot({ path: 'smoke-story-5-seconds-opening.png' });
+      await tapAt(640, 360);
+      check(await until(() => pg.evaluate(() => window.__game.scene.getScene('story').mode === 'map')), 'skip to the second helpings map');
+      await pg.screenshot({ path: 'smoke-story-6-seconds-map.png' });
+      await tapAt(1070, 640); // PLAY chapter 1
+      for (let i = 0; i < 14 && !(await active('game')); i++) { await tapAt(640, 360); await tapAt(640, 360); await wait(150); }
+      check(await until(() => active('game')), 'second helpings chapter 1 starts');
+      const s2 = await pg.evaluate(() => { const s = window.__game.scene.getScene('game'); return { n: s.world.players.length, table: s.world.layout.name }; });
+      check(s2.n === 3 && s2.table === 'Smoothie Bar', `second helpings chapter 1 = 2 rivals at the Smoothie Bar (${JSON.stringify(s2)})`);
+      for (let i = 0; i < 40 && !(await active('story')); i++) {
+        await pg.evaluate(() => { const w = window.__game.scene.getScene('game')?.world; if (w && w.phase === 'play') w.players.slice(1).forEach(p => w.ko(p, 0, 'swipe')); });
+        await wait(400);
+      }
+      check(await until(() => active('story'), 20000), 'winning returns to the second helpings map');
+      await wait(1200);
+      const saves = await pg.evaluate(() => ({ main: JSON.parse(localStorage.getItem('kk-story-v1')), s2: JSON.parse(localStorage.getItem('kk-story2-v1')), camp: window.__game.scene.getScene('story').camp.id }));
+      check(saves.camp === 'seconds' && saves.s2.unlocked === 2 && saves.s2.stars[0] === 3 && saves.main.unlocked === 7, `second helpings keeps its own save (${JSON.stringify({ s2: saves.s2.unlocked, main: saves.main.unlocked })})`);
+      await pg.evaluate(() => { const s = window.__game.scene.getScene('story'); s.clearOverlay(); s.mode = 'map'; s.sel = 2; s.launch(); });
+      check(await until(() => pg.evaluate(() => window.__game.scene.getScene('game')?.world?.mutator === 'tiny')), 'chapter 3 (Flipping Out) plays with the Mini Kaiju twist');
+      await wait(2500);
+      await pg.screenshot({ path: 'smoke-story-7-seconds-twist.png' });
+    }
     await ctx.close();
   }
 } finally {

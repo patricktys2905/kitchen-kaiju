@@ -8,13 +8,15 @@ import { body, display, popIn, withShadow } from '../render/fonts';
 import { Button } from '../render/ui';
 import { SPECIES } from '../sim/constants';
 import { LAYOUTS } from '../sim/layouts';
-import { CHAPTERS, chapterRivals, ENDING, SPICY_BUMP, type Line } from '../story/chapters';
+import { chapterRivals, SPICY_BUMP, type Line } from '../story/chapters';
+import { CAMPAIGNS, loadCampaign, secondsUnlocked, type Campaign, type CampaignId } from '../story/campaigns';
+import { checkAchievements, loadStats, saveStats } from '../stats';
 import { loadStory, recordResult, recordSpicy, saveStory, totalStars, type StorySave } from '../story/save';
 import { setTouchMode } from '../touch';
 import { playMusic } from '../music';
 import { COURSES, dessertBest } from '../story/dessert';
 import { GameScene } from './GameScene';
-import { CHAPTER_CUTS, ENDING_CUT, OPENING, seenId, type Cutscene } from '../story/cutscenes';
+import { seenId, type Cutscene } from '../story/cutscenes';
 import { isEarned, needText, newlyEarned, owned, unlockName, UNLOCKS } from '../story/unlocks';
 
 export interface StoryResult {
@@ -22,6 +24,7 @@ export interface StoryResult {
   won: boolean;
   stars: number;
   spicy?: boolean; // a 🌶️ Spicy replay
+  campaign?: CampaignId;
 }
 
 const CARD_W = 178, CARD_H = 112;
@@ -66,10 +69,11 @@ export class StoryScene extends Phaser.Scene {
     super('story');
   }
 
-  init(data: { result?: StoryResult }): void {
-    this.save = loadStory();
+  init(data: { result?: StoryResult; campaign?: CampaignId }): void {
+    this.camp = CAMPAIGNS[data.campaign ?? data.result?.campaign ?? 'main'];
+    this.save = loadCampaign(this.camp);
     this.pendingResult = data.result ?? null;
-    this.sel = Math.min(this.save.unlocked - 1, CHAPTERS.length - 1);
+    this.sel = Math.min(this.save.unlocked - 1, this.camp.chapters.length - 1);
     if (this.pendingResult) this.sel = this.pendingResult.chapter;
     this.mode = 'map';
     this.cardImgs = []; this.cardTexts = []; this.cardZones = []; this.panel = []; this.buttons = []; this.overlay = []; this.overlayButtons = [];
@@ -82,15 +86,17 @@ export class StoryScene extends Phaser.Scene {
     clearTaps();
     setTouchMode('title');
     playMusic('story');
+    this.spicyBtn = null; // Phaser reuses this object: drop buttons from the previous visit before redrawing
+    this.rewardsBtn = null;
     if (hasArt('bg-story')) this.add.image(640, 360, 'bg-story').setDisplaySize(1280, 720).setDepth(-3);
     else drawFloor(this.add.graphics().setDepth(-3));
     this.add.graphics().setDepth(-2).fillStyle(0x0d0805, 0.55).fillRect(0, 0, 1280, 720);
-    withShadow(this.add.text(30, 26, 'THE GRAND FEAST', display(40, '#ffcf8a', { strokeThickness: 7 })).setDepth(5), 4);
+    withShadow(this.add.text(30, 26, this.camp.title, display(40, '#ffcf8a', { strokeThickness: 7 })).setDepth(5), 4);
     this.progressText = this.add.text(34, 78, '', body(15, '#e9dccb', 800)).setDepth(5);
     this.updateProgress();
     this.mapG = this.add.graphics().setDepth(1);
 
-    CHAPTERS.forEach((ch, i) => {
+    this.camp.chapters.forEach((ch, i) => {
       const { x, y } = cardPos(i);
       const key = LAYOUTS[ch.table].table;
       this.cardImgs.push(this.add.image(x, y - 12, hasArt(key) ? key : '__MISSING').setDisplaySize(CARD_W - 16, 62).setDepth(2).setVisible(hasArt(key)));
@@ -111,9 +117,12 @@ export class StoryScene extends Phaser.Scene {
     this.buttons.push(new Button(this, 52, 652, { w: 44, h: 64, label: '◀', size: 20, onClick: () => this.cyclePick(-1) }, 6));
     this.buttons.push(new Button(this, 444, 652, { w: 44, h: 64, label: '▶', size: 20, onClick: () => this.cyclePick(1) }, 6));
     this.buttons.push(new Button(this, 575, 676, { w: 170, h: 50, label: '◀ MODES', size: 20, onClick: () => this.back() }, 6));
-    const earnedCount = UNLOCKS.filter(u => isEarned(u, this.save)).length;
-    this.rewardsBtn = new Button(this, 775, 676, { w: 210, h: 50, label: `🎁 REWARDS ${earnedCount}/${UNLOCKS.length}`, size: 18, accent: 0xffd24a, onClick: () => this.showRewards() }, 6);
-    this.buttons.push(this.rewardsBtn);
+    const earnedCount = UNLOCKS.filter(u => isEarned(u, loadStory())).length;
+    this.rewardsBtn = null;
+    if (this.main) {
+      this.rewardsBtn = new Button(this, 775, 676, { w: 210, h: 50, label: `🎁 REWARDS ${earnedCount}/${UNLOCKS.length}`, size: 18, accent: 0xffd24a, onClick: () => this.showRewards() }, 6);
+      this.buttons.push(this.rewardsBtn);
+    }
     this.add.text(1070, 712, 'arrows choose · ENTER play · Q / E kaiju · Esc back', body(12, '#a89680', 700)).setOrigin(0.5, 1).setDepth(5);
 
     this.playBtn = new Button(this, 1070, 640, { w: 330, h: 74, label: '▶ PLAY', size: 34, accent: 0xff9a3c, onClick: () => this.play() }, 6);
@@ -121,9 +130,12 @@ export class StoryScene extends Phaser.Scene {
     this.drawPanel();
     this.drawPick();
 
-    this.buttons.push(new Button(this, 640, 50, { w: 200, h: 44, label: '🎬 OPENING', size: 18, accent: 0xffd24a, onClick: () => { if (this.mode === 'map') { sfx.pickup(); this.playCut(OPENING, () => {}); } } }, 6));
+    this.buttons.push(new Button(this, 640, 50, { w: 200, h: 44, label: '🎬 OPENING', size: 18, accent: 0xffd24a, onClick: () => { if (this.mode === 'map') { sfx.pickup(); this.playCut(this.camp.opening, () => {}); } } }, 6));
     // 🍰 Dessert Course: post-game, after the ending
-    if (this.save.endingSeen) {
+    // campaign switch: The Grand Feast ⇄ Second Helpings
+    if (this.main && secondsUnlocked()) this.buttons.push(new Button(this, 1140, 50, { w: 250, h: 44, label: '🍽 SECOND HELPINGS ▶', size: 16, accent: 0x8dff6a, onClick: () => { if (this.mode === 'map') { sfx.go(); this.scene.restart({ campaign: 'seconds' }); } } }, 6));
+    if (!this.main) this.buttons.push(new Button(this, 1140, 50, { w: 250, h: 44, label: '◀ THE GRAND FEAST', size: 16, accent: 0xffcf8a, onClick: () => { if (this.mode === 'map') { sfx.go(); this.scene.restart({ campaign: 'main' }); } } }, 6));
+    if (this.main && this.save.endingSeen) {
       const done = dessertBest(), next = done >= COURSES.length ? 0 : done;
       this.buttons.push(new Button(this, 905, 50, { w: 250, h: 44, label: `🍰 DESSERT ${done}/${COURSES.length}`, size: 17, accent: 0xff7ad9, onClick: () => {
         if (this.mode !== 'map') return;
@@ -137,7 +149,7 @@ export class StoryScene extends Phaser.Scene {
     this.buttons.push(new Button(this, 1172, 560, { w: 150, h: 38, label: '🎬 SCENE', size: 16, onClick: () => this.watchScene() }, 6));
 
     if (this.pendingResult) this.showResult(this.pendingResult);
-    else if (!this.save.cuts.includes(seenId(OPENING))) this.time.delayedCall(250, () => this.playCut(OPENING, () => {}));
+    else if (!this.save.cuts.includes(seenId(this.camp.opening))) this.time.delayedCall(250, () => this.playCut(this.camp.opening, () => {}));
   }
 
   private toggleSpicy(): void {
@@ -151,16 +163,21 @@ export class StoryScene extends Phaser.Scene {
   private watchScene(): void {
     if (this.mode !== 'map') return;
     sfx.pickup();
-    if (this.sel < this.save.unlocked) this.playCut(CHAPTER_CUTS[this.sel], () => {});
+    if (this.sel < this.save.unlocked) this.playCut(this.camp.cuts[this.sel], () => {});
   }
 
+  private camp: Campaign = CAMPAIGNS.main;
+  private get main(): boolean { return this.camp.id === 'main'; }
   private progressText!: Phaser.GameObjects.Text;
   /** Overall progress line: chapters, stars, spicy clears, dessert, rewards → one completion %. EASY TO CUSTOMISE: the weights. */
   private updateProgress(): void {
     const cleared = this.save.stars.filter(x => x > 0).length, stars = totalStars(this.save), spicyN = (this.save.spicy ?? []).filter(x => x > 0).length;
-    const dessertN = dessertBest(), rewardsN = UNLOCKS.filter(u => isEarned(u, this.save)).length;
-    const pct = Math.round(100 * (cleared / CHAPTERS.length * 0.35 + stars / (CHAPTERS.length * 3) * 0.25 + spicyN / CHAPTERS.length * 0.2 + dessertN / COURSES.length * 0.1 + rewardsN / UNLOCKS.length * 0.1));
-    this.progressText.setText(`Story ${pct}% complete  ·  ★ ${stars}/${CHAPTERS.length * 3}  ·  🌶️ ${spicyN}/${CHAPTERS.length}${this.save.endingSeen ? `  ·  🍰 ${dessertN}/${COURSES.length}` : ''}  ·  🎁 ${rewardsN}/${UNLOCKS.length}`);
+    const dessertN = this.main ? dessertBest() : 0, rewardsN = this.main ? UNLOCKS.filter(u => isEarned(u, this.save)).length : 0;
+    const n = this.camp.chapters.length;
+    const pct = this.main ? Math.round(100 * (cleared / n * 0.35 + stars / (n * 3) * 0.25 + spicyN / n * 0.2 + dessertN / COURSES.length * 0.1 + rewardsN / UNLOCKS.length * 0.1))
+      : Math.round(100 * (cleared / n * 0.5 + stars / (n * 3) * 0.3 + spicyN / n * 0.2));
+    if (!this.main) { this.progressText.setText(`${this.camp.tagline}  ·  ${pct}% complete  ·  ★ ${stars}/${n * 3}  ·  🌶️ ${spicyN}/${n}`); return; }
+    this.progressText.setText(`Story ${pct}% complete  ·  ★ ${stars}/${this.camp.chapters.length * 3}  ·  🌶️ ${spicyN}/${this.camp.chapters.length}${this.save.endingSeen ? `  ·  🍰 ${dessertN}/${COURSES.length}` : ''}  ·  🎁 ${rewardsN}/${UNLOCKS.length}`);
   }
 
   // ---------------------------------------------------------------- map
@@ -173,7 +190,7 @@ export class StoryScene extends Phaser.Scene {
   }
 
   private cyclePick(dir: number): void {
-    const own = owned(this.save).kaiju;
+    const own = owned().kaiju; // kaiju you own come from The Grand Feast
     const at = own.indexOf(this.save.pick);
     this.save.pick = own[((at < 0 ? 0 : at) + dir + own.length) % own.length];
     saveStory(this.save);
@@ -196,12 +213,12 @@ export class StoryScene extends Phaser.Scene {
     const g = this.mapG, t = this.t;
     g.clear();
     // the path between chapters
-    for (let i = 0; i < CHAPTERS.length - 1; i++) {
+    for (let i = 0; i < this.camp.chapters.length - 1; i++) {
       const a = cardPos(i), b = cardPos(i + 1), done = i + 1 < this.save.unlocked;
       g.lineStyle(10, 0x000000, 0.35); g.lineBetween(a.x, a.y + 4, b.x, b.y + 4);
       g.lineStyle(6, done ? 0xffb347 : 0x5a4a3e, 1); g.lineBetween(a.x, a.y, b.x, b.y);
     }
-    CHAPTERS.forEach((ch, i) => {
+    this.camp.chapters.forEach((ch, i) => {
       const { x, y } = cardPos(i), open = i < this.save.unlocked, stars = this.save.stars[i] ?? 0, selected = i === this.sel;
       const s = selected ? 1.06 + Math.sin(t * 5) * 0.015 : 1, W = CARD_W * s, H = CARD_H * s;
       g.fillStyle(0x000000, 0.5); g.fillRoundedRect(x - W / 2 + 4, y - H / 2 + 7, W, H, 14);
@@ -228,13 +245,13 @@ export class StoryScene extends Phaser.Scene {
   private drawPanel(): void {
     for (const o of this.panel) o.destroy();
     this.panel = [];
-    const ch = CHAPTERS[this.sel], open = this.sel < this.save.unlocked, L = LAYOUTS[ch.table];
+    const ch = this.camp.chapters[this.sel], open = this.sel < this.save.unlocked, L = LAYOUTS[ch.table];
     const g = this.add.graphics().setDepth(4);
     g.fillStyle(0x140b05, 0.88); g.fillRoundedRect(890, 110, 360, 490, 20);
     g.lineStyle(3, ch.boss ? 0xff5a4a : 0xffb347, 1); g.strokeRoundedRect(890, 110, 360, 490, 20);
     this.panel.push(g);
     const add = <T extends Phaser.GameObjects.GameObject>(o: T) => { this.panel.push(o); return o; };
-    add(this.add.text(1070, 136, `CHAPTER ${this.sel + 1}${ch.boss ? (this.sel === CHAPTERS.length - 1 ? ' · FINAL BOSS' : ' · BOSS') : ''}`, body(15, ch.boss ? '#ff8a7a' : '#ffcf8a', 900)).setOrigin(0.5).setDepth(5));
+    add(this.add.text(1070, 136, `CHAPTER ${this.sel + 1}${ch.boss ? (this.sel === this.camp.chapters.length - 1 ? ' · FINAL BOSS' : ' · BOSS') : ''}`, body(15, ch.boss ? '#ff8a7a' : '#ffcf8a', 900)).setOrigin(0.5).setDepth(5));
     add(withShadow(this.add.text(1070, 168, ch.title.toUpperCase(), display(28, '#ffe9c7', { strokeThickness: 5, align: 'center', wordWrap: { width: 330 } })).setOrigin(0.5, 0).setDepth(5), 3));
     add(this.add.text(1070, 214, `${L.name} · first to ${ch.rounds} rounds`, body(14, '#e9dccb', 800)).setOrigin(0.5, 0).setDepth(5));
     if (!open) {
@@ -267,10 +284,10 @@ export class StoryScene extends Phaser.Scene {
   private play(): void {
     if (this.mode !== 'map' || this.sel >= this.save.unlocked) return;
     sfx.go();
-    const ch = CHAPTERS[this.sel], rivals = chapterRivals(ch, this.save.pick);
+    const ch = this.camp.chapters[this.sel], rivals = chapterRivals(ch, this.save.pick);
     this.lines = [...ch.intro, { speaker: 'chef', text: 'TIP: ' + ch.tip }];
     const talk = () => this.startDialogue(rivals.map(r => r.species), () => this.launch());
-    const cut = CHAPTER_CUTS[this.sel];
+    const cut = this.camp.cuts[this.sel];
     if (cut && !this.save.cuts.includes(seenId(cut))) this.playCut(cut, talk);
     else talk();
   }
@@ -281,12 +298,12 @@ export class StoryScene extends Phaser.Scene {
   }
 
   private launch(): void {
-    const ch = CHAPTERS[this.sel], rivals = chapterRivals(ch, this.save.pick);
+    const ch = this.camp.chapters[this.sel], rivals = chapterRivals(ch, this.save.pick);
     const slots: Slot[] = [{ kind: 'local', index: 0 }, ...rivals.map((): Slot => ({ kind: 'bot', index: 0 }))];
     this.scene.start('game', {
       slots, difficulty: 'normal', species: [this.save.pick, ...rivals.map(r => r.species)], tables: [ch.table], rounds: ch.rounds,
       botLevels: [null, ...rivals.map(r => (this.spicyOn() ? SPICY_BUMP[r.level] : r.level))],
-      story: { chapter: this.sel, bosses: rivals.map((r, k) => (r.boss ? k + 1 : -1)).filter(k => k > 0), spicy: this.spicyOn() },
+      story: { chapter: this.sel, bosses: rivals.map((r, k) => (r.boss ? k + 1 : -1)).filter(k => k > 0), spicy: this.spicyOn(), campaign: this.camp.id, mutator: ch.mutator },
     });
   }
 
@@ -347,11 +364,14 @@ export class StoryScene extends Phaser.Scene {
 
   // ---------------------------------------------------------------- results
   private showResult(r: StoryResult): void {
-    const ch = CHAPTERS[r.chapter], last = r.chapter === CHAPTERS.length - 1;
+    const ch = this.camp.chapters[r.chapter], last = r.chapter === this.camp.chapters.length - 1;
     const before = { ...this.save, stars: this.save.stars.slice() };
     const unlockedNew = r.spicy ? false : recordResult(this.save, r.chapter, r.won, r.stars);
     if (r.spicy) { recordSpicy(this.save, r.chapter, r.won, r.stars); this.spicy = true; }
-    const rewards = newlyEarned(before, this.save);
+    const rewards = this.main ? newlyEarned(before, this.save) : [];
+    // story achievements (e.g. Second Helpings clears) are checked here, after the save updates
+    const st = loadStats(), gotAch = checkAchievements(st);
+    if (gotAch.length) saveStats(st);
     this.updateProgress();
     this.rewardsBtn?.setText(`🎁 REWARDS ${UNLOCKS.filter(u => isEarned(u, this.save)).length}/${UNLOCKS.length}`);
     this.drawMap();
@@ -394,6 +414,7 @@ export class StoryScene extends Phaser.Scene {
       this.overlay.push(this.add.text(640, 300, 'So close! Every rival can be beaten.\n\n“' + ch.tip + '”', body(19, '#ffe9c7', 800, { align: 'center', wordWrap: { width: 600 } })).setOrigin(0.5, 0).setDepth(31));
     }
     const btns: { label: string; act: () => void; accent?: number }[] = [];
+    if (gotAch.length) this.overlay.push(this.add.text(640, 512, `🏆 ${gotAch.map(a => a.name).join(', ')}!`, body(17, '#ffd24a', 900)).setOrigin(0.5).setDepth(31));
     if (r.won && last && !this.save.endingSeen) btns.push({ label: 'THE ENDING ▶', act: () => this.showEnding(), accent: 0xffd24a });
     else if (r.won && !last) btns.push({ label: 'NEXT ▶', act: () => { this.clearOverlay(); this.mode = 'map'; this.select(r.chapter + 1); this.play(); }, accent: 0xff9a3c });
     btns.push({ label: r.won ? 'REPLAY' : 'RETRY', act: () => { this.clearOverlay(); this.mode = 'map'; this.sel = r.chapter; this.play(); }, accent: r.won ? undefined : 0xff9a3c });
@@ -440,12 +461,12 @@ export class StoryScene extends Phaser.Scene {
     this.clearOverlay();
     this.save.endingSeen = true;
     saveStory(this.save);
-    this.playCut(ENDING_CUT, () => this.endingDialogue());
+    this.playCut(this.camp.endingCut, () => this.endingDialogue());
   }
 
   private endingDialogue(): void {
     sfx.matchWin();
-    this.lines = ENDING;
+    this.lines = this.camp.ending;
     this.startDialogue([], () => {
       this.mode = 'ending';
       const g = this.add.graphics().setDepth(30);
@@ -454,7 +475,7 @@ export class StoryScene extends Phaser.Scene {
       if (hasArt('spoon')) { const sp = fitInside(this.add.image(640, 300, 'spoon'), 260, 330).setDepth(31); this.overlay.push(sp); this.tweens.add({ targets: sp, angle: { from: -6, to: 6 }, yoyo: true, repeat: -1, duration: 1400, ease: 'Sine.easeInOut' }); }
       const end = withShadow(this.add.text(640, 520, 'THE END', display(72, '#ffd24a', { strokeThickness: 10 })).setOrigin(0.5).setDepth(31), 6);
       popIn(this, end, 1.8, 700);
-      this.overlay.push(end, this.add.text(640, 580, `You collected ★ ${totalStars(this.save)}/${CHAPTERS.length * 3}. Go for all 3 stars, or brawl in Free Play!`, body(18, '#ffe9c7', 800)).setOrigin(0.5).setDepth(31));
+      this.overlay.push(end, this.add.text(640, 580, `You collected ★ ${totalStars(this.save)}/${this.camp.chapters.length * 3}. Go for all 3 stars, or brawl in Free Play!`, body(18, '#ffe9c7', 800)).setOrigin(0.5).setDepth(31));
       this.overlayButtons.push(new Button(this, 640, 650, { w: 220, h: 60, label: 'BACK TO MAP', size: 22, onClick: () => { this.clearOverlay(); this.mode = 'map'; } }, 33));
     });
   }
@@ -583,7 +604,7 @@ export class StoryScene extends Phaser.Scene {
         // move to the nearest card in that direction
         const here = cardPos(this.sel);
         let best = this.sel, bestD = Infinity;
-        CHAPTERS.forEach((_, i) => {
+        this.camp.chapters.forEach((_, i) => {
           const p = cardPos(i), vx = p.x - here.x, vy = p.y - here.y;
           if (dx && Math.sign(vx) !== dx) return;
           if (dy && Math.sign(vy) !== dy) return;

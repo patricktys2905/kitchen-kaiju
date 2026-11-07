@@ -56,6 +56,7 @@ Each section says **where to customise it**.
 - 49. Gemini hats
 - 50. Four more twists
 - 51. 12 more Gemini hats
+- 52. Second Helpings: a second Story campaign
 
 **Where to find things:** title screen cards (Story · Free Play · Online · Party Modes · Daily · Gauntlet), the top-right row (Settings · How to Play · Kaiju · Records), and Free Play keys (G mode · U power-ups · H hazards · X twist · C cup).
 
@@ -470,3 +471,28 @@ Each section says **where to customise it**.
 
 - The Gallery hat picker now has pages (**▶** button). Locked hats show as dark silhouettes, and the label says which achievement unlocks them.
 - **Customise:** the new hats are at the end of `HATS` in `src/hats.ts` (name and unlocking achievement); size and fit are in `HAT_FIT`. Art: `art-src/jobs-hats3.json`.
+
+## 52. Second Helpings: a second Story campaign
+
+A 6-chapter post-game story. It opens once **chapter 6 of The Grand Feast** is cleared: a **🍽 SECOND HELPINGS ▶** button appears top-right on the Story map, and **◀ THE GRAND FEAST** switches back.
+
+| # | Chapter | Table | Rivals | Extra |
+|---|---|---|---|---|
+| 1 | Smoothie Operators | Smoothie Bar | Sloba, Avocadrake | |
+| 2 | Say Cheese | Fondue Night | Tacowl, Chocomunch | |
+| 3 | Flipping Out | Pancake Stack | Hotchog, Bluebeary, Toastbat | twist: **Mini Kaiju** |
+| 4 | Cold Shoulder | Freezer Shelf | **Pengwhip (boss)**, Minturtle | |
+| 5 | Sugar High | Candy Shop | Bubblegumbo, Bloblin, Velvaroo | twist: **Snack Attack** |
+| 6 | Second Helpings | Chef's Nightmare | **Velvaroo (final boss)**, Hotchog, Pengwhip | |
+
+- Each chapter has its own Gemini still and Google Flow clip, punny captions, rival dialogue, stars, 🌶️ Spicy replays and its own opening and ending.
+- It has its **own save** (`kk-story2-v1`), so it never touches Grand Feast progress. Kaiju you own still come from The Grand Feast. The Rewards and Dessert buttons only show on The Grand Feast.
+- Balance (reference bot, 100 runs): 97 / 89 / 83 / 67 / 71 / 38% win.
+- New achievements and hats: **Room for More** (clear chapter 3) unlocks the **Ice Cream Cone** hat, and **Second Helpings** (finish it) unlocks the **Pancake Stack** hat. That makes 27 hats.
+- Story chapters can now carry a twist (`mutator` on a chapter). The Grand Feast doesn't use any.
+- Also fixed a latent crash when re-entering the Story map after a result card.
+- **Customise:**
+  - Chapters, dialogue, tips and captions: `src/story/seconds.ts`.
+  - Campaign list, titles, save keys and the unlock rule (`SECONDS_AFTER_CHAPTER`): `src/story/campaigns.ts`.
+  - Cutscene art and clip prompts: `scripts/make-s2-jobs.mjs`, which writes `art-src/jobs-s2.json` and the `s2-*` keys in `art-src/flow-cutscenes.json`.
+  - Balance check: `CAMPAIGN=seconds RUNS=100 npx vite-node scripts/story-balance.ts`.

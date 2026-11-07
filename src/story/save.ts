@@ -12,18 +12,21 @@ export interface StorySave {
   cuts: string[]; // cutscenes already watched (auto-play only the first time)
 }
 
-export function loadStory(): StorySave {
+/** key/count select a campaign (default: The Grand Feast). The save remembers them (hidden) for saveStory/recordResult. */
+export function loadStory(key = KEY, count = CHAPTERS.length): StorySave {
+  const tag = (o: StorySave): StorySave => { Object.defineProperty(o, '_key', { value: key }); Object.defineProperty(o, '_n', { value: count }); return o; };
   try {
-    const s = JSON.parse(localStorage.getItem(KEY) ?? 'null') as Partial<StorySave> | null;
+    const s = JSON.parse(localStorage.getItem(key) ?? 'null') as Partial<StorySave> | null;
     if (s && typeof s.unlocked === 'number') {
-      return { unlocked: Math.max(1, Math.min(CHAPTERS.length, s.unlocked)), stars: s.stars ?? [], pick: s.pick ?? 0, endingSeen: !!s.endingSeen, cuts: Array.isArray(s.cuts) ? s.cuts : [], spicy: Array.isArray(s.spicy) ? s.spicy : [] };
+      return tag({ unlocked: Math.max(1, Math.min(count, s.unlocked)), stars: s.stars ?? [], pick: s.pick ?? 0, endingSeen: !!s.endingSeen, cuts: Array.isArray(s.cuts) ? s.cuts : [], spicy: Array.isArray(s.spicy) ? s.spicy : [] });
     }
   } catch { /* fresh start */ }
-  return { unlocked: 1, stars: [], pick: 0, endingSeen: false, cuts: [], spicy: [] };
+  return tag({ unlocked: 1, stars: [], pick: 0, endingSeen: false, cuts: [], spicy: [] });
 }
 
 export function saveStory(s: StorySave): void {
-  try { localStorage.setItem(KEY, JSON.stringify(s)); } catch { /* storage full or blocked */ }
+  const key = (s as StorySave & { _key?: string })._key ?? KEY;
+  try { localStorage.setItem(key, JSON.stringify(s)); } catch { /* storage full or blocked */ }
 }
 
 /** Records a chapter result; returns true if this unlocked the next chapter. */
@@ -31,7 +34,8 @@ export function recordResult(s: StorySave, chapter: number, won: boolean, stars:
   if (!won) return false;
   s.stars[chapter] = Math.max(s.stars[chapter] ?? 0, stars);
   const before = s.unlocked;
-  s.unlocked = Math.max(s.unlocked, Math.min(CHAPTERS.length, chapter + 2));
+  const n = (s as StorySave & { _n?: number })._n ?? CHAPTERS.length;
+  s.unlocked = Math.max(s.unlocked, Math.min(n, chapter + 2));
   saveStory(s);
   return s.unlocked > before;
 }

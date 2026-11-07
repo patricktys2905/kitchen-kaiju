@@ -1,0 +1,73 @@
+[
+  {
+    "name": "s2-open",
+    "newChat": true,
+    "refs": [
+      "art-src/cut-refs/s2-open.png",
+      "art-src/cut-refs/bg-freezer.png"
+    ],
+    "prompt": "Generate an image. The first attached picture shows characters from my game Kitchen Kaiju. The second shows the table they are on. Keep this EXACT art style and these EXACT character designs: bold chunky cartoon, thick dark-brown outlines, flat bright colours with soft cel shading, cheeky expressions. The characters are tiny food monsters (\"kaiju\") from my party game. Every kaiju has exactly the body, limbs and face shown in the reference: no extra arms or legs, and NO nose (only the eyes and mouth as drawn). Draw a WIDE 16:9 LANDSCAPE cinematic cartoon scene, like a frame from a funny animated film: the open door of a big fridge at night glowing with cold blue light; on the front edge of a fridge shelf stand three kaiju side by side, facing the viewer with cheeky challenging grins: the cookies-and-cream PENGUIN, the red-velvet KANGAROO and the taco OWL; jars and leftovers behind them. The kaiju are tiny compared with the plates and cutlery around them, and each one appears exactly once. Warm cinematic lighting, depth of field, lots of food detail, a clear readable composition with space at the bottom. No text, no letters, no logos, no speech bubbles. Landscape 16:9."
+  },
+  {
+    "name": "s2-0",
+    "newChat": true,
+    "refs": [
+      "art-src/cut-refs/s2-0.png",
+      "art-src/cut-refs/bg-smoothie.png"
+    ],
+    "prompt": "Generate an image. The first attached picture shows characters from my game Kitchen Kaiju. The second shows the table they are on. Keep this EXACT art style and these EXACT character designs: bold chunky cartoon, thick dark-brown outlines, flat bright colours with soft cel shading, cheeky expressions. The characters are tiny food monsters (\"kaiju\") from my party game. Every kaiju has exactly the body, limbs and face shown in the reference: no extra arms or legs, and NO nose (only the eyes and mouth as drawn). Draw a WIDE 16:9 LANDSCAPE cinematic cartoon scene, like a frame from a funny animated film: a colourful smoothie bar counter with fruit, straws and a big blender; the bubble-tea SLOTH kaiju lies lazily asleep on the counter right next to the blender, while the AVOCADO DRAGON kaiju hovers above it grinning cheekily; both faces fully visible. The kaiju are tiny compared with the plates and cutlery around them, and each one appears exactly once. Warm cinematic lighting, depth of field, lots of food detail, a clear readable composition with space at the bottom. No text, no letters, no logos, no speech bubbles. Landscape 16:9."
+  },
+  {
+    "name": "s2-1",
+    "newChat": true,
+    "refs": [
+      "art-src/cut-refs/s2-1.png",
+      "art-src/cut-refs/bg-fondue.png"
+    ],
+    "prompt": "Generate an image. The first attached picture shows characters from my game Kitchen Kaiju. The second shows the table they are on. Keep this EXACT art style and these EXACT character designs: bold chunky cartoon, thick dark-brown outlines, flat bright colours with soft cel shading, cheeky expressions. The characters are tiny food monsters (\"kaiju\") from my party game. Every kaiju has exactly the body, limbs and face shown in the reference: no extra arms or legs, and NO nose (only the eyes and mouth as drawn). Draw a WIDE 16:9 LANDSCAPE cinematic cartoon scene, like a frame from a funny animated film: a cosy fondue night table with a bubbling pot of melted cheese, bread cubes on long forks and candles; the taco OWL kaiju perches on the rim of the fondue pot, and the CHOCOLATE golem kaiju stands beside the pot holding a long fondue fork with a bread cube; both faces fully visible. The kaiju are tiny compared with the plates and cutlery around them, and each one appears exactly once. Warm cinematic lighting, depth of field, lots of food detail, a clear readable composition with space at the bottom. No text, no letters, no logos, no speech bubbles. Landscape 16:9."
+  },
+  {
+    "name": "s2-2",
+    "newChat": true,
+    "refs": [
+      "art-src/cut-refs/s2-2.png",
+      "art-src/cut-refs/bg-pancake.png"
+    ],
+    "prompt": "Generate an image. The first attached picture shows characters from my game Kitchen Kaiju. The second shows the table they are on. Keep this EXACT art style and these EXACT character designs: bold chunky cartoon, thick dark-brown outlines, flat bright colours with soft cel shading, cheeky expressions. The characters are tiny food monsters (\"kaiju\") from my party game. Every kaiju has exactly the body, limbs and face shown in the reference: no extra arms or legs, and NO nose (only the eyes and mouth as drawn). Draw a WIDE 16:9 LANDSCAPE cinematic cartoon scene, like a frame from a funny animated film: a tall stack of fluffy pancakes dripping with syrup and butter on a breakfast table; three TINY kaiju stand on top of the pancake stack, small compared with the pancakes: the HOT-DOG HEDGEHOG, the blueberry-muffin BEAR and the TOAST BAT; a giant metal spatula rests at the side of the plate; all faces fully visible. The kaiju are tiny compared with the plates and cutlery around them, and each one appears exactly once. Warm cinematic lighting, depth of field, lots of food detail, a clear readable composition with space at the bottom. No text, no letters, no logos, no speech bubbles. Landscape 16:9."
+  },
+  {
+    "name": "s2-3",
+    "newChat": true,
+    "refs": [
+      "art-src/cut-refs/s2-3.png",
+      "art-src/cut-refs/bg-freezer.png"
+    ],
+    "prompt": "Generate an image. The first attached picture shows characters from my game Kitchen Kaiju. The second shows the table they are on. Keep this EXACT art style and these EXACT character designs: bold chunky cartoon, thick dark-brown outlines, flat bright colours with soft cel shading, cheeky expressions. The characters are tiny food monsters (\"kaiju\") from my party game. Every kaiju has exactly the body, limbs and face shown in the reference: no extra arms or legs, and NO nose (only the eyes and mouth as drawn). Draw a WIDE 16:9 LANDSCAPE cinematic cartoon scene, like a frame from a funny animated film: an icy freezer shelf with frosty walls, ice cubes and frozen peas; the cookies-and-cream PENGUIN kaiju wears a small gold crown and stands proudly on a block of ice like a king, the mint-choc-chip TURTLE kaiju stands beside it like a loyal guard; both faces fully visible. The kaiju are tiny compared with the plates and cutlery around them, and each one appears exactly once. Warm cinematic lighting, depth of field, lots of food detail, a clear readable composition with space at the bottom. No text, no letters, no logos, no speech bubbles. Landscape 16:9."
+  },
+  {
+    "name": "s2-4",
+    "newChat": true,
+    "refs": [
+      "art-src/cut-refs/s2-4.png",
+      "art-src/cut-refs/bg-candy.png"
+    ],
+    "prompt": "Generate an image. The first attached picture shows characters from my game Kitchen Kaiju. The second shows the table they are on. Keep this EXACT art style and these EXACT character designs: bold chunky cartoon, thick dark-brown outlines, flat bright colours with soft cel shading, cheeky expressions. The characters are tiny food monsters (\"kaiju\") from my party game. Every kaiju has exactly the body, limbs and face shown in the reference: no extra arms or legs, and NO nose (only the eyes and mouth as drawn). Draw a WIDE 16:9 LANDSCAPE cinematic cartoon scene, like a frame from a funny animated film: a candy shop counter piled with gumdrops, lollipops, jelly beans and sweets jars; the pink bubblegum ELEPHANT kaiju blows a pink bubblegum bubble, the lime-jelly BLOB kaiju wobbles happily on a gumdrop, and the red-velvet KANGAROO kaiju stands with its arms crossed, smirking; all faces fully visible. The kaiju are tiny compared with the plates and cutlery around them, and each one appears exactly once. Warm cinematic lighting, depth of field, lots of food detail, a clear readable composition with space at the bottom. No text, no letters, no logos, no speech bubbles. Landscape 16:9."
+  },
+  {
+    "name": "s2-5",
+    "newChat": true,
+    "refs": [
+      "art-src/cut-refs/s2-5.png",
+      "art-src/cut-refs/bg-nightmare.png"
+    ],
+    "prompt": "Generate an image. The first attached picture shows characters from my game Kitchen Kaiju. The second shows the table they are on. Keep this EXACT art style and these EXACT character designs: bold chunky cartoon, thick dark-brown outlines, flat bright colours with soft cel shading, cheeky expressions. The characters are tiny food monsters (\"kaiju\") from my party game. Every kaiju has exactly the body, limbs and face shown in the reference: no extra arms or legs, and NO nose (only the eyes and mouth as drawn). Draw a WIDE 16:9 LANDSCAPE cinematic cartoon scene, like a frame from a funny animated film: a busy steamy restaurant back kitchen with gas burners, pans and toasters; the red-velvet KANGAROO kaiju is the boss: bigger than the others, wearing a gold crown, its belly pouch stuffed with shiny spoons; the hot-dog HEDGEHOG and the cookies-and-cream PENGUIN stand either side of it like henchmen; all faces fully visible. The kaiju are tiny compared with the plates and cutlery around them, and each one appears exactly once. Warm cinematic lighting, depth of field, lots of food detail, a clear readable composition with space at the bottom. No text, no letters, no logos, no speech bubbles. Landscape 16:9."
+  },
+  {
+    "name": "s2-end",
+    "newChat": true,
+    "refs": [
+      "art-src/cut-refs/s2-end.png"
+    ],
+    "prompt": "Generate an image. The first attached picture shows characters from my game Kitchen Kaiju. Keep this EXACT art style and these EXACT character designs: bold chunky cartoon, thick dark-brown outlines, flat bright colours with soft cel shading, cheeky expressions. The characters are tiny food monsters (\"kaiju\") from my party game. Every kaiju has exactly the body, limbs and face shown in the reference: no extra arms or legs, and NO nose (only the eyes and mouth as drawn). Draw a WIDE 16:9 LANDSCAPE cinematic cartoon scene, like a frame from a funny animated film: a grand dining hall at night with confetti in the air; TWO glowing golden spoons stand side by side on a silver cake stand like trophies; the PENGUIN, the KANGAROO and the taco OWL kaiju stand in a row in front, cheering and clapping; all faces fully visible. The kaiju are tiny compared with the plates and cutlery around them, and each one appears exactly once. Warm cinematic lighting, depth of field, lots of food detail, a clear readable composition with space at the bottom. No text, no letters, no logos, no speech bubbles. Landscape 16:9."
+  }
+]

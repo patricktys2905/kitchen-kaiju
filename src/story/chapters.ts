@@ -5,6 +5,7 @@
 //          7 Ice Cream Parlour 8 Picnic Blanket 9 Bakery Bench 10 Banquet Lazy Susan 11 Breakfast Rush
 import type { Difficulty } from '../sim/bot';
 import { SPECIES } from '../sim/constants';
+import type { Mutator } from '../sim/mutators';
 
 export interface Rival {
   species: number;
@@ -27,6 +28,7 @@ export interface Chapter {
   tip: string;
   win: Line;
   boss?: boolean;
+  mutator?: Mutator; // a twist for this chapter (Second Helpings)
 }
 
 export const CHAPTERS: Chapter[] = [

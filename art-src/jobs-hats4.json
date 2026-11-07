@@ -1,0 +1,14 @@
+[
+  {
+    "name": "hat-icecream",
+    "newChat": true,
+    "refs": [
+      "art-src/ref-hats.png"
+    ],
+    "prompt": "Generate an image. The attached picture shows sprites from my party game Kitchen Kaiju. Keep EXACTLY this art style: bold chunky cartoon, thick dark-brown outlines, flat bright colours with soft cel shading and one crisp white highlight. Draw ONE HAT on its own for a little monster to wear, seen from the FRONT (slightly from above), upright, centred, filling about 80% of the frame, the bottom edge of the hat flat and level where it sits on a head, on a solid flat magenta (#FF00FF) background. NO pink glow, no head, no character, no text, no shadow. Square 1:1. Hat: an upside-down WAFFLE ICE CREAM CONE worn as a pointy hat, with a scoop of strawberry ice cream at the bottom like a brim, dripping a little, with rainbow sprinkles and a cherry."
+  },
+  {
+    "name": "hat-pancake",
+    "prompt": "Next HAT in exactly the same art style. Draw ONE HAT on its own for a little monster to wear, seen from the FRONT (slightly from above), upright, centred, filling about 80% of the frame, the bottom edge of the hat flat and level where it sits on a head, on a solid flat magenta (#FF00FF) background. NO pink glow, no head, no character, no text, no shadow. Square 1:1. Hat: a short STACK OF THREE fluffy golden PANCAKES worn as a hat, with a pat of butter on top and maple syrup dripping down the sides."
+  }
+]

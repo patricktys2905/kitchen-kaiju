@@ -60,7 +60,7 @@ export interface GameData {
   attract?: boolean; // title-screen demo: any input goes back to the title
   dessert?: { course: number; bosses: number[] }; // 🍰 Dessert Course (index into COURSES)
   cup?: { game: number; points: number[] }; // 🏆 Party Cup: which game of the cup, points so far
-  story?: { chapter: number; bosses: number[]; spicy?: boolean }; // story chapter: seat 0 is you; bosses start rounds with a full belly
+  story?: { chapter: number; bosses: number[]; spicy?: boolean; campaign?: 'main' | 'seconds'; mutator?: Mutator }; // story chapter: seat 0 is you; bosses start rounds with a full belly
   net?: { role: 'host'; host: NetHost } | { role: 'guest'; guest: NetGuest; seat: number };
   seed?: number;
 }
@@ -159,7 +159,7 @@ export class GameScene extends Phaser.Scene {
     this.mode = data.mode ?? 'classic';
     this.powerups = data.story ? false : data.powerups ?? POWERUPS.enabled;
     this.hazards = data.story ? true : data.hazards ?? true;
-    this.world = new World({ players: this.species.map(s => ({ name: SPECIES[s].name })), seed, layouts: this.tables ?? undefined, target: this.rounds, mode: this.mode, powerups: this.powerups, hazards: this.hazards, mutator: data.story || data.gauntlet || data.dessert || data.daily ? 'none' : data.mutator });
+    this.world = new World({ players: this.species.map(s => ({ name: SPECIES[s].name })), seed, layouts: this.tables ?? undefined, target: this.rounds, mode: this.mode, powerups: this.powerups, hazards: this.hazards, mutator: data.story ? data.story.mutator ?? 'none' : data.gauntlet || data.dessert || data.daily ? 'none' : data.mutator });
     this.story = data.story;
     this.practice = null;
     this.callout = { first: false, recent: data.slots.map(() => []), streak: data.slots.map(() => 0), nemesis: data.slots.map(() => null) };
@@ -307,7 +307,7 @@ export class GameScene extends Phaser.Scene {
     if (this.pauseUi && this.pauseUi.nav.update(dt) === 'back') this.setPaused(false);
     if (this.story && this.world.phase === 'matchEnd' && (this.world.phaseT > 2.8 || consumeTap('Digit1') || consumeTap('Space') || consumeTap('Enter'))) {
       const me = this.world.players[0], won = this.world.winner === 0;
-      this.scene.start('story', { result: { chapter: this.story.chapter, won, stars: won ? starsFor(this.world.round - me.score) : 0, spicy: !!this.story.spicy } });
+      this.scene.start('story', { result: { chapter: this.story.chapter, won, stars: won ? starsFor(this.world.round - me.score) : 0, spicy: !!this.story.spicy, campaign: this.story.campaign } });
       return;
     }
     const cup = this.initData.cup;
@@ -404,7 +404,7 @@ export class GameScene extends Phaser.Scene {
   }
 
   private leave(): void {
-    if (this.story) { this.scene.start('story'); return; }
+    if (this.story) { this.scene.start('story', { campaign: this.story.campaign }); return; }
     if (this.initData.gauntlet) { this.scene.start('title'); return; }
     if (this.initData.dessert) { this.scene.start('story'); return; }
     if (this.net?.role === 'host') this.net.host.close();

@@ -75,12 +75,19 @@ export const ACHIEVEMENTS: Achievement[] = [
   { id: 'blend', icon: '🥤', name: 'Smoothie Operator', desc: 'Shove a rival into the blender', test: s => (s.blends ?? 0) >= 1 },
   { id: 'workshop', icon: '🛠', name: 'Table Maker', desc: 'Save a table in the Workshop', test: () => { try { return JSON.parse(localStorage.getItem('kk-custom-tables') ?? '[]').length > 0; } catch { return false; } } },
   { id: 'twist', icon: '🌀', name: 'Plot Twist', desc: 'Win a match with a twist on', test: s => (s.twistWins ?? 0) >= 1 },
+  { id: 'seconds-3', icon: '🍨', name: 'Room for More', desc: 'Clear chapter 3 of Second Helpings', test: () => safeSeconds() >= 3 },
+  { id: 'seconds-6', icon: '🥞', name: 'Second Helpings', desc: 'Finish the Second Helpings story', test: () => safeSeconds() >= 6 },
   { id: 'matches-25', icon: '🍲', name: 'Dinner Party Animal', desc: 'Finish 25 matches', test: s => s.matches >= 25, progress: s => [s.matches, 25] },
 ];
 
 /** How many chapters are cleared on Spicy (0 when storage is unavailable, e.g. tests). */
 function safeSpicy(): number {
   try { return loadStory().spicy.filter(x => x > 0).length; } catch { return 0; }
+}
+
+/** Second Helpings chapters cleared (0 when storage is unavailable). */
+function safeSeconds(): number {
+  try { return loadStory('kk-story2-v1', 6).stars.filter(x => x > 0).length; } catch { return 0; }
 }
 
 /** Marks any newly earned achievements; returns them. */
