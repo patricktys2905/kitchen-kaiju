@@ -20,6 +20,7 @@ import { needText, owned, UNLOCKS } from '../story/unlocks';
 import { setTouchMode } from '../touch';
 import { currentHat, hatUnlocked, HATS, setHat } from '../hats';
 import { GameScene } from './GameScene';
+import { exportSave, importSave } from '../backup';
 import { ACTIONS, bind, keyFor, keyHint, keyLabel, RESERVED, resetKeybinds, type Action } from '../keybinds';
 
 /** Shared backdrop, title, BACK button and keyboard/pad focus handling. */
@@ -75,8 +76,46 @@ export class SettingsScene extends PanelScene {
       b.setText(this.label(row.key, row.kind, row.label));
       this.buttons.push(b);
     });
-    this.buttons.push(new Button(this, 640, 140 + Math.ceil(SETTINGS_ROWS.length / 2) * 92 - 4, { w: 360, h: 52, label: '⌨ KEYBOARD CONTROLS', size: 20, accent: 0x4fd1ff, onClick: () => { sfx.go(); this.scene.start('controls'); } }, 6));
+    this.buttons.push(new Button(this, 440, 140 + Math.ceil(SETTINGS_ROWS.length / 2) * 92 - 4, { w: 360, h: 52, label: '⌨ KEYBOARD CONTROLS', size: 20, accent: 0x4fd1ff, onClick: () => { sfx.go(); this.scene.start('controls'); } }, 6));
+    this.buttons.push(new Button(this, 840, 140 + Math.ceil(SETTINGS_ROWS.length / 2) * 92 - 4, { w: 360, h: 52, label: '💾 BACK UP / MOVE SAVE', size: 20, accent: 0x8dff6a, onClick: () => this.backupPanel() }, 6));
     this.add.text(640, 706, 'Saved on this device · ENTER / tap to change', body(15, '#cdb9a3', 800)).setOrigin(0.5).setDepth(5);
+  }
+
+  /** A small HTML panel: copy your save code, or paste one from another device. */
+  private backupPanel(): void {
+    sfx.pickup();
+    if (document.getElementById('kk-backup')) return;
+    const code = exportSave();
+    const box = document.createElement('div');
+    box.id = 'kk-backup';
+    box.style.cssText = 'position:fixed;inset:0;z-index:40;display:flex;align-items:center;justify-content:center;background:#0d0805cc;font:800 16px Nunito,sans-serif;color:#ffe9c7';
+    box.innerHTML = `<div style="background:#2a1408;border:4px solid #8dff6a;border-radius:20px;padding:20px 24px;width:min(640px,92vw)">
+      <div style="font:28px 'Luckiest Guy',sans-serif;color:#8dff6a;margin-bottom:6px">💾 Back up / move your save</div>
+      <div>Your progress (story, stats, unlocks, hats, settings) lives on this device. Copy this code to keep it safe, or paste it on another device.</div>
+      <textarea id="kk-bk-code" readonly style="width:100%;height:90px;margin:10px 0;border-radius:10px;font:12px monospace">${code}</textarea>
+      <div style="display:flex;gap:8px;flex-wrap:wrap"><button id="kk-bk-copy">Copy my code</button></div>
+      <div style="margin-top:14px">Paste a code from another device:</div>
+      <textarea id="kk-bk-in" placeholder="KK1-…" style="width:100%;height:70px;margin:8px 0;border-radius:10px;font:12px monospace"></textarea>
+      <div style="display:flex;gap:8px;flex-wrap:wrap"><button id="kk-bk-load">Load this save</button><button id="kk-bk-close">Close</button></div>
+      <div id="kk-bk-msg" style="margin-top:8px;color:#ffd24a"></div></div>`;
+    document.body.appendChild(box);
+    box.querySelectorAll('button').forEach(b => { b.style.cssText = "font:18px 'Luckiest Guy',sans-serif;padding:8px 16px;border-radius:12px;border:3px solid #ffcf8a;background:#4a2812;color:#ffe9c7;cursor:pointer"; });
+    box.querySelectorAll('textarea').forEach(t => t.addEventListener('keydown', e => e.stopPropagation()));
+    const msg = box.querySelector('#kk-bk-msg') as HTMLElement;
+    const close = () => box.remove();
+    this.events.once('shutdown', close);
+    (box.querySelector('#kk-bk-close') as HTMLElement).onclick = close;
+    (box.querySelector('#kk-bk-copy') as HTMLElement).onclick = async () => {
+      const ta = box.querySelector('#kk-bk-code') as HTMLTextAreaElement;
+      ta.select();
+      try { await navigator.clipboard.writeText(code); msg.textContent = 'Copied! Keep it somewhere safe (a note or a message to yourself).'; } catch { msg.textContent = 'Select the code above and copy it.'; }
+    };
+    (box.querySelector('#kk-bk-load') as HTMLElement).onclick = () => {
+      const n = importSave((box.querySelector('#kk-bk-in') as HTMLTextAreaElement).value);
+      if (!n) { msg.textContent = 'That is not a Kitchen Kaiju save code.'; return; }
+      msg.textContent = `Loaded ${n} saved items. Restarting…`;
+      setTimeout(() => location.reload(), 900);
+    };
   }
 
   private label(key: keyof Settings, kind: 'level' | 'toggle', name: string): string {

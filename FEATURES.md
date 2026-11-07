@@ -46,6 +46,7 @@ Each section says **where to customise it**.
 - 39. Big touch buttons
 - 40. Story progress line
 - 41. New table: Pancake Stack (Spatula hazard)
+- 42. Back up / move your save
 
 **Where to find things:** title screen cards (Story · Free Play · Online · Party Modes · Daily · Gauntlet), the top-right row (Settings · How to Play · Kaiju · Records), and Free Play keys (G mode · U power-ups · H hazards · X twist · C cup).
 
@@ -382,3 +383,8 @@ Each section says **where to customise it**.
 - **The Spatula:** a red square appears around a kaiju and flashes faster for 1.5 s; then a giant spatula SLAMS down and FLIPS anyone inside (knockout) and scatters the crumbs. Shove someone in to claim it. It comes faster in sudden death.
 - Bots step out of the square by its nearest side. Works online. It has its own tip.
 - **Customise:** `RULES.spatula*` in `src/sim/constants.ts` (timings, square size); the table is the last entry in `src/sim/layouts.ts`. Art: `art-src/jobs-pancake.json`.
+
+## 42. Back up / move your save
+
+- **Settings → 💾 BACK UP / MOVE SAVE:** shows a single code holding all your progress (story, stars, unlocks, stats, achievements, hats, settings, keys, Daily, Gauntlet, Dessert). Copy it somewhere safe; on another device or browser, paste it and press **Load this save**.
+- **Customise:** `src/backup.ts` (it includes every saved item whose name starts with `kk-`).

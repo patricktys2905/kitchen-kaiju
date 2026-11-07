@@ -936,3 +936,27 @@ describe('pancake stack spatula', () => {
     expect(w.players[1].alive).toBe(true);
   });
 });
+
+describe('save backup', () => {
+  it('exports every kk- key into one code and imports it back', async () => {
+    const store: Record<string, string> = {};
+    const ls = { getItem: (k: string) => store[k] ?? null, setItem: (k: string, v: string) => { store[k] = v; }, removeItem: (k: string) => { delete store[k]; }, key: (i: number) => Object.keys(store)[i] ?? null, get length() { return Object.keys(store).length; } };
+    const G = globalThis as Record<string, unknown>;
+    G.localStorage = new Proxy(ls, { ownKeys: () => Object.keys(store), getOwnPropertyDescriptor: (_t, k) => (k in store ? { enumerable: true, configurable: true, value: store[k as string] } : Object.getOwnPropertyDescriptor(ls, k)) });
+    G.btoa ??= (s: string) => Buffer.from(s, 'binary').toString('base64');
+    G.atob ??= (s: string) => Buffer.from(s, 'base64').toString('binary');
+    const { exportSave, importSave } = await import('../src/backup');
+    store['kk-story-v1'] = JSON.stringify({ unlocked: 5, stars: [3, 3, 2, 1] });
+    store['kk-hat'] = 'chef';
+    store['other-app'] = 'x';
+    const code = exportSave();
+    expect(code.startsWith('KK1-')).toBe(true);
+    for (const k of Object.keys(store)) delete store[k];
+    expect(importSave(code)).toBe(2);
+    expect(store['kk-hat']).toBe('chef');
+    expect(JSON.parse(store['kk-story-v1']).unlocked).toBe(5);
+    expect(store['other-app']).toBeUndefined();
+    expect(importSave('nonsense')).toBe(0);
+    delete G.localStorage;
+  });
+});
