@@ -1,0 +1,8 @@
+[
+  {
+    "name": "cut-2-edit",
+    "newChat": true,
+    "refs": ["art-src/raw/cut-2-orig.png"],
+    "prompt": "Generate an image. Edit the attached picture: on the fridge door shelf at the bottom LEFT there is a brown cardboard takeaway box with a cute face (closed eyes and a smiling mouth with a fang). Remove that face so it is a plain brown cardboard takeaway box with no eyes and no mouth. Also make sure the juice bottle next to it has no face. Keep EVERYTHING else exactly the same: same characters, same composition, same colours, same style, same framing. Wide 16:9 landscape."
+  }
+]

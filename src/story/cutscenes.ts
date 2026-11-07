@@ -31,7 +31,7 @@ export const ENDING_CUT: Cutscene = {
 export const CHAPTER_CUTS: Cutscene[] = [
   { key: 'cut-0', heading: 'CHAPTER 1 · THE FIRST COURSE', caption: 'Crabbage is feeling a little… crabby.' },
   { key: 'cut-1', heading: 'CHAPTER 2 · DINNER FOR FOUR', caption: 'Two’s company. Four’s a food fight.' },
-  { key: 'cut-2', rev: 2, heading: 'CHAPTER 3 · LEFTOVERS', caption: 'Nobody puts leftovers in a corner.' },
+  { key: 'cut-2', rev: 3, heading: 'CHAPTER 3 · LEFTOVERS', caption: 'Nobody puts leftovers in a corner.' },
   { key: 'cut-3', heading: 'CHAPTER 4 · BOSS OF THE BELT', caption: 'Norigon runs this joint. Better roll with it.' },
   { key: 'cut-4', heading: 'CHAPTER 5 · PARTY CRASHERS', caption: 'Not invited. Came anyway. Ate the cake. Typical.' },
   { key: 'cut-5', heading: 'CHAPTER 6 · ON THE CHOPPING BLOCK', caption: 'Things are about to get… dicey.' },
