@@ -164,7 +164,7 @@ export const ENDING: Line[] = [
 ];
 
 /** The rivals actually used: if the player picked one of them, swap in a kaiju nobody is using. */
-export function chapterRivals(ch: Chapter, playerSpecies: number): Rival[] {
+export function chapterRivals(ch: Pick<Chapter, 'rivals'>, playerSpecies: number): Rival[] {
   const used = new Set([playerSpecies, ...ch.rivals.map(r => r.species)]);
   return ch.rivals.map(r => {
     if (r.species !== playerSpecies) return r;

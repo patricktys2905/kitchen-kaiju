@@ -12,6 +12,8 @@ import { CHAPTERS, chapterRivals, ENDING, SPICY_BUMP, type Line } from '../story
 import { loadStory, recordResult, recordSpicy, saveStory, totalStars, type StorySave } from '../story/save';
 import { setTouchMode } from '../touch';
 import { playMusic } from '../music';
+import { COURSES, dessertBest } from '../story/dessert';
+import { GameScene } from './GameScene';
 import { CHAPTER_CUTS, ENDING_CUT, OPENING, seenId, type Cutscene } from '../story/cutscenes';
 import { isEarned, needText, newlyEarned, owned, unlockName, UNLOCKS } from '../story/unlocks';
 
@@ -119,6 +121,15 @@ export class StoryScene extends Phaser.Scene {
     this.drawPick();
 
     this.buttons.push(new Button(this, 640, 50, { w: 200, h: 44, label: '🎬 OPENING', size: 18, accent: 0xffd24a, onClick: () => { if (this.mode === 'map') { sfx.pickup(); this.playCut(OPENING, () => {}); } } }, 6));
+    // 🍰 Dessert Course: post-game, after the ending
+    if (this.save.endingSeen) {
+      const done = dessertBest(), next = done >= COURSES.length ? 0 : done;
+      this.buttons.push(new Button(this, 905, 50, { w: 250, h: 44, label: `🍰 DESSERT ${done}/${COURSES.length}`, size: 17, accent: 0xff7ad9, onClick: () => {
+        if (this.mode !== 'map') return;
+        sfx.go();
+        this.scene.start('game', GameScene.dessertData(next, this.save.pick));
+      } }, 6));
+    }
     this.spicyBtn = new Button(this, 1070, 518, { w: 240, h: 36, label: '', size: 15, accent: 0xff5a1a, onClick: () => this.toggleSpicy() }, 6);
     this.buttons.push(this.spicyBtn);
     this.drawPanel(); // fills in the SPICY button label

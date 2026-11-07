@@ -16,7 +16,8 @@ import { angleDiff } from '../sim/math';
 import { MODE_RULES, modeDef, type GameMode } from '../sim/modes';
 import { POWER_DEFS, POWERUPS } from '../sim/powerups';
 import { NO_INPUT, World, type GameEvent, type PlayerInput } from '../sim/world';
-import { starsFor } from '../story/chapters';
+import { chapterRivals, starsFor } from '../story/chapters';
+import { COURSES, saveDessert } from '../story/dessert';
 import { GAUNTLET, gauntletBest, gauntletTables, saveGauntletBest, waveSetup } from '../gauntlet';
 import { owned } from '../story/unlocks';
 import { currentHat } from '../hats';
@@ -49,6 +50,7 @@ export interface GameData {
   gauntlet?: { wave: number; bosses: number[] }; // Gauntlet: seat 0 is you, one round per wave
   daily?: { date: string }; // Daily Challenge: seat 0 is you
   attract?: boolean; // title-screen demo: any input goes back to the title
+  dessert?: { course: number; bosses: number[] }; // 🍰 Dessert Course (index into COURSES)
   story?: { chapter: number; bosses: number[]; spicy?: boolean }; // story chapter: seat 0 is you; bosses start rounds with a full belly
   net?: { role: 'host'; host: NetHost } | { role: 'guest'; guest: NetGuest; seat: number };
   seed?: number;
@@ -225,7 +227,7 @@ export class GameScene extends Phaser.Scene {
 
   // ---------------------------------------------------------------- pause menu
   private bossSeats(): number[] {
-    return this.story?.bosses ?? this.initData?.gauntlet?.bosses ?? [];
+    return this.story?.bosses ?? this.initData?.gauntlet?.bosses ?? this.initData?.dessert?.bosses ?? [];
   }
 
   /** Builds the GameData for a Gauntlet wave (you keep your kaiju; rivals and table are random). */
@@ -292,6 +294,13 @@ export class GameScene extends Phaser.Scene {
     if (this.story && this.world.phase === 'matchEnd' && (this.world.phaseT > 2.8 || consumeTap('Digit1') || consumeTap('Space') || consumeTap('Enter'))) {
       const me = this.world.players[0], won = this.world.winner === 0;
       this.scene.start('story', { result: { chapter: this.story.chapter, won, stars: won ? starsFor(this.world.round - me.score) : 0, spicy: !!this.story.spicy } });
+      return;
+    }
+    const ds = this.initData.dessert;
+    if (ds && this.world.phase === 'matchEnd' && (this.world.phaseT > 3.5 || consumeTap('Digit1') || consumeTap('Space') || consumeTap('Enter'))) {
+      const won = this.world.winner === 0;
+      if (won && ds.course + 1 < COURSES.length) this.scene.restart(GameScene.dessertData(ds.course + 1, this.species[0]));
+      else this.scene.start('story');
       return;
     }
     const gw = this.initData.gauntlet;
@@ -366,6 +375,7 @@ export class GameScene extends Phaser.Scene {
   private leave(): void {
     if (this.story) { this.scene.start('story'); return; }
     if (this.initData.gauntlet) { this.scene.start('title'); return; }
+    if (this.initData.dessert) { this.scene.start('story'); return; }
     if (this.net?.role === 'host') this.net.host.close();
     if (this.net?.role === 'guest') this.net.guest.close();
     if (this.net) { this.scene.start('title'); return; }
@@ -687,6 +697,16 @@ export class GameScene extends Phaser.Scene {
     });
   }
 
+  /** Static helper: GameData for a 🍰 Dessert Course fight (you play your Story pick). */
+  static dessertData(course: number, pick: number): GameData {
+    const c = COURSES[course], rivals = chapterRivals(c, pick);
+    return {
+      slots: [{ kind: 'local', index: 0 }, ...rivals.map((): Slot => ({ kind: 'bot', index: 0 }))], difficulty: 'normal',
+      species: [pick, ...rivals.map(r => r.species)], tables: [c.table], rounds: c.rounds, botLevels: [null, ...rivals.map(r => r.level)],
+      powerups: false, dessert: { course, bosses: rivals.map((r, k) => (r.boss ? k + 1 : -1)).filter(k => k > 0) },
+    };
+  }
+
   /** Static helper: GameData for today's Daily Challenge. */
   static dailyData(): GameData {
     const d = dailySetup();
@@ -733,6 +753,8 @@ export class GameScene extends Phaser.Scene {
     if (e.type === 'ko') { T.deaths[e.id]++; if (e.cause === 'fall' || e.cause === 'wind') T.falls[e.id]++; }
     if (e.type === 'matchEnd') this.awardsText.setText(this.awards());
     if (e.type === 'matchEnd' && this.initData.daily) recordDaily(this.world.players[0].score, this.humanWon(e.winner), this.initData.daily.date);
+    if (e.type === 'matchEnd' && this.initData.dessert && e.winner === 0) saveDessert(this.initData.dessert.course + 1);
+    if (e.type === 'roundStart' && this.initData.dessert && e.round === 1) { const q = COURSES[this.initData.dessert.course].quip; this.time.delayedCall(200, () => this.popup(VIEW.w / 2, 150, q, '#ffd9a0', 18)); }
     if (e.type === 'matchEnd' && this.initData.gauntlet) {
       const reached = this.initData.gauntlet.wave - (e.winner === 0 ? 0 : 1);
       if (saveGauntletBest(reached) && e.winner !== 0 && reached > 0) this.time.delayedCall(600, () => { sfx.matchWin(); this.popup(VIEW.w / 2, 140, '🏅 NEW BEST!', '#ffd24a', 30); });
@@ -1013,6 +1035,7 @@ export class GameScene extends Phaser.Scene {
       const n = Math.ceil((1.6 - w.phaseT) / (1.6 / 3));
       main = String(Math.max(1, n));
       sub = `${w.mode !== 'classic' ? modeDef(w.mode).name + ' · ' : ''}Round ${w.round} · ${w.layout.name}`;
+      if (this.initData.dessert) { const c = COURSES[this.initData.dessert.course]; sub = `🍰 DESSERT COURSE ${this.initData.dessert.course + 1}/${COURSES.length} · ${c.title.toUpperCase()} · ${w.layout.name}`; }
       if (this.initData.gauntlet) sub = `GAUNTLET · WAVE ${this.initData.gauntlet.wave} · ${w.players.length - 1} rival${w.players.length > 2 ? 's' : ''}${this.bossSeats().length ? ' + 👑 BOSS' : ''} · ${w.layout.name}`;
     } else if (w.phase === 'play' && this.bannerT > 0) {
       main = 'DIG IN!';
@@ -1024,6 +1047,10 @@ export class GameScene extends Phaser.Scene {
       // scores: at most 3 kaiju per line so 6 players still fit on screen
       const scores = w.players.map(p => (w.opts.target > 5 ? `${p.name} ★ ${p.score}/${w.opts.target}` : `${p.name} ${'★'.repeat(p.score)}${'☆'.repeat(w.opts.target - p.score)}`));
       sub = chunk(scores, 3).map(r => r.join('      ')).join('\n');
+    } else if (w.phase === 'matchEnd' && this.initData.dessert) {
+      const n = this.initData.dessert.course, last = n === COURSES.length - 1;
+      if (w.winner === 0) { main = last ? 'CLEAN PLATE!' : `COURSE ${n + 1} CLEARED!`; color = '#ffd24a'; sub = last ? 'You finished the whole Dessert Course! 🍰' : `Next: ${COURSES[n + 1].title}`; }
+      else { main = 'TOO MUCH DESSERT'; color = '#ff8a7a'; sub = `Beaten on course ${n + 1}. Your progress is saved: carry on from the Story map.`; }
     } else if (w.phase === 'matchEnd' && this.initData.gauntlet) {
       const wave = this.initData.gauntlet.wave;
       if (w.winner === 0) { main = `WAVE ${wave} CLEARED!`; color = '#8dff6a'; sub = `Next: wave ${wave + 1}`; }

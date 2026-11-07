@@ -816,3 +816,19 @@ describe('keyboard remapping', () => {
     delete (globalThis as { localStorage?: unknown }).localStorage;
   });
 });
+
+describe('dessert course', () => {
+  it('every course uses a real table and real kaiju, ending on a boss', async () => {
+    const { COURSES } = await import('../src/story/dessert');
+    const { LAYOUTS } = await import('../src/sim/layouts');
+    const { SPECIES, MAX_PLAYERS } = await import('../src/sim/constants');
+    expect(COURSES.length).toBe(4);
+    for (const c of COURSES) {
+      expect(LAYOUTS[c.table], c.title).toBeTruthy();
+      expect(c.rivals.length + 1).toBeLessThanOrEqual(MAX_PLAYERS);
+      for (const r of c.rivals) expect(SPECIES[r.species], c.title).toBeTruthy();
+      expect(new Set(c.rivals.map(r => r.species)).size).toBe(c.rivals.length);
+    }
+    expect(COURSES[COURSES.length - 1].rivals.some(r => r.boss)).toBe(true);
+  });
+});

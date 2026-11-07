@@ -97,6 +97,16 @@ export const HATS: Hat[] = [
       g.fillStyle(0x2f8a2f, 1); g.fillRect(x + s * 0.5, y - s * 0.4, s * 0.22, s * 0.12); g.fillRect(x + s * 0.66, y - s * 0.55, s * 0.08, s * 0.2);
     },
   },
+  {
+    id: 'crown', name: 'Dessert Crown', unlock: 'dessert', draw: (g, x, y, s, t) => {
+      g.fillStyle(0xffd24a, 1);
+      g.fillRect(x - s * 0.5, y - s * 0.3, s, s * 0.3);
+      for (const dx of [-0.5, -0.17, 0.17, 0.5]) g.fillTriangle(x + (dx - 0.17) * s, y - s * 0.3, x + (dx + 0.17) * s, y - s * 0.3, x + dx * s, y - s * 0.75);
+      g.fillStyle(0xff7ad9, 1); g.fillCircle(x, y - s * 0.16, s * 0.1);
+      g.fillStyle(0xffffff, 0.5 + 0.5 * Math.sin(t * 4)); g.fillCircle(x - s * 0.3, y - s * 0.2, s * 0.05);
+      g.lineStyle(2, 0x8a6a10, 1); g.strokeRect(x - s * 0.5, y - s * 0.3, s, s * 0.3);
+    },
+  },
 ];
 
 const KEY = 'kk-hat';

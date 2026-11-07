@@ -65,6 +65,7 @@ export const ACHIEVEMENTS: Achievement[] = [
   { id: 'daily', icon: '📅', name: 'Daily Special', desc: 'Win a Daily Challenge', test: () => { try { return JSON.parse(localStorage.getItem('kk-daily-v1') ?? '{}').won === true || !!JSON.parse(localStorage.getItem('kk-daily-v1') ?? '{}').lastWin; } catch { return false; } } },
   { id: 'spicy-1', icon: '🌶️', name: 'Feeling Spicy', desc: 'Clear a Story chapter on Spicy', test: () => safeSpicy() >= 1 },
   { id: 'spicy-12', icon: '🔥', name: 'Ghost Pepper', desc: 'Clear all 12 Story chapters on Spicy', test: () => safeSpicy() >= 12 },
+  { id: 'dessert', icon: '🍰', name: 'Clean Plate', desc: 'Finish the whole Dessert Course', test: () => { try { return Number(localStorage.getItem('kk-dessert-v1') ?? 0) >= 4; } catch { return false; } } },
   { id: 'matches-25', icon: '🍲', name: 'Dinner Party Animal', desc: 'Finish 25 matches', test: s => s.matches >= 25 },
 ];
 

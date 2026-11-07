@@ -222,3 +222,16 @@ Each section says **where to customise it**.
 
 - After **40 s idle** on the title screen, a 4-bot demo match plays on a random owned table with "DEMO · PRESS ANY KEY OR TAP TO PLAY". Any key, tap or gamepad button goes back to the title, as does the end of the demo match. Demo matches don't count towards stats.
 - **Customise:** `ATTRACT_AFTER` in `src/scenes/TitleScene.ts` (seconds; 0 = never).
+
+## 25. 🍰 Dessert Course (post-game)
+
+- **Where:** Story map → **🍰 DESSERT x/4** (top). It appears once you've seen the Story ending.
+- Four tougher fights back to back, playing as your Story pick, each with a rival quip at the start:
+  1. **Sugar Crash** (Candy Shop)
+  2. **Brain Freeze** (Freezer Shelf)
+  3. **Blended** (Smoothie Bar)
+  4. **The Chef's Nightmare**: Dumplord boss plus 3 rivals.
+- Win and you go straight to the next course. Lose and progress is saved; the button carries on from your next uncleared course.
+- Measured with `npx vite-node scripts/dessert-balance.ts`: the reference bot wins 73% → 57% → 37% → 27%.
+- Finishing all four earns 🍰 **Clean Plate** and the **Dessert Crown** hat.
+- **Customise:** `src/story/dessert.ts` → `COURSES` (table, rivals and levels, boss, rounds, quip).
