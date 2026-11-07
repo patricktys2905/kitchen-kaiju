@@ -917,3 +917,22 @@ describe('kaiju voices', () => {
     expect(new Set(VOICES.slice(0, SPECIES.length).map(v => `${v.pitch}/${v.wave}`)).size).toBe(SPECIES.length);
   });
 });
+
+describe('pancake stack spatula', () => {
+  it('marks a square, then flips (knocks out) whoever is in it', async () => {
+    const { RULES } = await import('../src/sim/constants');
+    const { LAYOUTS } = await import('../src/sim/layouts');
+    const li = LAYOUTS.findIndex(l => l.hazards.includes('spatula'));
+    expect(li).toBeGreaterThanOrEqual(0);
+    const w = new World({ players: [{ name: 'a' }, { name: 'b' }], seed: 9, layout: li, crumbSpawns: false, pickupSpawns: false });
+    while (w.phase !== 'play') w.step(DT, []);
+    const ev = run(w, RULES.spatulaFirst + 0.05);
+    expect(ev.some(e => e.type === 'spatulaWarn')).toBe(true);
+    const sp = w.spatula!;
+    place(w, 0, sp.x, sp.y);
+    place(w, 1, sp.x + RULES.spatulaSize, sp.y + RULES.spatulaSize > 640 ? sp.y - RULES.spatulaSize : sp.y + RULES.spatulaSize);
+    const ev2 = run(w, RULES.spatulaWarn);
+    expect(ev2.some(e => e.type === 'ko' && e.id === 0 && e.cause === 'flip')).toBe(true);
+    expect(w.players[1].alive).toBe(true);
+  });
+});

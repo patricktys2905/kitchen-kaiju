@@ -99,6 +99,13 @@ export const RULES = {
   cheeseRadius: 46, // knockout radius where it lands
   cheesePuddle: 7, // seconds the sticky puddle stays
   cheeseAim: 90, // how far from its target kaiju it may land (px)
+  // Pancake Stack: the giant spatula
+  spatulaFirst: 4,
+  spatulaInterval: [3.2, 4.6] as [number, number],
+  spatulaSuddenDeath: [2, 3] as [number, number],
+  spatulaWarn: 1.5, // the square is marked this long before the flip
+  spatulaSize: 190, // side of the square (px)
+  spatulaShow: 0.55, // how long the spatula stays down
 };
 
 /** The kaiju roster. Each player picks a different one; its colour is that player's colour. */

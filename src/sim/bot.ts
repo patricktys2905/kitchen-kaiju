@@ -125,6 +125,17 @@ export class BotBrain {
       if (p.meter >= 100 && d < 320) out.stomp = !p.prev.stomp;
     }
 
+    // Pancake Stack: step out of the marked square.
+    if (w.spatula?.state === 'warn') {
+      const S = RULES.spatulaSize / 2 + p.r + 20, dx = p.x - w.spatula.x, dy = p.y - w.spatula.y;
+      if (Math.abs(dx) < S && Math.abs(dy) < S) {
+        // leave by the nearest side
+        const ox = S - Math.abs(dx), oy = S - Math.abs(dy);
+        if (ox < oy) add(Math.sign(dx) || 1, 0, 5); else add(0, Math.sign(dy) || 1, 5);
+        if (w.spatula.t > RULES.spatulaWarn * 0.55 && p.dashCD <= 0 && this.rng.next() < T.dodge + 0.3) { if (ox < oy) { mx = Math.sign(dx) || 1; my = 0; } else { mx = 0; my = Math.sign(dy) || 1; } out.dash = !p.prev.dash; }
+      }
+    }
+
     // Fondue Night: get out from under falling cheese, and around sticky puddles.
     for (const d of w.cheeseDrops) {
       const dx = p.x - d.x, dy = p.y - d.y, dd = Math.hypot(dx, dy) || 1;

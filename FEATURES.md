@@ -45,6 +45,7 @@ Each section says **where to customise it**.
 - 38. Victory screen and boss intro
 - 39. Big touch buttons
 - 40. Story progress line
+- 41. New table: Pancake Stack (Spatula hazard)
 
 **Where to find things:** title screen cards (Story · Free Play · Online · Party Modes · Daily · Gauntlet), the top-right row (Settings · How to Play · Kaiju · Records), and Free Play keys (G mode · U power-ups · H hazards · X twist · C cup).
 
@@ -374,3 +375,10 @@ Each section says **where to customise it**.
 
 - Under "THE GRAND FEAST" on the Story map: **Story N% complete · ★ stars · 🌶️ Spicy clears · 🍰 Dessert (after the ending) · 🎁 rewards**. It updates as soon as a chapter result comes in.
 - The % weighs chapters 35%, stars 25%, Spicy 20%, Dessert 10% and rewards 10%. **Customise:** `updateProgress()` in `src/scenes/StoryScene.ts`.
+
+## 41. New table: Pancake Stack (new Spatula hazard, Gemini art)
+
+- A sunny pancake-house counter with a pancake stack, maple syrup jugs, butter and berries, plus its own place mats. Free (not locked).
+- **The Spatula:** a red square appears around a kaiju and flashes faster for 1.5 s; then a giant spatula SLAMS down and FLIPS anyone inside (knockout) and scatters the crumbs. Shove someone in to claim it. It comes faster in sudden death.
+- Bots step out of the square by its nearest side. Works online. It has its own tip.
+- **Customise:** `RULES.spatula*` in `src/sim/constants.ts` (timings, square size); the table is the last entry in `src/sim/layouts.ts`. Art: `art-src/jobs-pancake.json`.

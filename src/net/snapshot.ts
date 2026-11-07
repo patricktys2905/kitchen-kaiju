@@ -29,6 +29,7 @@ export interface Snapshot {
   bl?: number[] | null; // blender [state 0 warn / 1 spin, t, blade angle]
   cd?: number[][]; // falling cheese [x, y, t]
   pu?: number[][]; // cheese puddles [x, y, r, t]
+  sp?: number[] | null; // spatula [state 0 warn / 1 flip, x, y, t]
 }
 
 export function makeSnapshot(w: World): Snapshot {
@@ -53,6 +54,7 @@ export function makeSnapshot(w: World): Snapshot {
     it: w.items.map(i => [i.id, POWERS.indexOf(i.kind), r1(i.x), r1(i.y), r1(i.t)]),
     hd: w.hot ? [w.hot.id, r1(w.hot.fuse), r1(w.hot.cd)] : null,
     cd: w.cheeseDrops.map(d => [r1(d.x), r1(d.y), r3(d.t)]),
+    sp: w.spatula ? [w.spatula.state === 'warn' ? 0 : 1, r1(w.spatula.x), r1(w.spatula.y), r3(w.spatula.t)] : null,
     pu: w.puddles.map(z => [r1(z.x), r1(z.y), r1(z.r), r1(z.t)]),
     bl: w.blender ? [w.blender.state === 'warn' ? 0 : 1, r3(w.blender.t), r3(w.bladeAngle)] : null,
   };
@@ -97,6 +99,7 @@ export function applySnapshot(w: World, s: Snapshot): boolean {
   w.blender = s.bl ? { state: s.bl[0] ? 'spin' : 'warn', t: s.bl[1] } : null;
   if (s.bl) w.bladeAngle = s.bl[2];
   w.cheeseDrops = (s.cd ?? []).map(a => ({ x: a[0], y: a[1], t: a[2] }));
+  w.spatula = s.sp ? { state: s.sp[0] ? 'flip' : 'warn', x: s.sp[1], y: s.sp[2], t: s.sp[3] } : null;
   w.puddles = (s.pu ?? []).map(a => ({ x: a[0], y: a[1], r: a[2], t: a[3] }));
   return tableChanged;
 }

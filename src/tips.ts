@@ -3,7 +3,7 @@
 import type { Layout } from './sim/layouts';
 import type { GameMode } from './sim/modes';
 
-export interface Tip { text: string; mode?: GameMode; table?: 'blender' | 'cheese' | 'ice' | 'hand' | 'bumper' }
+export interface Tip { text: string; mode?: GameMode; table?: 'blender' | 'cheese' | 'ice' | 'hand' | 'bumper' | 'spatula' }
 
 export const TIPS: Tip[] = [
   { text: 'Dash INTO a flying fork to catch it. Free cutlery!' },
@@ -24,12 +24,13 @@ export const TIPS: Tip[] = [
   { text: 'Cheese shadows grow before the splat. Step out of the ring!', table: 'cheese' },
   { text: 'When the blender rumbles, run for the edge of the table.', table: 'blender' },
   { text: 'Gumdrops fling you away. Bounce rivals into them!', table: 'bumper' },
+  { text: 'Red square = spatula incoming. Shove someone in and step out!', table: 'spatula' },
 ];
 
 /** A random tip that fits this mode and table. */
 export function randomTip(mode: GameMode, layout: Layout, iceMutator = false): string {
   const has = (t: NonNullable<Tip['table']>) =>
-    t === 'blender' ? !!layout.blender : t === 'cheese' ? layout.hazards.includes('cheese') : t === 'ice' ? !!layout.slippery || iceMutator
+    t === 'spatula' ? layout.hazards.includes('spatula') : t === 'blender' ? !!layout.blender : t === 'cheese' ? layout.hazards.includes('cheese') : t === 'ice' ? !!layout.slippery || iceMutator
       : t === 'hand' ? layout.hazards.includes('hand') : layout.obstacles.some(o => o.style === 'gumdrop');
   const ok = TIPS.filter(t => (!t.mode || t.mode === mode) && (!t.table || has(t.table)));
   const special = ok.filter(t => t.mode || t.table);

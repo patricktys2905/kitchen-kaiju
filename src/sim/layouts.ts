@@ -5,13 +5,14 @@ export type ObstacleStyle =
   | 'croissant' | 'flour' | 'rollingpin' | 'cupcakes' | 'dumplings' | 'noodles' | 'teacup' | 'toaster' | 'jam' | 'cereal'
   | 'icetray' | 'peas' | 'popsicle' | 'tub' | 'gumdrop' | 'lollipop' | 'candyjar' | 'knifeblock' | 'pot' | 'pan'
   | 'smoothie' | 'pineapple' | 'banana' | 'strawberry'
-  | 'fondue' | 'breadcubes' | 'cheesewheel' | 'grapes';
+  | 'fondue' | 'breadcubes' | 'cheesewheel' | 'grapes'
+  | 'syrup' | 'butter' | 'berries';
 
 export type Obstacle =
   | { shape: 'circle'; x: number; y: number; r: number; style: ObstacleStyle }
   | { shape: 'rect'; x: number; y: number; w: number; h: number; style: ObstacleStyle };
 
-export type HazardKind = 'hand' | 'wind' | 'cleaver' | 'burner' | 'toaster' | 'blender' | 'cheese';
+export type HazardKind = 'hand' | 'wind' | 'cleaver' | 'burner' | 'toaster' | 'blender' | 'cheese' | 'spatula';
 
 /** A conveyor strip: anything sitting on it is carried sideways at vx px/s. */
 export interface Belt {
@@ -49,7 +50,7 @@ export interface Layout {
   name: string;
   /** Art key of the table surface. */
   table: 'bg-table' | 'bg-sushi' | 'bg-party' | 'bg-board' | 'bg-griddle' | 'bg-parlour' | 'bg-picnic' | 'bg-bakery' | 'bg-banquet' | 'bg-breakfast'
-    | 'bg-freezer' | 'bg-candy' | 'bg-nightmare' | 'bg-smoothie' | 'bg-fondue';
+    | 'bg-freezer' | 'bg-candy' | 'bg-nightmare' | 'bg-smoothie' | 'bg-fondue' | 'bg-pancake';
   hazards: HazardKind[];
   belts?: Belt[];
   spills?: Zone[]; // slippery: you slide instead of stopping
@@ -323,6 +324,20 @@ export const LAYOUTS: Layout[] = [
       { shape: 'circle', x: 920, y: 535, r: 32, style: 'breadcubes' },
       { shape: 'circle', x: 920, y: 230, r: 38, style: 'cheesewheel' },
       { shape: 'circle', x: 360, y: 535, r: 30, style: 'grapes' },
+    ],
+    spawns: [[170, 150], [1110, 615], [1110, 150], [170, 615], [160, 382], [1120, 382]],
+  },
+  {
+    name: 'Pancake Stack',
+    table: 'bg-pancake',
+    hazards: ['spatula'],
+    blurb: 'A giant spatula marks a square, then FLIPS whoever is standing in it. Move!',
+    obstacles: [
+      { shape: 'circle', x: 640, y: 382, r: 50, style: 'pancakes' },
+      { shape: 'circle', x: 330, y: 220, r: 28, style: 'syrup' },
+      { shape: 'circle', x: 950, y: 545, r: 28, style: 'syrup' },
+      { shape: 'rect', x: 910, y: 196, w: 70, h: 50, style: 'butter' },
+      { shape: 'circle', x: 330, y: 545, r: 30, style: 'berries' },
     ],
     spawns: [[170, 150], [1110, 615], [1110, 150], [170, 615], [160, 382], [1120, 382]],
   },

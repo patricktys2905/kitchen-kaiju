@@ -24,7 +24,7 @@ const BOOMERANG_TURN = 10; // rad/s (turn radius = speed / turn)
 
 export const NO_INPUT: PlayerInput = { mx: 0, my: 0, throw: false, swipe: false, dash: false, stomp: false };
 
-export type KOCause = 'cutlery' | 'swipe' | 'squash' | 'fall' | 'hand' | 'wind' | 'chop' | 'burn' | 'toast' | 'boom' | 'blend' | 'cheese';
+export type KOCause = 'cutlery' | 'swipe' | 'squash' | 'fall' | 'hand' | 'wind' | 'chop' | 'burn' | 'toast' | 'boom' | 'blend' | 'cheese' | 'flip';
 
 export type GameEvent =
   | { type: 'throw'; id: number; kind: CutleryKind; x: number; y: number }
@@ -55,6 +55,8 @@ export type GameEvent =
   | { type: 'toasterPop'; i: number; x: number; y: number }
   | { type: 'toastBreak'; x: number; y: number }
   | { type: 'bumper'; x: number; y: number }
+  | { type: 'spatulaWarn'; x: number; y: number }
+  | { type: 'spatulaFlip'; x: number; y: number }
   | { type: 'cheeseWarn'; x: number; y: number }
   | { type: 'cheeseSplat'; x: number; y: number }
   | { type: 'blenderWarn' }
@@ -246,6 +248,9 @@ export class World {
   blender: BlenderState | null = null;
   /** Fondue Night: blobs falling (t counts up to RULES.cheeseWarn) and sticky puddles (t = seconds left). */
   cheeseDrops: { x: number; y: number; t: number }[] = [];
+  /** Pancake Stack: the square the spatula will flip (centre x, y). */
+  spatula: { state: 'warn' | 'flip'; x: number; y: number; t: number } | null = null;
+  private spatulaTimer = 0;
   puddles: { x: number; y: number; r: number; t: number }[] = [];
   private cheeseTimer = 0;
   bladeAngle = 0; // for drawing
@@ -327,6 +332,8 @@ export class World {
     this.blenderTimer = RULES.blenderFirst;
     this.cheeseDrops = [];
     this.puddles = [];
+    this.spatula = null;
+    this.spatulaTimer = RULES.spatulaFirst;
     this.cheeseTimer = RULES.cheeseFirst;
     this.crumbTimer = 0;
     this.pickupTimer = RULES.pickupEvery;
@@ -411,7 +418,7 @@ export class World {
     this.updateCutlery(dt);
     this.eatCrumbs();
     if (this.phase === 'play') this.updateMode(dt);
-    if (this.phase === 'play' || this.hand || this.wind || this.cleaver || this.burner || this.toaster || this.toasts.length || this.blender || this.cheeseDrops.length || this.puddles.length) {
+    if (this.phase === 'play' || this.hand || this.wind || this.cleaver || this.burner || this.toaster || this.toasts.length || this.blender || this.cheeseDrops.length || this.puddles.length || this.spatula) {
       if (this.phase === 'play') this.spawnTimers(dt);
       this.updateHand(dt);
       this.updateWind(dt);
@@ -420,6 +427,7 @@ export class World {
       this.updateToasters(dt);
       this.updateBlender(dt);
       this.updateCheese(dt);
+      this.updateSpatula(dt);
     }
     this.spinTurntable(dt);
     this.cutlery = this.cutlery.filter(c => !c.dead);
@@ -1022,7 +1030,7 @@ export class World {
   }
 
   // ---------------------------------------------------------------- hazards
-  private hazardOn(k: 'hand' | 'wind' | 'cleaver' | 'burner' | 'toaster' | 'blender' | 'cheese'): boolean {
+  private hazardOn(k: 'hand' | 'wind' | 'cleaver' | 'burner' | 'toaster' | 'blender' | 'cheese' | 'spatula'): boolean {
     return this.opts.hazards && this.layout.hazards.includes(k);
   }
 
@@ -1141,6 +1149,38 @@ export class World {
   onSpill(x: number, y: number): boolean {
     for (const z of this.layout.spills ?? []) if (Math.hypot(x - z.x, y - z.y) < z.r) return true;
     return false;
+  }
+
+  private updateSpatula(dt: number): void {
+    if (!this.hazardOn('spatula')) return;
+    const S = RULES.spatulaSize / 2;
+    if (!this.spatula) {
+      if (this.phase !== 'play') return;
+      this.spatulaTimer -= dt;
+      if (this.spatulaTimer > 0) return;
+      const alive = this.alivePlayers();
+      if (!alive.length) return;
+      const t = this.rng.pick(alive);
+      const x = clamp(t.x + this.rng.range(-50, 50), TABLE.x + S, TABLE.x + TABLE.w - S), y = clamp(t.y + this.rng.range(-50, 50), TABLE.y + S, TABLE.y + TABLE.h - S);
+      this.spatula = { state: 'warn', x, y, t: 0 };
+      this.emit({ type: 'spatulaWarn', x, y });
+      return;
+    }
+    const sp = this.spatula;
+    sp.t += dt;
+    if (sp.state === 'warn') {
+      if (sp.t < RULES.spatulaWarn) return;
+      sp.state = 'flip'; sp.t = 0;
+      this.emit({ type: 'spatulaFlip', x: sp.x, y: sp.y });
+      for (const p of this.players) if (p.alive && Math.abs(p.x - sp.x) < S + p.r * 0.4 && Math.abs(p.y - sp.y) < S + p.r * 0.4) this.ko(p, p.lastHitT > 0 ? p.lastHitBy : null, 'flip');
+      for (const c of this.crumbs) if (Math.abs(c.x - sp.x) < S && Math.abs(c.y - sp.y) < S) { c.x = clamp(c.x + this.rng.range(-160, 160), TABLE.x + 20, TABLE.x + TABLE.w - 20); c.y = clamp(c.y + this.rng.range(-160, 160), TABLE.y + 20, TABLE.y + TABLE.h - 20); }
+      return;
+    }
+    if (sp.t >= RULES.spatulaShow) {
+      this.spatula = null;
+      const iv = this.roundT > RULES.suddenDeathAt ? RULES.spatulaSuddenDeath : RULES.spatulaInterval;
+      this.spatulaTimer = this.rng.range(iv[0], iv[1]);
+    }
   }
 
   private updateCheese(dt: number): void {

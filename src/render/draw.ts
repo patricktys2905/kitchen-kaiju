@@ -62,7 +62,7 @@ const SURFACE: Record<Layout['table'], number> = {
   'bg-table': 0x9a6438, 'bg-sushi': 0xd9c08a, 'bg-party': 0xf3b6cc, 'bg-board': 0xb88452,
   'bg-griddle': 0x8d939b, 'bg-parlour': 0xbfe8d6, 'bg-picnic': 0xe8a0a0,
   'bg-bakery': 0xe8d3a8, 'bg-banquet': 0xa8283a, 'bg-breakfast': 0xf6e7a0,
-  'bg-freezer': 0xd6eef8, 'bg-candy': 0xffc4de, 'bg-nightmare': 0x3a3836, 'bg-smoothie': 0xfff1c8, 'bg-fondue': 0x8a5a32,
+  'bg-freezer': 0xd6eef8, 'bg-candy': 0xffc4de, 'bg-nightmare': 0x3a3836, 'bg-smoothie': 0xfff1c8, 'bg-fondue': 0x8a5a32, 'bg-pancake': 0xf4d9a0,
 };
 export function drawTableSurface(g: G, table: Layout['table'] = 'bg-table'): void {
   g.fillStyle(SURFACE[table], 1);
@@ -103,6 +103,7 @@ const FRAMES: Record<Layout['table'], FrameStyle> = {
   'bg-nightmare': { frame: 0x2a2624, hi: 0x6a625c, lip: 0x161210, depth: 16 },
   'bg-smoothie': { frame: 0x2fb39a, hi: 0x7fe3cf, lip: 0x1f7a68, depth: 14 },
   'bg-fondue': { frame: 0x5a2a1a, hi: 0x9a5a3a, lip: 0x3a160a, depth: 16 },
+  'bg-pancake': { frame: 0x4a8ad6, hi: 0x8ac0f0, lip: 0x2a5a96, depth: 14 },
 };
 
 /** Soft floor shadow, the table's 3D front lip and its frame, styled per table. */
@@ -143,7 +144,7 @@ export function drawMat(g: G, x: number, y: number, color: number, table: Layout
     'bg-table': 0xd9b878, 'bg-sushi': 0x9fc26a, 'bg-party': 0xfff1f6, 'bg-board': 0x4a4e57,
     'bg-griddle': 0xf4f0e6, 'bg-parlour': 0xe8fff4, 'bg-picnic': 0xfff3a8,
     'bg-bakery': 0xf7f4ee, 'bg-banquet': 0xc0303c, 'bg-breakfast': 0xfff4c0,
-    'bg-freezer': 0xeaf6fc, 'bg-candy': 0xffe0ee, 'bg-nightmare': 0x5a3a30, 'bg-smoothie': 0xfff6dc, 'bg-fondue': 0xd8b070,
+    'bg-freezer': 0xeaf6fc, 'bg-candy': 0xffe0ee, 'bg-nightmare': 0x5a3a30, 'bg-smoothie': 0xfff6dc, 'bg-fondue': 0xd8b070, 'bg-pancake': 0xfff1d0,
   };
   g.fillStyle(0x000000, 0.18); g.fillRoundedRect(x - 54, y - 38, 112, 82, 12);
   g.fillStyle(fill[table], 0.9); g.fillRoundedRect(x - 56, y - 41, 112, 82, 12);
@@ -166,6 +167,7 @@ export function drawObstacleShadow(g: G, o: Obstacle): void {
 }
 
 const FALLBACK_COLORS: Partial<Record<Obstacle['style'], number>> = {
+  syrup: 0x8a4a1a, butter: 0xfff1a0, berries: 0x4a3ad8,
   fondue: 0xffd24a, breadcubes: 0xe0a24a, cheesewheel: 0xf2c418, grapes: 0x6a2aa8,
   smoothie: 0xff8ab0, pineapple: 0xf2c418, banana: 0xffe066, strawberry: 0xe8392f,
   icetray: 0xbfe6f5, peas: 0x6fbf4a, popsicle: 0xff6a5a, tub: 0xf2ead8, gumdrop: 0xff4fa0, lollipop: 0xffd24a, candyjar: 0xcfeefa, knifeblock: 0x6a4a30, pot: 0x8a8f96, pan: 0x2f2f33,
@@ -703,6 +705,25 @@ export function drawSpill(g: G, z: Zone, i: number, t: number): void {
 }
 
 /** Diner Griddle burner: dark coils at rest, glowing while it warns, roaring flames when it flares. */
+/** Pancake Stack: the marked square (warn) and the slammed-down spatula (flip). k = 0..1 warning progress. */
+export function drawSpatula(g: G, sp: { state: 'warn' | 'flip'; x: number; y: number; t: number }, size: number, k: number, t: number): void {
+  const S = size / 2;
+  if (sp.state === 'warn') {
+    const pulse = 0.5 + 0.5 * Math.sin(t * (6 + 12 * k));
+    g.fillStyle(0xff3b3b, 0.08 + 0.18 * k); g.fillRect(sp.x - S, sp.y - S, size, size);
+    g.lineStyle(4, 0xff3b3b, 0.5 + 0.4 * pulse); g.strokeRect(sp.x - S, sp.y - S, size, size);
+    // the spatula's shadow growing over the square
+    g.fillStyle(0x000000, 0.12 + 0.25 * k); g.fillRoundedRect(sp.x - S * k, sp.y - S * k, size * k, size * k, 10);
+    return;
+  }
+  g.fillStyle(0x000000, 0.3); g.fillRoundedRect(sp.x - S + 8, sp.y - S + 10, size, size, 16);
+  g.fillStyle(0xc8ced6, 1); g.fillRoundedRect(sp.x - S, sp.y - S, size, size, 16);
+  g.fillStyle(0xe8ecf0, 1); g.fillRoundedRect(sp.x - S + 10, sp.y - S + 10, size - 20, size * 0.3, 10);
+  g.fillStyle(0x8a929c, 1); for (let i = 0; i < 4; i++) g.fillRoundedRect(sp.x - S + 24 + i * (size - 48) / 3 - 4, sp.y - S * 0.2, 8, S * 1.1, 4);
+  g.fillStyle(0x3a2412, 1); g.fillRect(sp.x - 14, sp.y + S - 4, 28, S * 0.9);
+  g.lineStyle(3, 0x2a1408, 1); g.strokeRoundedRect(sp.x - S, sp.y - S, size, size, 16);
+}
+
 /** Fondue Night: a growing shadow where cheese will land. k = 0..1 progress. */
 export function drawCheeseWarn(g: G, x: number, y: number, k: number, r: number, t: number): void {
   g.fillStyle(0x000000, 0.12 + 0.28 * k); g.fillEllipse(x, y, r * 2 * (0.4 + 0.6 * k), r * 1.4 * (0.4 + 0.6 * k));

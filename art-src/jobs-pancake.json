@@ -1,0 +1,28 @@
+[
+  {
+    "name": "bg-pancake",
+    "newChat": true,
+    "refs": ["art-src/cut-refs/ref-table-breakfast.png"],
+    "prompt": "Generate an image. The attached picture is a table surface from my party game, seen straight from above. Draw a NEW table surface in exactly the same style, framing, size and straight top-down view: a sunny PANCAKE HOUSE counter: light blue-and-white diner tiles with a few drips of maple syrup, a scattering of blueberries and powdered sugar. The surface fills the whole image edge to edge, with no objects, no characters, no text. Wide landscape about 1.9:1."
+  },
+  {
+    "name": "ob-syrup",
+    "newChat": true,
+    "refs": ["art-src/ref-props2.png"],
+    "prompt": "Generate an image. The attached picture shows prop sprites from my party game (top-down, chunky cartoon style, thick dark outlines, cel shading). Draw ONE new prop in exactly the same style, seen STRAIGHT FROM ABOVE, centred, on a solid flat magenta (#FF00FF) background: a round glass jug of amber MAPLE SYRUP seen from above, with a little syrup dripping over the spout. No text, no shadow. Square 1:1."
+  },
+  {
+    "name": "ob-butter",
+    "prompt": "Next prop, exactly the same style, straight top-down view, centred, solid flat magenta (#FF00FF) background: a pale yellow BLOCK OF BUTTER on a small white butter dish, one corner sliced off, seen from above. No text, no shadow. Square 1:1."
+  },
+  {
+    "name": "ob-berries",
+    "prompt": "Next prop, exactly the same style, straight top-down view, centred, solid flat magenta (#FF00FF) background: a small round bowl of BLUEBERRIES and raspberries seen from above. No text, no shadow. Square 1:1."
+  },
+  {
+    "name": "mat-pancake",
+    "newChat": true,
+    "refs": ["art-src/ref-mats.png"],
+    "prompt": "Generate an image. The attached picture shows place-mat sprites from my party game (seen straight from above, chunky cartoon style, thick dark outlines). Draw ONE new place mat in exactly the same style, size and framing, perfectly flat and rectangular (landscape), on a solid flat magenta (#FF00FF) background: a cheerful diner PANCAKE place mat: light blue with little stacks of pancakes and syrup drops printed on it. No text, no shadow."
+  }
+]
