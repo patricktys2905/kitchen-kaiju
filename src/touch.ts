@@ -325,6 +325,7 @@ export function initTouch(injectTap: (code: string) => void): void {
   mutPill = el('div', row, { class: 'pill' }, 'TWIST: NONE');
   tapButton(mutPill, 'TouchMutator');
   tapButton(el('div', row, { class: 'pill' }, '🌐 ONLINE'), 'TouchOnline');
+  tapButton(el('div', row, { class: 'pill' }, '🎲'), 'TouchShuffle');
   tapButton(el('div', row, { class: 'pill' }, '🏆 CUP'), 'TouchCup');
   tapButton(el('div', row, { class: 'pill go' }, '▶ PLAY'), 'Digit1');
 

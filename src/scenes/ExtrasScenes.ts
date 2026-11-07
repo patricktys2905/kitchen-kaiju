@@ -72,12 +72,12 @@ export class SettingsScene extends PanelScene {
 
   protected build(): void {
     SETTINGS_ROWS.forEach((row, i) => {
-      const b = new Button(this, 340 + (i % 2) * 600, 140 + Math.floor(i / 2) * 92, { w: 560, h: 80, label: '', sub: row.help, size: 26, onClick: () => { this.cycle(row.key, row.kind); b.setText(this.label(row.key, row.kind, row.label)); } }, 6);
+      const b = new Button(this, 340 + (i % 2) * 600, 132 + Math.floor(i / 2) * 82, { w: 560, h: 72, label: '', sub: row.help, size: 26, onClick: () => { this.cycle(row.key, row.kind); b.setText(this.label(row.key, row.kind, row.label)); } }, 6);
       b.setText(this.label(row.key, row.kind, row.label));
       this.buttons.push(b);
     });
-    this.buttons.push(new Button(this, 440, 140 + Math.ceil(SETTINGS_ROWS.length / 2) * 92 - 4, { w: 360, h: 52, label: '⌨ KEYBOARD CONTROLS', size: 20, accent: 0x4fd1ff, onClick: () => { sfx.go(); this.scene.start('controls'); } }, 6));
-    this.buttons.push(new Button(this, 840, 140 + Math.ceil(SETTINGS_ROWS.length / 2) * 92 - 4, { w: 360, h: 52, label: '💾 BACK UP / MOVE SAVE', size: 20, accent: 0x8dff6a, onClick: () => this.backupPanel() }, 6));
+    this.buttons.push(new Button(this, 440, 132 + Math.ceil(SETTINGS_ROWS.length / 2) * 82 - 6, { w: 360, h: 52, label: '⌨ KEYBOARD CONTROLS', size: 20, accent: 0x4fd1ff, onClick: () => { sfx.go(); this.scene.start('controls'); } }, 6));
+    this.buttons.push(new Button(this, 840, 132 + Math.ceil(SETTINGS_ROWS.length / 2) * 82 - 6, { w: 360, h: 52, label: '💾 BACK UP / MOVE SAVE', size: 20, accent: 0x8dff6a, onClick: () => this.backupPanel() }, 6));
     this.add.text(640, 706, 'Saved on this device · ENTER / tap to change', body(15, '#cdb9a3', 800)).setOrigin(0.5).setDepth(5);
   }
 

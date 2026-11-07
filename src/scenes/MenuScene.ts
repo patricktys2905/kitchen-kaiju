@@ -120,6 +120,16 @@ export class MenuScene extends Phaser.Scene {
     sfx.pickup();
   }
 
+  /** 🎲 Random mode, table and twist (from what you own / what is enabled). */
+  private shuffle(): void {
+    const pick = <T,>(a: T[]): T => a[Math.floor(Math.random() * a.length)];
+    this.mode = pick(enabledModes().map(m => m.id));
+    this.table = pick(this.own.tables);
+    this.mutator = Math.random() < 0.5 ? 'none' : pick(enabledMutators().map(m => m.id));
+    for (let i = 0; i < MAX_PLAYERS; i++) this.bump[i] = 1;
+    sfx.meterFull();
+  }
+
   private cycleMode(): void {
     const list = enabledModes().map(m => m.id);
     this.mode = list[(list.indexOf(this.mode) + 1) % list.length] ?? 'classic';
@@ -187,7 +197,7 @@ export class MenuScene extends Phaser.Scene {
     this.add.text(640, 560, rules.join('\n'), { ...BODY, fontStyle: '700', fontSize: '15px', align: 'center', color: '#cdb9a3', lineSpacing: 5 }).setOrigin(0.5, 0).setDepth(2);
     if (!isTouchDevice) {
       this.chipLine(chipG, 640, 640, '[THROW] join   [◀ ▶] pick kaiju   [DASH] leave   [B] [N] add / remove bot', 15);
-      this.chipLine(chipG, 640, 670, '[2] bots  [M] table  [R] rounds  [G] mode  [U] power-ups  [H] hazards  [X] twist  [O] ONLINE  [C] CUP  [1] PLAY', 15);
+      this.chipLine(chipG, 640, 670, '[2] bots  [M] table  [R] rounds  [G] mode  [U] power-ups  [H] hazards  [X] twist  [Z] 🎲  [O] ONLINE  [C] CUP  [1] PLAY', 15);
     }
     setTouchMode('menu');
     playMusic('menu');
@@ -266,6 +276,7 @@ export class MenuScene extends Phaser.Scene {
     }
     if (consumeTap('Digit1')) { this.startGame(); return; }
     if (consumeTap('KeyC') || consumeTap('TouchCup')) { this.startCup(); return; }
+    if (consumeTap('KeyZ') || consumeTap('TouchShuffle')) this.shuffle();
     if (consumeTap('Escape')) { this.scene.start('title'); return; }
     clearTaps();
     setTouchHud({

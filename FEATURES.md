@@ -48,6 +48,8 @@ Each section says **where to customise it**.
 - 41. New table: Pancake Stack (Spatula hazard)
 - 42. Back up / move your save
 - 43. Fix: Kaiju Gallery taps
+- 44. Rumble
+- 45. 🎲 Shuffle
 
 **Where to find things:** title screen cards (Story · Free Play · Online · Party Modes · Daily · Gauntlet), the top-right row (Settings · How to Play · Kaiju · Records), and Free Play keys (G mode · U power-ups · H hazards · X twist · C cup).
 
@@ -395,3 +397,12 @@ Each section says **where to customise it**.
 - Tapping or clicking a kaiju in the Gallery used to show it for a moment and then jump back to the first kaiju, so only the arrow keys worked. Fixed: tapping now selects that kaiju, on phones and PCs.
 - On phones the BACK button on the extra screens no longer sits under the FULL SCREEN button, and the hat name no longer overlaps the hat row.
 - Test reliability: the main browser test now waits for the menu and walks towards the middle of the table. It passed 10 out of 10 runs.
+
+## 44. Rumble
+
+- Gamepads vibrate (and phones buzz, where the browser allows) when you're knocked out, when you knock someone out, when you go KAIJU, and on big blasts (cleaver, spatula, hot dumpling pop). Online, you only feel your own kaiju.
+- **Settings → RUMBLE** turns it off. **Customise:** strengths and lengths in `src/rumble.ts`.
+
+## 45. 🎲 Shuffle (Free Play)
+
+- **[Z]** (touch: **🎲** pill) picks a random mode, table and (half the time) twist from what you own. Press again until you like it.

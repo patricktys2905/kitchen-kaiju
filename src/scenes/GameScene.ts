@@ -28,6 +28,7 @@ import { DAILY, dailySetup, loadDaily, recordDaily } from '../daily';
 import { REPLAY, ReplayBuffer } from '../replay';
 import { randomTip } from '../tips';
 import { CALLOUTS } from '../callouts';
+import { rumble } from '../rumble';
 import { BOT_EMOTE_CHANCE, EMOTE_COOLDOWN, EMOTE_KEYS, EMOTE_TIME, EMOTES } from '../emotes';
 import type { NetGuest, NetHost, NetMsg } from '../net/net';
 import { applySnapshot, extrapolate, makeSnapshot, type Snapshot } from '../net/snapshot';
@@ -518,6 +519,7 @@ export class GameScene extends Phaser.Scene {
         }
         case 'kaiju':
           sfx.kaiju();
+          rumble(this.mySlot(e.id), 'kaiju');
           sfx.roar(this.species[e.id]);
           this.shake(0.012, 350);
           this.popup(e.x, e.y - 60, 'KAIJU!', this.css[e.id], 40);
@@ -532,6 +534,8 @@ export class GameScene extends Phaser.Scene {
         case 'shrink': sfx.shrink(); break;
         case 'ko':
           this.onKO(e);
+          if (this.net?.role !== 'guest' || e.id === this.net.seat) rumble(this.mySlot(e.id), 'ko');
+          if (e.by !== null && e.by !== e.id) rumble(this.mySlot(e.by), 'hit');
           this.announce(e);
           this.replayBuf.markKo();
           if (e.by !== null && e.by !== e.id && this.net?.role !== 'guest' && this.slots[e.by]?.kind === 'bot' && Math.random() < BOT_EMOTE_CHANCE) this.time.delayedCall(250, () => this.handleEvents([{ type: 'emote', id: e.by!, n: Math.floor(Math.random() * EMOTES.length) }]));
@@ -544,7 +548,7 @@ export class GameScene extends Phaser.Scene {
         case 'cleaverWarn': sfx.cleaverWarn(); break;
         case 'burnerWarn': sfx.burnerWarn(); break;
         case 'spatulaWarn': sfx.cleaverWarn(); break;
-        case 'spatulaFlip': sfx.cleaverChop(); this.shake(0.012, 240); this.burst(e.x, e.y, 0xf4c27a, 26, 300, 0.6); break;
+        case 'spatulaFlip': this.rumbleAll('blast'); sfx.cleaverChop(); this.shake(0.012, 240); this.burst(e.x, e.y, 0xf4c27a, 26, 300, 0.6); break;
         case 'cheeseWarn': sfx.toasterWarn(); break;
         case 'cheeseSplat': sfx.bump(); this.shake(0.004, 140); this.burst(e.x, e.y, 0xffd24a, 22, 240, 0.5); this.burst(e.x, e.y, 0xfff1a0, 10, 160, 0.4); break;
         case 'blenderWarn': sfx.burnerWarn(); this.popup(640, 300, 'BLENDER WARMING UP!', '#ff8a7a', 24); break;
@@ -554,7 +558,7 @@ export class GameScene extends Phaser.Scene {
         case 'toasterPop': sfx.toasterPop(); this.burst(e.x, e.y, 0xe8b060, 10, 160, 0.4); break;
         case 'toastBreak': sfx.thwock(); this.burst(e.x, e.y, 0xe0a050, 18, 220, 0.5, 200); break;
         case 'burnerFlare': sfx.burnerFlare(); this.shake(0.006, 300); this.burst(e.x, e.y, 0xff7a1a, 30, 260, 0.6); this.burst(e.x, e.y, 0xffd040, 16, 180, 0.5); break;
-        case 'cleaverChop': sfx.cleaverChop(); this.shake(0.014, 260); this.burst(e.x, 380, 0x8a5a32, 30, 300, 0.6); break;
+        case 'cleaverChop': this.rumbleAll('blast'); sfx.cleaverChop(); this.shake(0.014, 260); this.burst(e.x, 380, 0x8a5a32, 30, 300, 0.6); break;
         case 'powerSpawn': sfx.spawn(); this.rings.push({ x: e.x, y: e.y, r: 0, t: 0, max: 40, color: POWER_DEFS[e.kind].color }); break;
         case 'powerup':
           sfx.meterFull();
@@ -574,6 +578,7 @@ export class GameScene extends Phaser.Scene {
           this.popup(e.x, e.y - 50, e.from === null ? 'HOT DUMPLING!' : 'TAG! HOT!', '#ff9a3c', 22);
           break;
         case 'hotBoom':
+          this.rumbleAll('blast');
           sfx.burnerFlare();
           this.shake(0.016, 380);
           this.burst(e.x, e.y, 0xfff1d6, 40, 420, 0.8);
@@ -689,6 +694,17 @@ export class GameScene extends Phaser.Scene {
     this.replay.label.destroy();
     this.replay = null;
     clearTaps();
+  }
+
+  /** The slot of seat `id` if it is played on this device (online guests: only their own seat). */
+  private mySlot(id: number): Slot | undefined {
+    if (this.net?.role === 'guest') return id === this.net.seat ? { kind: 'local', index: 0 } : undefined;
+    const s = this.slots[id];
+    return s && s.kind !== 'bot' && s.kind !== 'remote' ? s : undefined;
+  }
+
+  private rumbleAll(kind: 'blast'): void {
+    this.slots.forEach((_, i) => { if (this.world.players[i]?.alive) rumble(this.mySlot(i), kind); });
   }
 
   // ---------------------------------------------------------------- celebrations
