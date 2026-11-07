@@ -248,27 +248,28 @@ export class RecordsScene extends PanelScene {
       ['Crumbs eaten', s.crumbs],
       ['Times gone KAIJU', s.kaijuForms],
       ['Best win streak', s.bestStreak],
+      ['Gauntlet best wave', s.gauntlet ?? 0],
       ['Tables visited', `${s.tables.length}/${LAYOUTS.length}`],
       ['Favourite kaiju', fav ? SPECIES[Number(fav[0])].full : '–'],
       ['Story stars', `★ ${totalStars(story)}`],
     ];
     withShadow(this.add.text(70, 120, 'YOUR STATS', display(24, '#ffd24a', { strokeThickness: 4 })).setDepth(5), 2);
     rows.forEach(([k, v], i) => {
-      this.add.text(70, 166 + i * 44, k, body(18, '#e9dccb', 800)).setDepth(5);
-      this.add.text(430, 166 + i * 44, String(v), display(20, '#ffe9c7', { strokeThickness: 3 })).setOrigin(1, 0).setDepth(5);
+      this.add.text(70, 160 + i * 41, k, body(18, '#e9dccb', 800)).setDepth(5);
+      this.add.text(430, 160 + i * 41, String(v), display(20, '#ffe9c7', { strokeThickness: 3 })).setOrigin(1, 0).setDepth(5);
     });
     this.add.text(250, 670, 'Counts people on this device (not bots).', body(13, '#a89680', 800)).setOrigin(0.5, 1).setDepth(5);
 
     const done = ACHIEVEMENTS.filter(a => s.achieved.includes(a.id)).length;
     withShadow(this.add.text(500, 108, `ACHIEVEMENTS ${done}/${ACHIEVEMENTS.length}`, display(24, '#ffd24a', { strokeThickness: 4 })).setDepth(5), 2);
     ACHIEVEMENTS.forEach((a, i) => {
-      const col = i % 2, row = Math.floor(i / 2), x = 500 + col * 380, y = 148 + row * 61;
+      const col = i % 2, row = Math.floor(i / 2), x = 500 + col * 380, y = 146 + row * 54;
       const got = s.achieved.includes(a.id);
-      g.fillStyle(got ? 0x3a2412 : 0x1c1714, 0.95); g.fillRoundedRect(x, y, 365, 54, 12);
-      g.lineStyle(2, got ? 0xffd24a : 0x4a3e34, 1); g.strokeRoundedRect(x, y, 365, 54, 12);
-      this.add.text(x + 12, y + 27, got ? a.icon : '🔒', body(24, '#ffffff', 800)).setOrigin(0, 0.5).setDepth(5).setAlpha(got ? 1 : 0.6);
-      this.add.text(x + 56, y + 7, a.name, display(16, got ? '#ffe9c7' : '#a89680', { strokeThickness: 3 })).setDepth(5);
-      this.add.text(x + 56, y + 31, a.desc, body(13, got ? '#8dff6a' : '#a89680', 800)).setDepth(5);
+      g.fillStyle(got ? 0x3a2412 : 0x1c1714, 0.95); g.fillRoundedRect(x, y, 365, 48, 12);
+      g.lineStyle(2, got ? 0xffd24a : 0x4a3e34, 1); g.strokeRoundedRect(x, y, 365, 48, 12);
+      this.add.text(x + 12, y + 24, got ? a.icon : '🔒', body(22, '#ffffff', 800)).setOrigin(0, 0.5).setDepth(5).setAlpha(got ? 1 : 0.6);
+      this.add.text(x + 56, y + 5, a.name, display(15, got ? '#ffe9c7' : '#a89680', { strokeThickness: 3 })).setDepth(5);
+      this.add.text(x + 56, y + 27, a.desc, body(12, got ? '#8dff6a' : '#a89680', 800)).setDepth(5);
     });
   }
 }

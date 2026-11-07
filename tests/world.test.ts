@@ -631,7 +631,7 @@ describe('stats, achievements and settings', () => {
   it('achievements unlock once from stats', async () => {
     const { ACHIEVEMENTS, checkAchievements } = await import('../src/stats');
     expect(new Set(ACHIEVEMENTS.map(a => a.id)).size).toBe(ACHIEVEMENTS.length);
-    const s = { matches: 1, wins: 1, roundsWon: 3, kos: 0, crumbs: 0, kaijuForms: 0, pops: 0, streak: 1, bestStreak: 1, modeWins: { teams: 1 }, kaijuWins: { 0: 1 }, kaijuPlays: { 0: 1 }, tables: [0], achieved: [] as string[] };
+    const s = { matches: 1, wins: 1, roundsWon: 3, kos: 0, crumbs: 0, kaijuForms: 0, pops: 0, streak: 1, bestStreak: 1, gauntlet: 0, modeWins: { teams: 1 }, kaijuWins: { 0: 1 }, kaijuPlays: { 0: 1 }, tables: [0], achieved: [] as string[] };
     expect(checkAchievements(s).map(a => a.id).sort()).toEqual(['first-win', 'teams']);
     expect(checkAchievements(s)).toEqual([]); // never twice
   });
@@ -697,5 +697,18 @@ describe('condiment power-ups', () => {
     expect(guest.hot?.id).toBe(host.hot?.id);
     expect(guest.players[1].pts).toBe(4);
     expect(guest.players[2].shieldT).toBe(3);
+  });
+});
+
+describe('gauntlet', () => {
+  it('waves get harder: more rivals, then tougher ones, with a boss every 5th', async () => {
+    const { waveSetup } = await import('../src/gauntlet');
+    const w1 = waveSetup(1), w5 = waveSetup(5), w20 = waveSetup(20);
+    expect(w1).toEqual({ rivals: 1, levels: ['easy'], boss: false });
+    expect(w5.boss).toBe(true);
+    expect(w5.rivals).toBeGreaterThan(w1.rivals);
+    expect(w20.rivals).toBe(5);
+    expect(w20.levels[0]).toBe('hard');
+    for (let n = 1; n < 30; n++) expect(waveSetup(n + 1).rivals).toBeGreaterThanOrEqual(waveSetup(n).rivals);
   });
 });

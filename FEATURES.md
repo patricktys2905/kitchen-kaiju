@@ -89,3 +89,31 @@ Each section says **where to customise it**.
 
 - The online lobby host now has **Mode** and **Power-ups** buttons, and friends see the choice.
 - Snapshots carry teams, crumb points, respawn timers, buffs, power-ups on the table and the hot dumpling, so every mode plays online.
+
+## 9. Pause menu
+
+- Pressing **P**, gamepad START or the phone's **❚❚ PAUSE** opens a menu with **Resume**, **Restart** (same match setup, Story chapter or Gauntlet wave), **Music on/off**, **Sound on/off** and **Quit**. It works with mouse, touch, arrows or a gamepad.
+- Esc still goes straight back to the menu, as before.
+- **Customise:** the `items` list in `setPaused()` in `src/scenes/GameScene.ts`.
+
+## 10. End-of-match awards
+
+- A gold line under the final standings, listing up to 4 awards someone actually earned:
+  - 🍴 Most KOs
+  - 🍪 Crumb Monster
+  - 🦖 Kaiju Lover
+  - 🧈 Butterfingers (most falls)
+  - 🛡️ Survivor (fewest knockouts)
+  - 🌶️ Condiment Hoarder
+- **Customise:** `awards()` in `src/scenes/GameScene.ts`. Each award is a title, who earned it, and an optional unit.
+
+## 11. Gauntlet (solo survival)
+
+- **Where:** Title → **GAUNTLET** card, now the 5th card; it shows your best wave.
+- **How it works:**
+  - You play as your Story pick. Each wave is one round on a random owned table, with power-ups on.
+  - Wave 1 is 1 easy bot. Every 2 waves adds a bot, up to 5, and they get tougher.
+  - Every 5th wave has a 👑 boss that can go KAIJU straight away.
+  - One life: get knocked out and the run ends right away.
+- Best wave is saved. "NEW BEST!" pops up when you beat it. It also shows in Records, with two new achievements (clear 5 / 10 waves).
+- **Customise:** `src/gauntlet.ts` → `waveSetup()` (bots and levels per wave), `GAUNTLET` (power-ups, mode, boss frequency).

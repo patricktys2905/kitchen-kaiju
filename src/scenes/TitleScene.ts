@@ -11,6 +11,8 @@ import { loadStory, totalStars } from '../story/save';
 import { CHAPTERS } from '../story/chapters';
 import { setTouchMode } from '../touch';
 import { playMusic } from '../music';
+import { gauntletBest } from '../gauntlet';
+import { GameScene } from './GameScene';
 
 export class TitleScene extends Phaser.Scene {
   private nav!: FocusNav;
@@ -42,18 +44,20 @@ export class TitleScene extends Phaser.Scene {
     const go = (key: string, data: object = {}) => { sfx.go(); this.time.delayedCall(80, () => this.scene.start(key, data)); };
     const MODES: { label: string; sub: string; accent: number; scene?: string; disabled?: boolean; data?: object }[] = [
       { label: 'STORY', sub: storySub, accent: 0xff9a3c, scene: 'story' },
-      { label: 'FREE PLAY', sub: 'Up to 6 players · bots · any table', accent: 0x4fd1ff, scene: 'menu' },
+      { label: 'FREE PLAY', sub: 'Up to 6 players · bots', accent: 0x4fd1ff, scene: 'menu' },
       { label: 'ONLINE', sub: 'Play with friends anywhere', accent: 0x8dff6a, scene: 'lobby' },
-      { label: 'PARTY MODES', sub: 'Teams · Crumb Rush · Hot Dumpling', accent: 0xffd24a, scene: 'menu', data: { mode: 'teams' } },
+      { label: 'PARTY MODES', sub: 'Teams · Rush · Hot Dumpling', accent: 0xffd24a, scene: 'menu', data: { mode: 'teams' } },
+      { label: 'GAUNTLET', sub: gauntletBest() ? `Solo · best wave ${gauntletBest()}` : 'Solo survival waves', accent: 0xff5a7a, scene: 'game', data: GameScene.gauntletWave(1, save.pick, { kind: 'local', index: 0 }) },
     ];
-    const buttons = MODES.map((m, i) => new Button(this, 170 + i * 313, 640, {
-      w: 290, h: 104, label: m.label, sub: m.sub, accent: m.accent, size: 32, disabled: m.disabled,
+    const n = MODES.length, cw = Math.min(290, (1240 - (n - 1) * 14) / n);
+    const buttons = MODES.map((m, i) => new Button(this, 20 + cw / 2 + i * (cw + 14), 640, {
+      w: cw, h: 104, label: m.label, sub: m.sub, accent: m.accent, size: n > 4 ? 26 : 32, disabled: m.disabled,
       onClick: () => { if (m.scene) go(m.scene, m.data); },
     }));
     // small extras row (top right): keyboard ↑ from the mode cards reaches it
     const EXTRAS: [string, string][] = [['⚙ SETTINGS', 'settings'], ['❓ HOW TO PLAY', 'help'], ['📖 KAIJU', 'gallery'], ['🏆 RECORDS', 'records']];
     const extras = EXTRAS.map(([label, key], i) => new Button(this, 760 + i * 136, 40, { w: 128, h: 46, label, size: 14, accent: 0xcdb9a3, onClick: () => go(key) }, 6));
-    this.nav = new FocusNav([...extras, ...buttons], buttons.length);
+    this.nav = new FocusNav([...extras, ...buttons], extras.length);
     this.nav.index = extras.length; // start on STORY
     this.add.text(1272, 712, `v${__APP_VERSION__}`, body(11, '#a89680', 700)).setOrigin(1, 1).setDepth(5);
     this.add.text(640, 574, '◀ ▶ choose   ·   ENTER / A / tap to start', body(15, '#f1e4d2', 800)).setOrigin(0.5).setDepth(2).setAlpha(0.85);

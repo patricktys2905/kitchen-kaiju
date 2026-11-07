@@ -12,6 +12,7 @@ export interface Stats {
   pops: number; // Hot Dumplings that popped on someone else while a human was playing
   streak: number; // current win streak
   bestStreak: number;
+  gauntlet: number; // best Gauntlet wave cleared
   modeWins: Partial<Record<GameMode, number>>;
   kaijuWins: Record<number, number>; // species -> match wins
   kaijuPlays: Record<number, number>; // species -> matches played
@@ -21,7 +22,7 @@ export interface Stats {
 
 const KEY = 'kk-stats-v1';
 const fresh = (): Stats => ({
-  matches: 0, wins: 0, roundsWon: 0, kos: 0, crumbs: 0, kaijuForms: 0, pops: 0, streak: 0, bestStreak: 0,
+  matches: 0, wins: 0, roundsWon: 0, kos: 0, crumbs: 0, kaijuForms: 0, pops: 0, streak: 0, bestStreak: 0, gauntlet: 0,
   modeWins: {}, kaijuWins: {}, kaijuPlays: {}, tables: [], achieved: [],
 });
 
@@ -58,6 +59,8 @@ export const ACHIEVEMENTS: Achievement[] = [
   { id: 'pops-10', icon: '💥', name: 'Dumpling Dodger', desc: 'Watch 10 Hot Dumplings pop on someone else', test: s => s.pops >= 10 },
   { id: 'tables-all', icon: '🗺️', name: 'World Tour', desc: 'Play on 12 different tables', test: s => s.tables.length >= 12 },
   { id: 'kaiju-8', icon: '🎭', name: 'Mix It Up', desc: 'Win with 8 different kaiju', test: s => Object.keys(s.kaijuWins).length >= 8 },
+  { id: 'gauntlet-5', icon: '⚔️', name: 'Gauntlet Runner', desc: 'Clear 5 Gauntlet waves', test: s => s.gauntlet >= 5 },
+  { id: 'gauntlet-10', icon: '🏰', name: 'Gauntlet Master', desc: 'Clear 10 Gauntlet waves', test: s => s.gauntlet >= 10 },
   { id: 'matches-25', icon: '🍲', name: 'Dinner Party Animal', desc: 'Finish 25 matches', test: s => s.matches >= 25 },
 ];
 

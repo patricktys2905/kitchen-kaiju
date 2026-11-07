@@ -1287,7 +1287,8 @@ export class World {
   }
 
   // ---------------------------------------------------------------- rounds
-  private endRound(winners: Player[]): void {
+  /** Ends the round now (also used by Gauntlet when you're knocked out). */
+  endRound(winners: Player[]): void {
     this.phase = 'roundEnd';
     this.phaseT = 0;
     this.hot = null;
