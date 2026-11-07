@@ -35,6 +35,8 @@ import { applySnapshot, extrapolate, makeSnapshot, type Snapshot } from '../net/
 import { isTouchDevice, setTouchHud, setTouchMode } from '../touch';
 
 const STEP = 1 / 120;
+/** ⏩ When every human is knocked out for the rest of the round, the bots finish it this many times faster. EASY TO CHANGE (1 = off). */
+export const FAST_FORWARD = 3;
 const POWER_ICON_SCALE = 1.6; // size of condiment power-ups on the table
 const TOUCH_ASSIST_ANGLE = 0.45; // radians either side of facing
 
@@ -73,6 +75,7 @@ export class GameScene extends Phaser.Scene {
   private acc = 0;
   private t = 0;
   private paused = false;
+  private ffText: Phaser.GameObjects.Text | null = null;
   private pauseUi: { nav: FocusNav; objs: Button[]; dim: Phaser.GameObjects.Graphics } | null = null;
   private initData!: GameData;
   /** Per-match tallies for the end-of-match awards. */
@@ -195,6 +198,7 @@ export class GameScene extends Phaser.Scene {
     this.hudHeld = this.slots.map((_, i) => (hasArt('cut-fork') ? this.add.image(this.hudX(i) + this.hudW - 40, 18, 'cut-fork').setDepth(6).setRotation(-0.35) : null));
 
     this.nameTexts = [];
+    this.ffText = withShadow(this.add.text(640, 96, '⏩ FAST FORWARD ×' + FAST_FORWARD + '  ·  only bots left', display(22, '#8dd8ff', { strokeThickness: 5 })).setOrigin(0.5).setDepth(40).setVisible(false), 3);
     this.scoreTexts = this.slots.map(() => this.add.text(0, 0, '', display(15, '#ffe9c7', { strokeThickness: 3 })).setDepth(6));
     this.infoTexts = [];
     this.slots.forEach((s, i) => {
@@ -363,7 +367,9 @@ export class GameScene extends Phaser.Scene {
         return inp;
       });
       this.checkEmotes(human, dt);
-      this.acc += dt * (this.world.mutator === 'turbo' ? MUTATOR_RULES.turboSpeed : 1);
+      const ff = this.onlyBotsLeft();
+      this.ffText?.setVisible(ff).setAlpha(0.75 + 0.25 * Math.sin(this.time.now / 150));
+      this.acc += dt * (this.world.mutator === 'turbo' ? MUTATOR_RULES.turboSpeed : 1) * (ff ? FAST_FORWARD : 1);
       let n = 0;
       while (this.acc >= STEP && n < 16) {
         const inputs = this.slots.map((_, i) => this.bots[i]?.decide(this.world, STEP) ?? human[i]);
@@ -378,6 +384,15 @@ export class GameScene extends Phaser.Scene {
       this.hostBroadcast(dt);
     }
     this.render();
+  }
+
+  /** True when people are playing but all of them are out until the next round, so only bots are left fighting. */
+  private onlyBotsLeft(): boolean {
+    const w = this.world;
+    if (FAST_FORWARD <= 1 || w.phase !== 'play' || this.mode === 'practice') return false;
+    const people = this.slots.map((sl, i) => (sl.kind === 'bot' ? -1 : i)).filter(i => i >= 0);
+    if (!people.length) return false; // attract mode / all-bot matches play at normal speed
+    return people.every(i => { const pl = w.players[i]; return pl && !pl.alive && !(pl.respawnT > 0); }) && w.alivePlayers().length > 1;
   }
 
   // ---------------------------------------------------------------- online

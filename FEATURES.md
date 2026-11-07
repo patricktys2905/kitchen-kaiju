@@ -58,6 +58,8 @@ Each section says **where to customise it**.
 - 51. 12 more Gemini hats
 - 52. Second Helpings: a second Story campaign
 - 53. Second Helpings has its own music
+- 54. Fast forward when only bots are left
+- 55. Clear teams on the Team Feast setup screen
 
 **Where to find things:** title screen cards (Story · Free Play · Online · Party Modes · Daily · Gauntlet), the top-right row (Settings · How to Play · Kaiju · Records), and Free Play keys (G mode · U power-ups · H hazards · X twist · C cup).
 
@@ -502,3 +504,15 @@ A 6-chapter post-game story. It opens once **chapter 6 of The Grand Feast** is c
 
 - The Second Helpings map plays `story2`: a minor-key "midnight snack" version of the Story tune, a bit faster with a busier beat. The Grand Feast keeps `story`.
 - **Customise:** `TRACKS.story2` in `src/music.ts` (notes, tempo, drums, wave). StoryScene chooses the track by campaign.
+
+## 54. Fast forward when only bots are left
+
+- Once every person playing is knocked out for the rest of the round, the bots finish it **3× faster**, with a "⏩ FAST FORWARD" banner. Normal speed comes back at the next round.
+- It doesn't happen in Practice, in Crumb Rush while you're waiting to respawn, or in all-bot attract matches.
+- **Customise:** `FAST_FORWARD` at the top of `src/scenes/GameScene.ts` (1 = off).
+
+## 55. Clear teams on the Team Feast setup screen
+
+- In Team Feast, every seat card shows a big **RED TEAM / BLUE TEAM** tag, a red or blue tint and a thick team-coloured border. The header shows the count (e.g. "RED 2 vs BLUE 2") and suggests adding a player or bot when the teams are uneven.
+- Teams alternate by seat, the same as in the match.
+- **Customise:** team names and colours are in `MODE_RULES.teams` in `src/sim/modes.ts`; the card drawing is in `MenuScene.draw()`.

@@ -16,7 +16,7 @@ import { keyFor, keyLabel } from '../keybinds';
 import { POWERUPS } from '../sim/powerups';
 import { cupGames } from '../cup';
 import { enabledMutators, mutatorDef, type Mutator } from '../sim/mutators';
-import { enabledModes, modeDef, type GameMode } from '../sim/modes';
+import { enabledModes, MODE_RULES, modeDef, type GameMode } from '../sim/modes';
 
 const TITLE = { fontFamily: DISPLAY, color: '#ffe9c7', stroke: INK, strokeThickness: 10 };
 const BODY = { fontFamily: BODY_FONT, fontStyle: '800', color: '#e9dccb' };
@@ -52,6 +52,7 @@ export class MenuScene extends Phaser.Scene {
   private g!: Phaser.GameObjects.Graphics;
   private slotTexts: Phaser.GameObjects.Text[] = [];
   private slotSub: Phaser.GameObjects.Text[] = [];
+  private teamTags: Phaser.GameObjects.Text[] = [];
   private slotFood: Phaser.GameObjects.Text[] = [];
   private infoText!: Phaser.GameObjects.Text;
   private tableText!: Phaser.GameObjects.Text;
@@ -166,6 +167,8 @@ export class MenuScene extends Phaser.Scene {
 
     this.slotTexts = [];
     this.slotSub = [];
+    // Team Feast: a RED TEAM / BLUE TEAM tag on top of each seat card (teams alternate by seat, like in the match)
+    this.teamTags = Array.from({ length: MAX_PLAYERS }, (_, i) => this.add.text(CARD_X(i), 168, '', { ...BODY, fontStyle: '900', fontSize: '15px', color: '#ffffff' }).setOrigin(0.5).setDepth(3).setVisible(false));
     this.slotFood = [];
     for (let i = 0; i < MAX_PLAYERS; i++) {
       this.slotTexts.push(withShadow(this.add.text(CARD_X(i), 322, '', { ...TITLE, fontSize: '22px', strokeThickness: 5 }).setOrigin(0.5).setDepth(2), 3));
@@ -351,10 +354,20 @@ export class MenuScene extends Phaser.Scene {
     for (let i = 0; i < MAX_PLAYERS; i++) {
       const x = CARD_X(i), s = this.slots[i], img = this.cardImgs[i];
       const sp = s ? this.picks[i] : -1, col = sp >= 0 ? SPECIES[sp].color : 0x4a3a2e;
+      const team = this.mode === 'teams' ? i % 2 : -1, tcol = team >= 0 ? MODE_RULES.teams.colors[team] : 0;
       g.fillStyle(0x000000, 0.5);
       g.fillRoundedRect(x - CARD_W / 2, 168, CARD_W, 216, 16);
-      g.lineStyle(3, col, 1);
-      g.strokeRoundedRect(x - CARD_W / 2, 168, CARD_W, 216, 16);
+      if (team >= 0) {
+        g.fillStyle(tcol, s ? 0.28 : 0.12); g.fillRoundedRect(x - CARD_W / 2, 168, CARD_W, 216, 16);
+        g.lineStyle(6, tcol, s ? 1 : 0.5); g.strokeRoundedRect(x - CARD_W / 2, 168, CARD_W, 216, 16);
+        g.fillStyle(tcol, 1); g.fillRoundedRect(x - 66, 155, 132, 28, 14);
+        g.lineStyle(2, 0xffffff, 0.8); g.strokeRoundedRect(x - 66, 155, 132, 28, 14);
+        this.teamTags[i].setText(`${MODE_RULES.teams.names[team]} TEAM`).setVisible(true);
+      } else {
+        this.teamTags[i].setVisible(false);
+        g.lineStyle(3, col, 1);
+        g.strokeRoundedRect(x - CARD_W / 2, 168, CARD_W, 216, 16);
+      }
       if (s && sp >= 0) {
         // left/right arrows for players who can change their kaiju
         if (s.kind !== 'bot') {
@@ -390,7 +403,8 @@ export class MenuScene extends Phaser.Scene {
     }
     const md = modeDef(this.mode);
     this.modeText.setFontSize(this.party ? 20 : 17).setY(150);
-    this.tagline.setText(this.party ? md.blurb : 'Tiny monsters. Giant dinner.');
+    const seats = this.slots.map((_, i) => i % 2), red = seats.filter(t => t === 0).length, blue = seats.length - red;
+    this.tagline.setText(this.mode === 'teams' ? `${md.blurb}   ·   RED ${red}  vs  BLUE ${blue}${red !== blue ? '  (add a player or bot to even it up)' : ''}` : this.party ? md.blurb : 'Tiny monsters. Giant dinner.');
     this.modeText.setText(`${this.party ? `◀ ${md.name} ▶` : 'CLASSIC'}   ·   POWER-UPS: ${this.powerups ? 'ON' : 'OFF'}   ·   HAZARDS: ${this.hazards ? 'ON' : 'OFF'}${this.mutator !== 'none' ? `   ·   ⚡ ${mutatorDef(this.mutator).name}` : ''}`);
     this.infoText.setText(`Bot difficulty: ${this.difficulty.toUpperCase()}   ·   Up to ${MAX_PLAYERS} players   ·   First to ${this.rounds} round${this.rounds === 1 ? '' : 's'}   ·   ${this.own.kaiju.length < SPECIES.length ? `${this.own.kaiju.length}/${SPECIES.length} kaiju (unlock more in Story)` : `${SPECIES.length} kaiju`}`);
     const tl = this.table < 0 ? null : LAYOUTS[this.table];
