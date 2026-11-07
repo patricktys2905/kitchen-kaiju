@@ -44,6 +44,7 @@ Each section says **where to customise it**.
 - 37. Announcer callouts
 - 38. Victory screen and boss intro
 - 39. Big touch buttons
+- 40. Story progress line
 
 **Where to find things:** title screen cards (Story · Free Play · Online · Party Modes · Daily · Gauntlet), the top-right row (Settings · How to Play · Kaiju · Records), and Free Play keys (G mode · U power-ups · H hazards · X twist · C cup).
 
@@ -368,3 +369,8 @@ Each section says **where to customise it**.
 
 - **Settings → BIG TOUCH BUTTONS:** makes the phone THROW / SWIPE / DASH / STOMP buttons about 25% bigger, with spacing to match. Changes straight away.
 - **Customise:** the `body.bigbtns` CSS rules in `src/touch.ts`.
+
+## 40. Story progress line
+
+- Under "THE GRAND FEAST" on the Story map: **Story N% complete · ★ stars · 🌶️ Spicy clears · 🍰 Dessert (after the ending) · 🎁 rewards**. It updates as soon as a chapter result comes in.
+- The % weighs chapters 35%, stars 25%, Spicy 20%, Dessert 10% and rewards 10%. **Customise:** `updateProgress()` in `src/scenes/StoryScene.ts`.

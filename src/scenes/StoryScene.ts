@@ -86,7 +86,8 @@ export class StoryScene extends Phaser.Scene {
     else drawFloor(this.add.graphics().setDepth(-3));
     this.add.graphics().setDepth(-2).fillStyle(0x0d0805, 0.55).fillRect(0, 0, 1280, 720);
     withShadow(this.add.text(30, 26, 'THE GRAND FEAST', display(40, '#ffcf8a', { strokeThickness: 7 })).setDepth(5), 4);
-    this.add.text(34, 78, 'Story mode · conquer every table to win the Golden Spoon', body(15, '#e9dccb', 800)).setDepth(5);
+    this.progressText = this.add.text(34, 78, '', body(15, '#e9dccb', 800)).setDepth(5);
+    this.updateProgress();
     this.mapG = this.add.graphics().setDepth(1);
 
     CHAPTERS.forEach((ch, i) => {
@@ -151,6 +152,15 @@ export class StoryScene extends Phaser.Scene {
     if (this.mode !== 'map') return;
     sfx.pickup();
     if (this.sel < this.save.unlocked) this.playCut(CHAPTER_CUTS[this.sel], () => {});
+  }
+
+  private progressText!: Phaser.GameObjects.Text;
+  /** Overall progress line: chapters, stars, spicy clears, dessert, rewards → one completion %. EASY TO CUSTOMISE: the weights. */
+  private updateProgress(): void {
+    const cleared = this.save.stars.filter(x => x > 0).length, stars = totalStars(this.save), spicyN = (this.save.spicy ?? []).filter(x => x > 0).length;
+    const dessertN = dessertBest(), rewardsN = UNLOCKS.filter(u => isEarned(u, this.save)).length;
+    const pct = Math.round(100 * (cleared / CHAPTERS.length * 0.35 + stars / (CHAPTERS.length * 3) * 0.25 + spicyN / CHAPTERS.length * 0.2 + dessertN / COURSES.length * 0.1 + rewardsN / UNLOCKS.length * 0.1));
+    this.progressText.setText(`Story ${pct}% complete  ·  ★ ${stars}/${CHAPTERS.length * 3}  ·  🌶️ ${spicyN}/${CHAPTERS.length}${this.save.endingSeen ? `  ·  🍰 ${dessertN}/${COURSES.length}` : ''}  ·  🎁 ${rewardsN}/${UNLOCKS.length}`);
   }
 
   // ---------------------------------------------------------------- map
@@ -342,6 +352,7 @@ export class StoryScene extends Phaser.Scene {
     const unlockedNew = r.spicy ? false : recordResult(this.save, r.chapter, r.won, r.stars);
     if (r.spicy) { recordSpicy(this.save, r.chapter, r.won, r.stars); this.spicy = true; }
     const rewards = newlyEarned(before, this.save);
+    this.updateProgress();
     this.rewardsBtn?.setText(`🎁 REWARDS ${UNLOCKS.filter(u => isEarned(u, this.save)).length}/${UNLOCKS.length}`);
     this.drawMap();
     this.drawPanel();
