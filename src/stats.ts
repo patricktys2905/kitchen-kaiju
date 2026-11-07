@@ -14,6 +14,7 @@ export interface Stats {
   streak: number; // current win streak
   bestStreak: number;
   gauntlet: number; // best Gauntlet wave cleared
+  cups: number; // Party Cups won by a human
   modeWins: Partial<Record<GameMode, number>>;
   kaijuWins: Record<number, number>; // species -> match wins
   kaijuPlays: Record<number, number>; // species -> matches played
@@ -23,7 +24,7 @@ export interface Stats {
 
 const KEY = 'kk-stats-v1';
 const fresh = (): Stats => ({
-  matches: 0, wins: 0, roundsWon: 0, kos: 0, crumbs: 0, kaijuForms: 0, pops: 0, streak: 0, bestStreak: 0, gauntlet: 0,
+  matches: 0, wins: 0, roundsWon: 0, kos: 0, crumbs: 0, kaijuForms: 0, pops: 0, streak: 0, bestStreak: 0, gauntlet: 0, cups: 0,
   modeWins: {}, kaijuWins: {}, kaijuPlays: {}, tables: [], achieved: [],
 });
 
@@ -66,6 +67,7 @@ export const ACHIEVEMENTS: Achievement[] = [
   { id: 'spicy-1', icon: '🌶️', name: 'Feeling Spicy', desc: 'Clear a Story chapter on Spicy', test: () => safeSpicy() >= 1 },
   { id: 'spicy-12', icon: '🔥', name: 'Ghost Pepper', desc: 'Clear all 12 Story chapters on Spicy', test: () => safeSpicy() >= 12 },
   { id: 'dessert', icon: '🍰', name: 'Clean Plate', desc: 'Finish the whole Dessert Course', test: () => { try { return Number(localStorage.getItem('kk-dessert-v1') ?? 0) >= 4; } catch { return false; } } },
+  { id: 'cup', icon: '🏆', name: 'Cup Champion', desc: 'Win a Party Cup', test: s => (s.cups ?? 0) >= 1 },
   { id: 'matches-25', icon: '🍲', name: 'Dinner Party Animal', desc: 'Finish 25 matches', test: s => s.matches >= 25 },
 ];
 

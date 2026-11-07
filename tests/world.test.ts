@@ -631,7 +631,7 @@ describe('stats, achievements and settings', () => {
   it('achievements unlock once from stats', async () => {
     const { ACHIEVEMENTS, checkAchievements } = await import('../src/stats');
     expect(new Set(ACHIEVEMENTS.map(a => a.id)).size).toBe(ACHIEVEMENTS.length);
-    const s = { matches: 1, wins: 1, roundsWon: 3, kos: 0, crumbs: 0, kaijuForms: 0, pops: 0, streak: 1, bestStreak: 1, gauntlet: 0, modeWins: { teams: 1 }, kaijuWins: { 0: 1 }, kaijuPlays: { 0: 1 }, tables: [0], achieved: [] as string[] };
+    const s = { matches: 1, wins: 1, roundsWon: 3, kos: 0, crumbs: 0, kaijuForms: 0, pops: 0, streak: 1, bestStreak: 1, gauntlet: 0, cups: 0, modeWins: { teams: 1 }, kaijuWins: { 0: 1 }, kaijuPlays: { 0: 1 }, tables: [0], achieved: [] as string[] };
     expect(checkAchievements(s).map(a => a.id).sort()).toEqual(['first-win', 'teams']);
     expect(checkAchievements(s)).toEqual([]); // never twice
   });
@@ -830,5 +830,15 @@ describe('dessert course', () => {
       expect(new Set(c.rivals.map(r => r.species)).size).toBe(c.rivals.length);
     }
     expect(COURSES[COURSES.length - 1].rivals.some(r => r.boss)).toBe(true);
+  });
+});
+
+describe('party cup', () => {
+  it('awards points by placing (ties share the better place) and skips modes that need more players', async () => {
+    const { placePoints, cupGames, CUP } = await import('../src/cup');
+    expect(placePoints([{ score: 2, kos: 5 }, { score: 0, kos: 1 }, { score: 1, kos: 0 }])).toEqual([CUP.points[0], CUP.points[2], CUP.points[1]]);
+    expect(placePoints([{ score: 2, kos: 3 }, { score: 2, kos: 3 }])).toEqual([CUP.points[0], CUP.points[0]]);
+    expect(cupGames(2).some(g => g.mode === 'hotDumpling')).toBe(false);
+    expect(cupGames(4).length).toBe(CUP.games.length);
   });
 });

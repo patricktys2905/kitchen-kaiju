@@ -14,6 +14,7 @@ import { owned, type Owned } from '../story/unlocks';
 import { playMusic } from '../music';
 import { keyFor, keyLabel } from '../keybinds';
 import { POWERUPS } from '../sim/powerups';
+import { cupGames } from '../cup';
 import { enabledModes, modeDef, type GameMode } from '../sim/modes';
 
 const TITLE = { fontFamily: DISPLAY, color: '#ffe9c7', stroke: INK, strokeThickness: 10 };
@@ -182,7 +183,7 @@ export class MenuScene extends Phaser.Scene {
     this.add.text(640, 560, rules.join('\n'), { ...BODY, fontStyle: '700', fontSize: '15px', align: 'center', color: '#cdb9a3', lineSpacing: 5 }).setOrigin(0.5, 0).setDepth(2);
     if (!isTouchDevice) {
       this.chipLine(chipG, 640, 640, '[THROW] join   [◀ ▶] pick kaiju   [DASH] leave   [B] [N] add / remove bot', 15);
-      this.chipLine(chipG, 640, 670, '[2] bots  [M] table  [R] rounds  [G] mode  [U] power-ups  [H] hazards  [O] ONLINE  [1] PLAY', 15);
+      this.chipLine(chipG, 640, 670, '[2] bots  [M] table  [R] rounds  [G] mode  [U] power-ups  [H] hazards  [O] ONLINE  [C] CUP  [1] PLAY', 15);
     }
     setTouchMode('menu');
     playMusic('menu');
@@ -206,6 +207,17 @@ export class MenuScene extends Phaser.Scene {
       if (gm && enabledModes().some(m => m.id === gm)) this.mode = gm;
       this.startGame();
     }
+  }
+
+  /** 🏆 Party Cup with the current seats (bots fill to 3 so every mode works). */
+  private startCup(): void {
+    while (this.slots.length < 3) this.addSlot({ kind: 'bot', index: this.slots.length });
+    this.fixPicks();
+    const g = cupGames(this.slots.length)[0];
+    this.scene.start('game', {
+      slots: this.slots.slice(), difficulty: this.difficulty, species: this.picks.slice(), botLevels: this.slots.map((s, i) => (s.kind === 'bot' ? this.botLevels[i] ?? null : null)),
+      tables: this.table < 0 ? this.own.tables.slice() : [this.table], rounds: g.rounds, mode: g.mode, powerups: this.powerups, hazards: this.hazards, cup: { game: 0, points: [] },
+    });
   }
 
   private startGame(): void {
@@ -248,6 +260,7 @@ export class MenuScene extends Phaser.Scene {
       if (j >= 0) this.cycle(j, 1);
     }
     if (consumeTap('Digit1')) { this.startGame(); return; }
+    if (consumeTap('KeyC') || consumeTap('TouchCup')) { this.startCup(); return; }
     if (consumeTap('Escape')) { this.scene.start('title'); return; }
     clearTaps();
     setTouchHud({

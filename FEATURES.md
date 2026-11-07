@@ -240,3 +240,11 @@ Each section says **where to customise it**.
 
 - Tap or click a bot's card to cycle just that bot between EASY / NORMAL / HARD; it's marked ✎ when changed. The **2** key (touch: **BOTS**) still sets every bot at once and clears the per-bot choices.
 - Kept for rematches and when you come back to the menu.
+
+## 27. 🏆 Party Cup
+
+- **Where:** Free Play → **[C] CUP** (touch: **🏆 CUP** pill). Uses whoever has joined, and fills with bots up to 3.
+- Five games in a row: Classic (first to 2) → Crumb Rush (1 round) → Hot Dumpling (first to 2) → Team Feast (first to 2) → Classic final (first to 3). Modes needing more players are skipped.
+- Points per game by placing: 5 / 3 / 2 / 1. Ties share the better place, and team members share their team's place. Standings show after each game ("1 / START to continue"); the last one crowns the cup winner.
+- New achievement: 🏆 **Cup Champion**.
+- **Customise:** `src/cup.ts` → `CUP.games` (order, modes, rounds) and `CUP.points`.
