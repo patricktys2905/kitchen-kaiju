@@ -284,3 +284,8 @@ Each section says **where to customise it**.
 - Locked count-style achievements (wins, KOs, crumbs, streaks, tables, kaiju, Gauntlet waves, matches) show a progress bar such as "340/1000" in Records.
 - 25 achievements now, so the list has pages: **PAGE ▶** (18 per page).
 - **Customise:** add `progress: s => [current, goal]` to any achievement in `src/stats.ts`; `PER_PAGE` in `src/scenes/ExtrasScenes.ts`.
+
+## 33. Loading screen
+
+- First load (or a slow connection) shows "KITCHEN KAIJU", a progress bar with a percentage, and playful lines: "Laying the tablecloth… Polishing the cutlery… Waking the kaiju…".
+- **Customise:** `LOADING_LINES` in `src/render/art.ts`.

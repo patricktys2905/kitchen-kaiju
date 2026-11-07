@@ -8,6 +8,9 @@ let available = new Set<string>();
 export const hasArt = (key: string) => available.has(key);
 
 /** Loads public/art/manifest.json, then every image listed in it, then starts the menu. */
+/** Lines shown while the art loads (in order as it fills). EASY TO CUSTOMISE. */
+export const LOADING_LINES = ['Laying the tablecloth…', 'Polishing the cutlery…', 'Waking the kaiju…', 'Warming the toasters…', 'Sharpening the forks…', 'Dinner is almost served…'];
+
 export class BootScene extends Phaser.Scene {
   constructor() {
     super('boot');
@@ -23,11 +26,17 @@ export class BootScene extends Phaser.Scene {
     const first = mode === 'free' ? 'menu' : mode === 'story' ? 'story' : mode === 'online' ? 'lobby' : 'title';
     const go = () => { void fontsReady().then(() => this.scene.start(first)); };
     if (!list.length) { go(); return; }
+    // loading screen: title, bar, percentage and a rotating "setting the table" line
+    const font = (size: number, color: string) => ({ fontFamily: "'Luckiest Guy', 'Arial Black', Impact, sans-serif", fontSize: `${size}px`, color, stroke: '#2a1408', strokeThickness: Math.round(size / 8) });
+    this.add.text(640, 250, 'KITCHEN KAIJU', font(72, '#ffe9c7')).setOrigin(0.5);
+    const label = this.add.text(640, 410, '', { fontFamily: 'Nunito, sans-serif', fontStyle: '800', fontSize: '20px', color: '#e9dccb' }).setOrigin(0.5);
     const bar = this.add.graphics();
+    const lines = LOADING_LINES;
     this.load.on('progress', (v: number) => {
       bar.clear();
-      bar.fillStyle(0x3a2c22, 1).fillRoundedRect(440, 350, 400, 20, 10);
-      bar.fillStyle(0xffb347, 1).fillRoundedRect(440, 350, 400 * v, 20, 10);
+      bar.fillStyle(0x3a2c22, 1).fillRoundedRect(440, 350, 400, 22, 11);
+      bar.fillStyle(0xffb347, 1).fillRoundedRect(440, 350, Math.max(22, 400 * v), 22, 11);
+      label.setText(`${lines[Math.min(lines.length - 1, Math.floor(v * lines.length))]}  ${Math.round(v * 100)}%`);
     });
     for (const k of list) this.load.image(k, `art/${k}.webp`);
     this.load.once('complete', () => {
