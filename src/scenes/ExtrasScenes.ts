@@ -265,13 +265,13 @@ export class HelpScene extends PanelScene {
       });
     } else {
       enabledModes().forEach((m, i) => {
-        const y = 165 + i * 104;
+        const y = 160 + i * 92;
         head(90, y, m.name);
         txt(90, y + 34, `${m.blurb}. ${m.howTo}${m.minPlayers > 2 ? ` (${m.minPlayers}+ players; bots fill in.)` : ''}`, 17);
       });
-      head(90, 580, 'TWISTS (Free Play / Party Modes [X] · online lobby)');
-      txt(90, 612, enabledMutators().filter(m => m.id !== 'none').map(m => `${m.name}: ${m.blurb}`).join(' · '), 14, '#e9dccb');
-      txt(90, 688, 'Play these from the PARTY MODES card on the title screen ([G] or tap the mode to change).', 13, '#cdb9a3');
+      head(90, 540, 'TWISTS (Free Play / Party Modes [X] · online lobby)');
+      txt(90, 572, enabledMutators().filter(m => m.id !== 'none').map(m => `${m.name}: ${m.blurb}`).join(' · '), 13, '#e9dccb');
+      txt(90, 694, 'Play these from the PARTY MODES card on the title screen ([G] or tap the mode to change).', 13, '#cdb9a3');
     }
   }
 }
