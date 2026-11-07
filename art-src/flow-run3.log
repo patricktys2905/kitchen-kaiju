@@ -1,0 +1,24 @@
+I'll check Flow once the 90-second wait finishes.
+
+The s2-2 retry is approved and generating. I'll check it after the 2-minute wait.
+
+The s2-5 clip is approved and generating. I'll check it in about 2 minutes.
+
+The s2-end clip is approved and generating. I'll check it in about 2 minutes.
+
+All three clips are saved in `art-src/clips-raw/`. I made 4 clips at 10 credits each (40 credits): one per key, plus one retry for s2-2. I used 1 of the 2 allowed retries.
+
+```
+s2-2: saved
+s2-5: saved
+s2-end: saved
+Credits remaining: 480 Google Flow credits (resets Nov 22)
+```
+
+- **s2-2:** The first take failed the check: the toast fox has no nose in the first frame but grew a black nose from about 4s. The retry has no new nose, and all three characters keep their designs. The retry is `s2-2.mp4` and the first take is kept as `s2-2-alt.mp4`.
+- **s2-5:** No drift. The kangaroo's nose, the hedgehog's nose and the penguin's beak are all in the original still. One small departure from the prompt: by about 5s the kangaroo's smile becomes a big toothy grin, more than "smiles a little wider".
+- **s2-end:** No drift. All noses and beaks match the still, and nobody new appears. The penguin and owl spread their wings, which goes beyond "stay completely still", but their shapes stay the same.
+
+Flow had reset the video model to Omni 1.2 Flash, so I set it to Veo 3.1 Lite, x1, 16:9 before generating. I approved each generation once and never chose "Always approve".
+
+To view frames I briefly ran a small file server on 127.0.0.1, because the browser can't open local files and there's no ffmpeg or Python here. I stopped it afterwards, and I've closed the tabs I opened. The older `-v1`/`-v2` files are untouched.

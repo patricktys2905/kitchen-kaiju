@@ -16,6 +16,9 @@ const KEEP = { 'cut-4': 4.5, 'cut-11': 3.5, 'cut-7': 4.6, 'cut-end': 6.0, 'cut-2
 const CROPS = {
 };
 const PATCHES = {
+  's2-5': { img: 'art-src/patch-s2-5.png', x: '440', y: '10' }, // Velvaroo grew a toothy grin: keep its drawn face
+  's2-end': { img: 'art-src/patch-s2-end.png', x: '760', y: '200' }, // Tacowl lost its taco shell when flapping: keep it as drawn
+  's2-2': { img: 'art-src/patch-s2-2.png', x: '718', y: '72' }, // butter dripped over Toastbat's face: keep its drawn head
   'cut-2': { img: 'art-src/patch-cut-2.png', x: '125-2.7*min(t,2.2)', y: '364+0.9*min(t,2.2)' }, // takeaway carton had a face
 };
 for (const f of fs.readdirSync(RAW).filter(f => f.endsWith('.mp4'))) {
