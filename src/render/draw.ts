@@ -297,6 +297,21 @@ export function drawCutleryShape(g: G, kind: Cutlery['kind'], x: number, y: numb
       g.fillStyle(SILVER_DARK, 1);
       poly(g, ellipse(15, 0, 8, 8, 12), x, y, a, s);
       break;
+    case 'pizzacutter':
+      g.fillStyle(0xd8281e, 1);
+      poly(g, [[-20, -3], [2, -3], [2, 3], [-20, 3]], x, y, a, s);
+      g.fillStyle(SILVER, 1);
+      poly(g, ellipse(12, 0, 10, 10, 16), x, y, a, s);
+      g.fillStyle(SILVER_DARK, 1);
+      poly(g, ellipse(12, 0, 3, 3, 8), x, y, a, s);
+      break;
+    case 'rollingpin':
+      g.fillStyle(0xe0b070, 1);
+      poly(g, [[-18, -5], [18, -5], [18, 5], [-18, 5]], x, y, a, s);
+      g.fillStyle(0x8a5a2e, 1);
+      poly(g, [[-28, -2.5], [-18, -2.5], [-18, 2.5], [-28, 2.5]], x, y, a, s);
+      poly(g, [[18, -2.5], [28, -2.5], [28, 2.5], [18, 2.5]], x, y, a, s);
+      break;
     case 'spork':
       g.fillStyle(0xffcf5a, 1);
       poly(g, [[-16, -2], [6, -2], [6, 2], [-16, 2]], x, y, a, s);

@@ -10,7 +10,7 @@ import { body, display, withShadow } from '../render/fonts';
 import { Button, FocusNav } from '../render/ui';
 import { getSettings, LEVELS, setSetting, SETTINGS_ROWS, type Settings } from '../settings';
 import { SPECIES } from '../sim/constants';
-import { CUTLERY, type CutleryKind } from '../sim/cutlery';
+import { CUTLERY, RARE_KINDS, type CutleryKind } from '../sim/cutlery';
 import { LAYOUTS } from '../sim/layouts';
 import { enabledModes } from '../sim/modes';
 import { ACHIEVEMENTS, loadStats } from '../stats';
@@ -140,8 +140,8 @@ export class HelpScene extends PanelScene {
       ].join('\n'), 16, '#e9dccb');
     } else if (p === 'cutlery') {
       (Object.keys(CUTLERY) as CutleryKind[]).forEach((k, i) => {
-        const d = CUTLERY[k], x = 110 + (i % 2) * 560, y = 180 + Math.floor(i / 2) * 160;
-        if (hasArt(`cut-${k}`)) this.content.push(fitInside(this.add.image(x + 40, y + 50, `cut-${k}`).setRotation(-0.6), 90, 90).setDepth(5));
+        const d = CUTLERY[k], x = 110 + (i % 2) * 560, y = 172 + Math.floor(i / 2) * 128;
+        if (hasArt(`cut-${k}`)) this.content.push(fitInside(this.add.image(x + 40, y + 44, `cut-${k}`).setRotation(-0.6), 84, 84).setDepth(5));
         head(x + 110, y + 8, d.name.toUpperCase());
         const traits = [
           d.speed >= 900 ? 'very fast' : d.speed <= 560 ? 'slow' : 'quick',
@@ -150,7 +150,7 @@ export class HelpScene extends PanelScene {
           d.bounces ? `bounces ${d.bounces}× off walls` : '',
           d.returns ? 'comes back like a boomerang' : '',
           d.heavy ? 'HEAVY: keeps going after a hit and shoves loose cutlery' : '',
-          k === 'spork' ? 'rare pickup only' : '',
+          RARE_KINDS.includes(k) ? 'rare pickup only' : '',
         ].filter(Boolean).join(' · ');
         txt(x + 110, y + 44, traits, 16, '#e9dccb', 400);
       });

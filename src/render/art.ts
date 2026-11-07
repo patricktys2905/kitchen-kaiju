@@ -63,7 +63,7 @@ export class SpritePool {
 }
 
 /** On-table length of each cutlery sprite (matches the old shape sizes). */
-export const CUTLERY_LEN: Record<CutleryKind, number> = { fork: 46, spoon: 44, knife: 46, chopstick: 50, ladle: 56, spork: 44 };
+export const CUTLERY_LEN: Record<CutleryKind, number> = { fork: 46, spoon: 44, knife: 46, chopstick: 50, ladle: 56, spork: 44, pizzacutter: 48, rollingpin: 62 };
 
 /** Fits an image inside a w x h box (keeps aspect). */
 export function fitInside(img: Phaser.GameObjects.Image, w: number, h: number): Phaser.GameObjects.Image {

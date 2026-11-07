@@ -1,7 +1,7 @@
 // Kitchen Kaiju simulation. Pure TypeScript: no rendering, no DOM, no Phaser.
 // The renderer reads state + drains `events`; tests drive it directly.
 import { P, RULES, TABLE } from './constants';
-import { CUTLERY, STARTER_KINDS, type CutleryKind } from './cutlery';
+import { CUTLERY, RARE_CHANCE, RARE_KINDS, STARTER_KINDS, type CutleryKind } from './cutlery';
 import { LAYOUTS, type Layout } from './layouts';
 import { angleDiff, circCircle, circRect, clamp, type Hit } from './math';
 import { MODE_RULES, type GameMode } from './modes';
@@ -966,7 +966,7 @@ export class World {
         if (loose < RULES.maxLoosePickups && this.cutlery.length < this.players.length * 2 + 2) {
           const s = this.freeSpot(40, 80);
           if (s) {
-            const kind: CutleryKind = this.rng.next() < 0.15 ? 'spork' : this.rng.pick(STARTER_KINDS);
+            const kind: CutleryKind = this.rng.next() < RARE_CHANCE && RARE_KINDS.length ? this.rng.pick(RARE_KINDS) : this.rng.pick(STARTER_KINDS);
             this.newCutlery(kind, s[0], s[1]);
             this.emit({ type: 'spawnCutlery', kind, x: s[0], y: s[1] });
           }

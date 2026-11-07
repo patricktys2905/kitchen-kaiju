@@ -169,3 +169,13 @@ Each section says **where to customise it**.
 - **Keys:** Keyboard Left **Q** · Keyboard Right **;** · Gamepad **LT/L2** or **BACK/SELECT** · phone **😜 EMOTE** button (under PAUSE / MENU).
 - Works online: guests' emotes show for everyone. Bots sometimes gloat after a knockout (25%).
 - **Customise:** `src/emotes.ts` (emote list, keys, pad buttons, bot gloat chance, bubble time, cooldown).
+
+## 18. New rare cutlery: Pizza Cutter and Rolling Pin (Gemini art)
+
+- **Pizza Cutter:** quick, long range, bounces off walls **3 times**, spins.
+- **Rolling Pin:** slow, short range, big and **HEAVY**: it keeps going after a hit and shoves loose cutlery.
+- Both are rare table pickups, like the Spork (25% of table pickups are rare). Never handed out at round start. They show in How to Play → Cutlery, and work online.
+- **Customise:**
+  - `src/sim/cutlery.ts`: each one's speed, range, size, bounces and heavy flag; `RARE_KINDS` and `RARE_CHANCE`.
+  - Art: `public/art/cut-pizzacutter.webp`, `cut-rollingpin.webp`, from `art-src/jobs-cutlery2.json`.
+  - New kinds must be **appended** to `KINDS` in `src/net/snapshot.ts`.

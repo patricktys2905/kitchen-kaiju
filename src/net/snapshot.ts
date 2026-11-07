@@ -6,7 +6,7 @@ import type { Cutlery, CutleryState, Phase, World } from '../sim/world';
 import type { PowerKind } from '../sim/powerups';
 const POWERS: PowerKind[] = ['hotsauce', 'mustard', 'gravy', 'sugar'];
 
-const KINDS: CutleryKind[] = ['fork', 'spoon', 'knife', 'chopstick', 'ladle', 'spork'];
+const KINDS: CutleryKind[] = ['fork', 'spoon', 'knife', 'chopstick', 'ladle', 'spork', 'pizzacutter', 'rollingpin']; // append only (online compatibility)
 const STATES: CutleryState[] = ['held', 'flying', 'stuck', 'returning'];
 const PHASES: Phase[] = ['countdown', 'play', 'roundEnd', 'matchEnd'];
 const r1 = (v: number) => Math.round(v * 10) / 10;

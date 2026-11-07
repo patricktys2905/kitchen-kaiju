@@ -749,3 +749,27 @@ describe('daily challenge', () => {
     }
   });
 });
+
+describe('rare cutlery', () => {
+  it('pizza cutters and rolling pins turn up as table pickups and survive snapshots', async () => {
+    const { RARE_KINDS } = await import('../src/sim/cutlery');
+    const { makeSnapshot, applySnapshot } = await import('../src/net/snapshot');
+    const seen = new Set<string>();
+    for (let seed = 1; seed <= 25 && RARE_KINDS.some(k => !seen.has(k)); seed++) {
+      const w = new World({ players: [{ name: 'a' }, { name: 'b' }], seed, hazards: false, layout: 0 });
+      for (let t = 0; t < 240; t += 1 / 60) {
+        w.step(1 / 60, []);
+        for (const e of w.drainEvents()) if (e.type === 'spawnCutlery') seen.add(e.kind);
+        w.cutlery = w.cutlery.filter(c => c.owner !== null); // clear pickups so more keep spawning
+      }
+    }
+    for (const k of RARE_KINDS) expect(seen.has(k), k).toBe(true);
+    const host = makeWorld(2);
+    host.newCutlery('rollingpin', 500, 300);
+    host.newCutlery('pizzacutter', 600, 300);
+    const guest = new World({ players: [{ name: 'a' }, { name: 'b' }] });
+    applySnapshot(guest, JSON.parse(JSON.stringify(makeSnapshot(host))));
+    expect(guest.cutlery.map(c => c.kind)).toContain('rollingpin');
+    expect(guest.cutlery.map(c => c.kind)).toContain('pizzacutter');
+  });
+});

@@ -1,0 +1,12 @@
+[
+  {
+    "name": "cut-pizzacutter",
+    "newChat": true,
+    "refs": ["art-src/ref-cutlery.png"],
+    "prompt": "Generate an image. The attached picture shows cutlery sprites from my party game. Draw ONE new prop in exactly the same style (bold cartoon, thick dark outlines, cel shading, one white highlight), top-down view, lying flat and perfectly horizontal on a solid flat magenta (#FF00FF) background: a PIZZA CUTTER with a red plastic handle on the LEFT and a big shiny round steel wheel blade on the RIGHT. Same size and framing as the references. No text, no shadow. Square 1:1."
+  },
+  {
+    "name": "cut-rollingpin",
+    "prompt": "Next prop, exactly the same style, top-down view, framing and solid flat magenta (#FF00FF) background: a chunky wooden ROLLING PIN lying flat and perfectly horizontal, a fat light-wood barrel in the middle with two darker wooden handles at each end, a dusting of flour on it. No text, no shadow. Square 1:1."
+  }
+]

@@ -1,4 +1,4 @@
-export type CutleryKind = 'fork' | 'spoon' | 'knife' | 'chopstick' | 'ladle' | 'spork';
+export type CutleryKind = 'fork' | 'spoon' | 'knife' | 'chopstick' | 'ladle' | 'spork' | 'pizzacutter' | 'rollingpin';
 
 export interface CutleryDef {
   kind: CutleryKind;
@@ -19,8 +19,14 @@ export const CUTLERY: Record<CutleryKind, CutleryDef> = {
   knife:     { kind: 'knife',     name: 'Butter Knife', speed: 1000, range: 380, radius: 8,  bounces: 0, returns: false, split: 1, heavy: false, spin: true },
   chopstick: { kind: 'chopstick', name: 'Chopsticks',   speed: 820,  range: 560, radius: 7,  bounces: 0, returns: false, split: 2, heavy: false, spin: false },
   ladle:     { kind: 'ladle',     name: 'Ladle',        speed: 520,  range: 440, radius: 16, bounces: 0, returns: false, split: 1, heavy: true,  spin: false },
+  pizzacutter: { kind: 'pizzacutter', name: 'Pizza Cutter', speed: 860, range: 620, radius: 11, bounces: 3, returns: false, split: 1, heavy: false, spin: true },
+  rollingpin:  { kind: 'rollingpin',  name: 'Rolling Pin',  speed: 560, range: 360, radius: 18, bounces: 0, returns: false, split: 1, heavy: true,  spin: false },
   spork:     { kind: 'spork',     name: 'Spork',        speed: 740,  range: 460, radius: 9,  bounces: 1, returns: true,  split: 1, heavy: false, spin: false },
 };
+
+/** Rare table pickups (never handed out at round start). EASY TO CUSTOMISE: add/remove kinds or change the chance. */
+export const RARE_KINDS: CutleryKind[] = ['spork', 'pizzacutter', 'rollingpin'];
+export const RARE_CHANCE = 0.25; // share of table pickups that are rare
 
 /** Kinds handed out at round start (spork is a rare pickup only). */
 export const STARTER_KINDS: CutleryKind[] = ['fork', 'spoon', 'knife', 'chopstick', 'ladle'];
