@@ -14,6 +14,7 @@ import { playMusic } from '../music';
 import { owned, type Owned } from '../story/unlocks';
 import { enabledModes, modeDef, type GameMode } from '../sim/modes';
 import { POWERUPS } from '../sim/powerups';
+import { currentHat } from '../hats';
 import { enabledMutators, mutatorDef, type Mutator } from '../sim/mutators';
 
 const CSS = `
@@ -115,11 +116,11 @@ export class LobbyScene extends Phaser.Scene {
     this.host = host;
     this.view = 'host';
     this.mySeat = 0;
-    this.seats = [{ who: 'host', name: 'You (host)', species: 0 }];
+    this.seats = [{ who: 'host', name: 'You (host)', species: 0, hat: currentHat().id }];
     host.onStatus = (t, ok) => { this.status = t; this.statusOk = ok; this.render(); };
-    host.onGuestJoin = (g, name, route) => {
+    host.onGuestJoin = (g, name, route, hat) => {
       const free = this.own.kaiju.filter(k => !this.seats.some(s => s.species === k));
-      this.seats.push({ who: 'guest', guest: g, name, species: free[0] ?? 0, route });
+      this.seats.push({ who: 'guest', guest: g, name, species: free[0] ?? 0, route, hat });
       sfx.join(this.seats.length);
       this.syncLobby();
     };
@@ -135,6 +136,7 @@ export class LobbyScene extends Phaser.Scene {
     localStorage.setItem('kk-name', name);
     this.guest?.close();
     const guest = new NetGuest();
+    guest.hat = currentHat().id;
     this.guest = guest;
     guest.onStatus = (t, ok) => { this.status = t; this.statusOk = ok; this.render(); };
     guest.onClosed = reason => { this.status = reason; this.statusOk = false; this.seats = []; this.guest = null; this.render(); };
@@ -179,17 +181,17 @@ export class LobbyScene extends Phaser.Scene {
     const species = seats.map(s => s.species);
     const names = seats.map(s => s.name);
     const tables = this.table < 0 ? this.own.tables.slice() : [this.table];
-    seats.forEach((s, i) => { if (s.who === 'guest' && s.guest !== undefined) host.send(s.guest, { t: 'start', species, names, seat: i, tables, rounds: this.rounds, mode: this.mode, powerups: this.powerups, hazards: this.hazards, mutator: this.mutator }); });
+    seats.forEach((s, i) => { if (s.who === 'guest' && s.guest !== undefined) host.send(s.guest, { t: 'start', species, names, seat: i, tables, rounds: this.rounds, mode: this.mode, powerups: this.powerups, hazards: this.hazards, mutator: this.mutator, hats: seats.map(s => s.hat ?? '') }); });
     const slots: Slot[] = seats.map(s => (s.who === 'host' ? { kind: 'local', index: 0 } : s.who === 'guest' ? { kind: 'remote', index: s.guest! } : { kind: 'bot', index: 0 }));
     this.leaving = true;
-    this.scene.start('game', { slots, difficulty: this.difficulty, species, tables, rounds: this.rounds, mode: this.mode, powerups: this.powerups, hazards: this.hazards, mutator: this.mutator, net: { role: 'host', host } });
+    this.scene.start('game', { slots, difficulty: this.difficulty, species, tables, rounds: this.rounds, mode: this.mode, powerups: this.powerups, hazards: this.hazards, mutator: this.mutator, hats: seats.map(s => s.hat ?? ''), net: { role: 'host', host } });
   }
 
   private launchGuest(m: Extract<NetMsg, { t: 'start' }>): void {
     if (!this.guest) return;
     const slots: Slot[] = m.species.map((_, i) => (i === m.seat ? { kind: 'local', index: 0 } : { kind: 'remote', index: i }));
     this.leaving = true;
-    this.scene.start('game', { slots, difficulty: this.difficulty, species: m.species, tables: m.tables, rounds: m.rounds, mode: m.mode as GameMode | undefined, powerups: m.powerups, hazards: m.hazards, mutator: m.mutator as Mutator | undefined, net: { role: 'guest', guest: this.guest, seat: m.seat } });
+    this.scene.start('game', { slots, difficulty: this.difficulty, species: m.species, tables: m.tables, rounds: m.rounds, mode: m.mode as GameMode | undefined, powerups: m.powerups, hazards: m.hazards, mutator: m.mutator as Mutator | undefined, hats: m.hats, net: { role: 'guest', guest: this.guest, seat: m.seat } });
   }
 
   // ---------------------------------------------------------------- UI

@@ -22,7 +22,7 @@ import { COURSES, saveDessert } from '../story/dessert';
 import { cupGames, placePoints } from '../cup';
 import { GAUNTLET, gauntletBest, gauntletTables, saveGauntletBest, waveSetup } from '../gauntlet';
 import { owned } from '../story/unlocks';
-import { currentHat } from '../hats';
+import { currentHat, HATS } from '../hats';
 import { PRACTICE, PRACTICE_STEPS } from '../practice';
 import { DAILY, dailySetup, loadDaily, recordDaily } from '../daily';
 import { REPLAY, ReplayBuffer } from '../replay';
@@ -51,6 +51,7 @@ export interface GameData {
   powerups?: boolean; // condiment power-ups (Free Play; default POWERUPS.enabled, never in Story)
   hazards?: boolean; // table hazards (hand, wind, cleaver…); default on
   mutator?: Mutator; // Free Play / Online rule twist
+  hats?: string[]; // online: each seat's hat id ('' = none)
   gauntlet?: { wave: number; bosses: number[] }; // Gauntlet: seat 0 is you, one round per wave
   daily?: { date: string }; // Daily Challenge: seat 0 is you
   attract?: boolean; // title-screen demo: any input goes back to the title
@@ -381,7 +382,7 @@ export class GameScene extends Phaser.Scene {
         if (m.t === 'snap') this.inbox.push({ s: m.s, ev: m.ev });
         if (m.t === 'start') {
           const slots = m.species.map((_, i) => (i === m.seat ? { kind: 'local' as const, index: 0 } : { kind: 'remote' as const, index: i }));
-          this.scene.restart({ slots, difficulty: this.difficulty, species: m.species, tables: m.tables, rounds: m.rounds, mode: m.mode as GameMode | undefined, powerups: m.powerups, hazards: m.hazards, mutator: m.mutator as Mutator | undefined, net: { role: 'guest', guest: net.guest, seat: m.seat } });
+          this.scene.restart({ slots, difficulty: this.difficulty, species: m.species, tables: m.tables, rounds: m.rounds, mode: m.mode as GameMode | undefined, powerups: m.powerups, hazards: m.hazards, mutator: m.mutator as Mutator | undefined, hats: m.hats, net: { role: 'guest', guest: net.guest, seat: m.seat } });
         }
       };
       net.guest.onClosed = reason => { this.netNotice = reason; this.time.delayedCall(2500, () => this.scene.start('menu', { difficulty: this.difficulty })); };
@@ -399,11 +400,11 @@ export class GameScene extends Phaser.Scene {
   }
 
   private rematch(): void {
-    const data: GameData = { slots: this.slots, difficulty: this.difficulty, species: this.species, tables: this.tables, net: this.net, rounds: this.rounds, mode: this.mode, powerups: this.powerups, hazards: this.hazards, daily: this.initData.daily, botLevels: this.initData.botLevels, mutator: this.initData.mutator };
+    const data: GameData = { slots: this.slots, difficulty: this.difficulty, species: this.species, tables: this.tables, net: this.net, rounds: this.rounds, mode: this.mode, powerups: this.powerups, hazards: this.hazards, daily: this.initData.daily, botLevels: this.initData.botLevels, mutator: this.initData.mutator, hats: this.initData.hats };
     const net = this.net;
     if (net?.role === 'host') {
       const names = this.world.players.map(p => p.name);
-      this.slots.forEach((sl, i) => { if (sl.kind === 'remote') net.host.send(sl.index, { t: 'start', species: this.species, names, seat: i, tables: this.tables, rounds: this.rounds, mode: this.mode, powerups: this.powerups, hazards: this.hazards, mutator: this.initData.mutator }); });
+      this.slots.forEach((sl, i) => { if (sl.kind === 'remote') net.host.send(sl.index, { t: 'start', species: this.species, names, seat: i, tables: this.tables, rounds: this.rounds, mode: this.mode, powerups: this.powerups, hazards: this.hazards, mutator: this.initData.mutator, hats: this.initData.hats }); });
     }
     this.scene.restart(data);
   }
@@ -946,8 +947,12 @@ export class GameScene extends Phaser.Scene {
       }
     }
     // hats on the people playing on this device (sprite top ≈ 2.1 radii above the centre)
-    const hat = currentHat();
-    if (hat.id !== 'none') for (const p of w.players) if (p.alive && this.isHuman(p.id) && this.net?.role !== 'guest') hat.draw(o, p.x, p.y - p.r * 2.05, p.r * 0.9, t);
+    for (const p of w.players) {
+      if (!p.alive) continue;
+      const id = this.net ? this.initData.hats?.[p.id] : this.isHuman(p.id) ? currentHat().id : '';
+      const hat = id ? HATS.find(h => h.id === id) : undefined;
+      if (hat && hat.id !== 'none') hat.draw(o, p.x, p.y - p.r * 2.05, p.r * 0.9, t);
+    }
     for (const p of w.players) {
       if (!p.alive) continue;
       if (p.shieldT > 0) { o.lineStyle(3, 0xffd24a, 0.55 + 0.3 * Math.sin(t * 8)); o.strokeCircle(p.x, p.y, p.r * (p.kaijuT > 0 ? 2.2 : 1.35)); o.fillStyle(0xffd24a, 0.12); o.fillCircle(p.x, p.y, p.r * (p.kaijuT > 0 ? 2.2 : 1.35)); }

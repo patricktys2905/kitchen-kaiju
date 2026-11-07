@@ -274,3 +274,7 @@ Each section says **where to customise it**.
 - **Quick tips:** a 💡 tip under the countdown before each round. Tips fit the mode and table (blender tips on the Smoothie Bar, dumpling tips in Hot Dumpling, and so on). Turn them off in Settings → QUICK TIPS. **Customise:** `src/tips.ts` (add tips; tag one with `mode` or `table` to show it only there).
 - New achievement 🥤 **Smoothie Operator**: shove a rival into the blender.
 - Settings is now two columns, so every option and its help text fits.
+
+## 31. Hats online
+
+- Everyone's chosen hat now shows in online matches. Each friend's device sends its hat when joining, and the host shares all hats at the start and on rematches. Bots never wear hats.

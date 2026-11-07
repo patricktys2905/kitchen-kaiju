@@ -20,13 +20,14 @@ export interface LobbySeat {
   name: string;
   species: number;
   route?: 'direct' | 'backup';
+  hat?: string; // that player's hat id (src/hats.ts)
 }
 
 export type NetMsg =
-  | { t: 'hello'; name: string }
+  | { t: 'hello'; name: string; hat?: string }
   | { t: 'pick'; dir: number }
   | { t: 'lobby'; seats: LobbySeat[]; you: number; table: number; difficulty: string; rounds?: number; mode?: string; powerups?: boolean; hazards?: boolean; mutator?: string }
-  | { t: 'start'; species: number[]; names: string[]; seat: number; tables: number[] | null; rounds?: number; mode?: string; powerups?: boolean; hazards?: boolean; mutator?: string }
+  | { t: 'start'; species: number[]; names: string[]; seat: number; tables: number[] | null; rounds?: number; mode?: string; powerups?: boolean; hazards?: boolean; mutator?: string; hats?: string[] }
   | { t: 'in'; i: PlayerInput }
   | { t: 'snap'; s: Snapshot; ev: GameEvent[] }
   | { t: 'ping' }
@@ -63,7 +64,7 @@ export class NetHost {
   private watchdog = 0;
   private directReady = false;
   private backupReady = false;
-  onGuestJoin: (guest: number, name: string, route: 'direct' | 'backup') => void = () => {};
+  onGuestJoin: (guest: number, name: string, route: 'direct' | 'backup', hat?: string) => void = () => {};
   onGuestLeave: (guest: number) => void = () => {};
   onPick: (guest: number, dir: number) => void = () => {};
   onStatus: (text: string, ok: boolean) => void = () => {};
@@ -97,7 +98,7 @@ export class NetHost {
           if (this.chans.size >= MAX_GUESTS) { chan.send({ t: 'bye', reason: 'Room is full.' }); setTimeout(() => conn.close(), 300); return; }
           g = this.nextGuest++;
           this.chans.set(g, chan);
-          this.onGuestJoin(g, (m.name || 'Friend').slice(0, 12), 'direct');
+          this.onGuestJoin(g, (m.name || 'Friend').slice(0, 12), 'direct', m.hat);
         } else if (g) this.handle(g, m);
       });
       const gone = () => { if (g) this.drop(g); };
@@ -122,7 +123,7 @@ export class NetHost {
           g = this.nextGuest++;
           this.relayIds.set(env.from, g);
           this.chans.set(g, { route: 'backup', send: m => client.publish(topic, encode(m)), close: () => {}, lastHeard: Date.now() });
-          this.onGuestJoin(g, (env.m.name || 'Friend').slice(0, 12), 'backup');
+          this.onGuestJoin(g, (env.m.name || 'Friend').slice(0, 12), 'backup', env.m.hat);
           return;
         }
         if (g === undefined) return;
@@ -196,6 +197,8 @@ export class NetGuest {
   private relayId = '';
   private code = '';
   private name = '';
+  /** Your hat id, sent to the host when you join. */
+  hat = '';
   route: 'direct' | 'backup' | null = null;
   private lastHeard = 0;
   private watchdog = 0;
@@ -225,7 +228,7 @@ export class NetGuest {
         if (this.route) { conn.close(); return; }
         clearTimeout(this.directTimer);
         this.route = 'direct';
-        conn.send({ t: 'hello', name } satisfies NetMsg);
+        conn.send({ t: 'hello', name, hat: this.hat } satisfies NetMsg);
         this.connected();
       });
       conn.on('data', raw => { if (this.route === 'direct') this.receive(raw as NetMsg); });
@@ -246,7 +249,7 @@ export class NetGuest {
       this.relay = client;
       client.subscribe(relayTopics.toGuest(this.code, this.relayId), { qos: 0 }, () => {
         client.on('message', (_t, buf) => { const m = decode<NetMsg>(buf); if (m) this.receive(m); });
-        this.send({ t: 'hello', name: this.name });
+        this.send({ t: 'hello', name: this.name, hat: this.hat });
         // the host answers with the lobby; no answer means the room isn't open
         window.setTimeout(() => { if (!this.lastHeard && !this.done) this.fail(`No answer from room ${this.code}. Check the code, and that the host's game is still on the Online screen.`); }, 9000);
       });
