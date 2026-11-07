@@ -380,46 +380,57 @@ export class StoryScene extends Phaser.Scene {
     this.clearOverlay();
     const g = this.add.graphics().setDepth(30);
     g.fillStyle(0x0d0805, 0.7); g.fillRect(0, 0, 1280, 720);
-    g.fillStyle(0x2a1408, 0.97); g.fillRoundedRect(290, 120, 700, 480, 26);
-    g.lineStyle(5, r.won ? 0xffd24a : 0xff5a4a, 1); g.strokeRoundedRect(290, 120, 700, 480, 26);
+    // result card layout (EASY TO TUNE): CARD = top/height; lines below the quote stack with GAP between them
+    const CARD = { y: 50, h: 620 }, GAP = 14, BTN_Y = CARD.y + CARD.h - 62;
+    g.fillStyle(0x2a1408, 0.97); g.fillRoundedRect(270, CARD.y, 740, CARD.h, 26);
+    g.lineStyle(5, r.won ? 0xffd24a : 0xff5a4a, 1); g.strokeRoundedRect(270, CARD.y, 740, CARD.h, 26);
+    let y = CARD.y + 210; // next free line below title + stars
     this.overlay.push(g);
-    const title = withShadow(this.add.text(640, 175, r.won ? (r.spicy ? '🌶️ SPICY CLEAR!' : 'CHAPTER CLEAR!') : 'DEFEATED', display(56, r.won ? '#ffd24a' : '#ff8a7a', { strokeThickness: 9 })).setOrigin(0.5).setDepth(31), 6);
+    const title = withShadow(this.add.text(640, CARD.y + 62, r.won ? (r.spicy ? '🌶️ SPICY CLEAR!' : 'CHAPTER CLEAR!') : 'DEFEATED', display(56, r.won ? '#ffd24a' : '#ff8a7a', { strokeThickness: 9 })).setOrigin(0.5).setDepth(31), 6);
     popIn(this, title, 1.6, 500);
     this.overlay.push(title);
     if (r.won) {
       for (let k = 0; k < 3; k++) {
         const on = k < r.stars;
-        const st = this.add.text(560 + k * 80, 258, on ? '★' : '☆', display(64, on ? '#ffd24a' : '#5a4a3e', { strokeThickness: 6 })).setOrigin(0.5).setDepth(31);
+        const st = this.add.text(560 + k * 80, CARD.y + 150, on ? '★' : '☆', display(64, on ? '#ffd24a' : '#5a4a3e', { strokeThickness: 6 })).setOrigin(0.5).setDepth(31);
         this.overlay.push(st);
         if (on) this.time.delayedCall(250 + k * 220, () => { popIn(this, st, 2, 300); sfx.pickup(); });
       }
       const rivals = chapterRivals(ch, this.save.pick);
       const sp = rivals[ch.win.speaker as number]?.species ?? 0;
-      if (hasArt(`kaiju-${sp}-rage`)) this.overlay.push(fitInside(this.add.image(390, 420, `kaiju-${sp}`), 130, 130).setDepth(31));
-      this.overlay.push(this.add.text(470, 360, `${SPECIES[sp].full}: “${ch.win.text}”`, body(18, '#ffe9c7', 800, { wordWrap: { width: 480 } })).setDepth(31));
+      const quote = this.add.text(460, y, `${SPECIES[sp].full}: “${ch.win.text}”`, body(19, '#ffe9c7', 800, { wordWrap: { width: 500 }, lineSpacing: 4 })).setDepth(31);
+      const qh = Math.max(120, quote.height);
+      quote.setY(y + (qh - quote.height) / 2);
+      this.overlay.push(quote);
+      if (hasArt(`kaiju-${sp}`)) this.overlay.push(fitInside(this.add.image(370, y + qh / 2, `kaiju-${sp}`), 120, 120).setDepth(31));
+      y += qh + GAP + 6;
       if (rewards.length) {
-        const label = withShadow(this.add.text(640, 452, '🎁 UNLOCKED: ' + rewards.map(u => `${unlockName(u)}${u.kind === 'table' ? ' (table)' : ''}`).join(' + '), display(22, '#ffd24a', { strokeThickness: 4 })).setOrigin(0.5).setDepth(31), 3);
+        const label = withShadow(this.add.text(640, y + 14, '🎁 UNLOCKED: ' + rewards.map(u => `${unlockName(u)}${u.kind === 'table' ? ' (table)' : ''}`).join(' + '), display(22, '#ffd24a', { strokeThickness: 4, align: 'center', wordWrap: { width: 660 } })).setOrigin(0.5, 0).setDepth(31), 3);
+        label.setY(y);
         this.overlay.push(label);
+        y += label.height + 8;
+        const shown = rewards.filter(u => hasArt(u.kind === 'kaiju' ? `kaiju-${u.index}` : LAYOUTS[u.index].table));
         this.time.delayedCall(900, () => { popIn(this, label, 1.6, 400); sfx.meterFull(); });
-        rewards.forEach((u, k) => {
+        shown.forEach((u, k) => {
           const key = u.kind === 'kaiju' ? `kaiju-${u.index}` : LAYOUTS[u.index].table;
-          if (!hasArt(key)) return;
-          const img = this.add.image(870 + k * 70, 420, key).setDepth(31);
+          const img = this.add.image(640 + (k - (shown.length - 1) / 2) * 96, y + 36, key).setDepth(31);
           if (u.kind === 'kaiju') fitInside(img, 70, 70); else img.setDisplaySize(80, 44);
           this.overlay.push(img);
         });
+        if (shown.length) y += 72;
+        y += GAP;
       }
-      if (unlockedNew && !last) this.overlay.push(this.add.text(640, 488, `Chapter ${r.chapter + 2} unlocked!`, body(17, '#8dff6a', 900)).setOrigin(0.5).setDepth(31));
+      if (unlockedNew && !last) { this.overlay.push(this.add.text(640, y, `Chapter ${r.chapter + 2} unlocked!`, body(18, '#8dff6a', 900)).setOrigin(0.5, 0).setDepth(31)); y += 26 + GAP; }
     } else {
-      this.overlay.push(this.add.text(640, 300, 'So close! Every rival can be beaten.\n\n“' + ch.tip + '”', body(19, '#ffe9c7', 800, { align: 'center', wordWrap: { width: 600 } })).setOrigin(0.5, 0).setDepth(31));
+      this.overlay.push(this.add.text(640, (CARD.y + 150 + BTN_Y - 40) / 2, 'So close! Every rival can be beaten.\n\n“' + ch.tip + '”', body(23, '#ffe9c7', 800, { align: 'center', wordWrap: { width: 620 }, lineSpacing: 6 })).setOrigin(0.5).setDepth(31));
     }
     const btns: { label: string; act: () => void; accent?: number }[] = [];
-    if (gotAch.length) this.overlay.push(this.add.text(640, 512, `🏆 ${gotAch.map(a => a.name).join(', ')}!`, body(17, '#ffd24a', 900)).setOrigin(0.5).setDepth(31));
+    if (gotAch.length) this.overlay.push(this.add.text(640, Math.min(y, BTN_Y - 66), `🏆 ${gotAch.map(a => a.name).join(', ')}!`, body(18, '#ffd24a', 900)).setOrigin(0.5, 0).setDepth(31));
     if (r.won && last && !this.save.endingSeen) btns.push({ label: 'THE ENDING ▶', act: () => this.showEnding(), accent: 0xffd24a });
     else if (r.won && !last) btns.push({ label: 'NEXT ▶', act: () => { this.clearOverlay(); this.mode = 'map'; this.select(r.chapter + 1); this.play(); }, accent: 0xff9a3c });
     btns.push({ label: r.won ? 'REPLAY' : 'RETRY', act: () => { this.clearOverlay(); this.mode = 'map'; this.sel = r.chapter; this.play(); }, accent: r.won ? undefined : 0xff9a3c });
     btns.push({ label: 'MAP', act: () => { this.clearOverlay(); this.mode = 'map'; } });
-    btns.forEach((b, k) => this.overlayButtons.push(new Button(this, 640 + (k - (btns.length - 1) / 2) * 210, 548, { w: 190, h: 64, label: b.label, size: 24, accent: b.accent, onClick: b.act }, 33)));
+    btns.forEach((b, k) => this.overlayButtons.push(new Button(this, 640 + (k - (btns.length - 1) / 2) * 210, BTN_Y, { w: 190, h: 64, label: b.label, size: 24, accent: b.accent, onClick: b.act }, 33)));
     this.overlayFocus = 0;
   }
 
