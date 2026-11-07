@@ -15,6 +15,7 @@ import { owned, type Owned } from '../story/unlocks';
 import { enabledModes, modeDef, type GameMode } from '../sim/modes';
 import { POWERUPS } from '../sim/powerups';
 import { currentHat } from '../hats';
+import { cupGames } from '../cup';
 import qrcode from 'qrcode-generator';
 
 /** Link that opens the game and joins room `code` straight away (shown as a QR code to the host). */
@@ -72,6 +73,7 @@ export class LobbyScene extends Phaser.Scene {
   private powerups = POWERUPS.enabled;
   private hazards = true;
   private mutator: Mutator = 'none';
+  private cup = false; // 🏆 play a Party Cup instead of one match
   private tvMode = false; // 📺 the host screen only shows the game; everyone plays on their own phone
   private own: Owned = { kaiju: [], tables: [] }; // the HOST's unlocks apply to the whole room
   private fillTo: 0 | 4 | 6 = 4; // bots fill empty seats up to this many players (0 = no bots)
@@ -205,20 +207,22 @@ export class LobbyScene extends Phaser.Scene {
       const free = this.own.kaiju.filter(k => !seats.some(s => s.species === k));
       seats.push({ who: 'bot', name: 'Bot', species: free[Math.floor(Math.random() * free.length)] });
     }
+    const g0 = this.cup ? cupGames(seats.length)[0] : null;
+    const mode = g0 ? g0.mode : this.mode, rounds = g0 ? g0.rounds : this.rounds, cup = g0 ? { game: 0, points: [] as number[] } : undefined;
     const species = seats.map(s => s.species);
     const names = seats.map(s => s.name);
     const tables = this.table < 0 ? this.own.tables.slice() : [this.table];
-    seats.forEach((s, i) => { if (s.who === 'guest' && s.guest !== undefined) host.send(s.guest, { t: 'start', species, names, seat: i, tables, rounds: this.rounds, mode: this.mode, powerups: this.powerups, hazards: this.hazards, mutator: this.mutator, hats: seats.map(s => s.hat ?? '') }); });
+    seats.forEach((s, i) => { if (s.who === 'guest' && s.guest !== undefined) host.send(s.guest, { t: 'start', species, names, seat: i, tables, rounds, mode, powerups: this.powerups, hazards: this.hazards, mutator: this.mutator, hats: seats.map(s => s.hat ?? ''), cup }); });
     const slots: Slot[] = seats.map(s => (s.who === 'host' ? { kind: 'local', index: 0 } : s.who === 'guest' ? { kind: 'remote', index: s.guest! } : { kind: 'bot', index: 0 }));
     this.leaving = true;
-    this.scene.start('game', { slots, difficulty: this.difficulty, species, tables, rounds: this.rounds, mode: this.mode, powerups: this.powerups, hazards: this.hazards, mutator: this.mutator, hats: seats.map(s => s.hat ?? ''), net: { role: 'host', host } });
+    this.scene.start('game', { slots, difficulty: this.difficulty, species, tables, rounds, mode, powerups: this.powerups, hazards: this.hazards, mutator: this.mutator, hats: seats.map(s => s.hat ?? ''), cup, net: { role: 'host', host } });
   }
 
   private launchGuest(m: Extract<NetMsg, { t: 'start' }>): void {
     if (!this.guest) return;
     const slots: Slot[] = m.species.map((_, i) => (i === m.seat ? { kind: 'local', index: 0 } : { kind: 'remote', index: i }));
     this.leaving = true;
-    this.scene.start('game', { slots, difficulty: this.difficulty, species: m.species, tables: m.tables, rounds: m.rounds, mode: m.mode as GameMode | undefined, powerups: m.powerups, hazards: m.hazards, mutator: m.mutator as Mutator | undefined, hats: m.hats, net: { role: 'guest', guest: this.guest, seat: m.seat } });
+    this.scene.start('game', { slots, difficulty: this.difficulty, species: m.species, tables: m.tables, rounds: m.rounds, mode: m.mode as GameMode | undefined, powerups: m.powerups, hazards: m.hazards, mutator: m.mutator as Mutator | undefined, hats: m.hats, cup: m.cup, net: { role: 'guest', guest: this.guest, seat: m.seat } });
   }
 
   // ---------------------------------------------------------------- UI
@@ -259,6 +263,7 @@ export class LobbyScene extends Phaser.Scene {
           <button data-act="powerups">Power-ups: ${this.powerups ? 'ON' : 'OFF'}</button>
           <button data-act="hazards">Hazards: ${this.hazards ? 'ON' : 'OFF'}</button>
           <button data-act="mutator">Twist: ${mutatorDef(this.mutator).name}</button>
+          <button data-act="cup">${this.cup ? '🏆 Party Cup: ON' : '🏆 Party Cup: OFF'}</button>
           <button data-act="tv">${this.tvMode ? '📺 TV mode: ON (you just watch)' : '📺 TV mode: OFF (you play too)'}</button>
         </div>
         <p class="muted">${esc(modeDef(this.mode).blurb)}</p>
@@ -306,6 +311,7 @@ export class LobbyScene extends Phaser.Scene {
     if (a === 'powerups') { this.powerups = !this.powerups; this.syncLobby(); }
     if (a === 'hazards') { this.hazards = !this.hazards; this.syncLobby(); }
     if (a === 'tv') { this.tvMode = !this.tvMode; this.render(); }
+    if (a === 'cup') { this.cup = !this.cup; this.render(); }
     if (a === 'mutator') { const l = enabledMutators().map(m => m.id); this.mutator = l[(l.indexOf(this.mutator) + 1) % l.length] ?? 'none'; this.syncLobby(); }
     if (a === 'start') this.startMatch();
   }

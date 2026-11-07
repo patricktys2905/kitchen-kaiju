@@ -50,6 +50,7 @@ Each section says **where to customise it**.
 - 43. Fix: Kaiju Gallery taps
 - 44. Rumble
 - 45. 🎲 Shuffle
+- 46. Party Cup online
 
 **Where to find things:** title screen cards (Story · Free Play · Online · Party Modes · Daily · Gauntlet), the top-right row (Settings · How to Play · Kaiju · Records), and Free Play keys (G mode · U power-ups · H hazards · X twist · C cup).
 
@@ -406,3 +407,7 @@ Each section says **where to customise it**.
 ## 45. 🎲 Shuffle (Free Play)
 
 - **[Z]** (touch: **🎲** pill) picks a random mode, table and (half the time) twist from what you own. Press again until you like it.
+
+## 46. Party Cup online
+
+- Online lobby (host) → **🏆 Party Cup: ON**. The whole five-game cup plays online. After each game the host presses 1 / START to continue, and every friend's device moves on together with the same points and standings. Friends see "waiting for the host…".

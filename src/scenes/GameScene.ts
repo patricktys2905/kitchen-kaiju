@@ -308,12 +308,18 @@ export class GameScene extends Phaser.Scene {
       return;
     }
     const cup = this.initData.cup;
-    if (cup && this.world.phase === 'matchEnd' && (consumeTap('Digit1') || (anyStart && !this.padPrevStart))) {
+    if (cup && this.net?.role !== 'guest' && this.world.phase === 'matchEnd' && (consumeTap('Digit1') || (anyStart && !this.padPrevStart))) {
       this.padPrevStart = anyStart;
       const games = cupGames(this.slots.length), pts = this.cupTotals();
       if (cup.game + 1 < games.length) {
         const g = games[cup.game + 1];
-        this.scene.restart({ ...this.initData, mode: g.mode, rounds: g.rounds, cup: { game: cup.game + 1, points: pts } });
+        const next = { game: cup.game + 1, points: pts };
+        const net = this.net;
+        if (net?.role === 'host') {
+          const names = this.world.players.map(p => p.name);
+          this.slots.forEach((sl, i) => { if (sl.kind === 'remote') net.host.send(sl.index, { t: 'start', species: this.species, names, seat: i, tables: this.tables, rounds: g.rounds, mode: g.mode, powerups: this.powerups, hazards: this.hazards, mutator: this.initData.mutator, hats: this.initData.hats, cup: next }); });
+        }
+        this.scene.restart({ ...this.initData, mode: g.mode, rounds: g.rounds, cup: next });
       } else this.leave();
       return;
     }
@@ -386,7 +392,7 @@ export class GameScene extends Phaser.Scene {
         if (m.t === 'snap') this.inbox.push({ s: m.s, ev: m.ev });
         if (m.t === 'start') {
           const slots = m.species.map((_, i) => (i === m.seat ? { kind: 'local' as const, index: 0 } : { kind: 'remote' as const, index: i }));
-          this.scene.restart({ slots, difficulty: this.difficulty, species: m.species, tables: m.tables, rounds: m.rounds, mode: m.mode as GameMode | undefined, powerups: m.powerups, hazards: m.hazards, mutator: m.mutator as Mutator | undefined, hats: m.hats, net: { role: 'guest', guest: net.guest, seat: m.seat } });
+          this.scene.restart({ slots, difficulty: this.difficulty, species: m.species, tables: m.tables, rounds: m.rounds, mode: m.mode as GameMode | undefined, powerups: m.powerups, hazards: m.hazards, mutator: m.mutator as Mutator | undefined, hats: m.hats, cup: m.cup, net: { role: 'guest', guest: net.guest, seat: m.seat } });
         }
       };
       net.guest.onClosed = reason => { this.netNotice = reason; this.time.delayedCall(2500, () => this.scene.start('menu', { difficulty: this.difficulty })); };
@@ -1167,7 +1173,10 @@ export class GameScene extends Phaser.Scene {
       color = last ? this.css[lead] : '#ffd24a';
       const rows = order.map((i, k) => `${k === 0 ? '🏆' : k === 1 ? '🥈' : k === 2 ? '🥉' : `${k + 1}.`} ${w.players[i].name}  ${tot[i]} pts${add[i] ? `  (+${add[i]})` : ''}`);
       const table = rows.length > 4 ? chunk(rows, 2).map(r => r.join('        ')).join('\n') : rows.join('\n');
-      sub = table + (last ? '\n\n1 / START or Esc for the menu' : `\n\nNext: ${modeDef(games[cup.game + 1].mode).name} · 1 / START to continue`);
+      const nextName = last ? '' : modeDef(games[cup.game + 1].mode).name;
+      sub = table + (this.net?.role === 'guest'
+        ? (last ? '\n\nEsc to leave' : `\n\nNext: ${nextName} · waiting for the host…`)
+        : (last ? '\n\n1 / START or Esc for the menu' : `\n\nNext: ${nextName} · 1 / START to continue`));
     } else if (w.phase === 'matchEnd' && this.initData.dessert) {
       const n = this.initData.dessert.course, last = n === COURSES.length - 1;
       if (w.winner === 0) { main = last ? 'CLEAN PLATE!' : `COURSE ${n + 1} CLEARED!`; color = '#ffd24a'; sub = last ? 'You finished the whole Dessert Course! 🍰' : `Next: ${COURSES[n + 1].title}`; }
