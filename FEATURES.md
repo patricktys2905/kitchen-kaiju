@@ -47,6 +47,7 @@ Each section says **where to customise it**.
 - 40. Story progress line
 - 41. New table: Pancake Stack (Spatula hazard)
 - 42. Back up / move your save
+- 43. Fix: Kaiju Gallery taps
 
 **Where to find things:** title screen cards (Story · Free Play · Online · Party Modes · Daily · Gauntlet), the top-right row (Settings · How to Play · Kaiju · Records), and Free Play keys (G mode · U power-ups · H hazards · X twist · C cup).
 
@@ -388,3 +389,9 @@ Each section says **where to customise it**.
 
 - **Settings → 💾 BACK UP / MOVE SAVE:** shows a single code holding all your progress (story, stars, unlocks, stats, achievements, hats, settings, keys, Daily, Gauntlet, Dessert). Copy it somewhere safe; on another device or browser, paste it and press **Load this save**.
 - **Customise:** `src/backup.ts` (it includes every saved item whose name starts with `kk-`).
+
+## 43. Fix: Kaiju Gallery taps (reported)
+
+- Tapping or clicking a kaiju in the Gallery used to show it for a moment and then jump back to the first kaiju, so only the arrow keys worked. Fixed: tapping now selects that kaiju, on phones and PCs.
+- On phones the BACK button on the extra screens no longer sits under the FULL SCREEN button, and the hat name no longer overlaps the hat row.
+- Test reliability: the main browser test now waits for the menu and walks towards the middle of the table. It passed 10 out of 10 runs.

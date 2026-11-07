@@ -17,7 +17,7 @@ import { enabledMutators } from '../sim/mutators';
 import { ACHIEVEMENTS, loadStats } from '../stats';
 import { loadStory, totalStars } from '../story/save';
 import { needText, owned, UNLOCKS } from '../story/unlocks';
-import { setTouchMode } from '../touch';
+import { isTouchDevice, setTouchMode } from '../touch';
 import { currentHat, hatUnlocked, HATS, setHat } from '../hats';
 import { GameScene } from './GameScene';
 import { exportSave, importSave } from '../backup';
@@ -43,7 +43,7 @@ abstract class PanelScene extends Phaser.Scene {
     else drawFloor(this.add.graphics().setDepth(-3));
     this.add.graphics().setDepth(-2).fillStyle(0x0d0805, 0.72).fillRect(0, 0, 1280, 720);
     withShadow(this.add.text(640, 46, this.title, display(44, '#ffcf8a', { strokeThickness: 7 })).setOrigin(0.5).setDepth(5), 4);
-    const back = new Button(this, 92, 46, { w: 150, h: 48, label: '◀ BACK', size: 20, onClick: () => this.back() }, 6);
+    const back = new Button(this, isTouchDevice ? 250 : 92, 46, { w: 150, h: 48, label: '◀ BACK', size: 20, onClick: () => this.back() }, 6);
     this.build();
     this.nav = new FocusNav([...this.buttons, back], this.cols);
   }
@@ -290,7 +290,7 @@ export class GalleryScene extends PanelScene {
     const own = owned().kaiju;
     SPECIES.forEach((sp, i) => {
       const x = 104 + (i % 10) * 119, y = 160 + Math.floor(i / 10) * 132;
-      const b = new Button(this, x, y, { w: 108, h: 118, label: '', size: 12, accent: sp.color, onClick: () => this.showDetail(i, true) }, 6);
+      const b = new Button(this, x, y, { w: 108, h: 118, label: '', size: 12, accent: sp.color, onClick: () => { this.nav.index = i; this.showDetail(i, true); } }, 6);
       this.buttons.push(b);
       if (hasArt(`kaiju-${i}`)) {
         const img = fitInside(this.add.image(x, y - 6, `kaiju-${i}`), 86, 80).setDepth(8);
@@ -300,7 +300,7 @@ export class GalleryScene extends PanelScene {
     });
     // hat picker (cosmetic rewards from achievements)
     this.add.text(60, 398, 'YOUR HAT', display(18, '#ffd24a', { strokeThickness: 3 })).setOrigin(0, 0.5).setDepth(6);
-    this.hatLabel = this.add.text(1240, 398, '', body(14, '#e9dccb', 800)).setOrigin(1, 0.5).setDepth(6);
+    this.hatLabel = this.add.text(1240, 364, '', body(14, '#e9dccb', 800)).setOrigin(1, 0.5).setDepth(6);
     this.hatG = this.add.graphics().setDepth(8);
     HATS.forEach((h, k) => {
       const b = new Button(this, 210 + k * 76, 398, { w: 66, h: 58, label: '', size: 12, accent: hatUnlocked(h) ? 0xffd24a : 0x5a4a3e, onClick: () => {

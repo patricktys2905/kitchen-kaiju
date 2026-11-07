@@ -41,8 +41,13 @@ try {
 
   // 1) Menu + keyboard join flow.
   await page.goto(url + '?mode=free');
-  await wait(800);
-  await page.keyboard.press('Space'); // Keyboard Left joins (quick tap on purpose)
+  for (let i = 0; i < 80; i++) { if (await page.evaluate(() => !!window.__game?.scene.isActive('menu')).catch(() => false)) break; await wait(150); }
+  await wait(400);
+  for (let i = 0; i < 5; i++) { // Keyboard Left joins (quick tap on purpose); retry if the page swallowed it while starting up
+    await page.keyboard.press('Space');
+    await wait(150);
+    if (await page.evaluate(() => window.__game.scene.getScene('menu').slots.some(s => s.kind === 'kb' && s.index === 0))) break;
+  }
   await wait(100);
   await page.keyboard.press('KeyB'); // add bots
   await wait(100);
@@ -71,10 +76,12 @@ try {
 
   // 2) Human plays a bit: walk, charge + throw, dash, swipe.
   const pos = () => page.evaluate(() => { const p = window.__game.scene.getScene('game').world.players[0]; return { x: p.x, y: p.y }; });
+  for (let i = 0; i < 40; i++) { if (await page.evaluate(() => window.__game.scene.getScene('game').world.phase === 'play')) break; await wait(100); }
   const before = await pos();
-  await page.keyboard.down('KeyS');
+  const key = before.y > 382 ? 'KeyW' : 'KeyS'; // walk towards the middle (spawns can be right by an edge)
+  await page.keyboard.down(key);
   await wait(300);
-  await page.keyboard.up('KeyS');
+  await page.keyboard.up(key);
   const after = await pos();
   console.log('keyboard move check:', JSON.stringify({ before, after }));
   if (Math.abs(after.y - before.y) < 20) throw new Error('keyboard movement did not reach the player');
