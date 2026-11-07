@@ -1,0 +1,11 @@
+[
+  {
+    "name": "cut-11",
+    "newChat": true,
+    "refs": [
+      "art-src/cut-refs/cut-11.png",
+      "art-src/cut-refs/bg-breakfast.png"
+    ],
+    "prompt": "Generate an image. The first attached picture shows characters from my game Kitchen Kaiju. The second shows the table they are on. Keep this EXACT art style and these EXACT character designs: bold chunky cartoon, thick dark-brown outlines, flat bright colours with soft cel shading. The characters are tiny food monsters (\"kaiju\") from my party game. Every kaiju has exactly the body, limbs and face shown in the reference: no extra arms or legs, and NO nose (only the eyes and mouth as drawn). Draw a WIDE 16:9 LANDSCAPE cinematic cartoon scene, like a frame from a funny animated film: a cosy breakfast feast table with stacks of pancakes, eggs and toast. In the CENTRE, the DUMPLING kaiju sits on a throne built from slices of toast, wearing a small gold crown and holding a GOLDEN SPOON upright like a sceptre, looking smug. On the LEFT stands the PIZZA RAPTOR kaiju (a little red dinosaur whose body is a slice of pizza with pepperoni, exactly as in the reference), arms folded, smirking. On the RIGHT sits the HOT-DOG HEDGEHOG kaiju (a hedgehog lying in a hot-dog bun with mustard and ketchup on its spiky back, exactly as in the reference). No toasters near them. A tight medium shot: the three kaiju are BIG and clear, each about a third of the picture height, standing apart from each other in the foreground with nothing in front of their faces. Each kaiju appears ONLY ONCE, there are NO people or hands. EVERY kaiju smiles with its MOUTH CLOSED: no teeth showing at all, just a small curved smile line. Warm cinematic morning lighting, depth of field, no text, no letters, no logos, no speech bubbles. Landscape 16:9."
+  }
+]

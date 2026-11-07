@@ -9,7 +9,7 @@ fs.mkdirSync(OUT, { recursive: true });
 const want = process.argv.slice(2);
 // seconds to keep (Veo drifts off-model near the end of some clips); everything else keeps ~7.8s
 // Face audit 2026-11-07: every shipped clip was checked frame by frame; trims end before any face/limb drift.
-const KEEP = { 'cut-4': 4.5, 'cut-11': 3.5, 'cut-7': 4.6, 'cut-end': 6.0, 'cut-2': 2.8, 'cut-6': 5.4, 'cut-open': 5.8, 'cut-0': 7.0, 'cut-3': 7.0, 'cut-5': 4.2, 'cut-8': 3.6, 'cut-9': 3, 's2-0': 3.8 };
+const KEEP = { 'cut-4': 4.5, 'cut-7': 4.6, 'cut-end': 6.0, 'cut-2': 2.8, 'cut-6': 5.4, 'cut-open': 5.8, 'cut-0': 7.0, 'cut-3': 7.0, 'cut-5': 4.2, 'cut-8': 3.6, 'cut-9': 3, 's2-0': 3.8 };
 // Frame patches: a cleaned-up image laid over part of a raw clip (e.g. to hide a face Gemini/Veo drew on a prop).
 // x/y are ffmpeg expressions in raw-clip pixels (1280x720) and may use t to follow slow camera drift.
 // Crops (raw-clip pixels) to frame out extra characters Veo added at the edges.

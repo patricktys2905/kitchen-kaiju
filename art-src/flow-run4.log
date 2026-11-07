@@ -1,0 +1,11 @@
+I generated the cut-11 clip in Google Flow twice, and both takes have the same problem. The two characters with closed mouths in the still open them wide by mid-clip: the crowned dumpling grins and the pizza raptor bares its teeth, even though the prompt says "mouth closed". Neither take adds new characters, and nobody grows a nose or snout. The raptor's snout and the hedgehog's muzzle were already in the still.
+
+- **First take** (now `art-src/clips-raw/cut-11-alt.mp4`): the dumpling's grin opens wide and the raptor shows its teeth, but the raptor keeps its arms crossed.
+- **Retry** (now `art-src/clips-raw/cut-11.mp4`): the same open mouths, plus the raptor uncrosses its arms, so it drifts slightly more.
+
+I named the files the way the task says (the retry is `cut-11.mp4`), but I think the first take is a little better. If you agree, swap the two filenames. This was my only retry for this key, so 1 of the 2 allowed retries is used. Since both takes opened the mouths, another attempt with the same prompt probably won't fix it. Redrawing the still or rewording the prompt is more likely to help.
+
+Both clips are 720p, about 8 seconds, made with Veo 3.1 - Lite, 16:9, one output each. I closed the Flow tab and stopped the local file server I used to check the frames.
+
+cut-11: saved (retry is `cut-11.mp4`, first take is `cut-11-alt.mp4`; both drifted to open mouths)
+Credits remaining: 460 Google Flow credits (reset Nov 22)
