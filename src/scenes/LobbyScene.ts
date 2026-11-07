@@ -54,6 +54,7 @@ export class LobbyScene extends Phaser.Scene {
   private powerups = POWERUPS.enabled;
   private hazards = true;
   private mutator: Mutator = 'none';
+  private tvMode = false; // 📺 the host screen only shows the game; everyone plays on their own phone
   private own: Owned = { kaiju: [], tables: [] }; // the HOST's unlocks apply to the whole room
   private fillTo: 0 | 4 | 6 = 4; // bots fill empty seats up to this many players (0 = no bots)
   private status = '';
@@ -172,7 +173,7 @@ export class LobbyScene extends Phaser.Scene {
   private startMatch(): void {
     const host = this.host;
     if (!host) return;
-    const seats = this.seats.slice();
+    const seats = this.tvMode ? this.seats.filter(s => s.who !== 'host') : this.seats.slice();
     const target = Math.max(2, seats.length, this.fillTo);
     while (seats.length < target) {
       const free = this.own.kaiju.filter(k => !seats.some(s => s.species === k));
@@ -206,7 +207,7 @@ export class LobbyScene extends Phaser.Scene {
       const img = `art/kaiju-${s.species}.webp`;
       return `<div class="seat" style="border-color:${sp.css}">
         <img src="${img}" alt="">
-        <div class="k" style="color:${sp.css}">${sp.full}<div class="who">${esc(s.name)}${mine ? ' (you)' : ''}${s.route === 'backup' ? ' · backup route (slower)' : s.route === 'direct' ? ' · direct link' : ''}</div></div>
+        <div class="k" style="color:${sp.css}">${sp.full}<div class="who">${esc(s.name)}${mine ? ' (you)' : ''}${this.tvMode && s.who === 'host' ? ' · 📺 watching, not playing' : ''}${s.route === 'backup' ? ' · backup route (slower)' : s.route === 'direct' ? ' · direct link' : ''}</div></div>
         ${mine ? `<button data-pick="-1">◀</button><button data-pick="1">▶</button>` : ''}
       </div>`;
     }).join('');
@@ -232,6 +233,7 @@ export class LobbyScene extends Phaser.Scene {
           <button data-act="powerups">Power-ups: ${this.powerups ? 'ON' : 'OFF'}</button>
           <button data-act="hazards">Hazards: ${this.hazards ? 'ON' : 'OFF'}</button>
           <button data-act="mutator">Twist: ${mutatorDef(this.mutator).name}</button>
+          <button data-act="tv">${this.tvMode ? '📺 TV mode: ON (you just watch)' : '📺 TV mode: OFF (you play too)'}</button>
         </div>
         <p class="muted">${esc(modeDef(this.mode).blurb)}</p>
         <div class="row"><button class="go" data-act="start" ${guests ? '' : 'disabled'}>Start match</button><button data-act="back">Close room</button></div>
@@ -277,6 +279,7 @@ export class LobbyScene extends Phaser.Scene {
     if (a === 'mode') { const list = enabledModes().map(m => m.id); this.mode = list[(list.indexOf(this.mode) + 1) % list.length] ?? 'classic'; this.syncLobby(); }
     if (a === 'powerups') { this.powerups = !this.powerups; this.syncLobby(); }
     if (a === 'hazards') { this.hazards = !this.hazards; this.syncLobby(); }
+    if (a === 'tv') { this.tvMode = !this.tvMode; this.render(); }
     if (a === 'mutator') { const l = enabledMutators().map(m => m.id); this.mutator = l[(l.indexOf(this.mutator) + 1) % l.length] ?? 'none'; this.syncLobby(); }
     if (a === 'start') this.startMatch();
   }

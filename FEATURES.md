@@ -294,3 +294,8 @@ Each section says **where to customise it**.
 
 - Every kaiju has its own synth voice (pitch, wave, wobble): a **cry** when knocked out, a **roar** when it goes KAIJU, and a **chirp** for emotes. You can tell who just got splatted by ear.
 - **Customise:** `VOICES` in `src/audio.ts` (one entry per kaiju, in SPECIES order).
+
+## 35. 📺 TV mode (phones as controllers)
+
+- Online lobby (host) → **📺 TV mode: ON**. The host's screen (laptop or TV) just shows the match, and everyone plays on their own phone through the normal online join (room code). Bots still fill empty seats.
+- Perfect for a living room: put the host on the TV, and friends join from their phones and play on the big screen. Each phone also shows the game.
