@@ -4,6 +4,7 @@ import { P, RULES, TABLE } from './constants';
 import { CUTLERY, STARTER_KINDS, type CutleryKind } from './cutlery';
 import { LAYOUTS, type Layout } from './layouts';
 import { angleDiff, circCircle, circRect, clamp, type Hit } from './math';
+import { MODE_RULES, type GameMode } from './modes';
 import { Rng } from './rng';
 
 export interface PlayerInput {
@@ -20,7 +21,7 @@ const BOOMERANG_TURN = 10; // rad/s (turn radius = speed / turn)
 
 export const NO_INPUT: PlayerInput = { mx: 0, my: 0, throw: false, swipe: false, dash: false, stomp: false };
 
-export type KOCause = 'cutlery' | 'swipe' | 'squash' | 'fall' | 'hand' | 'wind' | 'chop' | 'burn' | 'toast';
+export type KOCause = 'cutlery' | 'swipe' | 'squash' | 'fall' | 'hand' | 'wind' | 'chop' | 'burn' | 'toast' | 'boom';
 
 export type GameEvent =
   | { type: 'throw'; id: number; kind: CutleryKind; x: number; y: number }
@@ -51,6 +52,9 @@ export type GameEvent =
   | { type: 'toasterPop'; i: number; x: number; y: number }
   | { type: 'toastBreak'; x: number; y: number }
   | { type: 'bumper'; x: number; y: number }
+  | { type: 'respawn'; id: number; x: number; y: number }
+  | { type: 'hotGive'; id: number; from: number | null; x: number; y: number }
+  | { type: 'hotBoom'; id: number; x: number; y: number }
   | { type: 'spawnCutlery'; kind: CutleryKind; x: number; y: number }
   | { type: 'countdown'; n: number }
   | { type: 'go' }
@@ -86,6 +90,9 @@ export interface Player {
   lastHitBy: number | null;
   lastHitT: number;
   bumpT: number; // gumdrop bumper cooldown
+  team: number; // Team Feast: 0 = red, 1 = blue (other modes: own id)
+  pts: number; // Crumb Rush: crumbs eaten this round
+  respawnT: number; // Crumb Rush: seconds until back in (0 = not waiting)
   moving: boolean;
   score: number;
   kos: number;
@@ -145,6 +152,8 @@ export interface WorldOptions {
   layout?: number; // force one layout
   layouts?: number[]; // pool of tables to rotate through (default: all)
   starterKind?: CutleryKind; // force everyone's starting cutlery
+  mode?: GameMode; // party mode (default classic)
+  teams?: number[]; // Team Feast: team per player (default: alternate seats)
 }
 
 /** Birthday Bash wind. dir is an angle (radians) the gust blows towards. */
@@ -186,7 +195,10 @@ export interface Cleaver {
 
 export class World {
   readonly rng: Rng;
-  readonly opts: Required<Omit<WorldOptions, 'layout' | 'starterKind' | 'layouts'>> & Pick<WorldOptions, 'layout' | 'starterKind' | 'layouts'>;
+  readonly opts: Required<Omit<WorldOptions, 'layout' | 'starterKind' | 'layouts' | 'mode' | 'teams'>> & Pick<WorldOptions, 'layout' | 'starterKind' | 'layouts'>;
+  readonly mode: GameMode;
+  /** Hot Dumpling: who is carrying it and how long until it pops. */
+  hot: { id: number; fuse: number; cd: number } | null = null;
   players: Player[] = [];
   cutlery: Cutlery[] = [];
   crumbs: Crumb[] = [];
@@ -228,10 +240,12 @@ export class World {
       layouts: o.layouts,
       starterKind: o.starterKind,
     };
+    this.mode = o.mode ?? 'classic';
     this.rng = new Rng(this.opts.seed);
     const pool = o.layouts?.filter(i => i >= 0 && i < LAYOUTS.length);
     this.layoutOrder = this.rng.shuffle(pool && pool.length ? pool.slice() : LAYOUTS.map((_, i) => i));
     this.players = o.players.map((p, id) => this.makePlayer(id, p.name));
+    for (const pl of this.players) pl.team = this.mode === 'teams' ? (o.teams?.[pl.id] ?? pl.id % 2) : pl.id;
     this.startRound();
   }
 
@@ -241,7 +255,7 @@ export class World {
       id, name, x: 0, y: 0, vx: 0, vy: 0, kx: 0, ky: 0, r: P.radius, aim: 0, alive: true,
       holding: null, charging: false, charge: 0, dashT: 0, dashCD: 0, dashBumped: false,
       swipeT: 0, swipeCD: 0, swipeHit: new Set(), meter: 0, kaijuT: 0, stepT: 0, invT: 0,
-      lastHitBy: null, lastHitT: 0, bumpT: 0, moving: false, score: 0, kos: 0,
+      lastHitBy: null, lastHitT: 0, bumpT: 0, team: id, pts: 0, respawnT: 0, moving: false, score: 0, kos: 0,
       prev: { throw: false, swipe: false, dash: false, stomp: false },
     };
   }
@@ -271,6 +285,7 @@ export class World {
     this.phaseT = 0;
     this.roundT = 0;
     this.lastCount = 0;
+    this.hot = null;
     const spawns = this.rng.shuffle(this.layout.spawns.slice());
     for (const p of this.players) {
       const [sx, sy] = spawns[p.id % spawns.length];
@@ -278,7 +293,7 @@ export class World {
         x: sx, y: sy, vx: 0, vy: 0, kx: 0, ky: 0, r: P.radius,
         aim: Math.atan2(TABLE.y + TABLE.h / 2 - sy, TABLE.x + TABLE.w / 2 - sx),
         alive: true, holding: null, charging: false, charge: 0, dashT: 0, dashCD: 0, dashBumped: false,
-        swipeT: 0, swipeCD: 0, meter: 0, kaijuT: 0, stepT: 0, invT: 0, lastHitBy: null, lastHitT: 0, moving: false,
+        swipeT: 0, swipeCD: 0, meter: 0, kaijuT: 0, stepT: 0, invT: 0, lastHitBy: null, lastHitT: 0, moving: false, pts: 0, respawnT: 0,
         prev: { throw: true, swipe: true, dash: true, stomp: true }, // require a fresh press after the countdown
       });
       p.swipeHit.clear();
@@ -343,6 +358,7 @@ export class World {
     this.resolvePlayerContacts();
     this.updateCutlery(dt);
     this.eatCrumbs();
+    if (this.phase === 'play') this.updateMode(dt);
     if (this.phase === 'play' || this.hand || this.wind || this.cleaver || this.burner || this.toaster || this.toasts.length) {
       if (this.phase === 'play') this.spawnTimers(dt);
       this.updateHand(dt);
@@ -421,7 +437,7 @@ export class World {
     p.prev = { throw: inp.throw, swipe: inp.swipe, dash: inp.dash, stomp: inp.stomp };
 
     // Movement
-    const spd = P.speed * (p.charging ? P.chargeSlow : 1) * (p.kaijuT > 0 ? P.kaijuSpeed : 1) * (this.onSticky(p.x, p.y) ? RULES.stickySlow : 1);
+    const spd = P.speed * (p.charging ? P.chargeSlow : 1) * (p.kaijuT > 0 ? P.kaijuSpeed : 1) * (this.onSticky(p.x, p.y) ? RULES.stickySlow : 1) * (this.hot?.id === p.id ? MODE_RULES.hotDumpling.holderSpeed : 1);
     if (p.dashT > 0) {
       p.dashT -= dt;
     } else {
@@ -523,7 +539,7 @@ export class World {
   private applySwipe(p: Player): void {
     const reach = p.r + P.swipeReach;
     for (const q of this.players) {
-      if (q === p || !q.alive || p.swipeHit.has(q.id)) continue;
+      if (q === p || !q.alive || p.swipeHit.has(q.id) || this.friends(p.id, q.id)) continue;
       const d = Math.hypot(q.x - p.x, q.y - p.y);
       if (d > reach + q.r * 0.5) continue;
       if (Math.abs(angleDiff(Math.atan2(q.y - p.y, q.x - p.x), p.aim)) > P.swipeArc) continue;
@@ -577,6 +593,7 @@ export class World {
         const dx = b.x - a.x, dy = b.y - a.y, d = Math.hypot(dx, dy) || 0.001;
         if (d >= a.r + b.r) continue;
         const ak = a.kaijuT > 0, bk = b.kaijuT > 0;
+        if ((ak || bk) && this.friends(a.id, b.id)) { /* teammates don't squash each other */ } else
         if (ak && !bk && b.invT <= 0 && this.phase === 'play') { this.ko(b, a.id, 'squash'); continue; }
         if (bk && !ak && a.invT <= 0 && this.phase === 'play') { this.ko(a, b.id, 'squash'); continue; }
         const nx = dx / d, ny = dy / d, push = (a.r + b.r - d) / 2;
@@ -616,6 +633,15 @@ export class World {
     }
     p.meter = 0;
     p.kaijuT = 0;
+    if (this.mode === 'crumbRush') {
+      const lost = Math.floor(p.pts * MODE_RULES.crumbRush.dropShare);
+      p.pts -= lost;
+      for (let i = 0; i < lost; i++) {
+        const a = this.rng.range(0, Math.PI * 2), r = this.rng.range(16, 80);
+        this.addCrumb(clamp(p.x + Math.cos(a) * r, TABLE.x + 14, TABLE.x + TABLE.w - 14), clamp(p.y + Math.sin(a) * r, TABLE.y + 14, TABLE.y + TABLE.h - 14));
+      }
+      p.respawnT = MODE_RULES.crumbRush.respawnDelay;
+    }
     this.emit({ type: 'ko', id: p.id, by: killer && killer !== p ? killer.id : null, cause, x: p.x, y: p.y });
   }
 
@@ -794,6 +820,7 @@ export class World {
       const isOwner = p.id === c.owner;
       // Your own cutlery only hurts you after it ricochets (and never on a boomerang return).
       if (isOwner && (!c.bounced || c.boomerang || c.traveled < 40)) continue;
+      if (!isOwner && this.friends(p.id, c.owner)) continue; // Team Feast: passes through teammates
       if (Math.hypot(p.x - c.x, p.y - c.y) > p.r + def.radius) continue;
       if (p.kaijuT > 0) {
         this.land(c);
@@ -850,8 +877,9 @@ export class World {
     if (this.opts.crumbSpawns) {
       this.crumbTimer -= dt;
       if (this.crumbTimer <= 0) {
-        this.crumbTimer = RULES.crumbEvery;
-        if (this.crumbs.length < RULES.maxCrumbs) this.spawnCrumb();
+        const rush = this.mode === 'crumbRush';
+        this.crumbTimer = rush ? MODE_RULES.crumbRush.crumbEvery : RULES.crumbEvery;
+        if (this.crumbs.length < (rush ? MODE_RULES.crumbRush.maxCrumbs : RULES.maxCrumbs)) this.spawnCrumb();
       }
     }
     if (this.opts.pickupSpawns) {
@@ -879,6 +907,7 @@ export class World {
         if (cr.id < 0 || Math.hypot(cr.x - p.x, cr.y - p.y) > p.r + 6) continue;
         const was = p.meter;
         p.meter = Math.min(100, p.meter + P.crumbValue);
+        if (this.mode === 'crumbRush') p.pts++;
         cr.id = -1;
         this.emit({ type: 'eat', id: p.id, x: cr.x, y: cr.y });
         if (was < 100 && p.meter >= 100) this.emit({ type: 'meterFull', id: p.id });
@@ -1126,9 +1155,86 @@ export class World {
     }
   }
 
+  // ---------------------------------------------------------------- party modes
+  /** True when a and b are on the same team (Team Feast only). */
+  friends(a: number | null, b: number | null): boolean {
+    if (this.mode !== 'teams' || a === null || b === null || a === b || MODE_RULES.teams.friendlyFire) return false;
+    return this.players[a]?.team === this.players[b]?.team;
+  }
+
+  /** Seconds left in a timed round (Crumb Rush), else null. */
+  timeLeft(): number | null {
+    return this.mode === 'crumbRush' ? Math.max(0, MODE_RULES.crumbRush.roundTime - this.roundT) : null;
+  }
+
+  private updateMode(dt: number): void {
+    if (this.mode === 'crumbRush') {
+      for (const p of this.players) {
+        if (p.alive || p.respawnT <= 0) continue;
+        p.respawnT -= dt;
+        if (p.respawnT > 0) continue;
+        p.respawnT = 0;
+        const s = this.freeSpot(60, 90) ?? this.layout.spawns[p.id % this.layout.spawns.length];
+        Object.assign(p, { x: s[0], y: s[1], vx: 0, vy: 0, kx: 0, ky: 0, alive: true, invT: MODE_RULES.crumbRush.respawnShield, lastHitBy: null, lastHitT: 0, prev: { throw: true, swipe: true, dash: true, stomp: true } });
+        if (p.holding === null) {
+          const c = this.newCutlery(this.rng.pick(STARTER_KINDS), p.x, p.y);
+          c.state = 'held'; c.holder = p.id; c.owner = p.id; p.holding = c.id;
+        }
+        this.emit({ type: 'respawn', id: p.id, x: p.x, y: p.y });
+      }
+    }
+    if (this.mode === 'hotDumpling') {
+      const R = MODE_RULES.hotDumpling;
+      const alive = this.alivePlayers();
+      if (alive.length < 2) return;
+      if (!this.hot || !this.players[this.hot.id].alive) {
+        const to = this.rng.pick(alive);
+        this.hot = { id: to.id, fuse: this.hot?.fuse ?? this.rng.range(R.fuse[0], R.fuse[1]), cd: R.passCooldown };
+        this.emit({ type: 'hotGive', id: to.id, from: null, x: to.x, y: to.y });
+        return;
+      }
+      const h = this.hot, holder = this.players[h.id];
+      h.fuse -= dt;
+      h.cd -= dt;
+      if (h.fuse <= 0) {
+        this.emit({ type: 'hotBoom', id: holder.id, x: holder.x, y: holder.y });
+        this.hot = null;
+        holder.invT = 0;
+        this.ko(holder, null, 'boom');
+        return;
+      }
+      if (h.cd > 0) return;
+      for (const q of alive) {
+        if (q === holder || Math.hypot(q.x - holder.x, q.y - holder.y) > q.r + holder.r + 8) continue;
+        this.hot = { id: q.id, fuse: h.fuse, cd: R.passCooldown };
+        this.emit({ type: 'hotGive', id: q.id, from: holder.id, x: q.x, y: q.y });
+        break;
+      }
+    }
+  }
+
   // ---------------------------------------------------------------- rounds
+  private endRound(winners: Player[]): void {
+    this.phase = 'roundEnd';
+    this.phaseT = 0;
+    this.hot = null;
+    this.winner = winners[0]?.id ?? null;
+    for (const w of winners) w.score++;
+    this.emit({ type: 'roundEnd', winner: this.winner });
+  }
+
   private checkRound(): void {
-    if (this.phase === 'play' && this.players.length > 1) {
+    if (this.phase === 'play' && this.players.length > 1 && this.mode === 'crumbRush') {
+      if (this.roundT >= MODE_RULES.crumbRush.roundTime) {
+        const best = Math.max(...this.players.map(p => p.pts));
+        const top = this.players.filter(p => p.pts === best);
+        this.endRound(best > 0 && top.length === 1 ? top : []);
+      }
+    } else if (this.phase === 'play' && this.players.length > 1 && this.mode === 'teams') {
+      const alive = this.alivePlayers();
+      const teams = new Set(alive.map(p => p.team));
+      if (teams.size <= 1) this.endRound(alive.length ? this.players.filter(p => p.team === alive[0].team) : []);
+    } else if (this.phase === 'play' && this.players.length > 1) {
       const alive = this.alivePlayers();
       if (alive.length <= 1) {
         this.phase = 'roundEnd';

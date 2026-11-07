@@ -78,6 +78,7 @@ const CSS = `
 let layers: Record<Exclude<TouchMode, 'off'>, HTMLElement> | null = null;
 let pauseBtn: HTMLElement | null = null;
 let stompBtn: HTMLElement, throwBtn: HTMLElement, joinPill: HTMLElement, diffPill: HTMLElement, tablePill: HTMLElement, roundsPill: HTMLElement, aimEl: HTMLElement;
+let modePill: HTMLElement | null = null;
 
 function el(tag: string, parent: HTMLElement, attrs: Record<string, string> = {}, text = ''): HTMLElement {
   const e = document.createElement(tag);
@@ -303,6 +304,8 @@ export function initTouch(injectTap: (code: string) => void): void {
   tapButton(tablePill, 'KeyM');
   roundsPill = el('div', row, { class: 'pill' }, 'ROUNDS: 5');
   tapButton(roundsPill, 'TouchRounds');
+  modePill = el('div', row, { class: 'pill' }, 'MODE: CLASSIC');
+  tapButton(modePill, 'TouchMode');
   tapButton(el('div', row, { class: 'pill' }, '🌐 ONLINE'), 'TouchOnline');
   tapButton(el('div', row, { class: 'pill go' }, '▶ PLAY'), 'Digit1');
 
@@ -340,7 +343,7 @@ export function setTouchMode(mode: TouchMode): void {
 }
 
 let lastHud = '';
-export function setTouchHud(h: { stompReady?: boolean; armed?: boolean; joined?: boolean; difficulty?: string; table?: string; canPause?: boolean; rounds?: number }): void {
+export function setTouchHud(h: { stompReady?: boolean; armed?: boolean; joined?: boolean; difficulty?: string; table?: string; canPause?: boolean; rounds?: number; mode?: string }): void {
   if (!layers) return;
   const key = JSON.stringify(h);
   if (key === lastHud) return;
@@ -351,5 +354,6 @@ export function setTouchHud(h: { stompReady?: boolean; armed?: boolean; joined?:
   if (h.canPause !== undefined && pauseBtn) pauseBtn.style.display = h.canPause ? '' : 'none';
   if (h.table !== undefined) tablePill.textContent = `TABLE: ${h.table}`;
   if (h.rounds !== undefined) roundsPill.textContent = `ROUNDS: ${h.rounds}`;
+  if (h.mode !== undefined && modePill) modePill.textContent = `MODE: ${h.mode}`;
   if (h.difficulty !== undefined) diffPill.textContent = `BOTS: ${h.difficulty.toUpperCase()}`;
 }

@@ -576,3 +576,53 @@ describe('cutscene casts', () => {
     });
   });
 });
+
+describe('party modes', () => {
+  it('Team Feast: teammates cannot hurt each other, and the last team standing scores together', () => {
+    const w = makeWorld(4, 'knife', { mode: 'teams' });
+    expect(w.players.map(p => p.team)).toEqual([0, 1, 0, 1]);
+    expect(w.friends(0, 2)).toBe(true);
+    expect(w.friends(0, 1)).toBe(false);
+    place(w, 0, 400, 360); place(w, 2, 520, 360); place(w, 1, 900, 200); place(w, 3, 900, 520);
+    w.players[0].aim = 0;
+    run(w, 1, t => [tap(1, 0, t)]);
+    expect(w.players[2].alive).toBe(true); // the knife flew straight through a teammate
+    w.ko(w.players[1], 0, 'swipe');
+    w.ko(w.players[3], 0, 'swipe');
+    run(w, 0.1);
+    expect(w.phase).toBe('roundEnd');
+    expect([w.players[0].score, w.players[2].score, w.players[1].score]).toEqual([1, 1, 0]);
+  });
+
+  it('Crumb Rush: crumbs are points, knocked-out kaiju come back, most crumbs wins when time runs out', async () => {
+    const { MODE_RULES } = await import('../src/sim/modes');
+    const w = makeWorld(2, 'fork', { mode: 'crumbRush' });
+    w.players[0].pts = 6;
+    w.ko(w.players[0], 1, 'swipe');
+    expect(w.players[0].pts).toBe(3); // dropped half
+    expect(w.crumbs.length).toBeGreaterThanOrEqual(3);
+    expect(w.phase).toBe('play'); // no round end on a knockout
+    run(w, MODE_RULES.crumbRush.respawnDelay + 0.2);
+    expect(w.players[0].alive).toBe(true);
+    w.crumbs = [];
+    w.players[0].pts = 3; w.players[1].pts = 5;
+    w.roundT = MODE_RULES.crumbRush.roundTime;
+    run(w, 0.05);
+    expect(w.phase).toBe('roundEnd');
+    expect(w.winner).toBe(1);
+  });
+
+  it('Hot Dumpling: someone always carries it, touching passes it, and it pops on the carrier', () => {
+    const w = makeWorld(3, 'fork', { mode: 'hotDumpling', hazards: false });
+    run(w, 0.05);
+    expect(w.hot).not.toBeNull();
+    const first = w.hot!.id, other = (first + 1) % 3;
+    w.hot!.cd = 0;
+    place(w, first, 500, 360); place(w, other, 530, 360);
+    run(w, 0.02);
+    expect(w.hot!.id).toBe(other);
+    w.hot!.fuse = 0.01;
+    run(w, 0.05);
+    expect(w.players[other].alive).toBe(false);
+  });
+});

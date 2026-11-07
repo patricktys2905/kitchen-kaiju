@@ -54,7 +54,7 @@ export class BotBrain {
     const out: PlayerInput = { ...NO_INPUT };
     if (!p || !p.alive || w.phase !== 'play') { this.hold = 0; this.history = []; this.aimA = p?.aim ?? 0; return out; }
     const T = TUNING[this.difficulty];
-    const foes = w.players.filter(o => o !== p && o.alive);
+    const foes = w.players.filter(o => o !== p && o.alive && !w.friends(p.id, o.id));
     if (!foes.length) return out;
 
     // Perception lag: remember recent positions and act on a slightly stale view.
@@ -113,15 +113,26 @@ export class BotBrain {
         }
       }
       // Snack on nearby crumbs.
-      if (p.meter < 100) {
-        let cb: { x: number; y: number } | null = null, cbd = 170;
+      const rush = w.mode === 'crumbRush';
+      if (p.meter < 100 || rush) {
+        let cb: { x: number; y: number } | null = null, cbd = rush ? 520 : 170;
         for (const c of w.crumbs) {
           const cd = Math.hypot(c.x - p.x, c.y - p.y);
           if (cd < cbd) { cbd = cd; cb = c; }
         }
-        if (cb) add((cb.x - p.x) / (cbd || 1), (cb.y - p.y) / (cbd || 1), T.greed);
+        if (cb) add((cb.x - p.x) / (cbd || 1), (cb.y - p.y) / (cbd || 1), T.greed * (rush ? 2.2 : 1));
       }
       if (p.meter >= 100 && d < 320) out.stomp = !p.prev.stomp;
+    }
+
+    // Hot Dumpling: the carrier hunts the nearest rival, everyone else keeps away from the carrier.
+    if (w.hot && w.phase === 'play') {
+      const h = w.players[w.hot.id];
+      if (h === p) add(ux, uy, 2.4);
+      else if (h?.alive) {
+        const hd = Math.hypot(p.x - h.x, p.y - h.y) || 1;
+        if (hd < 320) add((p.x - h.x) / hd, (p.y - h.y) / hd, 2.6 * (1 - hd / 320) + 0.4);
+      }
     }
 
     // Keep away from the table edge.

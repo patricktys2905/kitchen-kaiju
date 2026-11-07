@@ -9,6 +9,7 @@ import { BotBrain, type Difficulty } from '../sim/bot';
 import { P, SPECIES, TABLE, VIEW } from '../sim/constants';
 import { CUTLERY } from '../sim/cutlery';
 import { angleDiff } from '../sim/math';
+import { MODE_RULES, modeDef, type GameMode } from '../sim/modes';
 import { NO_INPUT, World, type GameEvent, type PlayerInput } from '../sim/world';
 import { starsFor } from '../story/chapters';
 import type { NetGuest, NetHost, NetMsg } from '../net/net';
@@ -29,6 +30,7 @@ export interface GameData {
   tables?: number[] | null; // table pool (null/empty = all)
   rounds?: number; // first to this many round wins
   botLevels?: (Difficulty | null)[]; // per-seat bot level (story mode)
+  mode?: GameMode; // party mode (Free Play)
   story?: { chapter: number; bosses: number[] }; // story chapter: seat 0 is you; bosses start rounds with a full belly
   net?: { role: 'host'; host: NetHost } | { role: 'guest'; guest: NetGuest; seat: number };
   seed?: number;
@@ -82,6 +84,8 @@ export class GameScene extends Phaser.Scene {
   private bannerT = 0;
   private lastBanner = '';
   private eatSfxT = 0;
+  private mode: GameMode = 'classic';
+  private modeText!: Phaser.GameObjects.Text;
 
   constructor() {
     super('game');
@@ -96,7 +100,8 @@ export class GameScene extends Phaser.Scene {
     this.colors = this.species.map(s => SPECIES[s].color);
     this.css = this.species.map(s => SPECIES[s].css);
     this.rounds = data.rounds ?? 5;
-    this.world = new World({ players: this.species.map(s => ({ name: SPECIES[s].name })), seed, layouts: this.tables ?? undefined, target: this.rounds });
+    this.mode = data.mode ?? 'classic';
+    this.world = new World({ players: this.species.map(s => ({ name: SPECIES[s].name })), seed, layouts: this.tables ?? undefined, target: this.rounds, mode: this.mode });
     this.story = data.story;
     this.bots = this.slots.map((s, i) => (s.kind === 'bot' ? new BotBrain(i, data.botLevels?.[i] ?? this.difficulty, seed + i * 101) : null));
     this.net = data.net;
@@ -142,6 +147,7 @@ export class GameScene extends Phaser.Scene {
       if (!isTouchDevice) this.add.text(VIEW.w - 16, 36, 'P pause · Esc menu', body(12, '#9c8a78', 700)).setOrigin(1, 0).setDepth(6);
     }
     this.feedTexts = [0, 1].map(i => this.add.text(VIEW.w / 2, 680 + i * 19, '', body(16, '#fff', 900, { stroke: '#140b05', strokeThickness: 4 })).setOrigin(0.5, 0).setDepth(6));
+    this.modeText = withShadow(this.add.text(VIEW.w / 2, 96, '', display(26, '#ffe9c7', { strokeThickness: 5 })).setOrigin(0.5, 0).setDepth(6), 3);
     this.banner = withShadow(this.add.text(VIEW.w / 2, VIEW.h / 2 - 20, '', display(90, '#ffe9c7', { strokeThickness: 13, align: 'center', padding: { x: 10, y: 10 } })).setOrigin(0.5).setDepth(10), 8);
     this.bannerSub = withShadow(this.add.text(VIEW.w / 2, VIEW.h / 2 + 50, '', body(22, '#ffffff', 900, { stroke: '#2a1408', strokeThickness: 5, align: 'center' })).setOrigin(0.5).setDepth(10), 3);
     this.handleEvents(this.world.drainEvents());
@@ -221,11 +227,11 @@ export class GameScene extends Phaser.Scene {
     if (this.net?.role === 'host') this.net.host.close();
     if (this.net?.role === 'guest') this.net.guest.close();
     if (this.net) { this.scene.start('title'); return; }
-    this.scene.start('menu', { slots: this.net ? [] : this.slots, difficulty: this.difficulty, species: this.net ? [] : this.species, tables: this.tables, rounds: this.rounds });
+    this.scene.start('menu', { slots: this.net ? [] : this.slots, difficulty: this.difficulty, species: this.net ? [] : this.species, tables: this.tables, rounds: this.rounds, mode: this.mode });
   }
 
   private rematch(): void {
-    const data: GameData = { slots: this.slots, difficulty: this.difficulty, species: this.species, tables: this.tables, net: this.net, rounds: this.rounds };
+    const data: GameData = { slots: this.slots, difficulty: this.difficulty, species: this.species, tables: this.tables, net: this.net, rounds: this.rounds, mode: this.mode };
     const net = this.net;
     if (net?.role === 'host') {
       const names = this.world.players.map(p => p.name);
@@ -358,6 +364,18 @@ export class GameScene extends Phaser.Scene {
         case 'toastBreak': sfx.thwock(); this.burst(e.x, e.y, 0xe0a050, 18, 220, 0.5, 200); break;
         case 'burnerFlare': sfx.burnerFlare(); this.shake(0.006, 300); this.burst(e.x, e.y, 0xff7a1a, 30, 260, 0.6); this.burst(e.x, e.y, 0xffd040, 16, 180, 0.5); break;
         case 'cleaverChop': sfx.cleaverChop(); this.shake(0.014, 260); this.burst(e.x, 380, 0x8a5a32, 30, 300, 0.6); break;
+        case 'respawn': sfx.spawn(); this.burst(e.x, e.y, this.colors[e.id], 20, 180, 0.5); this.rings.push({ x: e.x, y: e.y, r: 0, t: 0, max: 60, color: this.colors[e.id] }); break;
+        case 'hotGive':
+          sfx.steal();
+          this.popup(e.x, e.y - 50, e.from === null ? 'HOT DUMPLING!' : 'TAG! HOT!', '#ff9a3c', 22);
+          break;
+        case 'hotBoom':
+          sfx.burnerFlare();
+          this.shake(0.016, 380);
+          this.burst(e.x, e.y, 0xfff1d6, 40, 420, 0.8);
+          this.burst(e.x, e.y, 0xff7a1a, 30, 320, 0.7);
+          this.rings.push({ x: e.x, y: e.y, r: 0, t: 0, max: 140, color: 0xffd24a });
+          break;
         case 'spawnCutlery': sfx.spawn(); this.burst(e.x, e.y, 0xffffff, 14, 140, 0.5); break;
         case 'roundEnd':
           sfx.roundWin();
@@ -389,6 +407,7 @@ export class GameScene extends Phaser.Scene {
       case 'chop': text = `${victim} got CHOPPED by the cleaver`; break;
       case 'burn': text = `${victim} got grilled on the burner`; break;
       case 'toast': text = `${victim} got TOASTED`; break;
+      case 'boom': text = `The HOT DUMPLING popped on ${victim}!`; break;
     }
     if (e.by === null && e.cause === 'cutlery') text = `${victim} skewered themselves`;
     this.feed.unshift({ text, color: this.css[e.by ?? e.id], t: 4 });
@@ -446,6 +465,7 @@ export class GameScene extends Phaser.Scene {
     this.overG.clear();
     if (!hasArt('ob-candle')) drawTableLive(g, w.layout, t);
     this.art.frame(w, t, g, this.overG);
+    this.renderModeFx();
 
     const fx = this.fxG;
     fx.clear();
@@ -459,6 +479,34 @@ export class GameScene extends Phaser.Scene {
     }
     this.renderHud();
     this.renderBanner();
+  }
+
+  /** Team rings under kaiju, the hot dumpling over its carrier. */
+  private renderModeFx(): void {
+    const w = this.world, o = this.overG, t = this.t;
+    if (w.mode === 'teams') {
+      for (const p of w.players) {
+        if (!p.alive) continue;
+        o.lineStyle(4, MODE_RULES.teams.colors[p.team] ?? 0xffffff, 0.9);
+        o.strokeEllipse(p.x, p.y + p.r * 0.7, p.r * 2.4, p.r * 0.9);
+      }
+    }
+    if (w.mode === 'crumbRush') {
+      for (const p of w.players) if (p.alive && p.invT > 0) { o.lineStyle(3, 0xffffff, 0.4 + 0.4 * Math.sin(t * 20)); o.strokeCircle(p.x, p.y, p.r + 8); }
+    }
+    if (w.mode === 'hotDumpling' && w.hot) {
+      const h = w.players[w.hot.id];
+      if (h?.alive) {
+        const fuse = w.hot.fuse, rate = fuse < 3 ? 14 : fuse < 6 ? 8 : 4;
+        const x = h.x, y = h.y - h.r - 28 + Math.sin(t * 6) * 3, pulse = 0.5 + 0.5 * Math.sin(t * rate);
+        o.fillStyle(0xff5a1a, 0.25 + 0.35 * pulse); o.fillCircle(x, y, 22 + pulse * 6);
+        o.fillStyle(0xfff1d6, 1); o.fillEllipse(x, y + 3, 34, 24);
+        o.fillStyle(0xf0dcb4, 1); o.fillTriangle(x - 8, y - 6, x + 8, y - 6, x, y - 16);
+        o.lineStyle(2, 0x7a4a24, 1); o.strokeEllipse(x, y + 3, 34, 24);
+        o.lineStyle(2, 0xffffff, 0.6);
+        for (let k = -1; k <= 1; k++) { const sx = x + k * 8, sy = y - 20 - ((t * 30 + k * 10) % 18); o.lineBetween(sx, sy, sx + 3, sy - 6); }
+      }
+    }
   }
 
   private renderHud(): void {
@@ -507,9 +555,19 @@ export class GameScene extends Phaser.Scene {
       } else if (held && p.alive) drawCutleryShape(g, held.kind, x + pw - 30, 18, -0.35, 0.85);
       this.nameTexts[i].setAlpha(p.alive ? 1 : 0.4);
       const status = !p.alive ? 'KNOCKED OUT' : p.kaijuT > 0 ? 'KAIJU MODE!' : full ? 'STOMP READY!' : held ? CUTLERY[held.kind].name : 'unarmed';
-      this.infoTexts[i].setText(`${status} · KOs ${p.kos}`);
+      let info = `${status} · KOs ${p.kos}`;
+      if (w.mode === 'crumbRush') info = !p.alive && p.respawnT > 0 ? `BACK IN ${Math.ceil(p.respawnT)} · 🍪 ${p.pts}` : `🍪 ${p.pts} crumbs · KOs ${p.kos}`;
+      if (w.mode === 'teams') info = `${MODE_RULES.teams.names[p.team] ?? ''} · ${status}`;
+      if (w.mode === 'hotDumpling' && w.hot?.id === p.id && p.alive) info = '🥟 HOT! PASS IT!';
+      this.infoTexts[i].setText(info);
+      if (w.mode === 'teams') { g.fillStyle(MODE_RULES.teams.colors[p.team] ?? 0xffffff, 0.9); g.fillRoundedRect(x - 4, 70, pw, 4, 2); }
     });
-    this.roundText.setText(`ROUND ${w.round} · ${w.layout.name.toUpperCase()}`);
+    this.roundText.setText(`${w.mode !== 'classic' ? modeDef(w.mode).name + ' · ' : ''}ROUND ${w.round} · ${w.layout.name.toUpperCase()}`);
+    const left = w.timeLeft();
+    let mt = '';
+    if (left !== null && (w.phase === 'play' || w.phase === 'countdown')) mt = `⏱ ${Math.ceil(left)}`;
+    if (w.mode === 'hotDumpling' && w.hot && w.phase === 'play') mt = `🥟 ${w.players[w.hot.id].name} HAS THE HOT DUMPLING`;
+    this.modeText.setText(mt).setColor(left !== null && left < 10 ? '#ff8a7a' : '#ffe9c7');
     this.feedTexts.forEach((tx, i) => {
       const f = this.feed[i];
       tx.setText(f ? f.text : '');
@@ -529,12 +587,14 @@ export class GameScene extends Phaser.Scene {
     } else if (w.phase === 'countdown') {
       const n = Math.ceil((1.6 - w.phaseT) / (1.6 / 3));
       main = String(Math.max(1, n));
-      sub = `Round ${w.round} · ${w.layout.name}`;
+      sub = `${w.mode !== 'classic' ? modeDef(w.mode).name + ' · ' : ''}Round ${w.round} · ${w.layout.name}`;
     } else if (w.phase === 'play' && this.bannerT > 0) {
       main = 'DIG IN!';
     } else if (w.phase === 'roundEnd') {
-      if (w.winner !== null) { main = `${w.players[w.winner].name} WINS THE ROUND`; color = this.css[w.winner]; }
-      else { main = 'NOBODY SURVIVED DINNER'; }
+      if (w.winner !== null && w.mode === 'teams') { const tm = w.players[w.winner].team; main = `TEAM ${MODE_RULES.teams.names[tm]} WINS THE ROUND`; color = MODE_RULES.teams.css[tm]; }
+      else if (w.winner !== null && w.mode === 'crumbRush') { main = `${w.players[w.winner].name} ATE THE MOST!`; color = this.css[w.winner]; }
+      else if (w.winner !== null) { main = `${w.players[w.winner].name} WINS THE ROUND`; color = this.css[w.winner]; }
+      else { main = w.mode === 'crumbRush' ? 'A TIE! NO POINT' : 'NOBODY SURVIVED DINNER'; }
       // scores: at most 3 kaiju per line so 6 players still fit on screen
       const scores = w.players.map(p => (w.opts.target > 5 ? `${p.name} ★ ${p.score}/${w.opts.target}` : `${p.name} ${'★'.repeat(p.score)}${'☆'.repeat(w.opts.target - p.score)}`));
       sub = chunk(scores, 3).map(r => r.join('      ')).join('\n');
@@ -545,6 +605,7 @@ export class GameScene extends Phaser.Scene {
     } else if (w.phase === 'matchEnd' && w.winner !== null) {
       main = `${SPECIES[this.species[w.winner]].full.toUpperCase()}\nRULES THE TABLE`;
       color = this.css[w.winner];
+      if (w.mode === 'teams') { const tm = w.players[w.winner].team; main = `TEAM ${MODE_RULES.teams.names[tm]}\nRULES THE TABLE`; color = MODE_RULES.teams.css[tm]; }
       const ranked = w.players.slice().sort((a, b) => b.score - a.score || b.kos - a.kos);
       const lines = ranked.map((p, i) => `${i + 1}. ${p.name}  ${p.score} round${p.score === 1 ? '' : 's'} · ${p.kos} KO${p.kos === 1 ? '' : 's'}`);
       // more than 4 players: two columns (1st|2nd, 3rd|4th, 5th|6th)

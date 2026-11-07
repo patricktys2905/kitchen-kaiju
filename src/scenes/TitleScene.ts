@@ -38,15 +38,15 @@ export class TitleScene extends Phaser.Scene {
     const save = loadStory();
     const storySub = save.stars.some(s => s) ? `Chapter ${Math.min(save.unlocked, CHAPTERS.length)}/${CHAPTERS.length} · ★ ${totalStars(save)}/${CHAPTERS.length * 3}` : 'Solo campaign · 12 chapters';
     const go = (key: string, data: object = {}) => { sfx.go(); this.time.delayedCall(80, () => this.scene.start(key, data)); };
-    const MODES: { label: string; sub: string; accent: number; scene?: string; disabled?: boolean }[] = [
+    const MODES: { label: string; sub: string; accent: number; scene?: string; disabled?: boolean; data?: object }[] = [
       { label: 'STORY', sub: storySub, accent: 0xff9a3c, scene: 'story' },
       { label: 'FREE PLAY', sub: 'Up to 6 players · bots · any table', accent: 0x4fd1ff, scene: 'menu' },
       { label: 'ONLINE', sub: 'Play with friends anywhere', accent: 0x8dff6a, scene: 'lobby' },
-      { label: 'MORE MODES', sub: 'Coming soon!', accent: 0x8a7a6a, disabled: true },
+      { label: 'PARTY MODES', sub: 'Teams · Crumb Rush · Hot Dumpling', accent: 0xffd24a, scene: 'menu', data: { mode: 'teams' } },
     ];
     const buttons = MODES.map((m, i) => new Button(this, 170 + i * 313, 640, {
       w: 290, h: 104, label: m.label, sub: m.sub, accent: m.accent, size: 32, disabled: m.disabled,
-      onClick: () => { if (m.scene) go(m.scene); },
+      onClick: () => { if (m.scene) go(m.scene, m.data); },
     }));
     this.nav = new FocusNav(buttons, buttons.length);
     this.add.text(1272, 712, `v${__APP_VERSION__}`, body(11, '#a89680', 700)).setOrigin(1, 1).setDepth(5);

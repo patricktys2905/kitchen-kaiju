@@ -11,6 +11,7 @@ import { DEFAULT_ROUNDS, MAX_PLAYERS, ROUND_CHOICES, SPECIES } from '../sim/cons
 import { LAYOUTS } from '../sim/layouts';
 import { isTouchDevice, setTouchHud, setTouchMode } from '../touch';
 import { owned, type Owned } from '../story/unlocks';
+import { enabledModes, modeDef, type GameMode } from '../sim/modes';
 
 const TITLE = { fontFamily: DISPLAY, color: '#ffe9c7', stroke: INK, strokeThickness: 10 };
 const BODY = { fontFamily: BODY_FONT, fontStyle: '800', color: '#e9dccb' };
@@ -23,6 +24,7 @@ export interface MenuData {
   species?: number[];
   tables?: number[] | null;
   rounds?: number;
+  mode?: GameMode;
 }
 
 export class MenuScene extends Phaser.Scene {
@@ -31,6 +33,8 @@ export class MenuScene extends Phaser.Scene {
   private difficulty: Difficulty = 'normal';
   private table = -1; // -1 = rotate through all tables
   private rounds = DEFAULT_ROUNDS; // first to this many round wins
+  private mode: GameMode = 'classic';
+  private modeText!: Phaser.GameObjects.Text;
   private g!: Phaser.GameObjects.Graphics;
   private slotTexts: Phaser.GameObjects.Text[] = [];
   private slotSub: Phaser.GameObjects.Text[] = [];
@@ -56,6 +60,7 @@ export class MenuScene extends Phaser.Scene {
     this.picks = (data.species ?? []).slice(0, this.slots.length);
     this.difficulty = data.difficulty ?? this.difficulty;
     if (data.rounds) this.rounds = data.rounds;
+    if (data.mode) this.mode = data.mode;
     if (data.tables !== undefined) this.table = data.tables && data.tables.length === 1 ? data.tables[0] : -1;
     this.devPrev.clear();
     this.fixPicks();
@@ -97,6 +102,12 @@ export class MenuScene extends Phaser.Scene {
     sfx.pickup();
   }
 
+  private cycleMode(): void {
+    const list = enabledModes().map(m => m.id);
+    this.mode = list[(list.indexOf(this.mode) + 1) % list.length] ?? 'classic';
+    sfx.pickup();
+  }
+
   private cycleTable(): void {
     const later = this.own.tables.filter(t => t > this.table);
     this.table = later.length ? later[0] : -1; // ... then back to ALL
@@ -128,6 +139,7 @@ export class MenuScene extends Phaser.Scene {
     this.infoText = this.add.text(640, 404, '', { ...BODY, fontStyle: '900', fontSize: '17px', color: '#ffcf8a' }).setOrigin(0.5).setDepth(2);
     this.tableText = this.add.text(640, 434, '', { ...BODY, fontStyle: '900', fontSize: '16px', color: '#ffffff', align: 'center' }).setOrigin(0.5).setDepth(2);
     this.tableThumb = null;
+    this.modeText = withShadow(this.add.text(640, 150, '', { ...BODY, fontStyle: '900', fontSize: '17px', color: '#ffd24a', align: 'center' }).setOrigin(0.5).setDepth(3), 2);
 
     // Controls as key "chips": [KEY] tokens get a keycap behind them.
     const chipG = this.add.graphics().setDepth(2);
@@ -148,7 +160,7 @@ export class MenuScene extends Phaser.Scene {
     this.add.text(640, 560, rules.join('\n'), { ...BODY, fontStyle: '700', fontSize: '15px', align: 'center', color: '#cdb9a3', lineSpacing: 5 }).setOrigin(0.5, 0).setDepth(2);
     if (!isTouchDevice) {
       this.chipLine(chipG, 640, 640, '[THROW] join   [◀ ▶] pick kaiju   [DASH] leave   [B] [N] add / remove bot', 15);
-      this.chipLine(chipG, 640, 670, '[2] bots   [M] table   [R] rounds   [O] ONLINE   [1] PLAY', 15);
+      this.chipLine(chipG, 640, 670, '[2] bots   [M] table   [R] rounds   [G] mode   [O] ONLINE   [1] PLAY', 15);
     }
     setTouchMode('menu');
     this.backBtn = new Button(this, 1192, 34, { w: 150, h: 44, label: '◀ MODES', size: 18, onClick: () => this.scene.start('title') }, 6);
@@ -167,15 +179,17 @@ export class MenuScene extends Phaser.Scene {
       for (let i = 0; i < Math.min(MAX_PLAYERS, demo); i++) this.addSlot({ kind: 'bot', index: i });
       const tbl = Number(new URLSearchParams(location.search).get('table') ?? -1);
       if (tbl >= 0 && tbl < LAYOUTS.length) this.table = tbl;
+      const gm = new URLSearchParams(location.search).get('gmode') as GameMode | null;
+      if (gm && enabledModes().some(m => m.id === gm)) this.mode = gm;
       this.startGame();
     }
   }
 
   private startGame(): void {
-    while (this.slots.length < 2) this.addSlot({ kind: 'bot', index: this.slots.length });
+    while (this.slots.length < Math.max(2, modeDef(this.mode).minPlayers)) this.addSlot({ kind: 'bot', index: this.slots.length });
     this.fixPicks();
     this.scene.start('game', {
-      slots: this.slots.slice(), difficulty: this.difficulty, species: this.picks.slice(), tables: this.table < 0 ? this.own.tables.slice() : [this.table], rounds: this.rounds,
+      slots: this.slots.slice(), difficulty: this.difficulty, species: this.picks.slice(), tables: this.table < 0 ? this.own.tables.slice() : [this.table], rounds: this.rounds, mode: this.mode,
     });
   }
 
@@ -197,6 +211,7 @@ export class MenuScene extends Phaser.Scene {
       this.rounds = ROUND_CHOICES[(ROUND_CHOICES.indexOf(this.rounds) + 1) % ROUND_CHOICES.length] ?? DEFAULT_ROUNDS;
       sfx.pickup();
     }
+    if (consumeTap('KeyG') || consumeTap('TouchMode')) this.cycleMode();
     if (consumeTap('KeyO') || consumeTap('TouchOnline')) { this.scene.start('lobby', { difficulty: this.difficulty, rounds: this.rounds }); return; }
     if (consumeTap('TouchJoin')) {
       const j = this.slots.findIndex(s => s.kind === 'touch');
@@ -215,6 +230,7 @@ export class MenuScene extends Phaser.Scene {
       difficulty: this.difficulty,
       table: this.table < 0 ? 'ALL' : LAYOUTS[this.table].name.toUpperCase(),
       rounds: this.rounds,
+      mode: modeDef(this.mode).name,
     });
     this.draw();
   }
@@ -305,6 +321,8 @@ export class MenuScene extends Phaser.Scene {
         this.slotSub[i].setText(isTouchDevice ? 'empty (+ BOT)' : 'THROW to join');
       }
     }
+    const md = modeDef(this.mode);
+    this.modeText.setText(`MODE: ${md.name}  ·  ${md.blurb}${isTouchDevice ? '' : '   [G] change'}`);
     this.infoText.setText(`Bot difficulty: ${this.difficulty.toUpperCase()}   ·   Up to ${MAX_PLAYERS} players   ·   First to ${this.rounds} round${this.rounds === 1 ? '' : 's'}   ·   ${this.own.kaiju.length < SPECIES.length ? `${this.own.kaiju.length}/${SPECIES.length} kaiju (unlock more in Story)` : `${SPECIES.length} kaiju`}`);
     const tl = this.table < 0 ? null : LAYOUTS[this.table];
     this.tableText.setText(tl ? `TABLE: ${tl.name.toUpperCase()}  —  ${tl.blurb}` : `TABLE: ALL ${this.own.tables.length} (a different one every round)${this.own.tables.length < LAYOUTS.length ? ` · ${LAYOUTS.length - this.own.tables.length} more to unlock in Story` : ''}`);
