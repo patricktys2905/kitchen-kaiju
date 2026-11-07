@@ -712,3 +712,12 @@ describe('gauntlet', () => {
     for (let n = 1; n < 30; n++) expect(waveSetup(n + 1).rivals).toBeGreaterThanOrEqual(waveSetup(n).rivals);
   });
 });
+
+describe('hats', () => {
+  it('every hat unlock points at a real achievement and ids are unique', async () => {
+    const { HATS } = await import('../src/hats');
+    const { ACHIEVEMENTS } = await import('../src/stats');
+    expect(new Set(HATS.map(h => h.id)).size).toBe(HATS.length);
+    for (const h of HATS) if (h.unlock) expect(ACHIEVEMENTS.some(a => a.id === h.unlock), h.id).toBe(true);
+  });
+});

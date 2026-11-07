@@ -19,6 +19,7 @@ import { NO_INPUT, World, type GameEvent, type PlayerInput } from '../sim/world'
 import { starsFor } from '../story/chapters';
 import { GAUNTLET, gauntletBest, gauntletTables, saveGauntletBest, waveSetup } from '../gauntlet';
 import { owned } from '../story/unlocks';
+import { currentHat } from '../hats';
 import type { NetGuest, NetHost, NetMsg } from '../net/net';
 import { applySnapshot, extrapolate, makeSnapshot, type Snapshot } from '../net/snapshot';
 import { isTouchDevice, setTouchHud, setTouchMode } from '../touch';
@@ -40,6 +41,7 @@ export interface GameData {
   botLevels?: (Difficulty | null)[]; // per-seat bot level (story mode)
   mode?: GameMode; // party mode (Free Play)
   powerups?: boolean; // condiment power-ups (Free Play; default POWERUPS.enabled, never in Story)
+  hazards?: boolean; // table hazards (hand, wind, cleaver…); default on
   gauntlet?: { wave: number; bosses: number[] }; // Gauntlet: seat 0 is you, one round per wave
   story?: { chapter: number; bosses: number[] }; // story chapter: seat 0 is you; bosses start rounds with a full belly
   net?: { role: 'host'; host: NetHost } | { role: 'guest'; guest: NetGuest; seat: number };
@@ -101,6 +103,7 @@ export class GameScene extends Phaser.Scene {
   private eatSfxT = 0;
   private mode: GameMode = 'classic';
   private powerups = false;
+  private hazards = true;
   private modeText!: Phaser.GameObjects.Text;
   private tagTexts: Phaser.GameObjects.Text[] = [];
   private stats: Stats | null = null; // lifetime stats (null for online guests)
@@ -123,7 +126,8 @@ export class GameScene extends Phaser.Scene {
     this.rounds = data.rounds ?? 5;
     this.mode = data.mode ?? 'classic';
     this.powerups = data.story ? false : data.powerups ?? POWERUPS.enabled;
-    this.world = new World({ players: this.species.map(s => ({ name: SPECIES[s].name })), seed, layouts: this.tables ?? undefined, target: this.rounds, mode: this.mode, powerups: this.powerups });
+    this.hazards = data.story ? true : data.hazards ?? true;
+    this.world = new World({ players: this.species.map(s => ({ name: SPECIES[s].name })), seed, layouts: this.tables ?? undefined, target: this.rounds, mode: this.mode, powerups: this.powerups, hazards: this.hazards });
     this.story = data.story;
     this.bots = this.slots.map((s, i) => (s.kind === 'bot' ? new BotBrain(i, data.botLevels?.[i] ?? this.difficulty, seed + i * 101) : null));
     this.net = data.net;
@@ -299,7 +303,7 @@ export class GameScene extends Phaser.Scene {
         if (m.t === 'snap') this.inbox.push({ s: m.s, ev: m.ev });
         if (m.t === 'start') {
           const slots = m.species.map((_, i) => (i === m.seat ? { kind: 'local' as const, index: 0 } : { kind: 'remote' as const, index: i }));
-          this.scene.restart({ slots, difficulty: this.difficulty, species: m.species, tables: m.tables, rounds: m.rounds, mode: m.mode as GameMode | undefined, powerups: m.powerups, net: { role: 'guest', guest: net.guest, seat: m.seat } });
+          this.scene.restart({ slots, difficulty: this.difficulty, species: m.species, tables: m.tables, rounds: m.rounds, mode: m.mode as GameMode | undefined, powerups: m.powerups, hazards: m.hazards, net: { role: 'guest', guest: net.guest, seat: m.seat } });
         }
       };
       net.guest.onClosed = reason => { this.netNotice = reason; this.time.delayedCall(2500, () => this.scene.start('menu', { difficulty: this.difficulty })); };
@@ -312,15 +316,15 @@ export class GameScene extends Phaser.Scene {
     if (this.net?.role === 'host') this.net.host.close();
     if (this.net?.role === 'guest') this.net.guest.close();
     if (this.net) { this.scene.start('title'); return; }
-    this.scene.start('menu', { slots: this.net ? [] : this.slots, difficulty: this.difficulty, species: this.net ? [] : this.species, tables: this.tables, rounds: this.rounds, mode: this.mode, powerups: this.powerups });
+    this.scene.start('menu', { slots: this.net ? [] : this.slots, difficulty: this.difficulty, species: this.net ? [] : this.species, tables: this.tables, rounds: this.rounds, mode: this.mode, powerups: this.powerups, hazards: this.hazards });
   }
 
   private rematch(): void {
-    const data: GameData = { slots: this.slots, difficulty: this.difficulty, species: this.species, tables: this.tables, net: this.net, rounds: this.rounds, mode: this.mode, powerups: this.powerups };
+    const data: GameData = { slots: this.slots, difficulty: this.difficulty, species: this.species, tables: this.tables, net: this.net, rounds: this.rounds, mode: this.mode, powerups: this.powerups, hazards: this.hazards };
     const net = this.net;
     if (net?.role === 'host') {
       const names = this.world.players.map(p => p.name);
-      this.slots.forEach((sl, i) => { if (sl.kind === 'remote') net.host.send(sl.index, { t: 'start', species: this.species, names, seat: i, tables: this.tables, rounds: this.rounds, mode: this.mode, powerups: this.powerups }); });
+      this.slots.forEach((sl, i) => { if (sl.kind === 'remote') net.host.send(sl.index, { t: 'start', species: this.species, names, seat: i, tables: this.tables, rounds: this.rounds, mode: this.mode, powerups: this.powerups, hazards: this.hazards }); });
     }
     this.scene.restart(data);
   }
@@ -683,6 +687,9 @@ export class GameScene extends Phaser.Scene {
         o.lineStyle(2, 0x3a2412, fade); o.strokeRoundedRect(x - 8 * S, y - 10 * S, 16 * S, 24 * S, 5 * S);
       }
     }
+    // hats on the people playing on this device (sprite top ≈ 2.1 radii above the centre)
+    const hat = currentHat();
+    if (hat.id !== 'none') for (const p of w.players) if (p.alive && this.isHuman(p.id) && this.net?.role !== 'guest') hat.draw(o, p.x, p.y - p.r * 2.05, p.r * 0.9, t);
     for (const p of w.players) {
       if (!p.alive) continue;
       if (p.shieldT > 0) { o.lineStyle(3, 0xffd24a, 0.55 + 0.3 * Math.sin(t * 8)); o.strokeCircle(p.x, p.y, p.r * (p.kaijuT > 0 ? 2.2 : 1.35)); o.fillStyle(0xffd24a, 0.12); o.fillCircle(p.x, p.y, p.r * (p.kaijuT > 0 ? 2.2 : 1.35)); }

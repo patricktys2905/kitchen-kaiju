@@ -17,6 +17,7 @@ import { ACHIEVEMENTS, loadStats } from '../stats';
 import { loadStory, totalStars } from '../story/save';
 import { needText, owned, UNLOCKS } from '../story/unlocks';
 import { setTouchMode } from '../touch';
+import { currentHat, hatUnlocked, HATS, setHat } from '../hats';
 
 /** Shared backdrop, title, BACK button and keyboard/pad focus handling. */
 abstract class PanelScene extends Phaser.Scene {
@@ -182,6 +183,8 @@ export class GalleryScene extends PanelScene {
   protected cols = 10;
   private detail: Phaser.GameObjects.GameObject[] = [];
   private shown = -1;
+  private hatG!: Phaser.GameObjects.Graphics;
+  private hatLabel!: Phaser.GameObjects.Text;
   constructor() { super('gallery'); }
 
   protected build(): void {
@@ -196,11 +199,35 @@ export class GalleryScene extends PanelScene {
       }
       this.add.text(x, y + 44, own.includes(i) ? sp.name : '???', body(11, own.includes(i) ? sp.css : '#a89680', 900)).setOrigin(0.5).setDepth(8);
     });
+    // hat picker (cosmetic rewards from achievements)
+    this.add.text(60, 398, 'YOUR HAT', display(18, '#ffd24a', { strokeThickness: 3 })).setOrigin(0, 0.5).setDepth(6);
+    this.hatLabel = this.add.text(1240, 398, '', body(14, '#e9dccb', 800)).setOrigin(1, 0.5).setDepth(6);
+    this.hatG = this.add.graphics().setDepth(8);
+    HATS.forEach((h, k) => {
+      const b = new Button(this, 210 + k * 76, 398, { w: 66, h: 58, label: '', size: 12, accent: hatUnlocked(h) ? 0xffd24a : 0x5a4a3e, onClick: () => {
+        if (!hatUnlocked(h)) { sfx.thwock(); return; }
+        setHat(h.id); sfx.pickup(); this.showDetail(this.shown < 0 ? 0 : this.shown, false);
+      } }, 6);
+      this.buttons.push(b);
+    });
   }
 
   protected tick(): void {
     const i = this.nav.index;
     if (i < SPECIES.length && i !== this.shown) this.showDetail(i, false);
+    // hat icons (animated) + label for the focused hat
+    const g = this.hatG, cur = currentHat();
+    g.clear();
+    HATS.forEach((h, k) => {
+      const x = 210 + k * 76;
+      if (h.id === cur.id) { g.lineStyle(3, 0x8dff6a, 1); g.strokeRoundedRect(x - 36, 366, 72, 64, 14); }
+      if (hatUnlocked(h)) h.draw(g, x, 414, 22, this.t); else { g.fillStyle(0x5a4a3e, 1); g.fillCircle(x, 398, 8); }
+    });
+    const hk = i - SPECIES.length;
+    const focus = hk >= 0 && hk < HATS.length ? HATS[hk] : cur;
+    const u = focus.unlock ? ACHIEVEMENTS.find(a => a.id === focus.unlock) : null;
+    this.hatLabel.setText(hatUnlocked(focus) ? `${focus.name}${focus.id === cur.id ? ' (wearing)' : ''}` : `🔒 ${focus.name}: unlock with "${u?.name}" (${u?.desc})`);
+    if (this.shown >= 0 && hatUnlocked(cur) && cur.id !== 'none') cur.draw(g, 280, 494, 46, this.t);
   }
 
   private showDetail(i: number, click: boolean): void {

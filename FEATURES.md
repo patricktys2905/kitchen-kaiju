@@ -117,3 +117,28 @@ Each section says **where to customise it**.
   - One life: get knocked out and the run ends right away.
 - Best wave is saved. "NEW BEST!" pops up when you beat it. It also shows in Records, with two new achievements (clear 5 / 10 waves).
 - **Customise:** `src/gauntlet.ts` → `waveSetup()` (bots and levels per wave), `GAUNTLET` (power-ups, mode, boss frequency).
+
+## 12. Hazards on/off
+
+- Free Play → **[H] hazards** (touch: **HAZARDS** pill); online lobby → **Hazards** button. Turns off the giant hand, wind, cleaver, burners and toasters for a pure brawl. Terrain stays: belts, ice, sticky dough, the turntable, bumpers.
+- Story always has hazards.
+
+## 13. Hats (cosmetic rewards)
+
+- 10 hats drawn in code (no art files). The kaiju of people on this device wear the chosen hat in matches.
+- **Where:** Kaiju Gallery → **YOUR HAT** row. Locked hats say which achievement unlocks them.
+
+| Hat | Unlocked by |
+|---|---|
+| Party Hat | free |
+| Chef Hat | First Bite |
+| Top Hat | Regular Diner |
+| Viking Helmet | Forked Up |
+| Propeller Cap (it spins) | Crumb Muncher |
+| Flower Crown | Better Together |
+| Halo | Not It! |
+| Bobble Beanie | Gauntlet Runner |
+| Birthday Candle (it flickers) | Dinner Party Animal |
+| Golden Ladle | Too Hot to Handle |
+
+- **Customise:** `src/hats.ts` → `HATS`. Each hat is a name, an achievement id, and a small draw function.
