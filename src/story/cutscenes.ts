@@ -40,7 +40,7 @@ export const CHAPTER_CUTS: Cutscene[] = [
   { key: 'cut-8', rev: 2, heading: 'CHAPTER 9 · PICNIC PANIC', caption: 'A picnic! Sloba will get to it… eventually.' },
   { key: 'cut-9', heading: 'CHAPTER 10 · PROVING THE DOUGH', caption: 'Let’s see who rises to the occasion.' },
   { key: 'cut-10', rev: 2, heading: 'CHAPTER 11 · ROUND AND ROUND', caption: 'The lazy Susan spins. Hotchog relishes every second.' },
-  { key: 'cut-11', rev: 2, noVideo: true, heading: 'CHAPTER 12 · THE GRAND FEAST', caption: 'Dumplord has waited all night. He’s stuffed… with rage.' },
+  { key: 'cut-11', rev: 3, heading: 'CHAPTER 12 · THE GRAND FEAST', caption: 'Dumplord has waited all night. He’s stuffed… with rage.' },
 ];
 
 export const ALL_CUTS: Cutscene[] = [OPENING, ...CHAPTER_CUTS, ENDING_CUT];
