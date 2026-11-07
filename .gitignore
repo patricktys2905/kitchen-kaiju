@@ -5,3 +5,4 @@ art-src/preview.png
 art-src/shot-*.png
 art-src/clips-raw/
 art-src/flow-run.log
+scripts/.*.tmp.*
