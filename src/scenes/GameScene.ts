@@ -379,11 +379,11 @@ export class GameScene extends Phaser.Scene {
     if (this.net?.role === 'host') this.net.host.close();
     if (this.net?.role === 'guest') this.net.guest.close();
     if (this.net) { this.scene.start('title'); return; }
-    this.scene.start('menu', { slots: this.net ? [] : this.slots, difficulty: this.difficulty, species: this.net ? [] : this.species, tables: this.tables, rounds: this.rounds, mode: this.mode, powerups: this.powerups, hazards: this.hazards });
+    this.scene.start('menu', { slots: this.net ? [] : this.slots, difficulty: this.difficulty, species: this.net ? [] : this.species, botLevels: this.initData.botLevels ?? undefined, tables: this.tables, rounds: this.rounds, mode: this.mode, powerups: this.powerups, hazards: this.hazards });
   }
 
   private rematch(): void {
-    const data: GameData = { slots: this.slots, difficulty: this.difficulty, species: this.species, tables: this.tables, net: this.net, rounds: this.rounds, mode: this.mode, powerups: this.powerups, hazards: this.hazards, daily: this.initData.daily, botLevels: this.initData.daily ? this.initData.botLevels : undefined };
+    const data: GameData = { slots: this.slots, difficulty: this.difficulty, species: this.species, tables: this.tables, net: this.net, rounds: this.rounds, mode: this.mode, powerups: this.powerups, hazards: this.hazards, daily: this.initData.daily, botLevels: this.initData.botLevels };
     const net = this.net;
     if (net?.role === 'host') {
       const names = this.world.players.map(p => p.name);

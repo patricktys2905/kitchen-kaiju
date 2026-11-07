@@ -27,6 +27,7 @@ export interface MenuData {
   species?: number[];
   tables?: number[] | null;
   rounds?: number;
+  botLevels?: (Difficulty | null)[];
   mode?: GameMode;
   powerups?: boolean;
   hazards?: boolean;
@@ -36,6 +37,7 @@ export class MenuScene extends Phaser.Scene {
   private slots: Slot[] = [];
   private picks: number[] = []; // kaiju species per slot
   private difficulty: Difficulty = 'normal';
+  private botLevels: (Difficulty | null)[] = []; // per-seat override (null = use the global difficulty)
   private table = -1; // -1 = rotate through all tables
   private rounds = DEFAULT_ROUNDS; // first to this many round wins
   private mode: GameMode = 'classic';
@@ -66,6 +68,7 @@ export class MenuScene extends Phaser.Scene {
     this.slots = data.slots ?? [];
     this.picks = (data.species ?? []).slice(0, this.slots.length);
     this.difficulty = data.difficulty ?? this.difficulty;
+    this.botLevels = (data.botLevels ?? []).slice(0, this.slots.length);
     if (data.rounds) this.rounds = data.rounds;
     if (data.mode) this.mode = data.mode;
     if (data.powerups !== undefined) this.powerups = data.powerups;
@@ -100,6 +103,7 @@ export class MenuScene extends Phaser.Scene {
   private removeSlot(i: number): void {
     this.slots.splice(i, 1);
     this.picks.splice(i, 1);
+    this.botLevels.splice(i, 1);
     sfx.leave();
   }
 
@@ -148,6 +152,16 @@ export class MenuScene extends Phaser.Scene {
     this.infoText = this.add.text(640, 404, '', { ...BODY, fontStyle: '900', fontSize: '17px', color: '#ffcf8a' }).setOrigin(0.5).setDepth(2);
     this.tableText = this.add.text(640, 434, '', { ...BODY, fontStyle: '900', fontSize: '16px', color: '#ffffff', align: 'center' }).setOrigin(0.5).setDepth(2);
     this.tableThumb = null;
+    // tap / click a bot's card to change just that bot's difficulty
+    for (let i = 0; i < MAX_PLAYERS; i++) {
+      this.add.zone(CARD_X(i), 276, CARD_W, 216).setInteractive({ useHandCursor: true }).setDepth(4).on('pointerup', () => {
+        if (this.slots[i]?.kind !== 'bot') return;
+        const cur = this.botLevels[i] ?? this.difficulty;
+        this.botLevels[i] = DIFFICULTIES[(DIFFICULTIES.indexOf(cur) + 1) % DIFFICULTIES.length];
+        this.bump[i] = 1;
+        sfx.pickup();
+      });
+    }
     this.modeText = withShadow(this.add.text(640, 150, '', { ...BODY, fontStyle: '900', fontSize: '17px', color: '#ffd24a', align: 'center' }).setOrigin(0.5).setDepth(3), 2);
 
     // Controls as key "chips": [KEY] tokens get a keycap behind them.
@@ -198,7 +212,7 @@ export class MenuScene extends Phaser.Scene {
     while (this.slots.length < Math.max(2, modeDef(this.mode).minPlayers)) this.addSlot({ kind: 'bot', index: this.slots.length });
     this.fixPicks();
     this.scene.start('game', {
-      slots: this.slots.slice(), difficulty: this.difficulty, species: this.picks.slice(), tables: this.table < 0 ? this.own.tables.slice() : [this.table], rounds: this.rounds, mode: this.mode, powerups: this.powerups, hazards: this.hazards,
+      slots: this.slots.slice(), difficulty: this.difficulty, species: this.picks.slice(), botLevels: this.slots.map((s, i) => (s.kind === 'bot' ? this.botLevels[i] ?? null : null)), tables: this.table < 0 ? this.own.tables.slice() : [this.table], rounds: this.rounds, mode: this.mode, powerups: this.powerups, hazards: this.hazards,
     });
   }
 
@@ -214,7 +228,7 @@ export class MenuScene extends Phaser.Scene {
       for (let i = this.slots.length - 1; i >= 0; i--) if (this.slots[i].kind === 'bot') { this.removeSlot(i); break; }
     }
     // Bot difficulty: '2' on a keyboard (D is the left player's "next kaiju"), or the BOTS button on touch.
-    if (consumeTap('Digit2') || consumeTap('TouchDiff')) { this.difficulty = DIFFICULTIES[(DIFFICULTIES.indexOf(this.difficulty) + 1) % DIFFICULTIES.length]; sfx.pickup(); }
+    if (consumeTap('Digit2') || consumeTap('TouchDiff')) { this.difficulty = DIFFICULTIES[(DIFFICULTIES.indexOf(this.difficulty) + 1) % DIFFICULTIES.length]; this.botLevels = []; sfx.pickup(); }
     if (consumeTap('KeyM')) this.cycleTable();
     if (consumeTap('KeyR') || consumeTap('TouchRounds')) {
       this.rounds = ROUND_CHOICES[(ROUND_CHOICES.indexOf(this.rounds) + 1) % ROUND_CHOICES.length] ?? DEFAULT_ROUNDS;
@@ -323,7 +337,7 @@ export class MenuScene extends Phaser.Scene {
         this.slotFood[i].setText(SPECIES[sp].food);
         const how = s.kind === 'kb' ? (s.index === 0 ? 'Keys left · A / D' : 'Keys right · ← / →')
           : s.kind === 'pad' ? `${slotLabel(s)} · ◀ ▶`
-          : s.kind === 'touch' ? 'Touch · KAIJU ▶' : `Bot (${this.difficulty})`;
+          : s.kind === 'touch' ? 'Touch · KAIJU ▶' : `Bot: ${(this.botLevels[i] ?? this.difficulty).toUpperCase()}${this.botLevels[i] ? ' ✎' : ''} (tap)`;
         this.slotSub[i].setText(how);
       } else {
         img.setVisible(false);

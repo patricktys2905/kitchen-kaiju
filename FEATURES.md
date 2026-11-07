@@ -235,3 +235,8 @@ Each section says **where to customise it**.
 - Measured with `npx vite-node scripts/dessert-balance.ts`: the reference bot wins 73% → 57% → 37% → 27%.
 - Finishing all four earns 🍰 **Clean Plate** and the **Dessert Crown** hat.
 - **Customise:** `src/story/dessert.ts` → `COURSES` (table, rivals and levels, boss, rounds, quip).
+
+## 26. Per-bot difficulty (Free Play)
+
+- Tap or click a bot's card to cycle just that bot between EASY / NORMAL / HARD; it's marked ✎ when changed. The **2** key (touch: **BOTS**) still sets every bot at once and clears the per-bot choices.
+- Kept for rematches and when you come back to the menu.
