@@ -254,4 +254,5 @@ Each section says **where to customise it**.
 - A cosy alpine table: a red fondue pot in the middle, a checkered runner, bread cubes, a cheese wheel and grapes. Free (not locked).
 - **Hot cheese:** every 1.6–2.6 s a cheese blob drops near a random kaiju. A growing shadow and ring warn you for 1.3 s; then it SPLATS, knocking out anyone under it, and leaves a **sticky cheese puddle** for 7 s that slows you like dough. Drops come faster in sudden death.
 - Bots dodge the shadows and avoid puddles. Works online.
+- Themed place mats for Fondue Night and Smoothie Bar (`art-src/jobs-mats6.json`).
 - **Customise:** `RULES.cheese*` in `src/sim/constants.ts`; the table is the last entry in `src/sim/layouts.ts`. Art: `art-src/jobs-fondue.json`.

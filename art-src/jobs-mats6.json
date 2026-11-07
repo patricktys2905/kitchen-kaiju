@@ -1,0 +1,12 @@
+[
+  {
+    "name": "mat-smoothie",
+    "newChat": true,
+    "refs": ["art-src/ref-mats.png"],
+    "prompt": "Generate an image. The attached picture shows place-mat sprites from my party game (seen straight from above, chunky cartoon style, thick dark outlines). Draw ONE new place mat in exactly the same style, size and framing, perfectly flat and rectangular (landscape), on a solid flat magenta (#FF00FF) background: a fun SMOOTHIE BAR place mat: pastel mint with little pink strawberries, orange slices and paper straws printed on it. No text, no shadow."
+  },
+  {
+    "name": "mat-fondue",
+    "prompt": "Next place mat, exactly the same style, size, framing and flat magenta (#FF00FF) background: a cosy alpine FONDUE NIGHT place mat: woven red-and-cream wool with a little edelweiss flower pattern around the border. No text, no shadow."
+  }
+]
