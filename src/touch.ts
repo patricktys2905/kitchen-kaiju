@@ -283,6 +283,7 @@ export function initTouch(injectTap: (code: string) => void): void {
   holdButton(el('div', game, { class: 'btn', id: 'b-swipe' }, 'SWIPE'), 'swipe');
   stompBtn = el('div', game, { class: 'btn', id: 'b-stomp' }, 'STOMP');
   holdButton(stompBtn, 'stomp');
+  tapButton(el('div', game, { class: 'small', style: 'right: calc(1.5vmin + env(safe-area-inset-right)); top: 29.5vh;' }, '😜 EMOTE'), 'TouchEmote');
 
   // ---- pause/menu (shown while playing or watching)
   const top = el('div', root, { class: 'layer' });

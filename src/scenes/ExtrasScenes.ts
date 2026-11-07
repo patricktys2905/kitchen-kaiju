@@ -133,10 +133,10 @@ export class HelpScene extends PanelScene {
       ].join('\n'));
       head(90, 470, 'CONTROLS');
       txt(90, 504, [
-        'Keyboard left:  WASD move · SPACE throw · F swipe · L-SHIFT dash · E stomp',
-        'Keyboard right: ARROWS move · ENTER throw · / swipe · R-SHIFT dash · . stomp',
-        'Gamepad: left stick move · right stick aim · A throw · X swipe · B dash · Y stomp',
-        'Phone: drag the left side to move · hold THROW and drag to aim · SWIPE / DASH / STOMP buttons',
+        'Keyboard left:  WASD move · SPACE throw · F swipe · L-SHIFT dash · E stomp · Q emote',
+        'Keyboard right: ARROWS move · ENTER throw · / swipe · R-SHIFT dash · . stomp · ; emote',
+        'Gamepad: left stick move · right stick aim · A throw · X swipe · B dash · Y stomp · LT/BACK emote',
+        'Phone: drag the left side to move · hold THROW and drag to aim · SWIPE / DASH / STOMP buttons · 😜 EMOTE',
       ].join('\n'), 16, '#e9dccb');
     } else if (p === 'cutlery') {
       (Object.keys(CUTLERY) as CutleryKind[]).forEach((k, i) => {

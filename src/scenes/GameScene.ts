@@ -22,6 +22,7 @@ import { owned } from '../story/unlocks';
 import { currentHat } from '../hats';
 import { PRACTICE, PRACTICE_STEPS } from '../practice';
 import { DAILY, dailySetup, loadDaily, recordDaily } from '../daily';
+import { BOT_EMOTE_CHANCE, EMOTE_COOLDOWN, EMOTE_KEYS, EMOTE_TIME, EMOTES } from '../emotes';
 import type { NetGuest, NetHost, NetMsg } from '../net/net';
 import { applySnapshot, extrapolate, makeSnapshot, type Snapshot } from '../net/snapshot';
 import { isTouchDevice, setTouchHud, setTouchMode } from '../touch';
@@ -64,6 +65,11 @@ export class GameScene extends Phaser.Scene {
   /** Per-match tallies for the end-of-match awards. */
   private tally = { crumbs: [] as number[], kaiju: [] as number[], falls: [] as number[], deaths: [] as number[], powers: [] as number[] };
   private awardsText!: Phaser.GameObjects.Text;
+  private emoteBubbles: { text: Phaser.GameObjects.Text; t: number }[] = [];
+  private emotePrev: boolean[] = [];
+  private emoteCd: number[] = [];
+  private emoteNext: number[] = [];
+  private guestEmote = false;
   private practice: { done: boolean[]; moved: number; lx: number; ly: number; text: Phaser.GameObjects.Text; g: Phaser.GameObjects.Graphics } | null = null;
   private padPrevStart = false;
 
@@ -189,6 +195,10 @@ export class GameScene extends Phaser.Scene {
       const p0 = this.world.players[0];
       this.practice = { done: PRACTICE_STEPS.map(() => false), moved: 0, lx: p0.x, ly: p0.y, text, g };
     }
+    this.emoteBubbles = this.world.players.map(() => ({ text: this.add.text(0, 0, '', body(34, '#ffffff', 900, { backgroundColor: '#ffffffee', padding: { x: 8, y: 4 } })).setOrigin(0.5, 1).setDepth(8).setVisible(false), t: 0 }));
+    this.emotePrev = this.world.players.map(() => false);
+    this.emoteCd = this.world.players.map(() => 0);
+    this.emoteNext = this.world.players.map((_, i) => i % EMOTES.length);
     this.awardsText = withShadow(this.add.text(VIEW.w / 2, VIEW.h - 22, '', body(17, '#ffd24a', 900, { stroke: '#2a1408', strokeThickness: 4, align: 'center' })).setOrigin(0.5, 1).setDepth(10), 2);
     this.handleEvents(this.world.drainEvents());
   }
@@ -270,7 +280,8 @@ export class GameScene extends Phaser.Scene {
       this.rematch();
       return;
     }
-    if (this.net?.role === 'guest') { this.padPrevStart = anyStart; clearTaps(); this.syncTouchUi(); this.guestFrame(dt); return; }
+    const emoteTaps = { kb0: consumeTap(EMOTE_KEYS[0]), kb1: consumeTap(EMOTE_KEYS[1]), touch: consumeTap('TouchEmote') };
+    if (this.net?.role === 'guest') { if (emoteTaps.kb0 || emoteTaps.kb1 || emoteTaps.touch) this.guestEmote = true; this.padPrevStart = anyStart; clearTaps(); this.syncTouchUi(); this.guestFrame(dt); return; }
     this.padPrevStart = anyStart;
     clearTaps();
     this.syncTouchUi();
@@ -281,8 +292,12 @@ export class GameScene extends Phaser.Scene {
         if (s.kind === 'remote') return this.net?.role === 'host' ? this.net.host.inputOf(s.index) ?? NO_INPUT : NO_INPUT;
         const inp: PlayerInput = readSlot(s);
         if (s.kind === 'touch' || (s.kind === 'local' && isTouchDevice)) this.touchAimAssist(i, inp);
+        if (s.kind === 'kb' && (s.index === 0 ? emoteTaps.kb0 : emoteTaps.kb1)) inp.emote = true;
+        if (s.kind === 'touch' && emoteTaps.touch) inp.emote = true;
+        if (s.kind === 'local' && (emoteTaps.kb0 || emoteTaps.kb1 || emoteTaps.touch)) inp.emote = true;
         return inp;
       });
+      this.checkEmotes(human, dt);
       this.acc += dt;
       let n = 0;
       while (this.acc >= STEP && n < 12) {
@@ -293,6 +308,7 @@ export class GameScene extends Phaser.Scene {
         n++;
       }
       this.updateFx(dt);
+      this.updateEmotes(dt);
       this.hostBroadcast(dt);
     }
     this.render();
@@ -357,8 +373,10 @@ export class GameScene extends Phaser.Scene {
     const seat = this.net.seat;
     const inp: PlayerInput = readSlot({ kind: 'local', index: 0 });
     if (isTouchDevice) this.touchAimAssist(seat, inp);
+    if (this.guestEmote) inp.emote = true;
     this.netAcc += dt;
-    if (this.netAcc >= (this.net.guest.route === 'backup' ? 1 / 15 : 1 / 30)) { this.netAcc = 0; this.net.guest.send({ t: 'in', i: inp }); }
+    if (this.netAcc >= (this.net.guest.route === 'backup' ? 1 / 15 : 1 / 30)) { this.netAcc = 0; this.net.guest.send({ t: 'in', i: inp }); this.guestEmote = false; }
+    this.updateEmotes(dt);
     if (this.inbox.length) {
       for (const m of this.inbox.splice(0)) {
         if (applySnapshot(this.world, m.s)) this.art.setupTable(this.world.layout, this.world.players.map(p => ({ x: p.x, y: p.y, color: this.colors[p.id] })));
@@ -454,6 +472,7 @@ export class GameScene extends Phaser.Scene {
         case 'shrink': sfx.shrink(); break;
         case 'ko':
           this.onKO(e);
+          if (e.by !== null && e.by !== e.id && this.net?.role !== 'guest' && this.slots[e.by]?.kind === 'bot' && Math.random() < BOT_EMOTE_CHANCE) this.time.delayedCall(250, () => this.handleEvents([{ type: 'emote', id: e.by!, n: Math.floor(Math.random() * EMOTES.length) }]));
           if (this.initData.gauntlet && e.id === 0 && w.phase === 'play') w.endRound(w.alivePlayers().slice(0, 1)); // one life: the wave is lost
           break;
         case 'handWarn': sfx.handWarn(); break;
@@ -480,6 +499,7 @@ export class GameScene extends Phaser.Scene {
           this.rings.push({ x: e.x, y: e.y, r: 0, t: 0, max: 70, color: 0xffd24a });
           this.burst(e.x, e.y, 0xf2c418, 16, 220, 0.4);
           break;
+        case 'emote': this.showEmote(e.id, e.n); break;
         case 'respawn': sfx.spawn(); this.burst(e.x, e.y, this.colors[e.id], 20, 180, 0.5); this.rings.push({ x: e.x, y: e.y, r: 0, t: 0, max: 60, color: this.colors[e.id] }); break;
         case 'hotGive':
           sfx.steal();
@@ -533,6 +553,41 @@ export class GameScene extends Phaser.Scene {
     if (this.mode !== 'teams') return this.isHuman(winner);
     const tm = this.world.players[winner].team;
     return this.slots.some((_, i) => this.isHuman(i) && this.world.players[i].team === tm);
+  }
+
+  // ---------------------------------------------------------------- emotes
+  /** Rising edge of each player's emote button (local or remote) → an 'emote' event (also sent to guests). */
+  private checkEmotes(inputs: PlayerInput[], dt: number): void {
+    inputs.forEach((inp, i) => {
+      this.emoteCd[i] = Math.max(0, (this.emoteCd[i] ?? 0) - dt);
+      const on = !!inp.emote;
+      if (on && !this.emotePrev[i] && this.emoteCd[i] <= 0 && this.world.players[i]?.alive) {
+        this.emoteCd[i] = EMOTE_COOLDOWN;
+        const n = this.emoteNext[i];
+        this.emoteNext[i] = (n + 1) % EMOTES.length;
+        this.handleEvents([{ type: 'emote', id: i, n }]);
+      }
+      this.emotePrev[i] = on;
+    });
+  }
+
+  private showEmote(id: number, n: number): void {
+    const b = this.emoteBubbles[id];
+    if (!b) return;
+    b.text.setText(EMOTES[n % EMOTES.length]).setVisible(true);
+    b.t = EMOTE_TIME;
+    popIn(this, b.text, 1.5, 220);
+    sfx.pickup();
+  }
+
+  private updateEmotes(dt: number): void {
+    this.emoteBubbles.forEach((b, i) => {
+      if (b.t <= 0) return;
+      b.t -= dt;
+      const p = this.world.players[i];
+      if (!p.alive) b.t = 0;
+      b.text.setPosition(p.x, p.y - p.r * (p.kaijuT > 0 ? 3.4 : 2.6) - 10).setAlpha(Math.min(1, b.t * 3)).setVisible(b.t > 0);
+    });
   }
 
   /** Static helper: GameData for today's Daily Challenge. */

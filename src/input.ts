@@ -1,6 +1,7 @@
 // Keyboard + gamepad + touch reading, independent of Phaser so it maps straight onto PlayerInput.
 import type { PlayerInput } from './sim/world';
 import { readTouch } from './touch';
+import { EMOTE_PAD_BUTTONS } from './emotes';
 
 export type Slot = { kind: 'kb' | 'pad' | 'touch' | 'local' | 'remote'; index: number } | { kind: 'bot'; index: number };
 
@@ -66,7 +67,7 @@ export function readSlot(s: Slot): DeviceInput {
       ...pads().map((g, i) => (g ? readSlot({ kind: 'pad', index: i }) : null)).filter((x): x is DeviceInput => !!x)];
     for (const d of all) {
       out.mx += d.mx; out.my += d.my;
-      out.throw ||= d.throw; out.swipe ||= d.swipe; out.dash ||= d.dash; out.stomp ||= d.stomp; out.start ||= d.start;
+      out.throw ||= d.throw; out.swipe ||= d.swipe; out.dash ||= d.dash; out.stomp ||= d.stomp; out.start ||= d.start; out.emote ||= d.emote;
       if (d.aimX !== undefined && out.aimX === undefined) { out.aimX = d.aimX; out.aimY = d.aimY; }
     }
     return out;
@@ -98,6 +99,7 @@ export function readSlot(s: Slot): DeviceInput {
     out.dash = b(1) || b(5);
     out.stomp = b(3) || b(4);
     out.start = b(9);
+    out.emote = EMOTE_PAD_BUTTONS.some(b);
   }
   return out;
 }

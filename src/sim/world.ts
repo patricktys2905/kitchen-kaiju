@@ -17,6 +17,7 @@ export interface PlayerInput {
   swipe: boolean;
   dash: boolean;
   stomp: boolean;
+  emote?: boolean; // taunt button (handled by the scene, not the simulation)
 }
 const BOOMERANG_TURN = 10; // rad/s (turn radius = speed / turn)
 
@@ -54,6 +55,7 @@ export type GameEvent =
   | { type: 'toastBreak'; x: number; y: number }
   | { type: 'bumper'; x: number; y: number }
   | { type: 'respawn'; id: number; x: number; y: number }
+  | { type: 'emote'; id: number; n: number } // sent by the scene (never by the simulation)
   | { type: 'powerSpawn'; kind: PowerKind; x: number; y: number }
   | { type: 'powerup'; id: number; kind: PowerKind; x: number; y: number }
   | { type: 'shieldPop'; id: number; x: number; y: number }

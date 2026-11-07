@@ -162,3 +162,10 @@ Each section says **where to customise it**.
 
 - Six mode cards now: Story · Free Play · Online · Party Modes · Daily · Gauntlet. Their size adjusts automatically to the number of cards, so adding a mode is one more line in `MODES` in `src/scenes/TitleScene.ts`.
 - Small row top-right: Settings · How to Play · Kaiju · Records.
+
+## 17. Emotes
+
+- Quick taunts in a speech bubble over your kaiju: 😂 😤 👋 🔥 😱 🍴 😋 💪. Each press shows the next one in the list.
+- **Keys:** Keyboard Left **Q** · Keyboard Right **;** · Gamepad **LT/L2** or **BACK/SELECT** · phone **😜 EMOTE** button (under PAUSE / MENU).
+- Works online: guests' emotes show for everyone. Bots sometimes gloat after a knockout (25%).
+- **Customise:** `src/emotes.ts` (emote list, keys, pad buttons, bot gloat chance, bubble time, cooldown).

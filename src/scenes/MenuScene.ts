@@ -156,9 +156,9 @@ export class MenuScene extends Phaser.Scene {
           '[LEFT SIDE] drag to move   [THROW] hold, drag to aim, let go   [SWIPE] up close   [DASH] dodge & shove   [STOMP] belly full',
         ]
       : [
-          'Keyboard Left   [W A S D] move  [SPACE] throw  [F] swipe  [L-SHIFT] dash  [E] stomp',
-          'Keyboard Right   [ARROWS] move  [ENTER] throw  [/] swipe  [R-SHIFT] dash  [.] stomp',
-          'Gamepad   [L-STICK] move  [R-STICK] aim  [A] throw  [X] swipe  [B] dash  [Y] stomp',
+          'Keyboard Left   [W A S D] move  [SPACE] throw  [F] swipe  [L-SHIFT] dash  [E] stomp  [Q] emote',
+          'Keyboard Right   [ARROWS] move  [ENTER] throw  [/] swipe  [R-SHIFT] dash  [.] stomp  [;] emote',
+          'Gamepad   [L-STICK] move  [R-STICK] aim  [A] throw  [X] swipe  [B] dash  [Y] stomp  [LT] emote',
         ];
     lines.forEach((l, i) => this.chipLine(chipG, 640, 474 + i * 28, l, 14));
     const rules = [
