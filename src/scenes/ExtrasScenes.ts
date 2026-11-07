@@ -337,7 +337,7 @@ export class GalleryScene extends PanelScene {
     if (this.shown >= 0 && hatUnlocked(cur) && cur.id !== 'none') {
       if (this.hatPreview && hasArt(hatArtKey(cur))) {
         const [fw, dy] = HAT_FIT[cur.id] ?? [1.3, 0.3];
-        this.hatPreview.setTexture(hatArtKey(cur)).setVisible(true).setScale((fw * 64) / this.hatPreview.width).setPosition(280, this.previewTop + dy * 64 + (cur.id === 'halo' ? Math.sin(this.t * 3) * 3 : 0));
+        this.hatPreview.setTexture(hatArtKey(cur)).setVisible(true).setScale((fw * 64) / this.hatPreview.width).setPosition(280, this.previewTop + 26 + dy * 64 + (cur.id === 'halo' ? Math.sin(this.t * 3) * 3 : 0));
       } else cur.draw(g, 280, 494, 46, this.t);
     }
   }
