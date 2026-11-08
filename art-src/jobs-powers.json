@@ -1,0 +1,38 @@
+[
+  {
+    "name": "pw-gum",
+    "newChat": true,
+    "refs": [
+      "art-src/ref-props2.png"
+    ],
+    "prompt": "Generate an image. The attached picture shows prop sprites from my party game (top-down, chunky cartoon style, thick dark outlines, cel shading). Draw ONE new item in exactly the same style, seen STRAIGHT FROM ABOVE, centred, filling about 80% of the frame, on a solid flat magenta (#FF00FF) background: a big shiny round PINK BUBBLEGUM BUBBLE, glossy with a white highlight and a slightly darker pink rim, perfectly round. No text, no shadow, no characters, no faces. Square 1:1."
+  },
+  {
+    "name": "pw-pizza",
+    "prompt": "Next item in exactly the same style, seen STRAIGHT FROM ABOVE, centred, filling about 80% of the frame, on a solid flat magenta (#FF00FF) background: one triangular SLICE OF PEPPERONI PIZZA with melted cheese, golden crust and four pepperoni circles, pointing to the right. No text, no shadow, no characters, no faces. Square 1:1."
+  },
+  {
+    "name": "pw-stone",
+    "prompt": "Next item in exactly the same style, seen STRAIGHT FROM ABOVE, centred, filling about 80% of the frame, on a solid flat magenta (#FF00FF) background: a round glossy brown AVOCADO STONE (seed), smooth with a light highlight, perfectly round. No text, no shadow, no characters, no faces. Square 1:1."
+  },
+  {
+    "name": "pw-mine",
+    "prompt": "Next item in exactly the same style, seen STRAIGHT FROM ABOVE, centred, filling about 80% of the frame, on a solid flat magenta (#FF00FF) background: a plump round dark BLUEBERRY with a little star-shaped crown on top and a tiny red fizzing fuse sticking out, like a cute cartoon bomb, perfectly round. No text, no shadow, no characters, no faces. Square 1:1."
+  },
+  {
+    "name": "pz-ink",
+    "prompt": "Next item in exactly the same style, seen STRAIGHT FROM ABOVE, centred, filling about 80% of the frame, on a solid flat magenta (#FF00FF) background: a big flat SPLAT PUDDLE of dark blue-purple octopus INK with splashy blobby edges and a few droplets around it, glossy highlights, roughly round. No text, no shadow, no characters, no faces. Square 1:1."
+  },
+  {
+    "name": "pz-choc",
+    "prompt": "Next item in exactly the same style, seen STRAIGHT FROM ABOVE, centred, filling about 80% of the frame, on a solid flat magenta (#FF00FF) background: a big flat PUDDLE of MELTED CHOCOLATE with blobby wavy edges and glossy highlights, roughly round. No text, no shadow, no characters, no faces. Square 1:1."
+  },
+  {
+    "name": "pz-pearls",
+    "prompt": "Next item in exactly the same style, seen STRAIGHT FROM ABOVE, centred, filling about 80% of the frame, on a solid flat magenta (#FF00FF) background: a flat roughly round spill of milky BUBBLE TEA with lots of shiny black TAPIOCA PEARLS scattered in it. No text, no shadow, no characters, no faces. Square 1:1."
+  },
+  {
+    "name": "pz-slick",
+    "prompt": "Next item in exactly the same style, seen STRAIGHT FROM ABOVE, centred, filling about 80% of the frame, on a solid flat magenta (#FF00FF) background: a flat roughly round SPLASH PUDDLE of clear light-blue WATER with white shiny highlights and ripples, splashy edges. No text, no shadow, no characters, no faces. Square 1:1."
+  }
+]

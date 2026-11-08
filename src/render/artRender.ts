@@ -1,6 +1,7 @@
 // Draws the match with Gemini sprites, falling back to the shape renderer per element when an image is missing.
 import type * as Phaser from 'phaser';
 import { RULES, SPECIES, TABLE, VIEW } from '../sim/constants';
+import { KITS } from '../sim/powers';
 import type { Layout } from '../sim/layouts';
 import type { Cutlery, Player, World } from '../sim/world';
 import { CUTLERY_LEN, fitInside, hasArt, SpritePool } from './art';
@@ -139,8 +140,12 @@ export class ArtRenderer {
     if (w.toaster) { const z = w.layout.toasters?.[w.toaster.i]; if (z) drawToasterWarn(under, z, w.toaster, t); }
     (w.layout.burners ?? []).forEach((z, i) => drawBurner(under, z, w.burner, i, t));
     w.puddles.forEach((z, i) => drawCheesePuddle(under, z, i));
-    for (const z of w.powerZones) drawPowerZone(under, z, t);
-    for (const q of w.powerShots) if (q.mine) drawPowerShot(under, q, t);
+    for (const z of w.powerZones) {
+      const key = KITS[z.species]?.art;
+      if (key && hasArt(key)) { const fade = Math.min(1, z.t / 0.6); this.pool.take(key, D.mat).setDisplaySize(z.r * 2.2, z.r * 2.2).setPosition(z.x, z.y).setRotation((z.x * 0.37 + z.y * 0.11) % 6.28).setAlpha(0.92 * fade); }
+      else drawPowerZone(under, z, t);
+    }
+    for (const q of w.powerShots) if (q.mine) this.powerShot(under, q, t);
     if (w.spatula) drawSpatula(w.spatula.state === 'warn' ? under : over, w.spatula, RULES.spatulaSize, Math.min(1, w.spatula.t / RULES.spatulaWarn), t);
     for (const d of w.cheeseDrops) drawCheeseWarn(over, d.x, d.y, Math.min(1, d.t / RULES.cheeseWarn), RULES.cheeseRadius, t);
     const bz = w.layout.blender;
@@ -170,7 +175,7 @@ export class ArtRenderer {
     for (const p of order) this.player(w, p, t, under, over);
 
     for (const c of w.cutlery) if (c.state === 'flying') this.cutlery(under, over, c, t, D.flying);
-    for (const q of w.powerShots) if (!q.mine) drawPowerShot(over, q, t);
+    for (const q of w.powerShots) if (!q.mine) this.powerShot(over, q, t);
     for (const p of order) if (p.stunT > 0) drawDazed(over, p.x, p.y - p.r - 10, t);
 
     if (w.hand && w.hand.state === 'sweep') {
@@ -204,6 +209,17 @@ export class ArtRenderer {
       }
     }
     this.pool.end();
+  }
+
+  /** Kaiju power projectile or mine: Gemini sprite (spinning in flight) with a shadow, or a plain shape. */
+  private powerShot(g: G, q: World['powerShots'][number], t: number): void {
+    const key = KITS[q.species]?.art;
+    if (!key || !hasArt(key)) { drawPowerShot(g, q, t); return; }
+    const size = q.mine ? q.r * 1.5 : q.r * 2.6, bob = q.mine ? 1 + 0.06 * Math.sin(t * 8 + q.x) : 1;
+    g.fillStyle(0x000000, 0.25); g.fillEllipse(q.x + 3, q.y + size * 0.42, size * 0.8, size * 0.3);
+    if (q.mine) { g.lineStyle(2, 0xff4a4a, 0.5 + 0.4 * Math.sin(t * 8 + q.x)); g.strokeCircle(q.x, q.y, q.r); }
+    const spin = q.mine ? 0 : key === 'pw-gum' ? 0 : t * 14;
+    this.pool.take(key, q.mine ? D.loose : D.flying).setDisplaySize(size * bob, size * bob).setPosition(q.x, q.y).setRotation(spin);
   }
 
   private cutlery(under: G, over: G, c: Cutlery, t: number, depth: number): void {

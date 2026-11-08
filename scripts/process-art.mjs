@@ -26,6 +26,8 @@ const SPRITES = [
   [/^lazysusan$/, 640],
   [/^spoon$/, 420],
   [/^hat-[a-z]+$/, 200],
+  [/^pw-[a-z]+$/, 128], // kaiju power projectiles / mines
+  [/^pz-[a-z]+$/, 320], // kaiju power puddles
 ];
 const TABLES = ['bg-table', 'bg-sushi', 'bg-party', 'bg-board', 'bg-griddle', 'bg-parlour', 'bg-picnic', 'bg-bakery', 'bg-banquet', 'bg-breakfast', 'bg-freezer', 'bg-candy', 'bg-nightmare', 'bg-smoothie', 'bg-fondue', 'bg-pancake']; // table surfaces get rounded corners
 const CUTS = ['cut-open', 'cut-end', ...Array.from({ length: 12 }, (_, i) => `cut-${i}`), 's2-open', 's2-end', ...Array.from({ length: 6 }, (_, i) => `s2-${i}`)]; // story cutscene stills (video posters)
