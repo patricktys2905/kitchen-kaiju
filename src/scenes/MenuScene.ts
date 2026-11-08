@@ -17,6 +17,8 @@ import { POWERUPS } from '../sim/powerups';
 import { cupGames } from '../cup';
 import { enabledMutators, mutatorDef, type Mutator } from '../sim/mutators';
 import { enabledModes, MODE_RULES, modeDef, type GameMode } from '../sim/modes';
+import { KITS } from '../sim/powers';
+import { getSettings } from '../settings';
 
 const TITLE = { fontFamily: DISPLAY, color: '#ffe9c7', stroke: INK, strokeThickness: 10 };
 const BODY = { fontFamily: BODY_FONT, fontStyle: '800', color: '#e9dccb' };
@@ -387,7 +389,7 @@ export class MenuScene extends Phaser.Scene {
           drawKaiju(g, { x, y: 250 + Math.sin(t * 4 + i) * 4, r: 38 * pop, aim: Math.sin(t * 1.5 + i) * 0.8 + Math.PI / 2, kaiju: false, species: sp, color: col }, t);
         }
         this.slotTexts[i].setText(SPECIES[sp].full.toUpperCase()).setColor(SPECIES[sp].css);
-        this.slotFood[i].setText(SPECIES[sp].food);
+        this.slotFood[i].setText(getSettings().kaijuPowers ? `🌟 ${KITS[sp].power}` : SPECIES[sp].food);
         const how = s.kind === 'kb' ? (s.index === 0 ? 'Keys left · A / D' : 'Keys right · ← / →')
           : s.kind === 'pad' ? `${slotLabel(s)} · ◀ ▶`
           : s.kind === 'touch' ? 'Touch · KAIJU ▶' : `Bot: ${(this.botLevels[i] ?? this.difficulty).toUpperCase()}${this.botLevels[i] ? ' ✎' : ''} (tap)`;

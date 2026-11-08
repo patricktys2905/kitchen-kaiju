@@ -8,6 +8,7 @@ import { MODE_RULES, type GameMode } from './modes';
 import { MUTATOR_RULES, type Mutator } from './mutators';
 import { enabledPowers, POWER_DEFS, POWERUPS, type PowerKind } from './powerups';
 import { Rng } from './rng';
+import { KAIJU_POWERS, kitOf, powerCooldown, type KaijuKit } from './powers';
 
 export interface PlayerInput {
   mx: number;
@@ -42,6 +43,9 @@ export type GameEvent =
   | { type: 'kaiju'; id: number; x: number; y: number }
   | { type: 'stomp'; id: number; x: number; y: number; r: number }
   | { type: 'shrink'; id: number }
+  | { type: 'power'; id: number; species: number; x: number; y: number; angle: number; r: number; kind: string }
+  | { type: 'minePop'; x: number; y: number }
+  | { type: 'stunned'; id: number }
   | { type: 'ko'; id: number; by: number | null; cause: KOCause; x: number; y: number }
   | { type: 'handWarn'; y: number; dir: number; target: number | null }
   | { type: 'handSweep' }
@@ -113,7 +117,20 @@ export interface Player {
   score: number;
   kos: number;
   prev: { throw: boolean; swipe: boolean; dash: boolean; stomp: boolean };
+  species?: number; // which kaiju (for its power + trait); undefined = no power (tests, old scripts)
+  kit: KaijuKit | null;
+  powerCD: number; // seconds until the KAIJU power is ready again
+  powerT: number; // charge-type power: seconds of slide left
+  powerA: number; // charge direction
+  stunT: number; // dazed: can't move or act
+  pkx: number; // knockback after last update (for the weight trait)
+  pky: number;
 }
+
+/** A puddle left by a kaiju power: sticky (slows) or slick (slippery). */
+export interface PowerZone { x: number; y: number; r: number; t: number; zone: 'sticky' | 'slick'; owner: number; species: number }
+/** A projectile or mine from a kaiju power. */
+export interface PowerShot { x: number; y: number; vx: number; vy: number; r: number; owner: number; species: number; force: number; stun: number; range: number; traveled: number; back: boolean; returning: boolean; mine: boolean; t: number; dead: boolean }
 
 export type CutleryState = 'held' | 'flying' | 'stuck' | 'returning';
 
@@ -168,7 +185,8 @@ export interface Hand {
 export type Phase = 'countdown' | 'play' | 'roundEnd' | 'matchEnd';
 
 export interface WorldOptions {
-  players: { name: string }[];
+  players: { name: string; species?: number }[];
+  kaijuPowers?: boolean; // signature KAIJU powers + traits (default KAIJU_POWERS.enabled; needs species)
   seed?: number;
   target?: number;
   hazards?: boolean;
@@ -228,7 +246,7 @@ export interface Cleaver {
 
 export class World {
   readonly rng: Rng;
-  readonly opts: Required<Omit<WorldOptions, 'layout' | 'starterKind' | 'layouts' | 'mode' | 'teams' | 'powerups' | 'mutator'>> & Pick<WorldOptions, 'layout' | 'starterKind' | 'layouts'>;
+  readonly opts: Required<Omit<WorldOptions, 'layout' | 'starterKind' | 'layouts' | 'mode' | 'teams' | 'powerups' | 'mutator' | 'kaijuPowers'>> & Pick<WorldOptions, 'layout' | 'starterKind' | 'layouts'>;
   readonly mode: GameMode;
   readonly powerups: boolean;
   readonly mutator: Mutator;
@@ -252,6 +270,9 @@ export class World {
   spatula: { state: 'warn' | 'flip'; x: number; y: number; t: number } | null = null;
   private spatulaTimer = 0;
   puddles: { x: number; y: number; r: number; t: number }[] = [];
+  powersOn = true;
+  powerZones: PowerZone[] = [];
+  powerShots: PowerShot[] = [];
   private cheeseTimer = 0;
   bladeAngle = 0; // for drawing
   private blenderTimer = 0;
@@ -293,7 +314,8 @@ export class World {
     this.rng = new Rng(this.opts.seed);
     const pool = o.layouts?.filter(i => i >= 0 && i < LAYOUTS.length);
     this.layoutOrder = this.rng.shuffle(pool && pool.length ? pool.slice() : LAYOUTS.map((_, i) => i));
-    this.players = o.players.map((p, id) => this.makePlayer(id, p.name));
+    this.powersOn = o.kaijuPowers ?? KAIJU_POWERS.enabled;
+    this.players = o.players.map((p, id) => { const pl = this.makePlayer(id, p.name); pl.species = p.species; pl.kit = this.powersOn ? kitOf(p.species) : null; return pl; });
     for (const pl of this.players) pl.team = this.mode === 'teams' ? (o.teams?.[pl.id] ?? pl.id % 2) : pl.id;
     this.startRound();
   }
@@ -306,6 +328,7 @@ export class World {
       swipeT: 0, swipeCD: 0, swipeHit: new Set(), meter: 0, kaijuT: 0, stepT: 0, invT: 0,
       lastHitBy: null, lastHitT: 0, bumpT: 0, team: id, pts: 0, respawnT: 0, speedT: 0, shieldT: 0, sugarT: 0, moving: false, score: 0, kos: 0,
       prev: { throw: false, swipe: false, dash: false, stomp: false },
+      kit: null, powerCD: 0, powerT: 0, powerA: 0, stunT: 0, pkx: 0, pky: 0,
     };
   }
 
@@ -332,6 +355,8 @@ export class World {
     this.blenderTimer = RULES.blenderFirst;
     this.cheeseDrops = [];
     this.puddles = [];
+    this.powerZones = [];
+    this.powerShots = [];
     this.spatula = null;
     this.spatulaTimer = RULES.spatulaFirst;
     this.cheeseTimer = RULES.cheeseFirst;
@@ -353,6 +378,7 @@ export class World {
         alive: true, holding: null, charging: false, charge: 0, dashT: 0, dashCD: 0, dashBumped: false,
         swipeT: 0, swipeCD: 0, meter: 0, kaijuT: 0, stepT: 0, invT: 0, lastHitBy: null, lastHitT: 0, moving: false, pts: 0, respawnT: 0, speedT: 0, shieldT: 0, sugarT: 0,
         prev: { throw: true, swipe: true, dash: true, stomp: true }, // require a fresh press after the countdown
+        powerCD: 0, powerT: 0, stunT: 0, pkx: 0, pky: 0,
       });
       p.swipeHit.clear();
       if (this.mutator === 'tiny') p.r = P.radius * MUTATOR_RULES.tinySize;
@@ -418,6 +444,7 @@ export class World {
     for (const p of this.players) this.updatePlayer(p, live ? inputs[p.id] ?? NO_INPUT : NO_INPUT, dt);
     this.resolvePlayerContacts();
     this.updateCutlery(dt);
+    this.updatePowers(dt);
     this.eatCrumbs();
     if (this.phase === 'play') this.updateMode(dt);
     if (this.phase === 'play' || this.hand || this.wind || this.cleaver || this.burner || this.toaster || this.toasts.length || this.blender || this.cheeseDrops.length || this.puddles.length || this.spatula) {
@@ -439,6 +466,12 @@ export class World {
   // ---------------------------------------------------------------- players
   private updatePlayer(p: Player, inp: PlayerInput, dt: number): void {
     if (!p.alive) return;
+    const mods = p.kit?.mods ?? {};
+    // weight trait: scale any knockback picked up since last update
+    if (mods.weight && mods.weight !== 1) { p.kx = p.pkx + (p.kx - p.pkx) * mods.weight; p.ky = p.pky + (p.ky - p.pky) * mods.weight; }
+    if (p.powerCD > 0) p.powerCD -= dt;
+    const stunned = p.stunT > 0;
+    if (stunned) { p.stunT -= dt; inp = { ...NO_INPUT }; }
     p.invT -= dt;
     p.dashCD -= dt;
     p.swipeCD -= dt;
@@ -464,14 +497,17 @@ export class World {
 
     const pressed = (k: 'throw' | 'swipe' | 'dash' | 'stomp') => inp[k] && !p.prev[k];
 
+    // 🌟 KAIJU power: THROW or SWIPE while big
+    if (kaiju && p.kit && (pressed('throw') || pressed('swipe')) && p.powerCD <= 0 && this.phase === 'play') this.usePower(p, ml > 0.2 ? Math.atan2(my, mx) : p.aim);
+
     // Dash
     if (pressed('dash') && p.dashCD <= 0 && !kaiju) {
       const a = ml > 0.2 ? Math.atan2(my, mx) : p.aim;
       p.dashT = P.dashTime;
-      p.dashCD = P.dashCD;
+      p.dashCD = P.dashCD * (mods.dashCD ?? 1);
       p.dashBumped = false;
-      p.vx = Math.cos(a) * P.dashSpeed;
-      p.vy = Math.sin(a) * P.dashSpeed;
+      p.vx = Math.cos(a) * P.dashSpeed * (mods.dashSpeed ?? 1);
+      p.vy = Math.sin(a) * P.dashSpeed * (mods.dashSpeed ?? 1);
       this.emit({ type: 'dash', id: p.id, x: p.x, y: p.y });
     }
 
@@ -504,11 +540,19 @@ export class World {
     p.prev = { throw: inp.throw, swipe: inp.swipe, dash: inp.dash, stomp: inp.stomp };
 
     // Movement
-    const spd = P.speed * (p.charging ? P.chargeSlow : 1) * (p.kaijuT > 0 ? P.kaijuSpeed : 1) * (this.onSticky(p.x, p.y) ? RULES.stickySlow : 1) * (this.hot?.id === p.id ? MODE_RULES.hotDumpling.holderSpeed : 1) * (p.speedT > 0 ? POWERUPS.hotsauceSpeed : 1) * (this.mutator === 'tiny' ? MUTATOR_RULES.tinySpeed : 1);
-    if (p.dashT > 0) {
+    const spd = P.speed * (mods.speed ?? 1) * (p.charging ? P.chargeSlow : 1) * (p.kaijuT > 0 ? P.kaijuSpeed : 1) * (this.onSticky(p.x, p.y) ? RULES.stickySlow : 1) * (this.hot?.id === p.id ? MODE_RULES.hotDumpling.holderSpeed : 1) * (p.speedT > 0 ? POWERUPS.hotsauceSpeed : 1) * (this.mutator === 'tiny' ? MUTATOR_RULES.tinySpeed : 1);
+    if (p.powerT > 0) {
+      // charge power: a fast slide; contact squashes like any kaiju
+      p.powerT -= dt;
+      const sp = p.kit?.spec.kind === 'charge' ? p.kit.spec : null;
+      p.vx = Math.cos(p.powerA) * (sp?.speed ?? 800);
+      p.vy = Math.sin(p.powerA) * (sp?.speed ?? 800);
+      if (sp?.trail && Math.floor(p.powerT * 20) !== Math.floor((p.powerT + dt) * 20)) this.addZone(p, p.x, p.y, 46, 4, sp.trail);
+    } else if (p.dashT > 0) {
       p.dashT -= dt;
     } else {
-      const k = Math.min(1, dt * (this.onSpill(p.x, p.y) ? RULES.spillGrip : this.layout.slippery || this.mutator === 'ice' ? RULES.iceGrip : 14));
+      const slip = this.onSpill(p.x, p.y) ? RULES.spillGrip : this.layout.slippery || this.mutator === 'ice' ? RULES.iceGrip : 0;
+      const k = Math.min(1, dt * (slip ? Math.min(14, slip * (mods.grip ?? 1)) : 14));
       p.vx += (mx * spd - p.vx) * k;
       p.vy += (my * spd - p.vy) * k;
     }
@@ -517,6 +561,8 @@ export class World {
     p.ky *= kd;
     p.x += (p.vx + p.kx) * dt;
     p.y += (p.vy + p.ky) * dt;
+    p.pkx = p.kx;
+    p.pky = p.ky;
 
     for (const b of this.layout.belts ?? []) {
       if (p.x > b.x && p.x < b.x + b.w && p.y > b.y && p.y < b.y + b.h) { p.x += b.vx * dt; p.y += (b.vy ?? 0) * dt; }
@@ -557,6 +603,7 @@ export class World {
       }
       if (p.kaijuT <= 0) {
         p.kaijuT = 0;
+        p.powerT = 0;
         p.invT = P.shrinkInvuln;
         this.emit({ type: 'shrink', id: p.id });
       }
@@ -598,10 +645,11 @@ export class World {
       e.owner = p.id;
       e.x = p.x + Math.cos(a) * (p.r + 6);
       e.y = p.y + Math.sin(a) * (p.r + 6);
-      e.vx = Math.cos(a) * def.speed * (1 + 0.5 * ch);
-      e.vy = Math.sin(a) * def.speed * (1 + 0.5 * ch);
+      const ts = p.kit?.mods.throwSpeed ?? 1;
+      e.vx = Math.cos(a) * def.speed * ts * (1 + 0.5 * ch);
+      e.vy = Math.sin(a) * def.speed * ts * (1 + 0.5 * ch);
       e.angle = a;
-      e.speed = def.speed * (1 + 0.5 * ch);
+      e.speed = def.speed * ts * (1 + 0.5 * ch);
       e.traveled = 0;
       e.maxRange = def.range * (1 + 0.5 * ch);
       e.bouncesLeft = def.bounces;
@@ -613,7 +661,7 @@ export class World {
   }
 
   private applySwipe(p: Player): void {
-    const reach = p.r + P.swipeReach;
+    const reach = p.r + P.swipeReach + (p.kit?.mods.reach ?? 0);
     for (const q of this.players) {
       if (q === p || !q.alive || p.swipeHit.has(q.id) || this.friends(p.id, q.id)) continue;
       const d = Math.hypot(q.x - p.x, q.y - p.y);
@@ -658,6 +706,148 @@ export class World {
       q.lastHitBy = p.id;
       q.lastHitT = 2;
     }
+  }
+
+  // ---------------------------------------------------------------- kaiju powers
+  /** Shove q away from (x, y) — like a stomp. */
+  private powerPush(p: Player, q: Player, fx: number, fy: number, stun = 0): void {
+    q.kx += fx;
+    q.ky += fy;
+    q.lastHitBy = p.id;
+    q.lastHitT = 2;
+    if (stun > 0 && q.kaijuT <= 0) { q.stunT = Math.max(q.stunT, stun); q.charging = false; q.charge = 0; this.emit({ type: 'stunned', id: q.id }); }
+  }
+
+  private powerTargets(p: Player): Player[] {
+    return this.players.filter(q => q !== p && q.alive && q.kaijuT <= 0 && !this.friends(p.id, q.id));
+  }
+
+  private addZone(p: Player, x: number, y: number, r: number, t: number, zone: 'sticky' | 'slick'): void {
+    this.powerZones.push({ x: clamp(x, TABLE.x, TABLE.x + TABLE.w), y: clamp(y, TABLE.y, TABLE.y + TABLE.h), r, t, zone, owner: p.id, species: p.species ?? 0 });
+    if (this.powerZones.length > 40) this.powerZones.shift();
+  }
+
+  private deflectAround(p: Player, r: number, arc?: number, a = p.aim): void {
+    for (const c of this.cutlery) {
+      if (c.state !== 'flying' || c.owner === p.id) continue;
+      if (Math.hypot(c.x - p.x, c.y - p.y) > r) continue;
+      if (arc !== undefined && Math.abs(angleDiff(Math.atan2(c.y - p.y, c.x - p.x), a)) > arc) continue;
+      this.land(c);
+      this.emit({ type: 'deflect', x: c.x, y: c.y });
+    }
+  }
+
+  usePower(p: Player, a: number): void {
+    const kit = p.kit;
+    if (!kit) return;
+    p.powerCD = powerCooldown(kit);
+    p.aim = a;
+    const sp = kit.spec;
+    let fxR = 0;
+    switch (sp.kind) {
+      case 'burst':
+        fxR = sp.r;
+        for (const q of this.powerTargets(p)) {
+          const dx = q.x - p.x, dy = q.y - p.y, d = Math.hypot(dx, dy) || 1, R = sp.r + q.r;
+          if (d > R) continue;
+          const f = sp.force * (1 - 0.5 * d / R) + 120;
+          this.powerPush(p, q, (dx / d) * f, (dy / d) * f, sp.stun);
+        }
+        if (sp.deflect) this.deflectAround(p, sp.r);
+        break;
+      case 'cone':
+        fxR = sp.range;
+        for (const q of this.powerTargets(p)) {
+          const dx = q.x - p.x, dy = q.y - p.y, d = Math.hypot(dx, dy) || 1;
+          if (d > sp.range + q.r + p.r * 0.5 || Math.abs(angleDiff(Math.atan2(dy, dx), a)) > sp.arc) continue;
+          const f = sp.force * (1 - 0.4 * d / (sp.range + q.r)) + 120;
+          this.powerPush(p, q, (dx / d) * f, (dy / d) * f, sp.stun);
+        }
+        if (sp.deflect) this.deflectAround(p, sp.range, sp.arc, a);
+        break;
+      case 'zone':
+        fxR = sp.r;
+        this.addZone(p, p.x + Math.cos(a) * sp.ahead, p.y + Math.sin(a) * sp.ahead, sp.r, sp.t, sp.zone);
+        break;
+      case 'charge':
+        fxR = p.r;
+        p.powerT = sp.t;
+        p.powerA = a;
+        break;
+      case 'blink': {
+        const inset = p.r * 0.6;
+        let nx = clamp(p.x + Math.cos(a) * sp.dist, TABLE.x + inset, TABLE.x + TABLE.w - inset);
+        let ny = clamp(p.y + Math.sin(a) * sp.dist, TABLE.y + inset, TABLE.y + TABLE.h - inset);
+        p.x = nx; p.y = ny; p.vx = 0; p.vy = 0; p.kx = 0; p.ky = 0; p.pkx = 0; p.pky = 0;
+        this.pushOutOfObstacles(p);
+        fxR = sp.landR ?? p.r;
+        if (sp.landR && sp.landForce) {
+          for (const q of this.powerTargets(p)) {
+            const dx = q.x - p.x, dy = q.y - p.y, d = Math.hypot(dx, dy) || 1;
+            if (d > sp.landR + q.r) continue;
+            const f = sp.landForce * (1 - 0.5 * d / (sp.landR + q.r)) + 120;
+            this.powerPush(p, q, (dx / d) * f, (dy / d) * f);
+          }
+        }
+        break;
+      }
+      case 'shot':
+        fxR = sp.r;
+        this.powerShots.push({ x: p.x + Math.cos(a) * (p.r + sp.r), y: p.y + Math.sin(a) * (p.r + sp.r), vx: Math.cos(a) * sp.speed, vy: Math.sin(a) * sp.speed, r: sp.r, owner: p.id, species: p.species ?? 0, force: sp.force, stun: sp.stun ?? 0, range: sp.range, traveled: 0, back: !!sp.back, returning: false, mine: false, t: 0, dead: false });
+        break;
+      case 'mines':
+        fxR = 60;
+        for (let i = 0; i < sp.n; i++) {
+          const ma = a + Math.PI + (i - (sp.n - 1) / 2) * 0.9, md = p.r + 40;
+          this.powerShots.push({ x: clamp(p.x + Math.cos(ma) * md, TABLE.x + 20, TABLE.x + TABLE.w - 20), y: clamp(p.y + Math.sin(ma) * md, TABLE.y + 20, TABLE.y + TABLE.h - 20), vx: 0, vy: 0, r: sp.r, owner: p.id, species: p.species ?? 0, force: sp.force, stun: 0, range: 0, traveled: 0, back: false, returning: false, mine: true, t: sp.t, dead: false });
+        }
+        break;
+    }
+    this.emit({ type: 'power', id: p.id, species: p.species ?? 0, x: p.x, y: p.y, angle: a, r: fxR, kind: sp.kind });
+  }
+
+  private updatePowers(dt: number): void {
+    for (const z of this.powerZones) z.t -= dt;
+    this.powerZones = this.powerZones.filter(z => z.t > 0);
+    for (const s of this.powerShots) {
+      const owner = this.players[s.owner];
+      if (s.mine) {
+        s.t -= dt;
+        if (s.t <= 0) { s.dead = true; continue; }
+        if (this.phase !== 'play') continue;
+        for (const q of this.players) {
+          if (q.id === s.owner || !q.alive || q.kaijuT > 0 || (owner && this.friends(owner.id, q.id))) continue;
+          const dx = q.x - s.x, dy = q.y - s.y, d = Math.hypot(dx, dy) || 1;
+          if (d > s.r + q.r) continue;
+          if (owner) this.powerPush(owner, q, (dx / d) * s.force, (dy / d) * s.force, 0.3);
+          s.dead = true;
+          this.emit({ type: 'minePop', x: s.x, y: s.y });
+          break;
+        }
+        continue;
+      }
+      if (s.returning && owner && owner.alive) {
+        const dx = owner.x - s.x, dy = owner.y - s.y, d = Math.hypot(dx, dy) || 1, v = Math.hypot(s.vx, s.vy);
+        s.vx = (dx / d) * v; s.vy = (dy / d) * v;
+        if (d < owner.r + s.r) { s.dead = true; continue; }
+      }
+      s.x += s.vx * dt;
+      s.y += s.vy * dt;
+      s.traveled += Math.hypot(s.vx, s.vy) * dt;
+      if (s.traveled > s.range * (s.returning ? 2.2 : 1)) { if (s.back && !s.returning) { s.returning = true; } else { s.dead = true; continue; } }
+      if (s.x < TABLE.x - 40 || s.x > TABLE.x + TABLE.w + 40 || s.y < TABLE.y - 40 || s.y > TABLE.y + TABLE.h + 40) { s.dead = true; continue; }
+      if (this.phase !== 'play') continue;
+      for (const q of this.players) {
+        if (q.id === s.owner || !q.alive || q.kaijuT > 0 || (owner && this.friends(owner.id, q.id))) continue;
+        if (Math.hypot(q.x - s.x, q.y - s.y) > s.r + q.r) continue;
+        const v = Math.hypot(s.vx, s.vy) || 1;
+        if (owner) this.powerPush(owner, q, (s.vx / v) * s.force, (s.vy / v) * s.force, s.stun);
+        if (!s.back) s.dead = true; else s.returning = true;
+        this.emit({ type: 'bump', x: q.x, y: q.y });
+        break;
+      }
+    }
+    this.powerShots = this.powerShots.filter(s => !s.dead);
   }
 
   private resolvePlayerContacts(): void {
@@ -1092,6 +1282,7 @@ export class World {
   onSticky(x: number, y: number): boolean {
     for (const z of this.layout.stickies ?? []) if (Math.hypot(x - z.x, y - z.y) < z.r) return true;
     for (const z of this.puddles) if (Math.hypot(x - z.x, y - z.y) < z.r) return true;
+    for (const z of this.powerZones) if (z.zone === 'sticky' && Math.hypot(x - z.x, y - z.y) < z.r) return true;
     return false;
   }
 
@@ -1159,6 +1350,7 @@ export class World {
 
   onSpill(x: number, y: number): boolean {
     for (const z of this.layout.spills ?? []) if (Math.hypot(x - z.x, y - z.y) < z.r) return true;
+    for (const z of this.powerZones) if (z.zone === 'slick' && Math.hypot(x - z.x, y - z.y) < z.r) return true;
     return false;
   }
 

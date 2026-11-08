@@ -162,7 +162,7 @@ export class GameScene extends Phaser.Scene {
     this.mode = data.mode ?? 'classic';
     this.powerups = data.story ? false : data.powerups ?? POWERUPS.enabled;
     this.hazards = data.story ? true : data.hazards ?? true;
-    this.world = new World({ players: this.species.map(s => ({ name: SPECIES[s].name })), seed, layouts: this.tables ?? undefined, target: this.rounds, mode: this.mode, powerups: this.powerups, hazards: this.hazards, mutator: data.story ? data.story.mutator ?? 'none' : data.gauntlet || data.dessert || data.daily ? 'none' : data.mutator });
+    this.world = new World({ players: this.species.map(s => ({ name: SPECIES[s].name, species: s })), kaijuPowers: getSettings().kaijuPowers, seed, layouts: this.tables ?? undefined, target: this.rounds, mode: this.mode, powerups: this.powerups, hazards: this.hazards, mutator: data.story ? data.story.mutator ?? 'none' : data.gauntlet || data.dessert || data.daily ? 'none' : data.mutator });
     this.story = data.story;
     this.practice = null;
     this.callout = { first: false, recent: data.slots.map(() => []), streak: data.slots.map(() => 0), nemesis: data.slots.map(() => null) };
@@ -549,6 +549,7 @@ export class GameScene extends Phaser.Scene {
           this.shake(0.012, 350);
           this.popup(e.x, e.y - 60, 'KAIJU!', this.css[e.id], 40);
           this.rings.push({ x: e.x, y: e.y, r: 0, t: 0, max: 160, color: this.colors[e.id] });
+          { const kit = this.world.players[e.id]?.kit; if (kit && this.isHuman(e.id)) this.popup(e.x, e.y - 22, `THROW / SWIPE: ${kit.power.toUpperCase()}`, '#ffffff', 18); }
           break;
         case 'stomp':
           sfx.stomp();
@@ -557,6 +558,18 @@ export class GameScene extends Phaser.Scene {
           this.burst(e.x, e.y, 0x8a5a32, 10, 200, 0.4);
           break;
         case 'shrink': sfx.shrink(); break;
+        case 'power': {
+          const kit = this.world.players[e.id]?.kit, col = this.colors[e.id];
+          sfx.stomp();
+          this.shake(0.006, 140);
+          if (kit) this.popup(e.x, e.y - 70, kit.power.toUpperCase() + '!', this.css[e.id], 26);
+          if (e.kind === 'burst' || e.kind === 'zone' || e.kind === 'blink') this.rings.push({ x: e.x, y: e.y, r: 0, t: 0, max: Math.max(60, e.r), color: col });
+          if (e.kind === 'cone') for (let k = -2; k <= 2; k++) this.rings.push({ x: e.x + Math.cos(e.angle + k * 0.18) * e.r * 0.6, y: e.y + Math.sin(e.angle + k * 0.18) * e.r * 0.6, r: 0, t: 0, max: 34, color: col });
+          this.burst(e.x, e.y, col, 14, 260, 0.45);
+          break;
+        }
+        case 'minePop': sfx.bump(); this.shake(0.005, 120); this.burst(e.x, e.y, 0x4a6aff, 16, 240, 0.45); this.rings.push({ x: e.x, y: e.y, r: 0, t: 0, max: 70, color: 0x4a6aff }); break;
+        case 'stunned': break;
         case 'ko':
           this.onKO(e);
           if (this.net?.role !== 'guest' || e.id === this.net.seat) rumble(this.mySlot(e.id), 'ko');

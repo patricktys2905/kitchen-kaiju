@@ -8,6 +8,7 @@ import { fitInside, hasArt } from '../render/art';
 import { drawFloor } from '../render/draw';
 import { body, display, withShadow } from '../render/fonts';
 import { Button, FocusNav } from '../render/ui';
+import { KITS } from '../sim/powers';
 import { getSettings, LEVELS, setSetting, SETTINGS_ROWS, type Settings } from '../settings';
 import { SPECIES } from '../sim/constants';
 import { CUTLERY, RARE_KINDS, type CutleryKind } from '../sim/cutlery';
@@ -223,7 +224,7 @@ export class HelpScene extends PanelScene {
         'THROW: hold to charge, let go to fling your cutlery. A miss STICKS where it lands, so go and grab it (or steal it!).',
         'SWIPE: a close-range smack. It also knocks flying cutlery out of the air.',
         'DASH: a quick dodge. Dash into a rival to shove them; dash into incoming cutlery to catch it.',
-        'STOMP: eat crumbs to fill your belly, then STOMP to go KAIJU: giant, unstoppable, squashes everyone.',
+        'STOMP: eat crumbs to fill your belly, then STOMP to go KAIJU: giant, unstoppable, squashes everyone. While KAIJU, THROW or SWIPE fires your kaiju\'s own power (see the Gallery).',
         'Shove rivals off the edge, and watch out for each table\'s hazard!',
       ].join('\n'));
       head(90, 470, 'CONTROLS');
@@ -375,7 +376,7 @@ export class GalleryScene extends PanelScene {
     this.detail.push(withShadow(this.add.text(600, 470, got ? sp.full.toUpperCase() : '??? (LOCKED)', display(36, got ? sp.css : '#a89680', { strokeThickness: 6 })).setDepth(6), 3));
     const u = UNLOCKS.find(q => q.kind === 'kaiju' && q.index === i);
     const lines = got
-      ? [`A ${sp.food}.`, '', `Your matches as ${sp.full}: ${st.kaijuPlays[i] ?? 0}`, `Your wins as ${sp.full}: ${st.kaijuWins[i] ?? 0}`, u ? '🎁 Story reward' : '']
+      ? [`A ${sp.food}.`, `🌟 KAIJU power: ${KITS[i].power} — ${KITS[i].blurb}`, `Trait: ${KITS[i].trait}`, '', `Your matches as ${sp.full}: ${st.kaijuPlays[i] ?? 0}`, `Your wins as ${sp.full}: ${st.kaijuWins[i] ?? 0}`, u ? '🎁 Story reward' : '']
       : [u ? `Unlock: ${needText(u)}` : 'Locked', '', 'Left: normal look · right: KAIJU MODE'];
     this.detail.push(this.add.text(600, 525, lines.join('\n'), body(19, '#f1e4d2', 800, { lineSpacing: 6 })).setDepth(6));
   }

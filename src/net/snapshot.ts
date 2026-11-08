@@ -30,6 +30,8 @@ export interface Snapshot {
   cd?: number[][]; // falling cheese [x, y, t]
   pu?: number[][]; // cheese puddles [x, y, r, t]
   sp?: number[] | null; // spatula [state 0 warn / 1 flip, x, y, t]
+  pz?: number[][]; // kaiju power puddles [x, y, r, t, 0 sticky / 1 slick, owner, species]
+  ps?: number[][]; // kaiju power shots/mines [x, y, vx, vy, r, owner, species, mine, t]
 }
 
 export function makeSnapshot(w: World): Snapshot {
@@ -38,7 +40,7 @@ export function makeSnapshot(w: World): Snapshot {
     p: w.players.map(p => [
       r1(p.x), r1(p.y), r1(p.vx + p.kx), r1(p.vy + p.ky), r3(p.aim), r1(p.r), p.alive ? 1 : 0, p.holding ?? -1,
       p.charging ? 1 : 0, r3(p.charge), r3(p.dashT), r3(p.swipeT), r1(p.meter), r3(p.kaijuT), r3(p.invT), p.score, p.kos,
-      p.team, p.pts, r1(p.respawnT), r1(p.speedT), r1(p.shieldT), r1(p.sugarT),
+      p.team, p.pts, r1(p.respawnT), r1(p.speedT), r1(p.shieldT), r1(p.sugarT), r3(p.stunT), r3(p.powerT), r3(p.powerCD),
     ]),
     c: w.cutlery.map(c => [
       c.id, KINDS.indexOf(c.kind), STATES.indexOf(c.state), r1(c.x), r1(c.y), r3(c.angle), r3(c.spin), c.owner ?? -1, c.holder ?? -1, r1(c.vx), r1(c.vy),
@@ -56,6 +58,8 @@ export function makeSnapshot(w: World): Snapshot {
     cd: w.cheeseDrops.map(d => [r1(d.x), r1(d.y), r3(d.t)]),
     sp: w.spatula ? [w.spatula.state === 'warn' ? 0 : 1, r1(w.spatula.x), r1(w.spatula.y), r3(w.spatula.t)] : null,
     pu: w.puddles.map(z => [r1(z.x), r1(z.y), r1(z.r), r1(z.t)]),
+    pz: w.powerZones.map(z => [r1(z.x), r1(z.y), r1(z.r), r1(z.t), z.zone === 'slick' ? 1 : 0, z.owner, z.species]),
+    ps: w.powerShots.map(q => [r1(q.x), r1(q.y), r1(q.vx), r1(q.vy), r1(q.r), q.owner, q.species, q.mine ? 1 : 0, r1(q.t)]),
     bl: w.blender ? [w.blender.state === 'warn' ? 0 : 1, r3(w.blender.t), r3(w.bladeAngle)] : null,
   };
 }
@@ -80,6 +84,7 @@ export function applySnapshot(w: World, s: Snapshot): boolean {
     p.charging = a[8] === 1;
     [p.charge, p.dashT, p.swipeT, p.meter, p.kaijuT, p.invT, p.score, p.kos] = a.slice(9);
     if (a.length > 17) [p.team, p.pts, p.respawnT, p.speedT, p.shieldT, p.sugarT] = a.slice(17);
+    if (a.length > 23) [p.stunT, p.powerT, p.powerCD] = a.slice(23);
   });
   w.cutlery = s.c.map(a => ({
     id: a[0], kind: KINDS[a[1]], state: STATES[a[2]], x: a[3], y: a[4], angle: a[5], spin: a[6],
@@ -101,6 +106,8 @@ export function applySnapshot(w: World, s: Snapshot): boolean {
   w.cheeseDrops = (s.cd ?? []).map(a => ({ x: a[0], y: a[1], t: a[2] }));
   w.spatula = s.sp ? { state: s.sp[0] ? 'flip' : 'warn', x: s.sp[1], y: s.sp[2], t: s.sp[3] } : null;
   w.puddles = (s.pu ?? []).map(a => ({ x: a[0], y: a[1], r: a[2], t: a[3] }));
+  w.powerZones = (s.pz ?? []).map(a => ({ x: a[0], y: a[1], r: a[2], t: a[3], zone: a[4] ? 'slick' : 'sticky', owner: a[5], species: a[6] }));
+  w.powerShots = (s.ps ?? []).map(a => ({ x: a[0], y: a[1], vx: a[2], vy: a[3], r: a[4], owner: a[5], species: a[6], mine: a[7] === 1, t: a[8], force: 0, stun: 0, range: 0, traveled: 0, back: false, returning: false, dead: false }));
   return tableChanged;
 }
 
@@ -115,6 +122,7 @@ export function extrapolate(w: World, dt: number): void {
     if (c.state === 'flying') { c.x += c.vx * dt; c.y += c.vy * dt; c.spin += dt * 28; }
   }
   for (const t of w.toasts) { t.x += t.vx * dt; t.y += t.vy * dt; t.spin += dt * 9; }
+  for (const q of w.powerShots) { q.x += q.vx * dt; q.y += q.vy * dt; }
   const tt = w.layout.turntable;
   if (tt) w.turnAngle += tt.spin * dt;
 }

@@ -60,6 +60,7 @@ Each section says **where to customise it**.
 - 53. Second Helpings has its own music
 - 54. Fast forward when only bots are left
 - 55. Clear teams on the Team Feast setup screen
+- 56. Kaiju powers: every kaiju plays differently
 
 **Where to find things:** title screen cards (Story · Free Play · Online · Party Modes · Daily · Gauntlet), the top-right row (Settings · How to Play · Kaiju · Records), and Free Play keys (G mode · U power-ups · H hazards · X twist · C cup).
 
@@ -516,3 +517,38 @@ A 6-chapter post-game story. It opens once **chapter 6 of The Grand Feast** is c
 - In Team Feast, every seat card shows a big **RED TEAM / BLUE TEAM** tag, a red or blue tint and a thick team-coloured border. The header shows the count (e.g. "RED 2 vs BLUE 2") and suggests adding a player or bot when the teams are uneven.
 - Teams alternate by seat, the same as in the match.
 - **Customise:** team names and colours are in `MODE_RULES.teams` in `src/sim/modes.ts`; the card drawing is in `MenuScene.draw()`.
+
+## 56. Kaiju powers: every kaiju plays differently
+
+Everyday play is the same for everyone. In **KAIJU form**, pressing **THROW or SWIPE** fires that kaiju's own signature power (about a 1.6 s cooldown, so roughly 3 uses per KAIJU). Each kaiju also has one small everyday trait.
+
+| Kaiju | KAIJU power | Trait |
+|---|---|---|
+| Gobzilla Jr. | Seed Spray: shoves rivals in front | Balanced |
+| Squidgeon | Ink Cloud: sticky puddle ahead | Longer swipe reach |
+| Crabbage | Claw Snap: short, very strong, bats away cutlery | Quick |
+| Bloblin | Wobble Wave: knockback ring that dazes | Hard to shove |
+| Mothball | Flutter: instant long hop | Light and quick |
+| Toastbat | Pop-Up: hop that lands with a shove | Shorter dash cooldown |
+| Dumplord | Steam Burst: big push ring | Heavy |
+| Norigon | Sushi Roll: fast roll that flattens | Faster dash |
+| Chocomunch | Choc Melt: big sticky puddle underfoot | Heaviest, slow |
+| Bubblegumbo | Gum Bubble: projectile that traps (dazes) | Longer swipe reach |
+| Bluebeary | Berry Mines: four mines that pop | Shorter dash cooldown |
+| Pizzaraptor | Slice Toss: boomerang pizza slice | Stronger throws |
+| Sloba | Pearl Spill: slippery pearls all around | Slow but hard to shove |
+| Avocadrake | Stone Toss: hard straight shove | A little heavier |
+| Salmonster | Upstream: surge with a slippery trail | Grip on slippery tables |
+| Hotchog | Spike Out: ring that dazes | Swipes reach further |
+| Minturtle | Shell Spin: push ring that bats away cutlery | Hard to shove, slow |
+| Pengwhip | Belly Slide: long slide that flattens | Grip on ice |
+| Velvaroo | Big Kick: huge short-range launch | Shorter dash cooldown |
+| Tacowl | Screech: huge ring that dazes | Faster throws |
+
+- **Dazed** rivals can't move or act briefly (spinning stars).
+- Bots use powers when a rival is in reach.
+- Story bosses use their powers too; Second Helpings was re-tuned to 93 / 91 / 86 / 50 / 64 / 40%.
+- Works online.
+- Shown on the kaiju pickers (🌟 power name), in the Gallery (power and trait) and in How to Play.
+- **Classic rules:** Settings → KAIJU POWERS: OFF makes every kaiju the same.
+- **Customise:** `src/sim/powers.ts`: `KITS` (power type, numbers, trait multipliers), `KAIJU_POWERS.cooldown`. Balance check: `RUNS=150 npx vite-node scripts/kaiju-balance.ts` (`POWERS=0` for the Classic baseline; at 150 runs, ±8% is just luck).

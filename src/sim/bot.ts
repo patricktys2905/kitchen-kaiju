@@ -1,4 +1,5 @@
 // Bot brains: read the World, return a PlayerInput like a human controller would.
+import { powerReach } from './powers';
 import { P, RULES, TABLE } from './constants';
 import { CUTLERY } from './cutlery';
 import { circRect } from './math';
@@ -80,6 +81,8 @@ export class BotBrain {
 
     if (p.kaijuT > 0) {
       add(ux, uy, 1.6); // stomp them
+      // 🌟 fire the KAIJU power when a rival is in reach (a fresh SWIPE press)
+      if (p.kit && p.powerCD <= 0 && d < powerReach(p.kit) && this.rng.next() < dt * T.swipe * 1.5) out.swipe = !p.prev.swipe;
     } else {
       // Run from enemy kaiju.
       for (const f of foes) {

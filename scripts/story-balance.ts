@@ -11,7 +11,7 @@ for (const [ci, ch] of CHAPTERS.entries()) {
   const rivals = chapterRivals(ch, PICK);
   let wins = 0;
   for (let run = 0; run < RUNS; run++) {
-    const w = new World({ players: [PICK, ...rivals.map(r => r.species)].map(s => ({ name: SPECIES[s].name })), seed: 1000 + run * 7 + ci, layout: ch.table, target: ch.rounds, mutator: ch.mutator ?? 'none' });
+    const w = new World({ players: [PICK, ...rivals.map(r => r.species)].map(s => ({ name: SPECIES[s].name, species: s })), kaijuPowers: process.env.POWERS !== '0', seed: 1000 + run * 7 + ci, layout: ch.table, target: ch.rounds, mutator: ch.mutator ?? 'none' });
     const bots = [new BotBrain(0, 'reference', run), ...rivals.map((r, k) => new BotBrain(k + 1, r.level, run * 13 + k))];
     const boostBosses = () => rivals.forEach((r, k) => { if (r.boss) w.players[k + 1].meter = 100; });
     boostBosses();

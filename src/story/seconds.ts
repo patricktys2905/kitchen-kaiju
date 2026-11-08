@@ -39,7 +39,7 @@ export const SECONDS_CHAPTERS: Chapter[] = [
   },
   {
     title: 'Cold Shoulder', table: 12, rounds: 3, boss: true,
-    rivals: [{ species: 17, level: 'easy', boss: true }, { species: 16, level: 'normal' }],
+    rivals: [{ species: 17, level: 'easy', boss: true }, { species: 16, level: 'easy' }],
     intro: [
       { speaker: 0, text: 'Welcome to MY freezer. Mind the ice. I never slip.' },
       { speaker: 1, text: 'Mint condition. Mint defeat. Yours.' },
@@ -59,7 +59,7 @@ export const SECONDS_CHAPTERS: Chapter[] = [
   },
   {
     title: 'Second Helpings', table: 14, rounds: 3, boss: true,
-    rivals: [{ species: 18, level: 'hard', boss: true }, { species: 15, level: 'normal' }, { species: 17, level: 'normal' }],
+    rivals: [{ species: 18, level: 'normal', boss: true }, { species: 15, level: 'hard' }, { species: 17, level: 'normal' }],
     intro: [
       { speaker: 'chef', text: 'The back kitchen. Burners, toasters AND the giant hand. The last course.' },
       { speaker: 0, text: 'One Golden Spoon wasn\'t enough? Then come and EARN your seconds!' },

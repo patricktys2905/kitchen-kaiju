@@ -1,6 +1,6 @@
 // Draws the match with Gemini sprites, falling back to the shape renderer per element when an image is missing.
 import type * as Phaser from 'phaser';
-import { RULES, TABLE, VIEW } from '../sim/constants';
+import { RULES, SPECIES, TABLE, VIEW } from '../sim/constants';
 import type { Layout } from '../sim/layouts';
 import type { Cutlery, Player, World } from '../sim/world';
 import { CUTLERY_LEN, fitInside, hasArt, SpritePool } from './art';
@@ -139,6 +139,8 @@ export class ArtRenderer {
     if (w.toaster) { const z = w.layout.toasters?.[w.toaster.i]; if (z) drawToasterWarn(under, z, w.toaster, t); }
     (w.layout.burners ?? []).forEach((z, i) => drawBurner(under, z, w.burner, i, t));
     w.puddles.forEach((z, i) => drawCheesePuddle(under, z, i));
+    for (const z of w.powerZones) drawPowerZone(under, z, t);
+    for (const q of w.powerShots) if (q.mine) drawPowerShot(under, q, t);
     if (w.spatula) drawSpatula(w.spatula.state === 'warn' ? under : over, w.spatula, RULES.spatulaSize, Math.min(1, w.spatula.t / RULES.spatulaWarn), t);
     for (const d of w.cheeseDrops) drawCheeseWarn(over, d.x, d.y, Math.min(1, d.t / RULES.cheeseWarn), RULES.cheeseRadius, t);
     const bz = w.layout.blender;
@@ -168,6 +170,8 @@ export class ArtRenderer {
     for (const p of order) this.player(w, p, t, under, over);
 
     for (const c of w.cutlery) if (c.state === 'flying') this.cutlery(under, over, c, t, D.flying);
+    for (const q of w.powerShots) if (!q.mine) drawPowerShot(over, q, t);
+    for (const p of order) if (p.stunT > 0) drawDazed(over, p.x, p.y - p.r - 10, t);
 
     if (w.hand && w.hand.state === 'sweep') {
       const h = w.hand;
@@ -266,5 +270,47 @@ export class ArtRenderer {
       over.fillStyle(0xff3b3b, 1); over.fillCircle(cx, cy + 3, 2.5);
     }
     drawPlayerOver(over, p, color, t);
+  }
+}
+
+// ---------------------------------------------------------------- kaiju powers (simple shapes in the kaiju's colour)
+function drawPowerZone(g: G, z: World['powerZones'][number], t: number): void {
+  const col = SPECIES[z.species]?.color ?? 0xffffff, fade = Math.min(1, z.t / 0.6);
+  if (z.zone === 'sticky') {
+    g.fillStyle(col, 0.38 * fade);
+    for (let k = 0; k < 7; k++) {
+      const a = (k / 7) * Math.PI * 2 + z.x * 0.01;
+      g.fillCircle(z.x + Math.cos(a) * z.r * 0.45, z.y + Math.sin(a) * z.r * 0.45, z.r * 0.55);
+    }
+    g.lineStyle(3, 0x2a1408, 0.35 * fade); g.strokeCircle(z.x, z.y, z.r * 0.98);
+  } else {
+    g.fillStyle(0xcff3ff, 0.32 * fade); g.fillCircle(z.x, z.y, z.r);
+    g.fillStyle(col, 0.22 * fade); g.fillCircle(z.x, z.y, z.r * 0.8);
+    g.fillStyle(0xffffff, 0.55 * fade);
+    for (let k = 0; k < 9; k++) { const a = k * 2.4 + z.y * 0.02; g.fillCircle(z.x + Math.cos(a) * z.r * 0.6, z.y + Math.sin(a) * z.r * 0.6, 4 + 2 * Math.sin(t * 4 + k)); }
+  }
+}
+
+function drawPowerShot(g: G, q: World['powerShots'][number], t: number): void {
+  const col = SPECIES[q.species]?.color ?? 0xffffff;
+  if (q.mine) {
+    const pulse = 0.7 + 0.3 * Math.sin(t * 8 + q.x);
+    g.fillStyle(0x000000, 0.25); g.fillCircle(q.x + 2, q.y + 3, q.r * 0.6);
+    g.fillStyle(col, 1); g.fillCircle(q.x, q.y, q.r * 0.55);
+    g.lineStyle(3, 0x2a1408, 1); g.strokeCircle(q.x, q.y, q.r * 0.55);
+    g.lineStyle(2, 0xff4a4a, pulse); g.strokeCircle(q.x, q.y, q.r * (0.8 + 0.2 * pulse));
+    return;
+  }
+  g.fillStyle(0x000000, 0.25); g.fillCircle(q.x + 3, q.y + 5, q.r);
+  g.fillStyle(col, 1); g.fillCircle(q.x, q.y, q.r);
+  g.lineStyle(4, 0x2a1408, 1); g.strokeCircle(q.x, q.y, q.r);
+  g.fillStyle(0xffffff, 0.7); g.fillCircle(q.x - q.r * 0.35 + Math.sin(t * 12) * 2, q.y - q.r * 0.35, q.r * 0.25);
+}
+
+function drawDazed(g: G, x: number, y: number, t: number): void {
+  for (let k = 0; k < 3; k++) {
+    const a = t * 5 + (k / 3) * Math.PI * 2, sx = x + Math.cos(a) * 18, sy = y + Math.sin(a) * 6;
+    g.fillStyle(0xffd24a, 1); g.fillTriangle(sx, sy - 7, sx - 6, sy + 4, sx + 6, sy + 4); g.fillTriangle(sx, sy + 7, sx - 6, sy - 4, sx + 6, sy - 4);
+    g.lineStyle(1.5, 0x2a1408, 1); g.strokeCircle(sx, sy, 6);
   }
 }

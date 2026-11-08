@@ -12,9 +12,10 @@ export interface Settings {
   tips: boolean; // a quick tip under the countdown
   bigButtons: boolean; // phones: 25% bigger THROW / SWIPE / DASH / STOMP buttons
   rumble: boolean; // gamepad / phone vibration on big moments
+  kaijuPowers: boolean; // each kaiju's own KAIJU power + small trait (off = Classic: all kaiju the same)
 }
 
-export const DEFAULTS: Settings = { volume: 0.75, music: 0.35, shake: true, reducedFx: false, nameTags: false, replays: true, badges: false, tips: true, bigButtons: false, rumble: true };
+export const DEFAULTS: Settings = { volume: 0.75, music: 0.35, shake: true, reducedFx: false, nameTags: false, replays: true, badges: false, tips: true, bigButtons: false, rumble: true, kaijuPowers: true };
 
 const KEY = 'kk-settings-v1';
 let cache: Settings | null = null;
@@ -48,6 +49,7 @@ export const SETTINGS_ROWS: { key: keyof Settings; label: string; kind: 'level' 
   { key: 'badges', label: 'PLAYER NUMBERS', kind: 'toggle', help: 'P1–P6 badges under kaiju (colour-blind friendly)' },
   { key: 'tips', label: 'QUICK TIPS', kind: 'toggle', help: 'A handy tip under the countdown' },
   { key: 'bigButtons', label: 'BIG TOUCH BUTTONS', kind: 'toggle', help: 'Phones: bigger THROW / SWIPE / DASH / STOMP' },
+  { key: 'kaijuPowers', label: 'KAIJU POWERS', kind: 'toggle', help: 'Each kaiju\'s own power in KAIJU form (off = Classic: all the same)' },
   { key: 'rumble', label: 'RUMBLE', kind: 'toggle', help: 'Gamepad / phone vibration on big hits' },
   { key: 'nameTags', label: 'NAME TAGS', kind: 'toggle', help: 'Show every kaiju\'s name above it in matches' },
 ];

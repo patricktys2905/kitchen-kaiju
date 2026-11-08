@@ -1057,3 +1057,93 @@ describe('more twists', () => {
     expect(nb.players[0].alive).toBe(false); // without the twist that shove is a fall
   });
 });
+
+describe('kaiju powers', () => {
+  const powered = (species: number[], extra: Partial<ConstructorParameters<typeof World>[0]> = {}) => {
+    const w = new World({ players: species.map(s => ({ name: 'P' + s, species: s })), kaijuPowers: true, seed: 7, hazards: false, crumbSpawns: false, pickupSpawns: false, layout: 0, starterKind: 'fork', ...extra });
+    while (w.phase !== 'play') w.step(DT, []);
+    w.crumbs = [];
+    w.drainEvents();
+    return w;
+  };
+  const goKaiju = (w: World, id: number) => { w.players[id].meter = 100; run(w, 0.05, () => w.players.map((_, i) => (i === id ? { ...NO_INPUT, stomp: true } : NO_INPUT))); run(w, 0.4); };
+  const fire = (w: World, id: number, mx = 1, my = 0) => run(w, 0.05, () => w.players.map((_, i) => (i === id ? { ...NO_INPUT, mx, my, swipe: true } : NO_INPUT)));
+
+  it('every kaiju has a power and a trait', async () => {
+    const { KITS } = await import('../src/sim/powers');
+    const { SPECIES } = await import('../src/sim/constants');
+    expect(KITS.length).toBe(SPECIES.length);
+    for (const k of KITS) { expect(k.power.length).toBeGreaterThan(2); expect(k.blurb.length).toBeGreaterThan(10); expect(k.trait.length).toBeGreaterThan(5); }
+    expect(new Set(KITS.map(k => k.power)).size).toBe(KITS.length);
+  });
+
+  it('only works in KAIJU form, then goes on cooldown', () => {
+    const w = powered([6, 0]);
+    place(w, 0, 400, 380); place(w, 1, 520, 380);
+    expect(fire(w, 0).some(e => e.type === 'power')).toBe(false); // not big: a normal swipe
+    run(w, 0.8);
+    goKaiju(w, 0);
+    place(w, 1, 520, 380);
+    expect(fire(w, 0).some(e => e.type === 'power')).toBe(true);
+    run(w, 0.1);
+    expect(fire(w, 0).some(e => e.type === 'power')).toBe(false); // cooling down
+  });
+
+  it('a burst (Dumplord steam) shoves nearby rivals away', () => {
+    const w = powered([6, 0]);
+    place(w, 0, 400, 380); disarm(w, 1);
+    goKaiju(w, 0);
+    place(w, 1, 560, 380);
+    fire(w, 0);
+    expect(w.players[1].kx).toBeGreaterThan(200);
+  });
+
+  it('a stun (Tacowl screech) freezes a rival briefly', () => {
+    const w = powered([19, 0]);
+    place(w, 0, 400, 380);
+    goKaiju(w, 0);
+    place(w, 1, 600, 380);
+    fire(w, 0);
+    expect(w.players[1].stunT).toBeGreaterThan(0.5);
+    const x0 = w.players[1].x;
+    run(w, 0.3, () => [NO_INPUT, { ...NO_INPUT, mx: -1 }]);
+    expect(Math.abs(w.players[1].x - x0)).toBeLessThan(40); // tries to walk, can't (only slides from the shove)
+  });
+
+  it('zones, shots, mines, charges and blinks all do something', () => {
+    // Squidgeon ink: a sticky puddle ahead
+    let w = powered([1, 0]); place(w, 0, 400, 380); goKaiju(w, 0); fire(w, 0);
+    expect(w.powerZones.some(z => z.zone === 'sticky' && z.x > 450)).toBe(true);
+    // Bubblegumbo gum: a projectile that dazes
+    w = powered([9, 0]); place(w, 0, 300, 380); goKaiju(w, 0); place(w, 1, 600, 380); fire(w, 0);
+    expect(w.powerShots.length).toBe(1);
+    run(w, 1);
+    expect(w.players[1].stunT > 0 || w.powerShots.length === 0).toBe(true);
+    // Bluebeary mines
+    w = powered([10, 0]); place(w, 0, 640, 380); goKaiju(w, 0); fire(w, 0);
+    expect(w.powerShots.filter(s => s.mine).length).toBe(4);
+    // Norigon roll: a fast slide
+    w = powered([7, 0]); place(w, 0, 300, 380); place(w, 1, 900, 200); goKaiju(w, 0); place(w, 0, 300, 380); fire(w, 0); run(w, 0.3);
+    expect(w.players[0].x).toBeGreaterThan(450);
+    // Mothball flutter: an instant hop
+    w = powered([4, 0]); place(w, 0, 300, 380); place(w, 1, 900, 200); goKaiju(w, 0); place(w, 0, 300, 380); fire(w, 0);
+    expect(w.players[0].x).toBeGreaterThan(450);
+  });
+
+  it('Classic (powers off) makes every kaiju the same', () => {
+    const w = powered([6, 0], { kaijuPowers: false });
+    expect(w.players.every(p => p.kit === null)).toBe(true);
+    place(w, 0, 400, 380); goKaiju(w, 0); place(w, 1, 560, 380);
+    expect(fire(w, 0).some(e => e.type === 'power')).toBe(false);
+  });
+
+  it('heavy kaiju get shoved less than light ones', () => {
+    const shove = (sp: number) => {
+      const w = powered([0, sp]); disarm(w, 1); place(w, 0, 900, 200); place(w, 1, 640, 450);
+      w.players[1].pkx = 0; w.players[1].kx = 140; // the same shove for both (below the fall threshold)
+      run(w, 0.5);
+      return w.players[1].x - 640;
+    };
+    expect(shove(8)).toBeLessThan(shove(4)); // Chocomunch (heaviest) vs Mothball (light)
+  });
+});

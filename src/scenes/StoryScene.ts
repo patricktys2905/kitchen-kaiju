@@ -14,6 +14,8 @@ import { checkAchievements, loadStats, saveStats } from '../stats';
 import { loadStory, recordResult, recordSpicy, saveStory, totalStars, type StorySave } from '../story/save';
 import { setTouchMode } from '../touch';
 import { playMusic } from '../music';
+import { KITS } from '../sim/powers';
+import { getSettings } from '../settings';
 import { COURSES, dessertBest } from '../story/dessert';
 import { GameScene } from './GameScene';
 import { seenId, type Cutscene } from '../story/cutscenes';
@@ -206,7 +208,7 @@ export class StoryScene extends Phaser.Scene {
     else this.pickImg.setVisible(false);
     this.pickText.setText(sp.full.toUpperCase()).setColor(sp.css).setScale(1);
     if (this.pickText.width > 220) this.pickText.setScale(220 / this.pickText.width); // long names shrink instead of hitting the arrow
-    this.pickFood.setText(sp.food);
+    this.pickFood.setText(getSettings().kaijuPowers ? `${sp.food} · 🌟 ${KITS[this.save.pick].power}` : sp.food);
   }
 
   private drawMap(): void {
