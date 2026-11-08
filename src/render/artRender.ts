@@ -142,7 +142,7 @@ export class ArtRenderer {
     w.puddles.forEach((z, i) => drawCheesePuddle(under, z, i));
     for (const z of w.powerZones) {
       const key = KITS[z.species]?.art;
-      if (key && hasArt(key)) { const fade = Math.min(1, z.t / 0.6); this.pool.take(key, D.mat).setDisplaySize(z.r * 2.2, z.r * 2.2).setPosition(z.x, z.y).setRotation((z.x * 0.37 + z.y * 0.11) % 6.28).setAlpha(0.92 * fade); }
+      if (key && hasArt(key)) { const fade = Math.min(1, z.t / 0.6); this.pool.take(key, D.mat).setDisplaySize(z.r * 2.2, z.r * 2.2).setPosition(z.x, z.y).setRotation((z.x * 0.37 + z.y * 0.11) % 6.28).setAlpha(0.82 * fade); }
       else drawPowerZone(under, z, t);
     }
     for (const q of w.powerShots) if (q.mine) this.powerShot(under, q, t);

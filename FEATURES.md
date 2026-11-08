@@ -551,4 +551,5 @@ Everyday play is the same for everyone. In **KAIJU form**, pressing **THROW or S
 - Works online.
 - Shown on the kaiju pickers (🌟 power name), in the Gallery (power and trait) and in How to Play.
 - **Classic rules:** Settings → KAIJU POWERS: OFF makes every kaiju the same.
+- **Art:** Gemini sprites for the projectiles, mines and puddles (`public/art/pw-*.webp`, `pz-*.webp`; jobs in `art-src/jobs-powers.json`; set by `art` in `KITS`). Without them, plain shapes are drawn.
 - **Customise:** `src/sim/powers.ts`: `KITS` (power type, numbers, trait multipliers), `KAIJU_POWERS.cooldown`. Balance check: `RUNS=150 npx vite-node scripts/kaiju-balance.ts` (`POWERS=0` for the Classic baseline; at 150 runs, ±8% is just luck).
