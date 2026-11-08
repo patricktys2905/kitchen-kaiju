@@ -20,7 +20,7 @@ import { ACHIEVEMENTS, loadStats } from '../stats';
 import { loadStory, totalStars } from '../story/save';
 import { needText, owned, UNLOCKS } from '../story/unlocks';
 import { isTouchDevice, setTouchMode } from '../touch';
-import { currentHat, HAT_FIT, hatArtKey, hatUnlocked, HATS, setHat } from '../hats';
+import { currentHat, HAT_FIT, HAT_SCALE, hatArtKey, hatUnlocked, HATS, setHat } from '../hats';
 import { GameScene } from './GameScene';
 import { exportSave, importSave } from '../backup';
 import { ACTIONS, bind, keyFor, keyHint, keyLabel, RESERVED, resetKeybinds, type Action } from '../keybinds';
@@ -355,7 +355,7 @@ export class GalleryScene extends PanelScene {
       if (this.hatPreview && hasArt(hatArtKey(cur))) {
         const [fw, dy] = HAT_FIT[cur.id] ?? [1.3, 0.3];
         const hd = (HEADS as unknown as Record<string, number[]>)[`kaiju-${this.shown}`] ?? [0.5, 0.13, 1], hs = hd[2] ?? 1;
-        this.hatPreview.setTexture(hatArtKey(cur)).setVisible(true).setScale((fw * 64 * hs) / this.hatPreview.width).setPosition(280 + (hd[0] - 0.5) * this.previewW, this.previewTop + hd[1] * this.previewH + dy * 64 * hs + (cur.id === 'halo' ? Math.sin(this.t * 3) * 3 : 0));
+        this.hatPreview.setTexture(hatArtKey(cur)).setVisible(true).setScale((fw * HAT_SCALE * (this.previewH / 3.1) * hs) / this.hatPreview.width).setPosition(280 + (hd[0] - 0.5) * this.previewW, this.previewTop + hd[1] * this.previewH + dy * (this.previewH / 3.1) * hs + (cur.id === 'halo' ? Math.sin(this.t * 3) * 3 : 0));
       } else cur.draw(g, 280, 494, 46, this.t);
     }
   }
@@ -372,8 +372,8 @@ export class GalleryScene extends PanelScene {
     this.detail.push(g);
     for (const [k, x] of [[`kaiju-${i}`, 280], [`kaiju-${i}-rage`, 470]] as const) {
       if (!hasArt(k)) continue;
-      const img = fitInside(this.add.image(x, 565, k), 180, 200).setDepth(6);
-      if (x === 280) { this.previewTop = 565 - img.displayHeight / 2; this.previewW = img.displayWidth; this.previewH = img.displayHeight; }
+      const img = fitInside(this.add.image(x, 595, k), 180, 160).setDepth(6); // leaves room above for a hat
+      if (x === 280) { this.previewTop = 595 - img.displayHeight / 2; this.previewW = img.displayWidth; this.previewH = img.displayHeight; }
       if (!got) img.setTint(0x1a1410);
       this.detail.push(img);
     }
