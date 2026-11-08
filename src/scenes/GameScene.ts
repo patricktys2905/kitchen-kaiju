@@ -1074,7 +1074,8 @@ export class GameScene extends Phaser.Scene {
         const [fw, dy] = HAT_FIT[hat.id] ?? [1.3, 0.3];
         const float = hat.id === 'halo' ? Math.sin(t * 3) * 3 : 0;
         img.setTexture(key).setVisible(true);
-        img.setScale((fw * HAT_SCALE * p.r) / img.width).setRotation(head.rot).setPosition(head.x, head.y + dy * p.r + float).setAlpha(p.invT > 0 && Math.sin(t * 30) > 0 ? 0.5 : 1);
+        const hs = head.size ?? 1;
+        img.setFlipX(!!head.flip).setScale((fw * HAT_SCALE * p.r * hs) / img.width).setRotation(head.rot).setPosition(head.x, head.y + dy * p.r * hs + float).setAlpha(p.invT > 0 && Math.sin(t * 30) > 0 ? 0.5 : 1);
       } else hat.draw(o, head.x, head.y + p.r * 0.2, p.r * 0.9, t);
     }
     for (const p of w.players) {

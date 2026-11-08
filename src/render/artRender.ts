@@ -2,6 +2,7 @@
 import type * as Phaser from 'phaser';
 import { RULES, SPECIES, TABLE, VIEW } from '../sim/constants';
 import { KITS } from '../sim/powers';
+import HEADS from './heads.json';
 import type { Layout } from '../sim/layouts';
 import type { Cutlery, Player, World } from '../sim/world';
 import { CUTLERY_LEN, fitInside, hasArt, SpritePool } from './art';
@@ -25,7 +26,7 @@ const D = { floor: -3, table: -2, mat: -1.5, obstacle: -0.5, light: 3.7, crumb: 
 
 export class ArtRenderer {
   /** Top-centre of each kaiju sprite this frame (for hats), with its tilt. */
-  heads: ({ x: number; y: number; rot: number } | undefined)[] = [];
+  heads: ({ x: number; y: number; rot: number; size?: number; flip?: boolean } | undefined)[] = [];
   private pool: SpritePool;
   private statics: Phaser.GameObjects.Image[] = [];
   private facing: number[] = [];
@@ -257,7 +258,10 @@ export class ArtRenderer {
     img.setScale(s * squash, s / squash);
     img.setRotation(moving ? Math.sin(t * 13 + i) * 0.06 : 0);
     img.setPosition(p.x, p.y + p.r * 0.85 - bob);
-    this.heads[i] = { x: p.x, y: p.y + p.r * 0.85 - bob - (p.r * 3.1) / squash, rot: img.rotation };
+    // hat spot: per-sprite head position (src/render/heads.json), mirrored when facing left
+    const hd = (HEADS as unknown as Record<string, number[]>)[rage ? `${base}-rage` : base] ?? (HEADS as unknown as Record<string, number[]>)[base];
+    const dw = img.width * s * squash, dh = (p.r * 3.1) / squash, top = p.y + p.r * 0.85 - bob - dh;
+    this.heads[i] = hd ? { x: p.x + (hd[0] - 0.5) * dw * f, y: top + hd[1] * dh, rot: img.rotation, size: hd[2] ?? 1, flip: f < 0 } : { x: p.x, y: top, rot: img.rotation, size: 1, flip: f < 0 };
 
     const held = w.cutleryById(p.holding);
     if (held) {

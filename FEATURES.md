@@ -61,6 +61,7 @@ Each section says **where to customise it**.
 - 54. Fast forward when only bots are left
 - 55. Clear teams on the Team Feast setup screen
 - 56. Kaiju powers: every kaiju plays differently
+- 57. Hats sit on each kaiju's actual head
 
 **Where to find things:** title screen cards (Story · Free Play · Online · Party Modes · Daily · Gauntlet), the top-right row (Settings · How to Play · Kaiju · Records), and Free Play keys (G mode · U power-ups · H hazards · X twist · C cup).
 
@@ -553,3 +554,8 @@ Everyday play is the same for everyone. In **KAIJU form**, pressing **THROW or S
 - **Classic rules:** Settings → KAIJU POWERS: OFF makes every kaiju the same.
 - **Art:** Gemini sprites for the projectiles, mines and puddles (`public/art/pw-*.webp`, `pz-*.webp`; jobs in `art-src/jobs-powers.json`; set by `art` in `KITS`). Without them, plain shapes are drawn.
 - **Customise:** `src/sim/powers.ts`: `KITS` (power type, numbers, trait multipliers), `KAIJU_POWERS.cooldown`. Balance check: `RUNS=150 npx vite-node scripts/kaiju-balance.ts` (`POWERS=0` for the Classic baseline; at 150 runs, ±8% is just luck).
+
+## 57. Hats sit on each kaiju's actual head
+
+- Every kaiju (normal and KAIJU form) has its own head spot and head size, so hats sit on the head instead of on the top of the picture: on Norigon's and Pizzaraptor's heads, not their backs; on Toastbat's head, not its toast wings; on Sloba, not its straw. Hats flip with the kaiju when it faces left, and are sized to the head. The Gallery preview uses the same spots.
+- **Customise:** `src/render/heads.json`: `[x across 0..1, y down 0..1 to the top of the head, size]` for each `kaiju-N` and `kaiju-N-rage` (facing right). Check every kaiju with `node scripts/hat-sheet.mjs party,chef,top,crown` (add `RAGE=1` for KAIJU form) and look at `art-src/.hats-sheet.png`. Per-hat fit is still `HAT_FIT` in `src/hats.ts`.

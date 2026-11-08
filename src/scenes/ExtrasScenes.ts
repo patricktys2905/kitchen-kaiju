@@ -9,6 +9,7 @@ import { drawFloor } from '../render/draw';
 import { body, display, withShadow } from '../render/fonts';
 import { Button, FocusNav } from '../render/ui';
 import { KITS } from '../sim/powers';
+import HEADS from '../render/heads.json';
 import { getSettings, LEVELS, setSetting, SETTINGS_ROWS, type Settings } from '../settings';
 import { SPECIES } from '../sim/constants';
 import { CUTLERY, RARE_KINDS, type CutleryKind } from '../sim/cutlery';
@@ -292,6 +293,8 @@ export class GalleryScene extends PanelScene {
   private slotHat(k: number) { return HATS[this.hatPage * HAT_SLOTS + k]; }
   private hatPreview: Phaser.GameObjects.Image | null = null;
   private previewTop = 470;
+  private previewW = 180;
+  private previewH = 200;
   constructor() { super('gallery'); }
 
   protected build(): void {
@@ -351,7 +354,8 @@ export class GalleryScene extends PanelScene {
     if (this.shown >= 0 && hatUnlocked(cur) && cur.id !== 'none') {
       if (this.hatPreview && hasArt(hatArtKey(cur))) {
         const [fw, dy] = HAT_FIT[cur.id] ?? [1.3, 0.3];
-        this.hatPreview.setTexture(hatArtKey(cur)).setVisible(true).setScale((fw * 64) / this.hatPreview.width).setPosition(280, this.previewTop + 26 + dy * 64 + (cur.id === 'halo' ? Math.sin(this.t * 3) * 3 : 0));
+        const hd = (HEADS as unknown as Record<string, number[]>)[`kaiju-${this.shown}`] ?? [0.5, 0.13, 1], hs = hd[2] ?? 1;
+        this.hatPreview.setTexture(hatArtKey(cur)).setVisible(true).setScale((fw * 64 * hs) / this.hatPreview.width).setPosition(280 + (hd[0] - 0.5) * this.previewW, this.previewTop + hd[1] * this.previewH + dy * 64 * hs + (cur.id === 'halo' ? Math.sin(this.t * 3) * 3 : 0));
       } else cur.draw(g, 280, 494, 46, this.t);
     }
   }
@@ -369,7 +373,7 @@ export class GalleryScene extends PanelScene {
     for (const [k, x] of [[`kaiju-${i}`, 280], [`kaiju-${i}-rage`, 470]] as const) {
       if (!hasArt(k)) continue;
       const img = fitInside(this.add.image(x, 565, k), 180, 200).setDepth(6);
-      if (x === 280) this.previewTop = 565 - img.displayHeight / 2;
+      if (x === 280) { this.previewTop = 565 - img.displayHeight / 2; this.previewW = img.displayWidth; this.previewH = img.displayHeight; }
       if (!got) img.setTint(0x1a1410);
       this.detail.push(img);
     }
