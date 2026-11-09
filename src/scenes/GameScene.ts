@@ -4,7 +4,7 @@ import { playMusic } from '../music';
 import { getSettings, setSetting } from '../settings';
 import { checkAchievements, loadStats, saveStats, type Stats } from '../stats';
 import { clearTaps, consumeTap, listDevices, readSlot, slotLabel, type Slot } from '../input';
-import { CUTLERY_LEN, fitInside, hasArt } from '../render/art';
+import { CUTLERY_LEN, fitInside, hasArt, kaijuKey } from '../render/art';
 import { ArtRenderer } from '../render/artRender';
 import { drawCutleryShape, drawKaiju, drawTableLive } from '../render/draw';
 import { body, display, popIn, withShadow } from '../render/fonts';
@@ -22,7 +22,8 @@ import { COURSES, saveDessert } from '../story/dessert';
 import { cupGames, placePoints } from '../cup';
 import { GAUNTLET, gauntletBest, gauntletTables, saveGauntletBest, waveSetup } from '../gauntlet';
 import { owned } from '../story/unlocks';
-import { currentHat, HAT_FIT, HAT_SCALE, hatArtKey, HATS } from '../hats';
+import { currentHat, HAT_FIT, HAT_SCALE, hatArtKey, HATS, HATS_ENABLED } from '../hats';
+import { currentColour, parseLook, seatColours } from '../colours';
 import { PRACTICE, PRACTICE_STEPS } from '../practice';
 import { DAILY, dailySetup, loadDaily, recordDaily } from '../daily';
 import { REPLAY, ReplayBuffer } from '../replay';
@@ -139,6 +140,7 @@ export class GameScene extends Phaser.Scene {
   private modeText!: Phaser.GameObjects.Text;
   private tagTexts: Phaser.GameObjects.Text[] = [];
   private hatImgs: Phaser.GameObjects.Image[] = [];
+  private seatCols: string[] = [];
   private badgeTexts: Phaser.GameObjects.Text[] = [];
   private shareBtn: HTMLButtonElement | null = null;
   private stats: Stats | null = null; // lifetime stats (null for online guests)
@@ -192,9 +194,11 @@ export class GameScene extends Phaser.Scene {
     this.overG = this.add.graphics().setDepth(3.6);
     this.fxG = this.add.graphics().setDepth(3.8);
     this.hudG = this.add.graphics().setDepth(5);
-    this.art = new ArtRenderer(this, this.baseG, this.tableG, { species: this.species, colors: this.colors, bosses: this.bossSeats() });
+    // 🎨 colour styles: yours on your seats (online: everyone's), and duplicate kaiju get told apart
+    this.seatCols = seatColours(this.species, this.slots.map((_, i) => (this.net ? parseLook(this.initData.hats?.[i]).colour : this.isHuman(i) ? currentColour().id : undefined)));
+    this.art = new ArtRenderer(this, this.baseG, this.tableG, { species: this.species, colors: this.colors, bosses: this.bossSeats(), colours: this.seatCols });
     this.art.setupTable(this.world.layout, this.world.players.map(p => ({ x: p.x, y: p.y, color: this.colors[p.id] })));
-    this.hudIcons = this.species.map((sp, i) => (hasArt(`kaiju-${sp}`) ? fitInside(this.add.image(this.hudX(i) + 18, 40, `kaiju-${sp}`), 38, 42).setDepth(6) : null));
+    this.hudIcons = this.species.map((sp, i) => (hasArt(`kaiju-${sp}`) ? fitInside(this.add.image(this.hudX(i) + 18, 40, kaijuKey(this, sp, this.seatCols[i])), 38, 42).setDepth(6) : null));
     this.hudHeld = this.slots.map((_, i) => (hasArt('cut-fork') ? this.add.image(this.hudX(i) + this.hudW - 40, 18, 'cut-fork').setDepth(6).setRotation(-0.35) : null));
 
     this.nameTexts = [];
@@ -749,7 +753,7 @@ export class GameScene extends Phaser.Scene {
   /** Winner's kaiju (KAIJU-mode art) slides in big beside the results, with confetti. */
   private celebrate(winner: number): void {
     if (this.initData.attract || this.mode === 'practice') return;
-    const sp = this.species[winner], key = hasArt(`kaiju-${sp}-rage`) ? `kaiju-${sp}-rage` : `kaiju-${sp}`;
+    const sp = this.species[winner], key = kaijuKey(this, sp, this.seatCols[winner], hasArt(`kaiju-${sp}-rage`));
     if (hasArt(key)) {
       const img = fitInside(this.add.image(VIEW.w + 200, 470, key), 280, 280).setDepth(9.5);
       this.tweens.add({ targets: img, x: VIEW.w - 170, duration: 650, ease: 'Back.easeOut', delay: 300 });
@@ -1065,7 +1069,8 @@ export class GameScene extends Phaser.Scene {
       const img = this.hatImgs[p.id];
       img?.setVisible(false);
       if (!p.alive) continue;
-      const id = this.net ? this.initData.hats?.[p.id] : this.isHuman(p.id) ? currentHat().id : '';
+      if (!HATS_ENABLED) break;
+      const id = this.net ? parseLook(this.initData.hats?.[p.id]).hat : this.isHuman(p.id) ? currentHat().id : '';
       const hat = id ? HATS.find(h => h.id === id) : undefined;
       if (!hat || hat.id === 'none') continue;
       const head = this.art.heads[p.id] ?? { x: p.x, y: p.y - p.r * 2.05, rot: 0 };
@@ -1119,7 +1124,7 @@ export class GameScene extends Phaser.Scene {
       g.fillStyle(0xffffff, p.alive ? 0.06 : 0.02);
       g.fillRoundedRect(x - 4, 6, pw, 68, 10);
       const icon = this.hudIcons[i];
-      if (icon) fitInside(icon.setAlpha(p.alive ? 1 : 0.35).setTexture(p.kaijuT > 0 && hasArt(`kaiju-${this.species[i]}-rage`) ? `kaiju-${this.species[i]}-rage` : `kaiju-${this.species[i]}`), 40, 44);
+      if (icon) fitInside(icon.setAlpha(p.alive ? 1 : 0.35).setTexture(kaijuKey(this, this.species[i], this.seatCols[i], p.kaijuT > 0 && hasArt(`kaiju-${this.species[i]}-rage`))), 40, 44);
       else drawKaiju(g, { x: x + 20, y: 40, r: 17, aim: Math.PI / 2, kaiju: false, species: this.species[i], color: this.colors[i] }, t, p.alive ? 1 : 0.35);
       // round stars (second row, right of the belly meter)
       if (w.opts.target > 5) {

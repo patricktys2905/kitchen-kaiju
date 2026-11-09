@@ -5,7 +5,7 @@ import { KITS } from '../sim/powers';
 import HEADS from './heads.json';
 import type { Layout } from '../sim/layouts';
 import type { Cutlery, Player, World } from '../sim/world';
-import { CUTLERY_LEN, fitInside, hasArt, SpritePool } from './art';
+import { CUTLERY_LEN, fitInside, hasArt, kaijuKey, SpritePool } from './art';
 import {
   cutleryAngle, drawBelt, drawBlender, drawBurner, drawCheesePuddle, drawCheeseWarn, drawSpatula, drawSpill, drawSticky, drawToast, drawToasterWarn, drawTurnArrows, drawTurntable, drawChopMark, drawCleaverBlade, drawCleaverWarn, drawCrumbs, drawCutlery, drawCutleryGlow, drawFloor,
   drawHand, drawKaiju, drawObstacle, drawObstacleShadow, drawMat, drawPlayerOver, drawPlayerUnder, drawTableFrame, drawTableRim,
@@ -17,6 +17,7 @@ export interface Looks {
   species: number[];
   colors: number[];
   bosses?: number[]; // story bosses wear a crown
+  colours?: string[]; // 🎨 colour style per seat (src/colours.ts)
 }
 
 type G = Phaser.GameObjects.Graphics;
@@ -235,8 +236,8 @@ export class ArtRenderer {
   private player(w: World, p: Player, t: number, under: G, over: G): void {
     const i = p.id, color = this.looks.colors[i], sp = this.looks.species[i];
     drawPlayerUnder(under, p, color, t, true);
-    const base = `kaiju-${sp}`;
-    if (!hasArt(base)) {
+    const base = kaijuKey(this.scene, sp, this.looks.colours?.[i]);
+    if (!hasArt(`kaiju-${sp}`)) {
       drawKaiju(over, { x: p.x, y: p.y, r: p.r, aim: p.aim, kaiju: p.kaijuT > 0, species: sp, color }, t, playerAlpha(p, t));
       drawPlayerOver(over, p, color, t);
       return;
@@ -247,9 +248,9 @@ export class ArtRenderer {
     if (c > 0.2) this.facing[i] = 1;
     else if (c < -0.2) this.facing[i] = -1;
     const f = this.facing[i];
-    const rage = p.kaijuT > 0 && hasArt(`${base}-rage`);
+    const rage = p.kaijuT > 0 && hasArt(`kaiju-${sp}-rage`);
     const depth = D.player + p.y * 0.0001;
-    const img = this.pool.take(rage ? `${base}-rage` : base, depth);
+    const img = this.pool.take(rage ? kaijuKey(this.scene, sp, this.looks.colours?.[i], true) : base, depth);
     const moving = Math.hypot(p.vx, p.vy) > 30;
     const bob = moving ? Math.abs(Math.sin(t * 13 + i)) * 3.5 : Math.sin(t * 3 + i) * 1;
     const squash = p.dashT > 0 ? 1.15 : p.charging ? 0.95 : 1;
@@ -259,7 +260,7 @@ export class ArtRenderer {
     img.setRotation(moving ? Math.sin(t * 13 + i) * 0.06 : 0);
     img.setPosition(p.x, p.y + p.r * 0.85 - bob);
     // hat spot: per-sprite head position (src/render/heads.json), mirrored when facing left
-    const hd = (HEADS as unknown as Record<string, number[]>)[rage ? `${base}-rage` : base] ?? (HEADS as unknown as Record<string, number[]>)[base];
+    const hd = (HEADS as unknown as Record<string, number[]>)[rage ? `kaiju-${sp}-rage` : `kaiju-${sp}`] ?? (HEADS as unknown as Record<string, number[]>)[`kaiju-${sp}`];
     const dw = img.width * s * squash, dh = (p.r * 3.1) / squash, top = p.y + p.r * 0.85 - bob - dh;
     this.heads[i] = hd ? { x: p.x + (hd[0] - 0.5) * dw * f, y: top + hd[1] * dh, rot: img.rotation, size: hd[2] ?? 1, flip: f < 0 } : { x: p.x, y: top, rot: img.rotation, size: 1, flip: f < 0 };
 

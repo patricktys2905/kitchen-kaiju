@@ -4,7 +4,7 @@ import * as Phaser from 'phaser';
 import { sfx } from '../audio';
 import { clearTaps } from '../input';
 import { playMusic } from '../music';
-import { fitInside, hasArt } from '../render/art';
+import { fitInside, hasArt, kaijuKey } from '../render/art';
 import { drawFloor } from '../render/draw';
 import { body, display, withShadow } from '../render/fonts';
 import { Button, FocusNav } from '../render/ui';
@@ -20,7 +20,8 @@ import { ACHIEVEMENTS, loadStats } from '../stats';
 import { loadStory, totalStars } from '../story/save';
 import { needText, owned, UNLOCKS } from '../story/unlocks';
 import { isTouchDevice, setTouchMode } from '../touch';
-import { currentHat, HAT_FIT, HAT_SCALE, hatArtKey, hatUnlocked, HATS, setHat } from '../hats';
+import { currentHat, HAT_FIT, HAT_SCALE, hatArtKey, hatUnlocked, HATS, HATS_ENABLED, setHat } from '../hats';
+import { colourUnlocked, COLOURS, currentColour, setColour } from '../colours';
 import { GameScene } from './GameScene';
 import { exportSave, importSave } from '../backup';
 import { ACTIONS, bind, keyFor, keyHint, keyLabel, RESERVED, resetKeybinds, type Action } from '../keybinds';
@@ -93,7 +94,7 @@ export class SettingsScene extends PanelScene {
     box.style.cssText = 'position:fixed;inset:0;z-index:40;display:flex;align-items:center;justify-content:center;background:#0d0805cc;font:800 16px Nunito,sans-serif;color:#ffe9c7';
     box.innerHTML = `<div style="background:#2a1408;border:4px solid #8dff6a;border-radius:20px;padding:20px 24px;width:min(640px,92vw)">
       <div style="font:28px 'Luckiest Guy',sans-serif;color:#8dff6a;margin-bottom:6px">💾 Back up / move your save</div>
-      <div>Your progress (story, stats, unlocks, hats, settings) lives on this device. Copy this code to keep it safe, or paste it on another device.</div>
+      <div>Your progress (story, stats, unlocks, colours, settings) lives on this device. Copy this code to keep it safe, or paste it on another device.</div>
       <textarea id="kk-bk-code" readonly style="width:100%;height:90px;margin:10px 0;border-radius:10px;font:12px monospace">${code}</textarea>
       <div style="display:flex;gap:8px;flex-wrap:wrap"><button id="kk-bk-copy">Copy my code</button></div>
       <div style="margin-top:14px">Paste a code from another device:</div>
@@ -309,6 +310,7 @@ export class GalleryScene extends PanelScene {
       }
       this.add.text(x, y + 44, own.includes(i) ? sp.name : '???', body(11, own.includes(i) ? sp.css : '#a89680', 900)).setOrigin(0.5).setDepth(8);
     });
+    if (!HATS_ENABLED) { this.buildColours(); return; }
     // hat picker (cosmetic rewards from achievements)
     this.add.text(60, 398, 'YOUR HAT', display(18, '#ffd24a', { strokeThickness: 3 })).setOrigin(0, 0.5).setDepth(6);
     this.hatLabel = this.add.text(1240, 364, '', body(14, '#e9dccb', 800)).setOrigin(1, 0.5).setDepth(6);
@@ -332,6 +334,7 @@ export class GalleryScene extends PanelScene {
   protected tick(): void {
     const i = this.nav.index;
     if (i < SPECIES.length && i !== this.shown) this.showDetail(i, false);
+    if (!HATS_ENABLED) { this.tickColours(i); return; }
     // hat icons (animated) + label for the focused hat
     const g = this.hatG, cur = currentHat();
     g.clear();
@@ -360,6 +363,46 @@ export class GalleryScene extends PanelScene {
     }
   }
 
+  // ---------------------------------------------------------------- 🎨 colour styles (replaced hats)
+  private colIcons: Phaser.GameObjects.Image[] = [];
+  private colLabel!: Phaser.GameObjects.Text;
+  private colG!: Phaser.GameObjects.Graphics;
+  private colFor = -1; // which kaiju the swatches currently show
+  private colX = (k: number) => 250 + k * 92;
+
+  private buildColours(): void {
+    this.add.text(60, 398, 'YOUR COLOUR', display(18, '#ffd24a', { strokeThickness: 3 })).setOrigin(0, 0.5).setDepth(6);
+    this.colLabel = this.add.text(1240, 364, '', body(14, '#e9dccb', 800)).setOrigin(1, 0.5).setDepth(6);
+    this.colG = this.add.graphics().setDepth(8);
+    this.colIcons = COLOURS.map((_, k) => this.add.image(this.colX(k), 398, '__MISSING').setDepth(8).setVisible(false));
+    COLOURS.forEach((c, k) => {
+      this.buttons.push(new Button(this, this.colX(k), 398, { w: 80, h: 58, label: '', size: 12, accent: 0xffd24a, onClick: () => {
+        this.nav.index = SPECIES.length + k;
+        if (!colourUnlocked(c)) { sfx.thwock(); return; }
+        setColour(c.id); sfx.pickup(); this.showDetail(this.shown < 0 ? 0 : this.shown, false);
+      } }, 6));
+    });
+  }
+
+  private tickColours(i: number): void {
+    const cur = currentColour(), sp = this.shown < 0 ? 0 : this.shown;
+    if (this.colFor !== sp) {
+      this.colFor = sp;
+      COLOURS.forEach((c, k) => { if (hasArt(`kaiju-${sp}`)) fitInside(this.colIcons[k].setTexture(kaijuKey(this, sp, c.id)).setVisible(true), 60, 48); });
+    }
+    const g = this.colG;
+    g.clear();
+    COLOURS.forEach((c, k) => {
+      const got = colourUnlocked(c);
+      this.colIcons[k].setTint(got ? 0xffffff : 0x2a2420);
+      if (c.id === cur.id) { g.lineStyle(3, 0x8dff6a, 1); g.strokeRoundedRect(this.colX(k) - 42, 366, 84, 64, 14); }
+      if (!got) { g.fillStyle(0x000000, 0.55); g.fillCircle(this.colX(k) + 26, 420, 10); }
+    });
+    const ck = i - SPECIES.length, focus = ck >= 0 && ck < COLOURS.length ? COLOURS[ck] : cur;
+    const u = focus.unlock ? ACHIEVEMENTS.find(a => a.id === focus.unlock) : null;
+    this.colLabel.setText(colourUnlocked(focus) ? `${focus.name}${focus.id === cur.id ? ' (wearing)' : ''} · works on every kaiju` : `🔒 ${focus.name}: unlock with "${u?.name}" (${u?.desc})`);
+  }
+
   private showDetail(i: number, click: boolean): void {
     if (click) sfx.pickup();
     this.shown = i;
@@ -372,7 +415,7 @@ export class GalleryScene extends PanelScene {
     this.detail.push(g);
     for (const [k, x] of [[`kaiju-${i}`, 280], [`kaiju-${i}-rage`, 470]] as const) {
       if (!hasArt(k)) continue;
-      const img = fitInside(this.add.image(x, 595, k), 180, 160).setDepth(6); // leaves room above for a hat
+      const img = fitInside(this.add.image(x, 595, got ? kaijuKey(this, i, currentColour().id, k.endsWith('-rage')) : k), 180, 160).setDepth(6); // leaves room above for a hat
       if (x === 280) { this.previewTop = 595 - img.displayHeight / 2; this.previewW = img.displayWidth; this.previewH = img.displayHeight; }
       if (!got) img.setTint(0x1a1410);
       this.detail.push(img);

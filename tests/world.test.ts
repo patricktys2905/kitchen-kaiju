@@ -1147,3 +1147,20 @@ describe('kaiju powers', () => {
     expect(shove(8)).toBeLessThan(shove(4)); // Chocomunch (heaviest) vs Mothball (light)
   });
 });
+
+describe('colour styles', () => {
+  it('recolours the body but keeps outlines and whites, and tells duplicate kaiju apart', async () => {
+    const { recolor } = await import('../src/render/recolor');
+    const { COLOURS, seatColours } = await import('../src/colours');
+    const px = new Uint8ClampedArray([230, 40, 60, 255, /* outline */ 40, 20, 10, 255, /* white */ 250, 250, 250, 255]);
+    recolor(px, COLOURS.find(c => c.id === 'ocean')!.recipe!, 350);
+    expect(px[2]).toBeGreaterThan(px[0]); // red body turned blue
+    expect([px[4], px[5], px[6]]).toEqual([40, 20, 10]);
+    expect([px[8], px[9], px[10]]).toEqual([250, 250, 250]);
+    expect(new Set(COLOURS.map(c => c.id)).size).toBe(COLOURS.length);
+    const cols = seatColours([11, 11, 7, 11], ['golden', undefined, undefined, undefined]);
+    expect(cols[0]).toBe('golden');
+    expect(new Set([cols[0], cols[1], cols[3]]).size).toBe(3);
+    expect(cols[2]).toBe('classic');
+  });
+});

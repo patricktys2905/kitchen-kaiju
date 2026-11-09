@@ -62,6 +62,7 @@ Each section says **where to customise it**.
 - 55. Clear teams on the Team Feast setup screen
 - 56. Kaiju powers: every kaiju plays differently
 - 57. Hats sit on each kaiju's actual head
+- 58. Colour styles (replace hats)
 
 **Where to find things:** title screen cards (Story · Free Play · Online · Party Modes · Daily · Gauntlet), the top-right row (Settings · How to Play · Kaiju · Records), and Free Play keys (G mode · U power-ups · H hazards · X twist · C cup).
 
@@ -559,3 +560,17 @@ Everyday play is the same for everyone. In **KAIJU form**, pressing **THROW or S
 
 - Every kaiju (normal and KAIJU form) has its own head spot and head size, so hats sit on the head instead of on the top of the picture: on Norigon's and Pizzaraptor's heads, not their backs; on Toastbat's head, not its toast wings; on Sloba, not its straw. Hats flip with the kaiju when it faces left, and are sized to the head. The Gallery preview uses the same spots.
 - **Customise:** `src/render/heads.json`: `[x across 0..1, y down 0..1 to the top of the head, size]` for each `kaiju-N` and `kaiju-N-rage` (facing right). Check every kaiju with `node scripts/hat-sheet.mjs party,chef,top,crown` (add `RAGE=1` for KAIJU form) and look at `art-src/.hats-sheet.png`. Per-hat fit is still `HAT_FIT` in `src/hats.ts`.
+
+## 58. Colour styles (replace hats)
+
+- Hats are switched off; every kaiju can be worn in a **colour style** instead: Classic, Mango, Lime, Ocean, Grape, Bubblegum, Golden (shiny), Midnight and Ghost.
+- Only the kaiju's main body colour changes. Outlines, eyes, cream, cherries, buns and other parts stay as drawn, so the face never changes.
+- **Choose it:** Gallery → YOUR COLOUR. The swatches show the selected kaiju in each style, and the pick works on every kaiju. It shows in matches, KAIJU form, the HUD, the victory card, the setup cards and online.
+- **Unlocks:** Classic and Mango are free. Lime = First Bite (win a match), Ocean = Regular Diner (10 wins), Grape = Forked Up (25 KOs), Bubblegum = Better Together (win Team Feast), Golden = Clean Plate (Dessert Course), Midnight = Gauntlet Runner (5 waves), Ghost = Feeling Spicy (a Spicy clear).
+- **Twins:** when two seats play the same kaiju, the later ones automatically get a different colour so you can tell them apart.
+- Recoloured pictures are made on the device the first time they're needed (no extra download).
+- **Customise:**
+  - `src/colours.ts`: `COLOURS` (name, unlock, recipe: target hue, saturation, lightness, glow), plus `BODY_HUE` for kaiju whose main colour isn't picked up automatically (Norigon, Salmonster).
+  - `src/render/recolor.ts`: `RANGE` / `RANGE_FADE` (how far from the main colour still recolours).
+  - Preview every kaiju × style: `npx vite-node scripts/colour-sheet.ts` (add `rage` for KAIJU form) → `art-src/.colours.png`.
+  - Hats come back with `HATS_ENABLED = true` in `src/hats.ts`.

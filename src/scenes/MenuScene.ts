@@ -3,7 +3,7 @@ import { sfx } from '../audio';
 import { clearTaps, consumeTap, KEYMAPS, listDevices, readSlot, sameDevice, slotLabel, type Slot } from '../input';
 import { applyPendingUpdate } from '../pwa';
 import { Button } from '../render/ui';
-import { CUTLERY_LEN, fitInside, hasArt } from '../render/art';
+import { CUTLERY_LEN, fitInside, hasArt, kaijuKey } from '../render/art';
 import { drawCutleryShape, drawFloor, drawKaiju } from '../render/draw';
 import { BODY as BODY_FONT, DISPLAY, INK, popIn, withGradient, withShadow } from '../render/fonts';
 import { DIFFICULTIES, type Difficulty } from '../sim/bot';
@@ -19,6 +19,7 @@ import { enabledMutators, mutatorDef, type Mutator } from '../sim/mutators';
 import { enabledModes, MODE_RULES, modeDef, type GameMode } from '../sim/modes';
 import { KITS } from '../sim/powers';
 import { getSettings } from '../settings';
+import { currentColour, seatColours } from '../colours';
 
 const TITLE = { fontFamily: DISPLAY, color: '#ffe9c7', stroke: INK, strokeThickness: 10 };
 const BODY = { fontFamily: BODY_FONT, fontStyle: '800', color: '#e9dccb' };
@@ -382,7 +383,7 @@ export class MenuScene extends Phaser.Scene {
         const pop = 1 + this.bump[i] * 0.15;
         if (hasArt(key)) {
           g.fillStyle(0x000000, 0.35); g.fillEllipse(x, 296, 96, 16);
-          img.setTexture(key).setVisible(true);
+          img.setTexture(kaijuKey(this, sp, seatColours(this.slots.map((_, j) => this.picks[j]), this.slots.map(q => (q.kind === 'bot' ? undefined : currentColour().id)))[i])).setVisible(true);
           fitInside(img, 116 * pop, 112 * pop).setOrigin(0.5, 1).setPosition(x, 300 - Math.abs(Math.sin(t * 3 + i)) * 6);
         } else {
           img.setVisible(false);

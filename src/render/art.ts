@@ -3,6 +3,8 @@
 import * as Phaser from 'phaser';
 import type { CutleryKind } from '../sim/cutlery';
 import { fontsReady } from './fonts';
+import { BODY_HUE, colourById } from '../colours';
+import { mainHue, recolor } from './recolor';
 
 let available = new Set<string>();
 export const hasArt = (key: string) => available.has(key);
@@ -78,4 +80,32 @@ export const CUTLERY_LEN: Record<CutleryKind, number> = { fork: 46, spoon: 44, k
 export function fitInside(img: Phaser.GameObjects.Image, w: number, h: number): Phaser.GameObjects.Image {
   const s = Math.min(w / img.width, h / img.height);
   return img.setScale(s);
+}
+
+/**
+ * 🎨 The texture key for a kaiju in a colour style ('classic' = the original art). The recoloured copy is made
+ * once, the first time it's asked for (src/colours.ts lists the styles; src/render/recolor.ts does the pixels).
+ */
+export function kaijuKey(scene: Phaser.Scene, species: number, colourId: string | undefined, rage = false): string {
+  const base = `kaiju-${species}${rage ? '-rage' : ''}`;
+  const c = colourById(colourId);
+  if (!c.recipe || !hasArt(base)) return base;
+  const key = `${base}~${c.id}`;
+  if (available.has(key)) return key;
+  try {
+    const src = scene.textures.get(base).getSourceImage() as HTMLImageElement | HTMLCanvasElement;
+    const cv = document.createElement('canvas');
+    cv.width = src.width; cv.height = src.height;
+    const ctx = cv.getContext('2d', { willReadFrequently: true });
+    if (!ctx) return base;
+    ctx.drawImage(src, 0, 0);
+    const im = ctx.getImageData(0, 0, cv.width, cv.height);
+    recolor(im.data, c.recipe, BODY_HUE[species] ?? mainHue(im.data));
+    ctx.putImageData(im, 0, 0);
+    scene.textures.addCanvas(key, cv);
+    available.add(key);
+    return key;
+  } catch {
+    return base; // e.g. canvas blocked: just show the original colours
+  }
 }

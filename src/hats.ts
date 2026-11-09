@@ -126,6 +126,8 @@ export const HAT_FIT: Record<string, [number, number]> = {
 export const hatArtKey = (h: Hat) => `hat-${h.id}`;
 /** Overall hat size in matches (1 = as in HAT_FIT). */
 export const HAT_SCALE = 1.2;
+/** Hats are switched off (colour styles replaced them, see src/colours.ts). Set true to bring them back. */
+export const HATS_ENABLED = false;
 
 const KEY = 'kk-hat';
 export const hatUnlocked = (h: Hat): boolean => !h.unlock || loadStats().achieved.includes(h.unlock);

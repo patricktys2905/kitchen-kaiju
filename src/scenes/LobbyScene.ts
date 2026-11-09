@@ -15,6 +15,7 @@ import { owned, type Owned } from '../story/unlocks';
 import { enabledModes, modeDef, type GameMode } from '../sim/modes';
 import { POWERUPS } from '../sim/powerups';
 import { currentHat } from '../hats';
+import { currentColour, lookOf } from '../colours';
 import { cupGames } from '../cup';
 import qrcode from 'qrcode-generator';
 
@@ -146,7 +147,7 @@ export class LobbyScene extends Phaser.Scene {
     this.host = host;
     this.view = 'host';
     this.mySeat = 0;
-    this.seats = [{ who: 'host', name: 'You (host)', species: 0, hat: currentHat().id }];
+    this.seats = [{ who: 'host', name: 'You (host)', species: 0, hat: lookOf(currentHat().id, currentColour().id) }];
     host.onStatus = (t, ok) => { this.status = t; this.statusOk = ok; this.render(); };
     host.onGuestJoin = (g, name, route, hat) => {
       const free = this.own.kaiju.filter(k => !this.seats.some(s => s.species === k));
@@ -166,7 +167,7 @@ export class LobbyScene extends Phaser.Scene {
     localStorage.setItem('kk-name', name);
     this.guest?.close();
     const guest = new NetGuest();
-    guest.hat = currentHat().id;
+    guest.hat = lookOf(currentHat().id, currentColour().id);
     this.guest = guest;
     guest.onStatus = (t, ok) => { this.status = t; this.statusOk = ok; this.render(); };
     guest.onClosed = reason => { this.status = reason; this.statusOk = false; this.seats = []; this.guest = null; this.render(); };
