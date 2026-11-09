@@ -423,9 +423,14 @@ export class GalleryScene extends PanelScene {
     this.detail.push(withShadow(this.add.text(600, 470, got ? sp.full.toUpperCase() : '??? (LOCKED)', display(36, got ? sp.css : '#a89680', { strokeThickness: 6 })).setDepth(6), 3));
     const u = UNLOCKS.find(q => q.kind === 'kaiju' && q.index === i);
     const lines = got
-      ? [`A ${sp.food}.`, `🌟 KAIJU power: ${KITS[i].power} — ${KITS[i].blurb}`, `Trait: ${KITS[i].trait}`, '', `Your matches as ${sp.full}: ${st.kaijuPlays[i] ?? 0}`, `Your wins as ${sp.full}: ${st.kaijuWins[i] ?? 0}`, u ? '🎁 Story reward' : '']
+      ? [`A ${sp.food}.`, `🌟 KAIJU power: ${KITS[i].power} — ${KITS[i].blurb}`, `Trait: ${KITS[i].trait}`, `Matches: ${st.kaijuPlays[i] ?? 0}  ·  Wins: ${st.kaijuWins[i] ?? 0}${u ? '  ·  🎁 Story reward' : ''}`]
       : [u ? `Unlock: ${needText(u)}` : 'Locked', '', 'Left: normal look · right: KAIJU MODE'];
-    this.detail.push(this.add.text(600, 525, lines.join('\n'), body(19, '#f1e4d2', 800, { lineSpacing: 6 })).setDepth(6));
+    // fit inside the panel (x 600..1115, y 518..680): wrap to the width, then shrink the font until it fits
+    const W = 510, H = 160;
+    let size = 19;
+    const info = this.add.text(600, 518, lines.join('\n'), body(size, '#f1e4d2', 800, { lineSpacing: 5, wordWrap: { width: W } })).setDepth(6);
+    while (info.height > H && size > 12) { size--; info.setFontSize(size); }
+    this.detail.push(info);
   }
 }
 
