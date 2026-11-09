@@ -135,11 +135,11 @@ export class StoryScene extends Phaser.Scene {
     this.buttons.push(new Button(this, 640, 50, { w: 200, h: 44, label: '🎬 OPENING', size: 18, accent: 0xffd24a, onClick: () => { if (this.mode === 'map') { sfx.pickup(); this.playCut(this.camp.opening, () => {}); } } }, 6));
     // 🍰 Dessert Course: post-game, after the ending
     // campaign switch: The Grand Feast ⇄ Second Helpings
-    if (this.main && secondsUnlocked()) this.buttons.push(new Button(this, 1140, 50, { w: 250, h: 44, label: '🍽 SECOND HELPINGS ▶', size: 16, accent: 0x8dff6a, onClick: () => { if (this.mode === 'map') { sfx.go(); this.scene.restart({ campaign: 'seconds' }); } } }, 6));
-    if (!this.main) this.buttons.push(new Button(this, 1140, 50, { w: 250, h: 44, label: '◀ THE GRAND FEAST', size: 16, accent: 0xffcf8a, onClick: () => { if (this.mode === 'map') { sfx.go(); this.scene.restart({ campaign: 'main' }); } } }, 6));
+    if (this.main && secondsUnlocked()) this.buttons.push(new Button(this, 1135, 50, { w: 260, h: 44, label: '🍽 SECOND HELPINGS ▶', size: 16, accent: 0x8dff6a, onClick: () => { if (this.mode === 'map') { sfx.go(); this.scene.restart({ campaign: 'seconds' }); } } }, 6));
+    if (!this.main) this.buttons.push(new Button(this, 1135, 50, { w: 260, h: 44, label: '◀ THE GRAND FEAST', size: 16, accent: 0xffcf8a, onClick: () => { if (this.mode === 'map') { sfx.go(); this.scene.restart({ campaign: 'main' }); } } }, 6));
     if (this.main && this.save.endingSeen) {
       const done = dessertBest(), next = done >= COURSES.length ? 0 : done;
-      this.buttons.push(new Button(this, 905, 50, { w: 250, h: 44, label: `🍰 DESSERT ${done}/${COURSES.length}`, size: 17, accent: 0xff7ad9, onClick: () => {
+      this.buttons.push(new Button(this, 880, 50, { w: 210, h: 44, label: `🍰 DESSERT ${done}/${COURSES.length}`, size: 17, accent: 0xff7ad9, onClick: () => {
         if (this.mode !== 'map') return;
         sfx.go();
         this.scene.start('game', GameScene.dessertData(next, this.save.pick));

@@ -159,31 +159,31 @@ export class MenuScene extends Phaser.Scene {
     clearTaps();
     if (hasArt('bg-menu')) this.add.image(640, 360, 'bg-menu').setDisplaySize(1280, 720).setDepth(-2);
     this.g = this.add.graphics();
-    this.cardImgs = Array.from({ length: MAX_PLAYERS }, (_, i) => i).map(i => this.add.image(CARD_X(i), 250, '__MISSING').setDepth(1).setVisible(false));
+    this.cardImgs = Array.from({ length: MAX_PLAYERS }, (_, i) => i).map(i => this.add.image(CARD_X(i), 266, '__MISSING').setDepth(1).setVisible(false));
     this.decoImgs = (['fork', 'spoon', 'knife', 'chopstick', 'ladle', 'spork'] as const)
       .filter(k => hasArt(`cut-${k}`))
-      .map(k => this.add.image(0, 0, `cut-${k}`).setDepth(1).setScale((CUTLERY_LEN[k] * 1.5) / this.textures.get(`cut-${k}`).getSourceImage().width));
-    const title = this.add.text(640, 66, this.party ? 'PARTY MODES' : 'FREE PLAY', { ...TITLE, fontSize: '92px', strokeThickness: 12, padding: { x: 8, y: 8 } }).setOrigin(0.5).setDepth(2);
+      .map(k => this.add.image(0, 0, `cut-${k}`).setDepth(0.5).setAlpha(0.55).setScale((CUTLERY_LEN[k] * 1.5) / this.textures.get(`cut-${k}`).getSourceImage().width));
+    const title = this.add.text(640, 54, this.party ? 'PARTY MODES' : 'FREE PLAY', { ...TITLE, fontSize: '80px', strokeThickness: 11, padding: { x: 8, y: 8 } }).setOrigin(0.5).setDepth(2);
     withShadow(withGradient(title, '#fff6cf', '#ffb347'), 7);
     popIn(this, title, 1.25, 600);
-    this.tagline = withShadow(this.add.text(640, 126, 'Tiny monsters. Giant dinner.', { ...BODY, fontStyle: '900', fontSize: '23px', color: '#ffd9a0' }).setOrigin(0.5).setDepth(2), 3);
+    this.tagline = withShadow(this.add.text(640, 112, 'Tiny monsters. Giant dinner.', { ...BODY, fontStyle: '900', fontSize: '20px', color: '#ffd9a0' }).setOrigin(0.5).setDepth(2), 3);
 
     this.slotTexts = [];
     this.slotSub = [];
     // Team Feast: a RED TEAM / BLUE TEAM tag on top of each seat card (teams alternate by seat, like in the match)
-    this.teamTags = Array.from({ length: MAX_PLAYERS }, (_, i) => this.add.text(CARD_X(i), 168, '', { ...BODY, fontStyle: '900', fontSize: '15px', color: '#ffffff' }).setOrigin(0.5).setDepth(3).setVisible(false));
+    this.teamTags = Array.from({ length: MAX_PLAYERS }, (_, i) => this.add.text(CARD_X(i), 184, '', { ...BODY, fontStyle: '900', fontSize: '15px', color: '#ffffff' }).setOrigin(0.5).setDepth(3).setVisible(false));
     this.slotFood = [];
     for (let i = 0; i < MAX_PLAYERS; i++) {
-      this.slotTexts.push(withShadow(this.add.text(CARD_X(i), 322, '', { ...TITLE, fontSize: '22px', strokeThickness: 5 }).setOrigin(0.5).setDepth(2), 3));
-      this.slotFood.push(this.add.text(CARD_X(i), 346, '', { ...BODY, fontSize: '13px', fontStyle: 'italic 800', color: '#ffcf8a' }).setOrigin(0.5).setDepth(2));
-      this.slotSub.push(this.add.text(CARD_X(i), 368, '', { ...BODY, fontStyle: '700', fontSize: '13px', align: 'center', color: '#d9c7b3' }).setOrigin(0.5).setDepth(2));
+      this.slotTexts.push(withShadow(this.add.text(CARD_X(i), 338, '', { ...TITLE, fontSize: '22px', strokeThickness: 5 }).setOrigin(0.5).setDepth(2), 3));
+      this.slotFood.push(this.add.text(CARD_X(i), 362, '', { ...BODY, fontSize: '13px', fontStyle: 'italic 800', color: '#ffcf8a' }).setOrigin(0.5).setDepth(2));
+      this.slotSub.push(this.add.text(CARD_X(i), 384, '', { ...BODY, fontStyle: '700', fontSize: '13px', align: 'center', color: '#d9c7b3' }).setOrigin(0.5).setDepth(2));
     }
-    this.infoText = this.add.text(640, 404, '', { ...BODY, fontStyle: '900', fontSize: '17px', color: '#ffcf8a' }).setOrigin(0.5).setDepth(2);
-    this.tableText = this.add.text(640, 434, '', { ...BODY, fontStyle: '900', fontSize: '16px', color: '#ffffff', align: 'center' }).setOrigin(0.5).setDepth(2);
+    this.infoText = this.add.text(640, 424, '', { ...BODY, fontStyle: '900', fontSize: '17px', color: '#ffcf8a' }).setOrigin(0.5).setDepth(2);
+    this.tableText = this.add.text(640, 452, '', { ...BODY, fontStyle: '900', fontSize: '16px', color: '#ffffff', align: 'center' }).setOrigin(0.5).setDepth(2);
     this.tableThumb = null;
     // tap / click a bot's card to change just that bot's difficulty
     for (let i = 0; i < MAX_PLAYERS; i++) {
-      this.add.zone(CARD_X(i), 276, CARD_W, 216).setInteractive({ useHandCursor: true }).setDepth(4).on('pointerup', () => {
+      this.add.zone(CARD_X(i), 292, CARD_W, 216).setInteractive({ useHandCursor: true }).setDepth(4).on('pointerup', () => {
         if (this.slots[i]?.kind !== 'bot') return;
         const cur = this.botLevels[i] ?? this.difficulty;
         this.botLevels[i] = DIFFICULTIES[(DIFFICULTIES.indexOf(cur) + 1) % DIFFICULTIES.length];
@@ -191,7 +191,7 @@ export class MenuScene extends Phaser.Scene {
         sfx.pickup();
       });
     }
-    this.modeText = withShadow(this.add.text(640, 150, '', { ...BODY, fontStyle: '900', fontSize: '17px', color: '#ffd24a', align: 'center' }).setOrigin(0.5).setDepth(3), 2);
+    this.modeText = withShadow(this.add.text(640, 143, '', { ...BODY, fontStyle: '900', fontSize: '17px', color: '#ffd24a', align: 'center' }).setOrigin(0.5).setDepth(3), 2);
     if (this.party) this.modeText.setInteractive({ useHandCursor: true }).on('pointerup', () => this.cycleMode()); // tap the mode line to change mode
 
     // Controls as key "chips": [KEY] tokens get a keycap behind them.
@@ -204,15 +204,15 @@ export class MenuScene extends Phaser.Scene {
           ...[0, 1].map(p => { const k = (a: Parameters<typeof keyFor>[1]) => keyLabel(keyFor(p, a)); return `Keyboard ${p ? 'Right' : 'Left'}   [${k('up')} ${k('left')} ${k('down')} ${k('right')}] move  [${k('throw')}] throw  [${k('swipe')}] swipe  [${k('dash')}] dash  [${k('stomp')}] stomp  [${k('emote')}] emote`; }),
           'Gamepad   [L-STICK] move  [R-STICK] aim  [A] throw  [X] swipe  [B] dash  [Y] stomp  [LT] emote',
         ];
-    lines.forEach((l, i) => this.chipLine(chipG, 640, 474 + i * 28, l, 14));
+    lines.forEach((l, i) => this.chipLine(chipG, 640, 494 + i * 27, l, 14));
     const rules = [
       'Cutlery STICKS where it lands, so a miss leaves you unarmed, and anything loose is fair game.',
       'Eat crumbs, then STOMP to go KAIJU. Shove rivals off the edge. Every table has its own hazard.',
     ];
-    this.add.text(640, 560, rules.join('\n'), { ...BODY, fontStyle: '700', fontSize: '15px', align: 'center', color: '#cdb9a3', lineSpacing: 5 }).setOrigin(0.5, 0).setDepth(2);
+    if (!isTouchDevice) this.add.text(640, 574, rules.join('\n'), { ...BODY, fontStyle: '700', fontSize: '14px', align: 'center', color: '#cdb9a3', lineSpacing: 4 }).setOrigin(0.5, 0).setDepth(2);
     if (!isTouchDevice) {
-      this.chipLine(chipG, 640, 640, '[THROW] join   [◀ ▶] pick kaiju   [DASH] leave   [B] [N] add / remove bot', 15);
-      this.chipLine(chipG, 640, 670, this.party ? '[G] MODE  [C] PARTY CUP  [2] bots  [M] table  [R] rounds  [U] power-ups  [H] hazards  [X] twist  [Z] 🎲  [1] PLAY' : '[2] bots  [M] table  [R] rounds  [U] power-ups  [H] hazards  [X] twist  [Z] 🎲  [O] ONLINE  [1] PLAY', 15);
+      this.chipLine(chipG, 640, 644, '[THROW] join   [◀ ▶] pick kaiju   [DASH] leave   [B] [N] add / remove bot', 15);
+      this.chipLine(chipG, 640, 677, this.party ? '[G] MODE  [C] PARTY CUP  [2] bots  [M] table  [R] rounds  [U] power-ups  [H] hazards  [X] twist  [Z] 🎲  [1] PLAY' : '[2] bots  [M] table  [R] rounds  [U] power-ups  [H] hazards  [X] twist  [Z] 🎲  [O] ONLINE  [1] PLAY', 15);
     }
     setTouchMode('menu');
     playMusic('menu');
@@ -346,7 +346,7 @@ export class MenuScene extends Phaser.Scene {
     if (this.decoImgs.length) {
       this.decoImgs.forEach((img, i) => {
         const a = t * 0.6 + (i / this.decoImgs.length) * Math.PI * 2;
-        img.setPosition(640 + Math.cos(a) * 520, 92 + Math.sin(a) * 40).setRotation(a * 3);
+        img.setPosition(640 + Math.cos(a) * 560, 80 + Math.sin(a) * 30).setRotation(a * 3);
       });
     } else {
       kinds.forEach((k, i) => {
@@ -359,35 +359,35 @@ export class MenuScene extends Phaser.Scene {
       const sp = s ? this.picks[i] : -1, col = sp >= 0 ? SPECIES[sp].color : 0x4a3a2e;
       const team = this.mode === 'teams' ? i % 2 : -1, tcol = team >= 0 ? MODE_RULES.teams.colors[team] : 0;
       g.fillStyle(0x000000, 0.5);
-      g.fillRoundedRect(x - CARD_W / 2, 168, CARD_W, 216, 16);
+      g.fillRoundedRect(x - CARD_W / 2, 184, CARD_W, 216, 16);
       if (team >= 0) {
-        g.fillStyle(tcol, s ? 0.28 : 0.12); g.fillRoundedRect(x - CARD_W / 2, 168, CARD_W, 216, 16);
-        g.lineStyle(6, tcol, s ? 1 : 0.5); g.strokeRoundedRect(x - CARD_W / 2, 168, CARD_W, 216, 16);
-        g.fillStyle(tcol, 1); g.fillRoundedRect(x - 66, 155, 132, 28, 14);
-        g.lineStyle(2, 0xffffff, 0.8); g.strokeRoundedRect(x - 66, 155, 132, 28, 14);
+        g.fillStyle(tcol, s ? 0.28 : 0.12); g.fillRoundedRect(x - CARD_W / 2, 184, CARD_W, 216, 16);
+        g.lineStyle(6, tcol, s ? 1 : 0.5); g.strokeRoundedRect(x - CARD_W / 2, 184, CARD_W, 216, 16);
+        g.fillStyle(tcol, 1); g.fillRoundedRect(x - 66, 171, 132, 28, 14);
+        g.lineStyle(2, 0xffffff, 0.8); g.strokeRoundedRect(x - 66, 171, 132, 28, 14);
         this.teamTags[i].setText(`${MODE_RULES.teams.names[team]} TEAM`).setVisible(true);
       } else {
         this.teamTags[i].setVisible(false);
         g.lineStyle(3, col, 1);
-        g.strokeRoundedRect(x - CARD_W / 2, 168, CARD_W, 216, 16);
+        g.strokeRoundedRect(x - CARD_W / 2, 184, CARD_W, 216, 16);
       }
       if (s && sp >= 0) {
         // left/right arrows for players who can change their kaiju
         if (s.kind !== 'bot') {
           const pulse = 0.55 + 0.35 * Math.sin(t * 5);
           g.fillStyle(col, pulse);
-          g.fillTriangle(x - 88, 250, x - 74, 238, x - 74, 262);
-          g.fillTriangle(x + 88, 250, x + 74, 238, x + 74, 262);
+          g.fillTriangle(x - 88, 266, x - 74, 254, x - 74, 278);
+          g.fillTriangle(x + 88, 266, x + 74, 254, x + 74, 278);
         }
         const key = `kaiju-${sp}`;
         const pop = 1 + this.bump[i] * 0.15;
         if (hasArt(key)) {
-          g.fillStyle(0x000000, 0.35); g.fillEllipse(x, 296, 96, 16);
+          g.fillStyle(0x000000, 0.35); g.fillEllipse(x, 312, 96, 16);
           img.setTexture(kaijuKey(this, sp, seatColours(this.slots.map((_, j) => this.picks[j]), this.slots.map(q => (q.kind === 'bot' ? undefined : currentColour().id)))[i])).setVisible(true);
-          fitInside(img, 116 * pop, 112 * pop).setOrigin(0.5, 1).setPosition(x, 300 - Math.abs(Math.sin(t * 3 + i)) * 6);
+          fitInside(img, 116 * pop, 112 * pop).setOrigin(0.5, 1).setPosition(x, 316 - Math.abs(Math.sin(t * 3 + i)) * 6);
         } else {
           img.setVisible(false);
-          drawKaiju(g, { x, y: 250 + Math.sin(t * 4 + i) * 4, r: 38 * pop, aim: Math.sin(t * 1.5 + i) * 0.8 + Math.PI / 2, kaiju: false, species: sp, color: col }, t);
+          drawKaiju(g, { x, y: 266 + Math.sin(t * 4 + i) * 4, r: 38 * pop, aim: Math.sin(t * 1.5 + i) * 0.8 + Math.PI / 2, kaiju: false, species: sp, color: col }, t);
         }
         this.slotTexts[i].setText(SPECIES[sp].full.toUpperCase()).setColor(SPECIES[sp].css);
         this.slotFood[i].setText(getSettings().kaijuPowers ? `🌟 ${KITS[sp].power}` : SPECIES[sp].food);
@@ -398,14 +398,14 @@ export class MenuScene extends Phaser.Scene {
       } else {
         img.setVisible(false);
         g.fillStyle(0xffffff, 0.06 + 0.04 * Math.sin(t * 3 + i));
-        g.fillCircle(x, 250, 38);
+        g.fillCircle(x, 266, 38);
         this.slotTexts[i].setText('');
         this.slotFood[i].setText('');
         this.slotSub[i].setText(isTouchDevice ? 'empty (+ BOT)' : 'THROW to join');
       }
     }
     const md = modeDef(this.mode);
-    this.modeText.setFontSize(this.party ? 20 : 17).setY(150);
+    this.modeText.setFontSize(this.party ? 18 : 16).setY(143);
     const seats = this.slots.map((_, i) => i % 2), red = seats.filter(t => t === 0).length, blue = seats.length - red;
     this.tagline.setText(this.mode === 'teams' ? `${md.blurb}   ·   RED ${red}  vs  BLUE ${blue}${red !== blue ? '  (add a player or bot to even it up)' : ''}` : this.party ? md.blurb : 'Tiny monsters. Giant dinner.');
     this.modeText.setText(`${this.party ? `◀ ${md.name} ▶` : 'CLASSIC'}   ·   POWER-UPS: ${this.powerups ? 'ON' : 'OFF'}   ·   HAZARDS: ${this.hazards ? 'ON' : 'OFF'}${this.mutator !== 'none' ? `   ·   ⚡ ${mutatorDef(this.mutator).name}` : ''}`);
@@ -417,7 +417,7 @@ export class MenuScene extends Phaser.Scene {
     if (key && hasArt(key)) {
       if (!this.tableThumb) this.tableThumb = this.add.image(0, 0, key).setDepth(2);
       const tw = this.tableText.width;
-      this.tableThumb.setTexture(key).setVisible(true).setDisplaySize(54, 29).setPosition(640 - tw / 2 - 36, 434);
+      this.tableThumb.setTexture(key).setVisible(true).setDisplaySize(54, 29).setPosition(640 - tw / 2 - 36, 452);
     } else {
       this.tableThumb?.setVisible(false);
     }

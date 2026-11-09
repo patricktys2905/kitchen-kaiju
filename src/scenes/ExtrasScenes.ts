@@ -372,7 +372,7 @@ export class GalleryScene extends PanelScene {
 
   private buildColours(): void {
     this.add.text(60, 398, 'YOUR COLOUR', display(18, '#ffd24a', { strokeThickness: 3 })).setOrigin(0, 0.5).setDepth(6);
-    this.colLabel = this.add.text(1240, 364, '', body(14, '#e9dccb', 800)).setOrigin(1, 0.5).setDepth(6);
+    this.colLabel = this.add.text(1040, 398, '', body(13, '#e9dccb', 800, { wordWrap: { width: 200 } })).setOrigin(0, 0.5).setDepth(6);
     this.colG = this.add.graphics().setDepth(8);
     this.colIcons = COLOURS.map((_, k) => this.add.image(this.colX(k), 398, '__MISSING').setDepth(8).setVisible(false));
     COLOURS.forEach((c, k) => {
