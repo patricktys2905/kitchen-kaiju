@@ -29,6 +29,7 @@ export interface Chapter {
   win: Line;
   boss?: boolean;
   mutator?: Mutator; // a twist for this chapter (Second Helpings)
+  bossBelly?: number; // boss belly at the start of each round (default 100 = goes KAIJU straight away)
 }
 
 export const CHAPTERS: Chapter[] = [
@@ -63,7 +64,7 @@ export const CHAPTERS: Chapter[] = [
     win: { speaker: 1, text: 'Fine… but the boss of the Sushi Bar eats newcomers for breakfast.' },
   },
   {
-    title: 'Boss of the Belt', table: 3, rounds: 3, boss: true,
+    title: 'Boss of the Belt', table: 3, rounds: 2, boss: true, bossBelly: 85,
     rivals: [{ species: 7, level: 'easy', boss: true }, { species: 14, level: 'easy' }],
     intro: [
       { speaker: 1, text: 'Bow before the boss of the belt!' },

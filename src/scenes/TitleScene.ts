@@ -9,6 +9,7 @@ import { body, display, popIn, withGradient, withShadow } from '../render/fonts'
 import { Button, FocusNav } from '../render/ui';
 import { loadStory, totalStars } from '../story/save';
 import { CHAPTERS } from '../story/chapters';
+import { secondsUnlocked } from '../story/campaigns';
 import { setTouchMode } from '../touch';
 import { playMusic } from '../music';
 import { gauntletBest } from '../gauntlet';
@@ -19,8 +20,8 @@ import { owned } from '../story/unlocks';
 
 function dailySub(): string {
   const d = loadDaily(), today = d.date === todayKey();
-  if (today && d.won) return `Done ✔ · ${d.streak}🔥`;
-  return modeDef(dailySetup().mode).name;
+  if (today && d.won) return `Done today ✔ · ${d.streak}🔥 streak`;
+  return `Today: ${modeDef(dailySetup().mode).name}${d.streak && d.lastWin ? ` · ${d.streak}🔥` : ''}`;
 }
 
 /** Attract mode: after this many idle seconds on the title, a bot demo plays (0 = never). */
@@ -57,7 +58,7 @@ export class TitleScene extends Phaser.Scene {
     withShadow(this.add.text(372, 150, 'Tiny monsters. Giant dinner.', body(24, '#ffd9a0', 900)).setOrigin(0.5).setDepth(2), 3);
 
     const save = loadStory();
-    const storySub = save.stars.some(s => s) ? `Ch ${Math.min(save.unlocked, CHAPTERS.length)}/${CHAPTERS.length} · ★ ${totalStars(save)}` : `${CHAPTERS.length} chapters`;
+    const storySub = secondsUnlocked() ? `Ch ${Math.min(save.unlocked, CHAPTERS.length)}/${CHAPTERS.length} · 🍽 Seconds open!` : save.stars.some(s => s) ? `Ch ${Math.min(save.unlocked, CHAPTERS.length)}/${CHAPTERS.length} · ★ ${totalStars(save)}` : `${CHAPTERS.length} chapters`;
     const go = (key: string, data: object = {}) => { sfx.go(); this.time.delayedCall(80, () => this.scene.start(key, data)); };
     const MODES: { label: string; sub: string; accent: number; scene?: string; disabled?: boolean; data?: object }[] = [
       { label: 'STORY', sub: storySub, accent: 0xff9a3c, scene: 'story' },

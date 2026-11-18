@@ -23,7 +23,8 @@ import { cupGames, placePoints } from '../cup';
 import { GAUNTLET, gauntletBest, gauntletTables, saveGauntletBest, waveSetup } from '../gauntlet';
 import { owned } from '../story/unlocks';
 import { currentHat, HAT_FIT, HAT_SCALE, hatArtKey, HATS, HATS_ENABLED } from '../hats';
-import { currentColour, parseLook, seatColours } from '../colours';
+import { COLOURS, currentColour, parseLook, seatColours } from '../colours';
+import { powerCooldown } from '../sim/powers';
 import { PRACTICE, PRACTICE_STEPS } from '../practice';
 import { DAILY, dailySetup, loadDaily, recordDaily } from '../daily';
 import { REPLAY, ReplayBuffer } from '../replay';
@@ -38,6 +39,10 @@ import { isTouchDevice, setTouchHud, setTouchMode } from '../touch';
 const STEP = 1 / 120;
 /** ⏩ When every human is knocked out for the rest of the round, the bots finish it this many times faster. EASY TO CHANGE (1 = off). */
 export const FAST_FORWARD = 3;
+/** Story chapters 1–2: hazards wait this many extra seconds (learn the basics first). EASY TO CHANGE. */
+export const STORY_CALM = 12;
+/** 🌶️ Spicy replays: rivals start every round with this much belly (100 = ready to go KAIJU). EASY TO CHANGE. */
+export const SPICY_START_BELLY = 55;
 const POWER_ICON_SCALE = 1.6; // size of condiment power-ups on the table
 const TOUCH_ASSIST_ANGLE = 0.45; // radians either side of facing
 
@@ -58,12 +63,13 @@ export interface GameData {
   mutator?: Mutator; // Free Play / Online rule twist
   hats?: string[]; // online: each seat's hat id ('' = none)
   gauntlet?: { wave: number; bosses: number[] }; // Gauntlet: seat 0 is you, one round per wave
+  from?: string; // scene to go back to (practice: 'help' or 'gallery')
   daily?: { date: string }; // Daily Challenge: seat 0 is you
   party?: boolean; // started from the PARTY MODES setup (go back there afterwards)
   attract?: boolean; // title-screen demo: any input goes back to the title
   dessert?: { course: number; bosses: number[] }; // 🍰 Dessert Course (index into COURSES)
   cup?: { game: number; points: number[] }; // 🏆 Party Cup: which game of the cup, points so far
-  story?: { chapter: number; bosses: number[]; spicy?: boolean; campaign?: 'main' | 'seconds'; mutator?: Mutator }; // story chapter: seat 0 is you; bosses start rounds with a full belly
+  story?: { chapter: number; bosses: number[]; spicy?: boolean; campaign?: 'main' | 'seconds'; mutator?: Mutator; bossBelly?: number }; // story chapter: seat 0 is you; bosses start rounds with a full belly
   net?: { role: 'host'; host: NetHost } | { role: 'guest'; guest: NetGuest; seat: number };
   seed?: number;
 }
@@ -76,6 +82,9 @@ export class GameScene extends Phaser.Scene {
   private acc = 0;
   private t = 0;
   private paused = false;
+  /** Levels to restore when the pause menu's MUSIC / SOUND are switched back on. */
+  static lastMusic = 0.35;
+  static lastVolume = 0.75;
   private ffText: Phaser.GameObjects.Text | null = null;
   private pauseUi: { nav: FocusNav; objs: Button[]; dim: Phaser.GameObjects.Graphics } | null = null;
   private initData!: GameData;
@@ -164,7 +173,7 @@ export class GameScene extends Phaser.Scene {
     this.mode = data.mode ?? 'classic';
     this.powerups = data.story ? false : data.powerups ?? POWERUPS.enabled;
     this.hazards = data.story ? true : data.hazards ?? true;
-    this.world = new World({ players: this.species.map(s => ({ name: SPECIES[s].name, species: s })), kaijuPowers: getSettings().kaijuPowers, seed, layouts: this.tables ?? undefined, target: this.rounds, mode: this.mode, powerups: this.powerups, hazards: this.hazards, mutator: data.story ? data.story.mutator ?? 'none' : data.gauntlet || data.dessert || data.daily ? 'none' : data.mutator });
+    this.world = new World({ players: this.species.map(s => ({ name: SPECIES[s].name, species: s })), kaijuPowers: getSettings().kaijuPowers, calmStart: data.story && (data.story.campaign ?? 'main') === 'main' && data.story.chapter < 2 && !data.story.spicy ? STORY_CALM : 0, seed, layouts: this.tables ?? undefined, target: this.rounds, mode: this.mode, powerups: this.powerups, hazards: this.hazards, mutator: data.story ? data.story.mutator ?? 'none' : data.gauntlet || data.dessert || data.daily ? 'none' : data.mutator });
     this.story = data.story;
     this.practice = null;
     this.callout = { first: false, recent: data.slots.map(() => []), streak: data.slots.map(() => 0), nemesis: data.slots.map(() => null) };
@@ -214,7 +223,7 @@ export class GameScene extends Phaser.Scene {
       this.roundText = this.add.text(14, 708, '', display(14, '#ffcf8a', { strokeThickness: 3 })).setOrigin(0, 1).setDepth(6);
     } else {
       this.roundText = this.add.text(VIEW.w - 16, 11, '', display(16, '#ffcf8a', { align: 'right', strokeThickness: 3 })).setOrigin(1, 0).setDepth(6);
-      if (!isTouchDevice) this.add.text(VIEW.w - 16, 36, 'P pause · Esc menu', body(12, '#9c8a78', 700)).setOrigin(1, 0).setDepth(6);
+      if (!isTouchDevice) this.add.text(VIEW.w - 16, 58, 'Esc / P pause', body(12, '#9c8a78', 700)).setOrigin(1, 0).setDepth(6);
     }
     this.feedTexts = [0, 1].map(i => this.add.text(VIEW.w / 2, 680 + i * 19, '', body(16, '#fff', 900, { stroke: '#140b05', strokeThickness: 4 })).setOrigin(0.5, 0).setDepth(6));
     playMusic('battle');
@@ -227,7 +236,7 @@ export class GameScene extends Phaser.Scene {
     this.bannerSub = withShadow(this.add.text(VIEW.w / 2, VIEW.h / 2 + 50, '', body(22, '#ffffff', 900, { stroke: '#2a1408', strokeThickness: 5, align: 'center' })).setOrigin(0.5).setDepth(10), 3);
     if (this.mode === 'practice') {
       const g = this.add.graphics().setDepth(9);
-      const text = this.add.text(VIEW.w - 300, 96, '', body(15, '#f1e4d2', 800, { lineSpacing: 5, wordWrap: { width: 280 } })).setDepth(10);
+      const text = this.add.text(24, VIEW.h - 24, '', body(15, '#f1e4d2', 800, { lineSpacing: 4, wordWrap: { width: 420 } })).setOrigin(0, 1).setDepth(10);
       const p0 = this.world.players[0];
       this.practice = { done: PRACTICE_STEPS.map(() => false), moved: 0, lx: p0.x, ly: p0.y, text, g };
     }
@@ -243,7 +252,7 @@ export class GameScene extends Phaser.Scene {
       this.input.on('pointerdown', () => { this.attractWake = true; });
       this.input.keyboard?.on('keydown', () => { this.attractWake = true; });
     }
-    this.awardsText = withShadow(this.add.text(VIEW.w / 2, VIEW.h - 22, '', body(17, '#ffd24a', 900, { stroke: '#2a1408', strokeThickness: 4, align: 'center' })).setOrigin(0.5, 1).setDepth(10), 2);
+    this.awardsText = withShadow(this.add.text(VIEW.w / 2 + 60, VIEW.h - 22, '', body(17, '#ffd24a', 900, { stroke: '#2a1408', strokeThickness: 4, align: 'center', wordWrap: { width: 900 } })).setOrigin(0.5, 1).setDepth(10), 2);
     this.handleEvents(this.world.drainEvents());
   }
 
@@ -282,8 +291,8 @@ export class GameScene extends Phaser.Scene {
     const items: [string, () => void][] = [
       ['▶ RESUME', () => this.setPaused(false)],
       ['↻ RESTART', () => { this.closePause(); this.scene.restart(this.initData); }],
-      [`🎵 MUSIC: ${s.music > 0 ? 'ON' : 'OFF'}`, () => { setSetting('music', getSettings().music > 0 ? 0 : 0.35); this.closePause(); this.setPaused(true, 2); }],
-      [`🔊 SOUND: ${s.volume > 0 ? 'ON' : 'OFF'}`, () => { setSetting('volume', getSettings().volume > 0 ? 0 : 0.75); this.closePause(); this.setPaused(true, 3); }],
+      [`🎵 MUSIC: ${s.music > 0 ? 'ON' : 'OFF'}`, () => { const m = getSettings().music; if (m > 0) GameScene.lastMusic = m; setSetting('music', m > 0 ? 0 : GameScene.lastMusic); this.closePause(); this.setPaused(true, 2); }],
+      [`🔊 SOUND: ${s.volume > 0 ? 'ON' : 'OFF'}`, () => { const v = getSettings().volume; if (v > 0) GameScene.lastVolume = v; setSetting('volume', v > 0 ? 0 : GameScene.lastVolume); this.closePause(); this.setPaused(true, 3); }],
       ['✖ QUIT', () => { this.closePause(); this.leave(); }],
     ];
     const objs = items.map(([label, fn], i) => new Button(this, VIEW.w / 2, 300 + i * 74, { w: 360, h: 60, label, size: 24, onClick: fn }, 12));
@@ -308,10 +317,13 @@ export class GameScene extends Phaser.Scene {
       const any = this.attractWake || listDevices().some(d => { const i = readSlot(d); return i.throw || i.dash || i.start || i.swipe; });
       if (any || this.world.phase === 'matchEnd') { this.attractWake = false; clearTaps(); this.scene.start('title'); return; }
     }
-    if (consumeTap('Escape')) { this.leave(); return; }
-    if (consumeTap('KeyP') && this.world.phase !== 'matchEnd' && !this.net) this.setPaused(!this.paused);
+    if (consumeTap('Escape')) {
+      if (this.net || this.world.phase === 'matchEnd') { this.leave(); return; }
+      if (!this.replay) this.setPaused(!this.paused);
+    }
+    if (consumeTap('KeyP') && this.world.phase !== 'matchEnd' && !this.net && !this.replay) this.setPaused(!this.paused);
     const anyStart = this.slots.some(s => s.kind === 'pad' && readSlot(s).start);
-    if (anyStart && !this.padPrevStart && this.world.phase !== 'matchEnd' && !this.net) this.setPaused(!this.paused);
+    if (anyStart && !this.padPrevStart && this.world.phase !== 'matchEnd' && !this.net && !this.replay) this.setPaused(!this.paused);
     if (this.pauseUi && this.pauseUi.nav.update(dt) === 'back') this.setPaused(false);
     if (this.story && this.world.phase === 'matchEnd' && (this.world.phaseT > 2.8 || consumeTap('Digit1') || consumeTap('Space') || consumeTap('Enter'))) {
       const me = this.world.players[0], won = this.world.winner === 0;
@@ -424,7 +436,8 @@ export class GameScene extends Phaser.Scene {
 
   private leave(): void {
     if (this.story) { this.scene.start('story', { campaign: this.story.campaign }); return; }
-    if (this.initData.gauntlet) { this.scene.start('title'); return; }
+    if (this.initData.gauntlet || this.initData.daily) { this.scene.start('title'); return; }
+    if (this.mode === 'practice') { this.scene.start(this.initData.from ?? 'help'); return; }
     if (this.initData.dessert) { this.scene.start('story'); return; }
     if (this.net?.role === 'host') this.net.host.close();
     if (this.net?.role === 'guest') this.net.guest.close();
@@ -514,7 +527,8 @@ export class GameScene extends Phaser.Scene {
           if (e.round === 1 && this.bossSeats().length) this.time.delayedCall(150, () => this.bossCard());
           this.tip = getSettings().tips && !this.initData.attract && !this.practice ? randomTip(this.mode, w.layout, w.mutator === 'ice') : '';
           this.art.setupTable(w.layout, this.world.players.map(p => ({ x: p.x, y: p.y, color: this.colors[p.id] })));
-          for (const b of this.bossSeats()) if (w.players[b]) w.players[b].meter = 100; // bosses can go KAIJU straight away
+          for (const b of this.bossSeats()) if (w.players[b]) w.players[b].meter = this.story?.bossBelly ?? 100; // bosses can go KAIJU straight away
+          if (this.story?.spicy) w.players.forEach((p, k) => { if (k > 0 && p.meter < 100) p.meter = SPICY_START_BELLY; }); // 🌶️ rivals start half-full
           this.parts = [];
           this.rings = [];
           break;
@@ -572,6 +586,7 @@ export class GameScene extends Phaser.Scene {
           this.burst(e.x, e.y, col, 14, 260, 0.45);
           break;
         }
+        case 'frenzy': sfx.meterFull(); this.popup(VIEW.w / 2, 150, '🍽 FEEDING FRENZY! Bellies are filling up…', '#ffd24a', 26); break;
         case 'minePop': sfx.bump(); this.shake(0.005, 120); this.burst(e.x, e.y, 0x4a6aff, 16, 240, 0.45); this.rings.push({ x: e.x, y: e.y, r: 0, t: 0, max: 70, color: 0x4a6aff }); break;
         case 'stunned': break;
         case 'ko':
@@ -711,7 +726,7 @@ export class GameScene extends Phaser.Scene {
     if (!REPLAY.enabled || !getSettings().replays || this.net || this.mode === 'crumbRush' || this.mode === 'practice' || this.world.players.length < REPLAY.minPlayers) return;
     const frames = this.replayBuf.clip();
     if (!frames.length) return;
-    const world = new World({ players: this.world.players.map(p => ({ name: p.name })), mode: this.mode, layout: this.world.layoutIndex });
+    const world = new World({ players: this.world.players.map(p => ({ name: p.name })), mode: this.mode, layout: this.world.layoutIndex, target: this.world.opts.target });
     const label = withShadow(this.add.text(VIEW.w / 2, 104, '⏪ INSTANT REPLAY', display(30, '#ffffff', { strokeThickness: 6 })).setOrigin(0.5, 0).setDepth(12), 3);
     this.add.tween({ targets: label, alpha: { from: 1, to: 0.55 }, yoyo: true, repeat: -1, duration: 420 });
     this.replay = { frames, t: frames[0].t, world, label };
@@ -871,11 +886,11 @@ export class GameScene extends Phaser.Scene {
     if (p.alive) { P0.moved += Math.hypot(p.x - P0.lx, p.y - P0.ly); P0.lx = p.x; P0.ly = p.y; }
     PRACTICE_STEPS.forEach((st, i) => { if (!P0.done[i] && st.done({ type: 'go' }, P0.moved)) this.tick(i); });
     const next = P0.done.indexOf(false);
-    const lines = PRACTICE_STEPS.map((st, i) => `${P0.done[i] ? '✅' : i === next ? '👉' : '⬜'} ${st.text}${i === next ? `\n      ${st.keys}` : ''}`);
-    const all = next < 0;
-    P0.text.setText(`PRACTICE  ${P0.done.filter(Boolean).length}/${PRACTICE_STEPS.length}\n${lines.join('\n')}${all ? '\n\n🎉 All done! Esc / pause → quit' : ''}`);
-    P0.g.clear(); P0.g.fillStyle(0x0d0805, 0.78); P0.g.fillRoundedRect(VIEW.w - 312, 86, 300, P0.text.height + 20, 14);
-    P0.g.lineStyle(2, all ? 0x8dff6a : 0xffb347, 1); P0.g.strokeRoundedRect(VIEW.w - 312, 86, 300, P0.text.height + 20, 14);
+    const all = next < 0, doneN = P0.done.filter(Boolean).length;
+    P0.text.setText(all ? `PRACTICE ${doneN}/${PRACTICE_STEPS.length}  🎉 All done! Esc → pause → QUIT` : `PRACTICE ${doneN}/${PRACTICE_STEPS.length}  ${'✅'.repeat(doneN)}${'⬜'.repeat(PRACTICE_STEPS.length - doneN)}\n👉 ${PRACTICE_STEPS[next].text}\n     ${PRACTICE_STEPS[next].keys}`);
+    const bx = 14, by = VIEW.h - 14 - P0.text.height - 20, bw = Math.max(260, P0.text.width + 20);
+    P0.g.clear(); P0.g.fillStyle(0x0d0805, 0.78); P0.g.fillRoundedRect(bx, by, bw, P0.text.height + 20, 14);
+    P0.g.lineStyle(2, all ? 0x8dff6a : 0xffb347, 1); P0.g.strokeRoundedRect(bx, by, bw, P0.text.height + 20, 14);
   }
 
   private tick(i: number): void {
@@ -926,7 +941,8 @@ export class GameScene extends Phaser.Scene {
         const got = checkAchievements(st);
         got.forEach((a, k) => this.time.delayedCall(1200 + k * 1600, () => {
           sfx.meterFull();
-          this.popup(VIEW.w / 2, 620, `🏆 ${a.name.toUpperCase()}: ${a.desc}`, '#ffd24a', 22);
+          const col = COLOURS.find(c => c.unlock === a.id);
+          this.popup(VIEW.w / 2, 620, `🏆 ${a.name.toUpperCase()}: ${a.desc}${col ? `  ·  🎨 ${col.name} colour unlocked!` : ''}`, '#ffd24a', 22);
         }));
         break;
       }
@@ -961,6 +977,7 @@ export class GameScene extends Phaser.Scene {
       case 'blend': text = killer ? `${killer} sent ${victim} into the BLENDER` : `${victim} got BLENDED into a smoothie`; break;
     }
     if (e.by === null && e.cause === 'cutlery') text = `${victim} skewered themselves`;
+    if (this.isHuman(e.id)) this.popup(x, Math.max(TABLE.y + 40, y - 70), `💥 ${text.replace(victim, 'YOU').replace(/^YOU skewered themselves$/, 'You hit yourself!')}`, '#ff8a7a', 24);
     this.feed.unshift({ text, color: this.css[e.by ?? e.id], t: 4 });
     if (this.feed.length > 2) this.feed.pop();
   }
@@ -1085,6 +1102,17 @@ export class GameScene extends Phaser.Scene {
     }
     for (const p of w.players) {
       if (!p.alive) continue;
+      if (p.kaijuT > 0) {
+        const R = p.r * 2.25, k = Math.min(1, p.kaijuT / P.kaijuTime);
+        o.lineStyle(6, 0x000000, 0.35); o.strokeCircle(p.x, p.y, R);
+        o.lineStyle(5, k < 0.3 ? 0xff5a4a : 0xffd24a, 0.95); o.beginPath(); o.arc(p.x, p.y, R, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * k, false); o.strokePath();
+        if (p.kit && this.isHuman(p.id)) {
+          const ready = p.powerCD <= 0, cd = powerCooldown(p.kit);
+          o.fillStyle(ready ? 0x8dff6a : 0x5a4a3e, 1); o.fillCircle(p.x, p.y - R, 9);
+          if (!ready) { o.lineStyle(3, 0x8dff6a, 1); o.beginPath(); o.arc(p.x, p.y - R, 9, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * (1 - p.powerCD / cd), false); o.strokePath(); }
+          else if (Math.sin(this.t * 10) > 0) { o.lineStyle(2, 0xffffff, 1); o.strokeCircle(p.x, p.y - R, 12); }
+        }
+      }
       if (p.shieldT > 0) { o.lineStyle(3, 0xffd24a, 0.55 + 0.3 * Math.sin(t * 8)); o.strokeCircle(p.x, p.y, p.r * (p.kaijuT > 0 ? 2.2 : 1.35)); o.fillStyle(0xffd24a, 0.12); o.fillCircle(p.x, p.y, p.r * (p.kaijuT > 0 ? 2.2 : 1.35)); }
       if (p.speedT > 0 && Math.random() < 0.5) this.parts.push({ x: p.x + (Math.random() - 0.5) * p.r, y: p.y + p.r * 0.6, vx: -p.vx * 0.2, vy: -30 - Math.random() * 40, life: 0.35, max: 0.35, color: Math.random() < 0.5 ? 0xff5a1a : 0xffd040, size: 3, grav: 0 });
       if (p.sugarT > 0 && Math.random() < 0.3) this.parts.push({ x: p.x + (Math.random() - 0.5) * p.r * 2, y: p.y - p.r, vx: 0, vy: -40, life: 0.5, max: 0.5, color: 0xffffff, size: 2, grav: 0 });
@@ -1169,7 +1197,8 @@ export class GameScene extends Phaser.Scene {
       this.infoTexts[i].setText(info);
       if (w.mode === 'teams') { g.fillStyle(MODE_RULES.teams.colors[p.team] ?? 0xffffff, 0.9); g.fillRoundedRect(x - 4, 70, pw, 4, 2); }
     });
-    this.roundText.setText(`${w.mode !== 'classic' ? modeDef(w.mode).name + ' · ' : ''}ROUND ${w.round} · ${w.layout.name.toUpperCase()}`);
+    this.roundText.setText(`${w.mode !== 'classic' ? modeDef(w.mode).name + '\n' : ''}ROUND ${w.round} · ${w.layout.name.toUpperCase()}`);
+    if (this.slots.length <= 4) { const room = VIEW.w - 16 - (this.hudX(this.slots.length - 1) + this.hudW) - 8; this.roundText.setScale(Math.min(1, room / Math.max(1, this.roundText.width / this.roundText.scaleX))); }
     const left = w.timeLeft();
     let mt = '';
     if (left !== null && (w.phase === 'play' || w.phase === 'countdown')) mt = `⏱ ${Math.ceil(left)}`;

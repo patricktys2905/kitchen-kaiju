@@ -40,6 +40,7 @@ export type GameEvent =
   | { type: 'bump'; x: number; y: number }
   | { type: 'eat'; id: number; x: number; y: number }
   | { type: 'meterFull'; id: number }
+  | { type: 'frenzy' }
   | { type: 'kaiju'; id: number; x: number; y: number }
   | { type: 'stomp'; id: number; x: number; y: number; r: number }
   | { type: 'shrink'; id: number }
@@ -199,6 +200,7 @@ export interface WorldOptions {
   teams?: number[]; // Team Feast: team per player (default: alternate seats)
   powerups?: boolean; // condiment power-ups (off unless asked for; Free Play default is POWERUPS.enabled)
   mutator?: Mutator; // one wacky rule twist (default none)
+  calmStart?: number; // extra seconds before each table hazard first fires (gentler first Story chapters)
 }
 
 /** Birthday Bash wind. dir is an angle (radians) the gust blows towards. */
@@ -246,7 +248,7 @@ export interface Cleaver {
 
 export class World {
   readonly rng: Rng;
-  readonly opts: Required<Omit<WorldOptions, 'layout' | 'starterKind' | 'layouts' | 'mode' | 'teams' | 'powerups' | 'mutator' | 'kaijuPowers'>> & Pick<WorldOptions, 'layout' | 'starterKind' | 'layouts'>;
+  readonly opts: Required<Omit<WorldOptions, 'layout' | 'starterKind' | 'layouts' | 'mode' | 'teams' | 'powerups' | 'mutator' | 'kaijuPowers' | 'calmStart'>> & Pick<WorldOptions, 'layout' | 'starterKind' | 'layouts'>;
   readonly mode: GameMode;
   readonly powerups: boolean;
   readonly mutator: Mutator;
@@ -271,6 +273,8 @@ export class World {
   private spatulaTimer = 0;
   puddles: { x: number; y: number; r: number; t: number }[] = [];
   powersOn = true;
+  calm = 0;
+  frenzy = false;
   powerZones: PowerZone[] = [];
   powerShots: PowerShot[] = [];
   private cheeseTimer = 0;
@@ -315,6 +319,7 @@ export class World {
     const pool = o.layouts?.filter(i => i >= 0 && i < LAYOUTS.length);
     this.layoutOrder = this.rng.shuffle(pool && pool.length ? pool.slice() : LAYOUTS.map((_, i) => i));
     this.powersOn = o.kaijuPowers ?? KAIJU_POWERS.enabled;
+    this.calm = o.calmStart ?? 0;
     this.players = o.players.map((p, id) => { const pl = this.makePlayer(id, p.name); pl.species = p.species; pl.kit = this.powersOn ? kitOf(p.species) : null; return pl; });
     for (const pl of this.players) pl.team = this.mode === 'teams' ? (o.teams?.[pl.id] ?? pl.id % 2) : pl.id;
     this.startRound();
@@ -341,25 +346,26 @@ export class World {
     this.crumbs = [];
     this.hand = null;
     this.winner = null;
-    this.handTimer = RULES.handFirst;
+    this.handTimer = RULES.handFirst + this.calm;
     this.wind = null;
     this.cleaver = null;
-    this.windTimer = RULES.windFirst;
-    this.cleaverTimer = RULES.cleaverFirst;
+    this.windTimer = RULES.windFirst + this.calm;
+    this.cleaverTimer = RULES.cleaverFirst + this.calm;
     this.burner = null;
-    this.burnerTimer = RULES.burnerFirst;
+    this.burnerTimer = RULES.burnerFirst + this.calm;
     this.toaster = null;
     this.toasts = [];
-    this.toasterTimer = RULES.toasterFirst;
+    this.toasterTimer = RULES.toasterFirst + this.calm;
     this.blender = null;
-    this.blenderTimer = RULES.blenderFirst;
+    this.blenderTimer = RULES.blenderFirst + this.calm;
     this.cheeseDrops = [];
     this.puddles = [];
     this.powerZones = [];
     this.powerShots = [];
+    this.frenzy = false;
     this.spatula = null;
-    this.spatulaTimer = RULES.spatulaFirst;
-    this.cheeseTimer = RULES.cheeseFirst;
+    this.spatulaTimer = RULES.spatulaFirst + this.calm;
+    this.cheeseTimer = RULES.cheeseFirst + this.calm;
     this.crumbTimer = 0;
     this.pickupTimer = RULES.pickupEvery;
     this.phase = 'countdown';
@@ -1583,6 +1589,11 @@ export class World {
   }
 
   private updateMode(dt: number): void {
+    // 🍽 Feeding frenzy: long rounds end in KAIJU fights instead of stand-offs
+    if ((this.mode === 'classic' || this.mode === 'teams') && this.roundT > RULES.suddenDeathAt) {
+      if (!this.frenzy) { this.frenzy = true; this.emit({ type: 'frenzy' }); }
+      for (const p of this.players) if (p.alive && p.kaijuT <= 0 && p.meter < 100) { const was = p.meter; p.meter = Math.min(100, p.meter + RULES.frenzyFill * dt); if (was < 100 && p.meter >= 100) this.emit({ type: 'meterFull', id: p.id }); }
+    }
     if (this.mode === 'crumbRush' || this.mode === 'practice') {
       for (const p of this.players) {
         if (p.alive || p.respawnT <= 0) continue;

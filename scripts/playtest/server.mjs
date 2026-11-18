@@ -111,7 +111,7 @@ async function drive(cmd) {
 }
 
 async function collectEvents(fn) {
-  await pg.evaluate(() => { const s = window.__game.scene.getScene('game'); window.__evlog = []; if (s?.world && !s.__wrapped) { const d = s.world.drainEvents.bind(s.world); s.world.drainEvents = () => { const e = d(); for (const x of e) if (['ko', 'roundEnd', 'matchEnd', 'kaiju', 'power', 'powerPick', 'pickup'].includes(x.type)) window.__evlog.push(x); return e; }; s.__wrapped = true; } });
+  await pg.evaluate(() => { const s = window.__game.scene.getScene('game'); window.__evlog = []; if (s?.world && !s.world.__wrapped) { const d = s.world.drainEvents.bind(s.world); s.world.drainEvents = () => { const e = d(); for (const x of e) if (['ko', 'roundEnd', 'matchEnd', 'kaiju', 'power', 'powerPick', 'pickup'].includes(x.type)) window.__evlog.push(x); return e; }; s.world.__wrapped = true; } });
   await fn();
   return pg.evaluate(() => {
     const s = window.__game.scene.getScene('game'), n = id => (id === 0 ? 'YOU' : s?.world?.players[id]?.name ?? `#${id}`);
@@ -138,7 +138,7 @@ const HELP = `Kitchen Kaiju playtest API (the game is FROZEN between your comman
 const handlers = {
   async help() { return HELP; },
   async look() { return JSON.stringify(await summary(), null, 1); },
-  async shot() { const f = `${OUT}/shot-${++shotN}.png`; await pg.screenshot({ path: f }); return f; },
+  async shot() { const f = `${OUT}/shot-${++shotN}.png`; await thaw(); await wait(150); await pg.screenshot({ path: f }); await freeze(); return f; },
   async click(q) {
     await thaw();
     const box = await pg.locator('canvas').boundingBox();

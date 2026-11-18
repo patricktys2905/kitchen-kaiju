@@ -169,6 +169,8 @@ export class StoryScene extends Phaser.Scene {
   }
 
   private camp: Campaign = CAMPAIGNS.main;
+  /** Chapters whose intro chat you have already seen this session (retries go straight in). */
+  static talked = new Set<string>();
   private get main(): boolean { return this.camp.id === 'main'; }
   private progressText!: Phaser.GameObjects.Text;
   /** Overall progress line: chapters, stars, spicy clears, dessert, rewards → one completion %. EASY TO CUSTOMISE: the weights. */
@@ -288,6 +290,10 @@ export class StoryScene extends Phaser.Scene {
     sfx.go();
     const ch = this.camp.chapters[this.sel], rivals = chapterRivals(ch, this.save.pick);
     this.lines = [...ch.intro, { speaker: 'chef', text: 'TIP: ' + ch.tip }];
+    // retries skip the chat: you've heard it already this session
+    const key = `${this.camp.id}:${this.sel}`;
+    if (StoryScene.talked.has(key)) { this.launch(); return; }
+    StoryScene.talked.add(key);
     const talk = () => this.startDialogue(rivals.map(r => r.species), () => this.launch());
     const cut = this.camp.cuts[this.sel];
     if (cut && !this.save.cuts.includes(seenId(cut))) this.playCut(cut, talk);
@@ -305,7 +311,7 @@ export class StoryScene extends Phaser.Scene {
     this.scene.start('game', {
       slots, difficulty: 'normal', species: [this.save.pick, ...rivals.map(r => r.species)], tables: [ch.table], rounds: ch.rounds,
       botLevels: [null, ...rivals.map(r => (this.spicyOn() ? SPICY_BUMP[r.level] : r.level))],
-      story: { chapter: this.sel, bosses: rivals.map((r, k) => (r.boss ? k + 1 : -1)).filter(k => k > 0), spicy: this.spicyOn(), campaign: this.camp.id, mutator: ch.mutator },
+      story: { chapter: this.sel, bosses: rivals.map((r, k) => (r.boss ? k + 1 : -1)).filter(k => k > 0), spicy: this.spicyOn(), campaign: this.camp.id, mutator: ch.mutator, bossBelly: ch.bossBelly },
     });
   }
 

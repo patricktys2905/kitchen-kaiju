@@ -365,6 +365,7 @@ export class GalleryScene extends PanelScene {
 
   // ---------------------------------------------------------------- 🎨 colour styles (replaced hats)
   private colIcons: Phaser.GameObjects.Image[] = [];
+  private colLocks: Phaser.GameObjects.Text[] = [];
   private colLabel!: Phaser.GameObjects.Text;
   private colG!: Phaser.GameObjects.Graphics;
   private colFor = -1; // which kaiju the swatches currently show
@@ -375,7 +376,11 @@ export class GalleryScene extends PanelScene {
     this.colLabel = this.add.text(1040, 398, '', body(13, '#e9dccb', 800, { wordWrap: { width: 200 } })).setOrigin(0, 0.5).setDepth(6);
     this.colG = this.add.graphics().setDepth(8);
     this.colIcons = COLOURS.map((_, k) => this.add.image(this.colX(k), 398, '__MISSING').setDepth(8).setVisible(false));
+    this.colLocks = COLOURS.map((_, k) => this.add.text(this.colX(k), 398, '🔒', body(22, '#ffffff', 900)).setOrigin(0.5).setDepth(9).setVisible(false));
     COLOURS.forEach((c, k) => {
+      const zone = this.add.zone(this.colX(k), 398, 80, 58).setInteractive().setDepth(10);
+      zone.on('pointerover', () => { this.nav.index = SPECIES.length + k; });
+      zone.on('pointerup', () => { this.nav.index = SPECIES.length + k; if (!colourUnlocked(c)) { sfx.thwock(); return; } setColour(c.id); sfx.pickup(); this.showDetail(this.shown < 0 ? 0 : this.shown, false); });
       this.buttons.push(new Button(this, this.colX(k), 398, { w: 80, h: 58, label: '', size: 12, accent: 0xffd24a, onClick: () => {
         this.nav.index = SPECIES.length + k;
         if (!colourUnlocked(c)) { sfx.thwock(); return; }
@@ -396,7 +401,7 @@ export class GalleryScene extends PanelScene {
       const got = colourUnlocked(c);
       this.colIcons[k].setTint(got ? 0xffffff : 0x2a2420);
       if (c.id === cur.id) { g.lineStyle(3, 0x8dff6a, 1); g.strokeRoundedRect(this.colX(k) - 42, 366, 84, 64, 14); }
-      if (!got) { g.fillStyle(0x000000, 0.55); g.fillCircle(this.colX(k) + 26, 420, 10); }
+      this.colLocks[k]?.setVisible(!got);
     });
     const ck = i - SPECIES.length, focus = ck >= 0 && ck < COLOURS.length ? COLOURS[ck] : cur;
     const u = focus.unlock ? ACHIEVEMENTS.find(a => a.id === focus.unlock) : null;
@@ -433,6 +438,9 @@ export class GalleryScene extends PanelScene {
     this.detail.push(info);
   }
 }
+
+/** True when an achievement shows a progress bar (so its text needs to wrap shorter). */
+const pr0 = (a: (typeof ACHIEVEMENTS)[number], s: ReturnType<typeof loadStats>) => !s.achieved.includes(a.id) && !!a.progress && a.progress(s)[0] > 0;
 
 // ------------------------------------------------------------------ Records + achievements
 const PER_PAGE = 18; // achievements per page (2 columns)
@@ -475,6 +483,7 @@ export class RecordsScene extends PanelScene {
   }
 
   private page = 0;
+  private nextText: Phaser.GameObjects.Text | null = null;
   private achObjs: Phaser.GameObjects.GameObject[] = [];
   private drawAch(s: ReturnType<typeof loadStats>, page: number): void {
     for (const o of this.achObjs) o.destroy();
@@ -482,6 +491,10 @@ export class RecordsScene extends PanelScene {
     const g = this.add.graphics().setDepth(4);
     this.achObjs.push(g);
     const add = <T extends Phaser.GameObjects.GameObject>(o: T): T => { this.achObjs.push(o); return o; };
+    // the closest unearned achievement you're working towards
+    const next = ACHIEVEMENTS.filter(a => !s.achieved.includes(a.id) && a.progress).map(a => ({ a, k: a.progress!(s)[0] / a.progress!(s)[1] })).sort((p, q) => q.k - p.k)[0];
+    this.nextText?.destroy();
+    this.nextText = next ? this.add.text(500, 128, `👉 Next up: ${next.a.name} (${Math.round(next.k * 100)}%) — ${next.a.desc}`, body(13, '#ffcf8a', 900)).setOrigin(0, 1).setDepth(5) : null;
     ACHIEVEMENTS.slice(page * PER_PAGE, (page + 1) * PER_PAGE).forEach((a, i) => {
       const col = i % 2, row = Math.floor(i / 2), x = 500 + col * 380, y = 146 + row * 54;
       const got = s.achieved.includes(a.id);
@@ -489,7 +502,8 @@ export class RecordsScene extends PanelScene {
       g.lineStyle(2, got ? 0xffd24a : 0x4a3e34, 1); g.strokeRoundedRect(x, y, 365, 48, 12);
       add(this.add.text(x + 12, y + 24, got ? a.icon : '🔒', body(22, '#ffffff', 800)).setOrigin(0, 0.5).setDepth(5).setAlpha(got ? 1 : 0.6));
       add(this.add.text(x + 56, y + 5, a.name, display(15, got ? '#ffe9c7' : '#a89680', { strokeThickness: 3 })).setDepth(5));
-      add(this.add.text(x + 56, y + 27, a.desc, body(12, got ? '#8dff6a' : '#a89680', 800)).setDepth(5));
+      const reward = COLOURS.find(c => c.unlock === a.id);
+      add(this.add.text(x + 56, y + 27, `${a.desc}${reward ? `  ·  🎨 ${reward.name}` : ''}`, body(12, got ? '#8dff6a' : '#a89680', 800, { wordWrap: { width: pr0(a, s) ? 185 : 300 } })).setDepth(5));
       const pr = !got && a.progress ? a.progress(s) : null;
       if (pr && pr[0] > 0) {
         const k = Math.min(1, pr[0] / pr[1]);

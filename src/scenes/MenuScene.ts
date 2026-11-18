@@ -1,6 +1,6 @@
 import * as Phaser from 'phaser';
 import { sfx } from '../audio';
-import { clearTaps, consumeTap, KEYMAPS, listDevices, readSlot, sameDevice, slotLabel, type Slot } from '../input';
+import { clearTaps, consumeTap, injectTap, KEYMAPS, listDevices, readSlot, sameDevice, slotLabel, type Slot } from '../input';
 import { applyPendingUpdate } from '../pwa';
 import { Button } from '../render/ui';
 import { CUTLERY_LEN, fitInside, hasArt, kaijuKey } from '../render/art';
@@ -23,6 +23,8 @@ import { currentColour, seatColours } from '../colours';
 
 const TITLE = { fontFamily: DISPLAY, color: '#ffe9c7', stroke: INK, strokeThickness: 10 };
 const BODY = { fontFamily: BODY_FONT, fontStyle: '800', color: '#e9dccb' };
+/** Party Modes start at first-to-this (Free Play uses DEFAULT_ROUNDS). EASY TO CHANGE. */
+const PARTY_ROUNDS = 3;
 const CARD_X = (i: number) => 112 + i * 211; // 6 seats across
 const CARD_W = 198;
 
@@ -79,6 +81,7 @@ export class MenuScene extends Phaser.Scene {
     this.difficulty = data.difficulty ?? this.difficulty;
     this.botLevels = (data.botLevels ?? []).slice(0, this.slots.length);
     if (data.rounds) this.rounds = data.rounds;
+    else if (this.party) this.rounds = PARTY_ROUNDS; // party nights: shorter matches
     this.party = !!data.party;
     if (data.mode) this.mode = data.mode;
     if (!this.party) this.mode = 'classic';
@@ -184,7 +187,14 @@ export class MenuScene extends Phaser.Scene {
     // tap / click a bot's card to change just that bot's difficulty
     for (let i = 0; i < MAX_PLAYERS; i++) {
       this.add.zone(CARD_X(i), 292, CARD_W, 216).setInteractive({ useHandCursor: true }).setDepth(4).on('pointerup', () => {
-        if (this.slots[i]?.kind !== 'bot') return;
+        const sl = this.slots[i];
+        if (!sl) {
+          const human = this.slots.some(q => q.kind !== 'bot');
+          this.addSlot(human ? { kind: 'bot', index: this.slots.length } : isTouchDevice ? { kind: 'touch', index: 0 } : { kind: 'kb', index: 0 });
+          this.fixPicks();
+          return;
+        }
+        if (sl.kind !== 'bot') { this.cycle(i, 1); this.bump[i] = 1; sfx.pickup(); return; }
         const cur = this.botLevels[i] ?? this.difficulty;
         this.botLevels[i] = DIFFICULTIES[(DIFFICULTIES.indexOf(cur) + 1) % DIFFICULTIES.length];
         this.bump[i] = 1;
@@ -211,8 +221,8 @@ export class MenuScene extends Phaser.Scene {
     ];
     if (!isTouchDevice) this.add.text(640, 574, rules.join('\n'), { ...BODY, fontStyle: '700', fontSize: '14px', align: 'center', color: '#cdb9a3', lineSpacing: 4 }).setOrigin(0.5, 0).setDepth(2);
     if (!isTouchDevice) {
-      this.chipLine(chipG, 640, 644, '[THROW] join   [◀ ▶] pick kaiju   [DASH] leave   [B] [N] add / remove bot', 15);
-      this.chipLine(chipG, 640, 677, this.party ? '[G] MODE  [C] PARTY CUP  [2] bots  [M] table  [R] rounds  [U] power-ups  [H] hazards  [X] twist  [Z] 🎲  [1] PLAY' : '[2] bots  [M] table  [R] rounds  [U] power-ups  [H] hazards  [X] twist  [Z] 🎲  [O] ONLINE  [1] PLAY', 15);
+      this.chipLine(chipG, 640, 644, '[THROW] join   [◀ ▶] pick kaiju   [DASH] leave   [B] [N] add / remove bot   ·   click any key below', 15);
+      this.chipLine(chipG, 640, 677, this.party ? '[G] mode  [C] party cup  [2] bot level  [M] table  [R] rounds  [U] power-ups  [H] hazards  [X] twist  [Z] 🎲 random  [1] PLAY' : '[2] bot level  [M] table  [R] rounds  [U] power-ups  [H] hazards  [X] twist  [Z] 🎲 random  [O] online  [1] PLAY', 15);
     }
     setTouchMode('menu');
     playMusic('menu');
@@ -401,7 +411,7 @@ export class MenuScene extends Phaser.Scene {
         g.fillCircle(x, 266, 38);
         this.slotTexts[i].setText('');
         this.slotFood[i].setText('');
-        this.slotSub[i].setText(isTouchDevice ? 'empty (+ BOT)' : 'THROW to join');
+        this.slotSub[i].setText(isTouchDevice ? 'tap to join' : this.slots.some(q => q.kind !== 'bot') ? 'click: add a bot' : 'click or THROW to join');
       }
     }
     const md = modeDef(this.mode);
@@ -429,10 +439,12 @@ export class MenuScene extends Phaser.Scene {
     const items = parts.map(part => {
       const chip = part.startsWith('[');
       const label = chip ? part.slice(1, -1) : part;
+      const code = CHIP_KEYS[label];
       const t = this.add.text(0, cy, label, chip
         ? { ...BODY, fontStyle: '900', fontSize: `${size}px`, color: '#2a1408' }
         : { ...BODY, fontStyle: '700', fontSize: `${size}px`, color: '#e9dccb' }).setOrigin(0, 0.5).setDepth(3);
-      return { t, chip, w: t.width + (chip ? 14 : 0) };
+      if (chip && code) t.setPadding(7, 5, 7, 5).setInteractive({ useHandCursor: true }).on('pointerup', () => injectTap(code));
+      return { t, chip, w: t.width + (chip ? 14 : 0) - (chip && code ? 14 : 0) };
     });
     let x = cx - items.reduce((a, it) => a + it.w + 2, 0) / 2;
     for (const it of items) {
@@ -440,7 +452,7 @@ export class MenuScene extends Phaser.Scene {
         const h = size + 10;
         g.fillStyle(0x7a4a24, 1); g.fillRoundedRect(x, cy - h / 2 + 2, it.w, h, 6); // keycap edge
         g.fillStyle(0xffe1b0, 1); g.fillRoundedRect(x, cy - h / 2, it.w, h - 2, 6); // keycap face
-        it.t.setX(x + 7);
+        it.t.setX(x + (CHIP_KEYS[it.t.text] ? 0 : 7));
       } else {
         it.t.setX(x);
       }
@@ -448,6 +460,9 @@ export class MenuScene extends Phaser.Scene {
     }
   }
 }
+
+/** Footer key chips you can click (label → key code). */
+const CHIP_KEYS: Record<string, string> = { G: 'KeyG', C: 'KeyC', '2': 'Digit2', M: 'KeyM', R: 'KeyR', U: 'KeyU', H: 'KeyH', X: 'KeyX', Z: 'KeyZ', O: 'KeyO', '1': 'Digit1', B: 'KeyB', N: 'KeyN' };
 
 /** Next item in `list` after `cur` (wrapping), skipping anything in `skip`. */
 function nextIn(list: number[], cur: number, dir: number, skip: Set<number> = new Set()): number {

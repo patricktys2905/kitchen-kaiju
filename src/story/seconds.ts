@@ -38,7 +38,7 @@ export const SECONDS_CHAPTERS: Chapter[] = [
     win: { speaker: 0, text: 'I relish a good loss. …Not really.' },
   },
   {
-    title: 'Cold Shoulder', table: 12, rounds: 3, boss: true,
+    title: 'Cold Shoulder', table: 12, rounds: 3, boss: true, bossBelly: 85,
     rivals: [{ species: 17, level: 'easy', boss: true }, { species: 16, level: 'easy' }],
     intro: [
       { speaker: 0, text: 'Welcome to MY freezer. Mind the ice. I never slip.' },

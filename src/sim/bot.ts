@@ -31,8 +31,8 @@ export type BotLevel = Difficulty | 'reference';
 const TUNING: Record<BotLevel, Tuning> = {
   reference: { aimErr: 0.18, lead: 0.6, lag: 0.15, turn: 5, throwRate: 1.5, hold: [0.15, 0.5], range: 440, dodge: 0.4, react: 150, swipe: 1.8, shove: 1.5, greed: 0.9, pace: 1 },
   easy:   { aimErr: 0.85, lead: 0,   lag: 0.6,  turn: 1.3, throwRate: 0.28, hold: [0.5, 0.9],  range: 300, dodge: 0.05, react: 90,  swipe: 0.25, shove: 0.12, greed: 0.45, pace: 0.78 },
-  normal: { aimErr: 0.52, lead: 0.15, lag: 0.41, turn: 2.15, throwRate: 0.58, hold: [0.35, 0.7], range: 355, dodge: 0.16, react: 118, swipe: 0.62, shove: 0.45, greed: 0.62, pace: 0.87 },
-  hard:   { aimErr: 0.23, lead: 0.52, lag: 0.19, turn: 4.7, throwRate: 1.35, hold: [0.19, 0.52], range: 435, dodge: 0.42, react: 150, swipe: 1.6,  shove: 1.4,  greed: 0.85, pace: 0.97 },
+  normal: { aimErr: 0.44, lead: 0.25, lag: 0.34, turn: 2.8, throwRate: 0.72, hold: [0.3, 0.65], range: 380, dodge: 0.22, react: 128, swipe: 0.85, shove: 0.65, greed: 0.68, pace: 0.9 },
+  hard:   { aimErr: 0.27, lead: 0.45, lag: 0.22, turn: 4.2, throwRate: 1.15, hold: [0.22, 0.55], range: 425, dodge: 0.36, react: 145, swipe: 1.4,  shove: 1.2,  greed: 0.82, pace: 0.95 },
 };
 
 export class BotBrain {

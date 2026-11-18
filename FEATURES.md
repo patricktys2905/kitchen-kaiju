@@ -63,6 +63,7 @@ Each section says **where to customise it**.
 - 56. Kaiju powers: every kaiju plays differently
 - 57. Hats sit on each kaiju's actual head
 - 58. Colour styles (replace hats)
+- 59. Playtest fixes (round 1)
 
 **Where to find things:** title screen cards (Story · Free Play · Online · Party Modes · Daily · Gauntlet), the top-right row (Settings · How to Play · Kaiju · Records), and Free Play keys (G mode · U power-ups · H hazards · X twist · C cup).
 
@@ -574,3 +575,38 @@ Everyday play is the same for everyone. In **KAIJU form**, pressing **THROW or S
   - `src/render/recolor.ts`: `RANGE` / `RANGE_FADE` (how far from the main colour still recolours).
   - Preview every kaiju × style: `npx vite-node scripts/colour-sheet.ts` (add `rage` for KAIJU form) → `art-src/.colours.png`.
   - Hats come back with `HATS_ENABLED = true` in `src/hats.ts`.
+
+## 59. Playtest fixes (round 1 of the AI playtest: batches 1–4)
+
+From the 10 Sonnet playtester reports in `playtest-reports/`.
+
+- **Bugs:**
+  - Escape now opens the pause menu (and closes it) instead of quitting the match.
+  - Leaving Daily or Gauntlet returns to the title, and Practice returns to Help. Their roster and rounds no longer leak into Free Play; that leak was the "First to 99 rounds" bug.
+  - The pause menu's MUSIC and SOUND toggles restore your previous levels.
+  - You can't pause during an instant replay (the replay banner used to sit on the pause menu), and the replay shows the right number of round pips.
+  - The top-right round label shrinks onto two lines so it never runs into the 4th player's card.
+  - The results ticker wraps clear of the 📸 SHARE button.
+  - The Practice checklist is a compact panel at the bottom-left, so it no longer hides the dummy.
+- **Mouse and touch setup:**
+  - Click an empty seat to join (then click more seats to add bots). Click your own seat to change kaiju, and a bot's seat to change its level.
+  - Every key chip in the footer is clickable. Labels are clearer: "bot level", "🎲 random".
+- **Feedback:**
+  - When you're knocked out, a big "💥 … YOU" line appears where it happened.
+  - A KAIJU shows a ring counting down its time. Your own KAIJU also shows a power dot that fills as the power recharges and flashes when it's ready.
+  - Achievement pop-ups say which colour they unlock.
+  - Records shows each achievement's colour reward and a "👉 Next up" line for your closest achievement.
+  - Gallery colour swatches show 🔒 when locked, and hovering one tells you what unlocks it.
+  - The title's Daily card shows "Today: <mode> · 🔥 streak", and the Story card says when Second Helpings is open.
+- **Difficulty:**
+  - Normal bots are tougher and hard bots slightly gentler. The reference bot now wins 76% of rounds against easy, 52% against normal and 32% against hard (was about 68–85 / 56–62 / 23–27).
+  - The Gauntlet ramps sooner: 2 bots from wave 2, normal bots from wave 3, hard from wave 7.
+  - 🌶️ Spicy rivals also start every round with a 55% belly (`SPICY_START_BELLY`).
+  - Story chapters 1–2 hold table hazards back 12 extra seconds (`STORY_CALM`).
+  - The first bosses (Norigon, and Pengwhip in Second Helpings) start each round at an 85% belly instead of 100%. The new `bossBelly` setting on a chapter controls this.
+  - The Norigon chapter is first-to-2. Ramps: Grand Feast 96 → 27%, Second Helpings 93 → 39%.
+- **Pacing:**
+  - KAIJU form lasts 6 s (was 5).
+  - 🍽 **Feeding frenzy:** in Classic and Team Feast, after 45 s everyone's belly fills (`RULES.frenzyFill`), so stand-offs end in KAIJU fights.
+  - Party Modes default to first-to-3 (`PARTY_ROUNDS`).
+  - Story retries skip the intro chat once you've seen it in this session.

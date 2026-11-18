@@ -15,12 +15,12 @@ export interface WaveSetup {
   boss: boolean;
 }
 
-/** Wave 1: one easy bot … then more bots, then tougher ones (max 5 rivals). */
+/** Wave 1: one easy bot (warm-up) … then quickly more and tougher bots (max 5 rivals). */
 export function waveSetup(wave: number): WaveSetup {
-  const rivals = Math.min(5, 1 + Math.floor((wave - 1) / 2));
+  const rivals = Math.min(5, 1 + Math.floor(wave / 2)); // 1, 2, 2, 3, 3, 4 …
   const levels: Difficulty[] = Array.from({ length: rivals }, (_, i) => {
     const heat = wave - 1 - i * 2; // later seats lag behind the first one
-    return heat >= 8 ? 'hard' : heat >= 3 ? 'normal' : 'easy';
+    return heat >= 6 ? 'hard' : heat >= 2 ? 'normal' : 'easy'; // normal from wave 3, hard from wave 7
   });
   return { rivals, levels, boss: wave % GAUNTLET.bossEvery === 0 };
 }
