@@ -34,7 +34,8 @@ try {
   });
 
   await page.goto(url + '?mode=free');
-  await wait(900);
+  for (let i = 0; i < 60; i++) { if (await page.evaluate(() => (window.__game?.scene.getScene('menu')?.slots?.length ?? 0) > 0).catch(() => false)) break; await wait(200); } // wait for the art + menu
+  await wait(400);
   await page.screenshot({ path: 'smoke-phone-1-menu.png' });
   const slots = await page.evaluate(() => window.__game.scene.getScene('menu').slots.map(s => s.kind));
   check(slots[0] === 'touch', 'touch player auto-seated on first visit');

@@ -1111,9 +1111,9 @@ describe('kaiju powers', () => {
   });
 
   it('zones, shots, mines, charges and blinks all do something', () => {
-    // Squidgeon ink: a sticky puddle ahead
-    let w = powered([1, 0]); place(w, 0, 400, 380); goKaiju(w, 0); fire(w, 0);
-    expect(w.powerZones.some(z => z.zone === 'sticky' && z.x > 450)).toBe(true);
+    // Chocomunch melt: a sticky puddle underfoot
+    let w = powered([8, 0]); place(w, 0, 400, 380); goKaiju(w, 0); fire(w, 0);
+    expect(w.powerZones.some(z => z.zone === 'sticky' && Math.abs(z.x - w.players[0].x) < 60)).toBe(true);
     // Bubblegumbo gum: a projectile that dazes
     w = powered([9, 0]); place(w, 0, 300, 380); goKaiju(w, 0); place(w, 1, 600, 380); fire(w, 0);
     expect(w.powerShots.length).toBe(1);
@@ -1121,7 +1121,7 @@ describe('kaiju powers', () => {
     expect(w.players[1].stunT > 0 || w.powerShots.length === 0).toBe(true);
     // Bluebeary mines
     w = powered([10, 0]); place(w, 0, 640, 380); goKaiju(w, 0); fire(w, 0);
-    expect(w.powerShots.filter(s => s.mine).length).toBe(4);
+    expect(w.powerShots.filter(s => s.mine).length).toBe(5);
     // Norigon roll: a fast slide
     w = powered([7, 0]); place(w, 0, 300, 380); place(w, 1, 900, 200); goKaiju(w, 0); place(w, 0, 300, 380); fire(w, 0); run(w, 0.3);
     expect(w.players[0].x).toBeGreaterThan(450);

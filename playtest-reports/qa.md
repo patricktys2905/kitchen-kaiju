@@ -1,57 +1,51 @@
-# Playtest evaluation — The QA Tester (qa)
+# Playtest evaluation — qa ("The QA Tester")
 
-**Fun score: 7 / 10** (rock solid for a party brawler: zero JS errors across ~95 actions, clean flows; a few small layout/consistency nits and the Practice checklist still covering the bottom-left corner)
+**Fun score: 7 / 10** (solid, stable, charming party brawler; only small polish bugs, zero JS errors in ~120 calls; I tested more than I played with feel, and my matches were bot-driven)
 
 ## What I did
-- Visited: Title, Settings, Help (Basics/Cutlery/Tables/Modes tabs) + Practice, Kaiju Gallery, Records (page 1), Workshop (placed prop, changed hazard, saved, Play It), Story (map, opening cutscene, chapter-1 dialogue, played + cleared ch.1 3 stars), Free Play (6 players, My Table 1), Party Modes (Team Feast started), Daily (Hot Dumpling, played to FAILED screen), Gauntlet (cleared wave 1), Online (chooser, Join form; did not Host - network).
-- Matches: Free Play 6-player first-to-3 won; Gauntlet wave 1 won; Daily lost; Story ch.1 won; Team Feast and Practice started only.
-- Escape pressed on: title, settings, every menu, countdown, pause, replay, round-end, wave-cleared, results, cutscene, dialogue, Online Join form.
-- Checked /errors after nearly every risky action: always "none".
+- Screens visited: Title, Settings (all toggles, mid-flow changes then verified in a match: player numbers + name tags appeared), Help (Basics/Cutlery/Tables/Modes) + Practice, Gallery (twice, plus after unlocking Minturtle), Records (before/after progress, page 2), Workshop (place props, save, hazard cycle, slots, PLAY IT), Online (host/join dialogs only; Escape and Back), Free Play setup (every setting button, KEYS panel), Party Modes, Daily (Hot Dumpling, Fondue Night), Gauntlet (waves 1-4, perk picker x3), Story ch1-4 incl. boss dialog and cutscenes.
+- ~11 matches played/auto-played (8 won), ~2.5 hours-equivalent of poking. /errors was "none" after every risky action (Escape spam, pause toggles, quitting mid-match, rapid screen switching).
 
-## Previously reported issues: status
-1. Escape in matches/pause: FIXED. Esc during countdown opens pause, Esc again resumes; Esc during instant replay skips it (Free Play); Esc on results -> menu -> title; Esc in cutscene/dialogue -> story map. Nit: Esc on the Gauntlet "WAVE 1 CLEARED!" screen drops you straight to the title with no confirm (run ends).
-2. Daily/Practice returning to the right screen: FIXED. Practice QUIT -> Help; Daily QUIT/Esc -> title; Story QUIT -> Story map. Nit: Workshop "PLAY IT" then QUIT lands on Free Play menu, not Workshop.
-3. Pause MUSIC/SOUND toggles keep saved levels: FIXED. Set SFX 5/5 and MUSIC 3/5 in Settings, toggled both off/on in pause (Daily), quit, reopened Settings: still SFX ■■■■■, MUSIC ■■■□□.
-4. Round label vs 4th HUD card: FIXED. 4-player: label top-right, no clash. 6-player: label moves to bottom-left ("ROUND 1 · MY TABLE 1"), nothing overlaps the 6 cards.
-5. Results ticker vs SHARE button: MOSTLY FIXED. SHARE is bottom-left, ticker centred at x~700, no overlap. BUT see bug B2: with long names the ticker wraps to 2 lines.
-6. Practice checklist hiding the dummy: NOT FIXED. The bottom-left checklist panel still covers the corner of the table; I walked my kaiju to the bottom-left and it was almost completely hidden behind the panel (see B1). Default spawns (me top-right, dummy bottom-right) avoid it, so you only notice if anyone walks/gets shoved there.
-7. Replay round pips: PARTLY. During INSTANT REPLAY the top cards show the old pips (winner shows ☆☆☆ ... after replay the same HUD shows ★☆☆). Not wrong exactly, but the pip for the round being replayed isn't shown until the replay ends. No dedicated pips on the replay overlay.
+## Re-checks requested
+- Records header vs "Next up": FIXED. "ACHIEVEMENTS 0/32" no longer collides; "Next up" line sits at the bottom and correctly picked First Bite (0%), later Regular Diner (80%) (highest-progress locked achievement). Page 2 keeps the same "Next up" line (fine).
+- Gallery colour swatches, second visit: OK. Swatches render in colour on 1st, 2nd and 3rd visit; the 3rd (after unlocking) correctly counted 3/11.
+- Results screens: single column, "(YOU)" marker present on every one (Free Play, Party, Story). Minor: marker sits tight against the dash ("BLOBLIN (YOU)—") and background props/kaiju can overlap the "1 / START rematch" line.
+- Practice panel position: bottom-left, small, not blocking play. Counter and hint advance. Note: hint stayed on "SWIPE up close" at 4/8, 5/8, 6/8 and 7/8 because I did other steps first (steps seem order-independent, only the first uncompleted is shown). Fine, but the hint never changed while the count moved, which looked stuck.
+- Gauntlet WAVE label: present top right ("GAUNTLET WAVE 2 · BANQUET LAZY SUSAN") and in the banner. OK. Perk icons shown in HUD under name. OK.
+- Setup screen: setting buttons all cycle correctly (bot level, table, first to, twist, power-ups, hazards); KEYS panel is clear and readable; Escape closes the panel first, then second Escape leaves. PLAY works.
+- NEW KAIJU celebration after Story chapter 4: NOT SEEN. I cleared chapter 4 (Boss of the Belt) via autoplay; Minturtle did unlock (Rewards 1/7, Gallery 17/20, "Playable now"), but pressing ENTER on CHAPTER CLEAR went straight to the story map and then chapter 5's intro cutscene; no NEW KAIJU screen/toast appeared in /look or screenshots. Could be a harness artefact (autoplay/key skipping) but I cannot confirm it exists. Please verify manually.
 
 ## What matched my goals / what was fun
-- Stability: no JS errors, no soft-locks, no dead buttons in ~95 actions.
-- Pause menu, quit destinations and settings persistence are now consistent.
-- 6-player free-for-all reads well; bottom ticker + round label placement is smart.
-- Story chapter clear screen, dialogue and star rewards feel polished; Records/Gallery look good.
+- Extremely stable: no JS errors anywhere. Pause toggling, quit-from-pause, Escape from cutscenes all behave.
+- Settings take effect immediately and persist. Setup screen is clear. Story rewards modal is clean. Perk picker is a good, readable moment, and Gauntlet cards in the title update ("Best wave 3").
+- Records feel rewarding (progress bars on every locked achievement).
 
 ## What took too long / was tedious
-- Opening cutscene + chapter dialogue need several taps before the first throw (skippable though).
-- Instant replay after every round in Gauntlet wave 1 of 2 players is a lot for a 3-second fight.
+- Story intro cutscenes + boss dialog before every chapter need an extra Space/Esc; replays have the same wait (SKIP exists, OK).
 
 ## What was over too quickly / too shallow
-- Easy bots die in one or two throws; a 6-player easy match was 3 rounds in under a minute for me (the bot-controlled seat 0 harness helps, but still).
+- Gauntlet waves 1-2 vs 1-2 weak rivals are over in seconds; perk choice is the interesting part.
 
 ## Confusing or unclear
-- Gauntlet match shows "ROUND 1 · BIRTHDAY BASH" in the HUD while the countdown says "WAVE 1"; "WAVE n" is what the player cares about.
-- Hot Dumpling feed says "BUBBLEGUMBO skewered GOBZILLA" in a mode about passing a dumpling; mode-specific wording would help.
-- Daily "FAILED" screen says "best 0 rounds · tries 1" with no explanation of what "win" means (win the match?).
-- Esc does nothing visible on the Online "Join a game" form (may be a harness key-focus limitation since the input is focused); BACK button works.
-- Records heading overlap (B3).
+- Free Play "PLAY" with zero players joined silently starts a 2-bot spectator match (PIZZARAPTOR vs HOTCHOG, no human). Probably should require a seat or say "watch mode".
+- Free Play / Party Modes share settings state: twist MINI KAIJU, powerups OFF and a table picked in Free Play were already set when I opened Party Modes (it opened in Team Feast with Smoothie Bar). Surprising.
+- Workshop "PLAY IT" appears to leave "MY TABLE 1" as the selected table: my next Free Play match (table previously Smoothie Bar) started on MY TABLE 1 without my choosing it.
+- Quitting a Workshop PLAY IT match lands in the Free Play setup, not back in the Workshop.
+- Gallery: locked kaiju detail text reads "Unlock: Collect 30 stars in Story mode  Left: normal look · right: KAIJU MODE" (the left/right caption is for the art that is not shown when locked).
+- Naming: HUD says "GOBZILLA", results/gallery say "GOBZILLA JR."
 
 ## Bugs found
-B1. Practice checklist covers the table's bottom-left corner (Practice).
-   Repro: Title -> HELP -> PRACTICE. During play, move left+down (act move:-1,1 for 4s) until the kaiju is at the lower-left corner. The "PRACTICE n/8" panel at [24,696] draws over the kaiju (only a sliver visible). Screenshot: art-src/.playtest2/7110/shot-7.png. Same applies to the dummy if it ever stands there.
-B2. Results footer ticker wraps to two lines and runs into art.
-   Repro: Title -> DAILY (Hot Dumpling, Norigon/Bubblegumbo/Salmonster/Gobzilla), lose the match. On the "DAILY CHALLENGE FAILED" screen the line "Most KOs: BUBBLEGUMBO · Crumb Monster: SALMONSTER (11 crumbs) · Survivor: SALMONSTER" wraps ("Survivor:" / "SALMONSTER" on second line) and the second line sits at the very bottom edge over the lemon/mat art. Screenshot: shot-24.png. Fix: shrink font/ellipsize or drop one stat when too long.
-B3. Records screen: "ACHIEVEMENTS 0/29" header overlaps the "👉 Next up: First Bite (0%) — Win a match" hint line.
-   Repro: Title -> RECORDS (fresh save). Texts at [500,108] and [500,128] collide; screenshot shot-9.png.
-B4. Free Play results screen: a plain white rounded square (looks like a missing-icon pickup/touch-button sprite) is drawn at ~[150,220] near the top-left mat.
-   Repro: Free Play, 6 players, table My Table 1, win the match. See shot-19.png. Not confirmed what it is; might be a leftover pickup (mustard shield?) with no sprite.
-B5. (Minor, inconsistent) Gauntlet HUD says ROUND instead of WAVE (see Confusing).
-B6. (Minor, unconfirmed) First time I entered STORY and clicked the opening-cutscene SKIP at [1190,44], the game ended on the title screen rather than the story map. I could not reproduce it a second time (later SKIP went to the chapter dialogue and map). May be harness timing, but worth checking the first-run opening skip path.
-B7. (Minor) Esc on Gauntlet "WAVE CLEARED" goes to title and abandons the run with no confirm / no "continue" option; Esc during Gauntlet replay seemed not to skip it the first time (state still INSTANT REPLAY after Esc, unlike Free Play where Esc skipped it) - could be a frame timing artifact.
-Console: /errors returned "none" every time.
+1. **Story: SCENE button overlaps star legend.** Title > STORY (skip opening) > chapter 1. The "🎬 SCENE" button at ~[1172,560] covers the end of the "★★★ no rounds lost · ★★ lost one · ★ any win" text at [1000,572]. Screenshot: art-src/.playtest3/7110/shot-12.png.
+2. **Gauntlet perk picker: toast hidden behind cards.** Win Gauntlet wave 1 > "PICK A PERK" screen. An achievement toast ("🏆 WORLD TOUR: Play on 12 different tables", [640,598]) renders underneath the perk cards and is partly visible between them. Screenshot: shot-30.png.
+3. **Escape on the perk picker abandons the whole Gauntlet run.** Clear wave 1, press Escape at "PICK A PERK" > straight to Title, run lost, no pause/confirm (Escape in normal waves opens pause). Easy to hit by accident.
+4. **Free Play PLAY with no players** starts bot-vs-bot match (see Confusing).
+5. **Workshop table leaks into Free Play** (see Confusing): Workshop > save > PLAY IT > Escape > QUIT > back to title > Free Play > join 2 seats > PLAY: round banner "ROUND 1 · MY TABLE 1".
+6. **Online dialogs ignore Escape.** Title > ONLINE > Join a Game, press Escape: dialog stays (only the BACK button works). Might be an input-focus harness effect.
+7. Minor: duplicate kaiju in one Free Play match (two MOTHBALLs among 4 seats in a random-bot match; results list "MOTHBALL" twice, confusing). Repro: finish a Free Play autoplay match from a fresh start screen; screenshot shot-17.png.
+8. Minor: unsaved Workshop edits (hazard type) survive slot switching without being saved, with no indicator.
+- /errors: "none" throughout.
 
 ## Top 3 changes that would raise my score
-1. Fix layout collisions: Practice panel over the table corner, Records header overlap, wrapping results ticker.
-2. Make the Gauntlet/Daily flow clearer: WAVE labels in the HUD, a confirm on Esc during wave-cleared, explain Daily win condition.
-3. More match texture on Easy: bots that dodge/hold cutlery longer so first matches last more than one throw, and shorter replays when only 2 players.
+1. Fix the small overlaps (Story SCENE button vs star legend; perk picker covering toasts) and make Escape on the perk picker pause/confirm instead of ending the run.
+2. Keep Free Play / Party / Workshop settings and tables separate, and make PLAY require at least one human (or label it "Spectate").
+3. Verify the NEW KAIJU celebration actually fires after chapter 4 (and shows before the next cutscene).

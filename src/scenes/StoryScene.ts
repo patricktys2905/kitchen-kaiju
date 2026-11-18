@@ -27,6 +27,7 @@ export interface StoryResult {
   stars: number;
   spicy?: boolean; // a 🌶️ Spicy replay
   campaign?: CampaignId;
+  myRounds?: number; // rounds you won (for the defeat card)
 }
 
 const CARD_W = 178, CARD_H = 112;
@@ -171,6 +172,9 @@ export class StoryScene extends Phaser.Scene {
   private camp: Campaign = CAMPAIGNS.main;
   /** Chapters whose intro chat you have already seen this session (retries go straight in). */
   static talked = new Set<string>();
+  /** Defeats per chapter this session (2+ offers the 🍀 HELPING HAND retry). */
+  static losses = new Map<string, number>();
+  private helping = false;
   private get main(): boolean { return this.camp.id === 'main'; }
   private progressText!: Phaser.GameObjects.Text;
   /** Overall progress line: chapters, stars, spicy clears, dessert, rewards → one completion %. EASY TO CUSTOMISE: the weights. */
@@ -275,7 +279,7 @@ export class StoryScene extends Phaser.Scene {
     const best = this.save.stars[this.sel] ?? 0;
     const hot = this.save.spicy?.[this.sel] ?? 0;
     add(this.add.text(1000, 552, best ? `Best: ${'★'.repeat(best)}${'☆'.repeat(3 - best)}${hot ? `  🌶️${hot}` : ''}` : 'Not cleared yet', body(16, '#ffd24a', 900)).setOrigin(0.5).setDepth(5));
-    add(this.add.text(1000, 572, '★★★ no rounds lost · ★★ lost one · ★ any win', body(11, '#cdb9a3', 800)).setOrigin(0.5).setDepth(5));
+    add(this.add.text(1000, 592, '★★★ no rounds lost · ★★ lost one · ★ any win', body(11, '#cdb9a3', 800)).setOrigin(0.5).setDepth(5));
     this.spicyBtn?.setText(best ? `🌶️ SPICY: ${this.spicy ? 'ON (tougher rivals)' : 'OFF'}` : '🌶️ SPICY: clear it first');
     if (this.spicyBtn) this.spicyBtn.disabled = !best;
   }
@@ -312,7 +316,7 @@ export class StoryScene extends Phaser.Scene {
     this.scene.start('game', {
       slots, difficulty: 'normal', species: [this.save.pick, ...rivals.map(r => r.species)], tables: [ch.table], rounds: ch.rounds,
       botLevels: [null, ...rivals.map(r => (this.spicyOn() ? SPICY_BUMP[r.level] : r.level))],
-      story: { chapter: this.sel, bosses: rivals.map((r, k) => (r.boss ? k + 1 : -1)).filter(k => k > 0), spicy: this.spicyOn(), campaign: this.camp.id, mutator: ch.mutator, bossBelly: ch.bossBelly },
+      story: { chapter: this.sel, bosses: rivals.map((r, k) => (r.boss ? k + 1 : -1)).filter(k => k > 0), spicy: this.spicyOn(), campaign: this.camp.id, mutator: ch.mutator, bossBelly: ch.bossBelly, helping: this.helping },
     });
   }
 
@@ -356,11 +360,22 @@ export class StoryScene extends Phaser.Scene {
     this.lineText = this.add.text(380, 494, '', body(22, '#ffe9c7', 800, { wordWrap: { width: 720 }, lineSpacing: 6 })).setDepth(31);
     this.overlay.push(this.lineText);
     this.overlay.push(this.add.text(1110, 630, '▶ tap / SPACE', body(14, '#cdb9a3', 900)).setOrigin(1, 1).setDepth(31));
+    const skip = this.add.text(380, 630, '⏩ SKIP CHAT (S)', body(15, '#ffd24a', 900)).setOrigin(0, 1).setDepth(33).setInteractive({ useHandCursor: true });
+    skip.on('pointerup', (_p: unknown, _x: unknown, _y: unknown, ev: { stopPropagation?: () => void }) => { ev?.stopPropagation?.(); this.skipChat(); });
+    this.overlay.push(skip);
     const zone = this.add.zone(640, 360, 1280, 720).setInteractive().setDepth(32);
     zone.on('pointerup', () => this.advance());
     this.overlay.push(zone);
     this.lineShown = 0;
     sfx.eat();
+  }
+
+  /** Jump straight past the rest of the chat. */
+  private skipChat(): void {
+    if (this.mode !== 'dialogue') return;
+    this.lineIdx = this.lines.length - 1;
+    this.lineShown = 1e9;
+    this.advance();
   }
 
   private advance(): void {
@@ -414,7 +429,7 @@ export class StoryScene extends Phaser.Scene {
       if (hasArt(`kaiju-${sp}`)) this.overlay.push(fitInside(this.add.image(370, y + qh / 2, `kaiju-${sp}`), 120, 120).setDepth(31));
       y += qh + GAP + 6;
       if (rewards.length) {
-        this.time.delayedCall(1500, () => { if (this.mode === 'result') this.celebrate(rewards); });
+        this.time.delayedCall(350, () => { if (this.mode === 'result') this.celebrate(rewards); });
         const label = withShadow(this.add.text(640, y + 14, '🎁 UNLOCKED: ' + rewards.map(u => `${unlockName(u)}${u.kind === 'table' ? ' (table)' : ''}`).join(' + '), display(22, '#ffd24a', { strokeThickness: 4, align: 'center', wordWrap: { width: 660 } })).setOrigin(0.5, 0).setDepth(31), 3);
         label.setY(y);
         this.overlay.push(label);
@@ -432,13 +447,17 @@ export class StoryScene extends Phaser.Scene {
       }
       if (unlockedNew && !last) { this.overlay.push(this.add.text(640, y, `Chapter ${r.chapter + 2} unlocked!`, body(18, '#8dff6a', 900)).setOrigin(0.5, 0).setDepth(31)); y += 26 + GAP; }
     } else {
-      this.overlay.push(this.add.text(640, (CARD.y + 150 + BTN_Y - 40) / 2, 'So close! Every rival can be beaten.\n\n“' + ch.tip + '”', body(23, '#ffe9c7', 800, { align: 'center', wordWrap: { width: 620 }, lineSpacing: 6 })).setOrigin(0.5).setDepth(31));
+      const lostKey = `${this.camp.id}:${r.chapter}`;
+      StoryScene.losses.set(lostKey, (StoryScene.losses.get(lostKey) ?? 0) + 1);
+      const head = (r.myRounds ?? 0) > 0 ? 'So close! You took a round off them.' : 'Tough one! Every rival can be beaten.';
+      this.overlay.push(this.add.text(640, (CARD.y + 150 + BTN_Y - 40) / 2, head + '\n\n“' + ch.tip + '”', body(23, '#ffe9c7', 800, { align: 'center', wordWrap: { width: 620 }, lineSpacing: 6 })).setOrigin(0.5).setDepth(31));
     }
     const btns: { label: string; act: () => void; accent?: number }[] = [];
     if (gotAch.length) this.overlay.push(this.add.text(640, Math.min(y, BTN_Y - 66), `🏆 ${gotAch.map(a => a.name).join(', ')}!`, body(18, '#ffd24a', 900)).setOrigin(0.5, 0).setDepth(31));
     if (r.won && last && !this.save.endingSeen) btns.push({ label: 'THE ENDING ▶', act: () => this.showEnding(), accent: 0xffd24a });
     else if (r.won && !last) btns.push({ label: 'NEXT ▶', act: () => { this.clearOverlay(); this.mode = 'map'; this.select(r.chapter + 1); this.play(); }, accent: 0xff9a3c });
-    btns.push({ label: r.won ? 'REPLAY' : 'RETRY', act: () => { this.clearOverlay(); this.mode = 'map'; this.sel = r.chapter; this.play(); }, accent: r.won ? undefined : 0xff9a3c });
+    btns.push({ label: r.won ? 'REPLAY' : 'RETRY', act: () => { this.clearOverlay(); this.mode = 'map'; this.sel = r.chapter; this.helping = false; this.play(); }, accent: r.won ? undefined : 0xff9a3c });
+    if (!r.won && (StoryScene.losses.get(`${this.camp.id}:${r.chapter}`) ?? 0) >= 2 && !r.spicy) btns.unshift({ label: '🍀 HELPING HAND', act: () => { this.clearOverlay(); this.mode = 'map'; this.sel = r.chapter; this.helping = true; this.play(); }, accent: 0x8dff6a });
     btns.push({ label: 'MAP', act: () => { this.clearOverlay(); this.mode = 'map'; } });
     btns.forEach((b, k) => this.overlayButtons.push(new Button(this, 640 + (k - (btns.length - 1) / 2) * 210, BTN_Y, { w: 190, h: 64, label: b.label, size: 24, accent: b.accent, onClick: b.act }, 33)));
     this.overlayFocus = 0;
@@ -642,7 +661,8 @@ export class StoryScene extends Phaser.Scene {
     } else if (this.mode === 'dialogue') {
       const line = this.lines[this.lineIdx];
       if (this.lineText && line) {
-        this.lineShown = Math.min(line.text.length, this.lineShown + dt * 60);
+        this.lineShown = Math.min(line.text.length, this.lineShown + dt * 90);
+        if (consumeTap('KeyS')) { this.skipChat(); return; }
         this.lineText.setText(line.text.slice(0, Math.floor(this.lineShown)));
       }
       if (go) this.advance();

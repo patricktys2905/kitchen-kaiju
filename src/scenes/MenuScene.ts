@@ -64,6 +64,7 @@ export class MenuScene extends Phaser.Scene {
   private playBtn: Button | null = null;
   private keysBtn: Button | null = null;
   private keysShown = false;
+  static lastParty: boolean | null = null;
   private keysToggle: ((v: boolean) => void) | null = null;
   private hintText: Phaser.GameObjects.Text | null = null;
   private tableText!: Phaser.GameObjects.Text;
@@ -87,6 +88,9 @@ export class MenuScene extends Phaser.Scene {
     this.difficulty = data.difficulty ?? this.difficulty;
     this.botLevels = (data.botLevels ?? []).slice(0, this.slots.length);
     this.party = !!data.party;
+    // Free Play and Party Modes keep their own twist/power-up choices (they used to leak into each other)
+    if (data.mutator === undefined && MenuScene.lastParty !== null && MenuScene.lastParty !== this.party) { this.mutator = 'none'; this.powerups = POWERUPS.enabled; this.hazards = true; this.table = -1; }
+    MenuScene.lastParty = this.party;
     this.rounds = data.rounds ?? (this.party ? PARTY_ROUNDS : DEFAULT_ROUNDS); // party nights: shorter matches
     if (data.mode) this.mode = data.mode;
     if (!this.party) this.mode = 'classic';
@@ -288,7 +292,9 @@ export class MenuScene extends Phaser.Scene {
   }
 
   private startGame(): void {
+    if (!this.registry.get('demoStarted') && !this.slots.some(s => s.kind !== 'bot')) { this.slots.unshift(isTouchDevice ? { kind: 'touch', index: 0 } : { kind: 'kb', index: 0 }); this.picks.unshift(-1); this.fixPicks(); }
     while (this.slots.length < Math.max(2, modeDef(this.mode).minPlayers)) this.addSlot({ kind: 'bot', index: this.slots.length });
+    if (this.mode === 'teams' && this.slots.length % 2 === 1 && this.slots.length < MAX_PLAYERS) this.addSlot({ kind: 'bot', index: this.slots.length }); // even teams
     this.fixPicks();
     this.scene.start('game', {
       slots: this.slots.slice(), difficulty: this.difficulty, species: this.picks.slice(), botLevels: this.slots.map((s, i) => (s.kind === 'bot' ? this.botLevels[i] ?? null : null)), tables: this.table < 0 ? this.own.tables.slice() : [this.table], rounds: this.rounds, mode: this.mode, powerups: this.powerups, hazards: this.hazards, mutator: this.mutator, party: this.party,

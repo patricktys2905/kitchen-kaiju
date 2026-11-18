@@ -1,40 +1,41 @@
 # Playtest evaluation — The Fighter
 
-**Fun score: 6.5 / 10** (fast, readable, brutally lethal one-hit rounds with good "oh no I missed" tension; but power/KAIJU depth is hard to feel, and 5-second kaiju vs. one-hit-KO makes skill expression thin.)
+**Fun score: 6 / 10** (chaotic and readable fun, but fights feel more like timing/luck lotteries than mastery; KAIJU is exciting but too short and too easy to waste)
 
 ## What I did
-- Title -> Free Play; joined seat 1, added 2 bots. ~5 matches/partial matches: Gobzilla Jr. (Seed Spray) normal bots, Crabbage (ClawSnap) vs HARD bots, Bubblegumbo (GumBubble) vs HARD bots, plus 2 autoplay matches (hard: lost 3-5 rounds; normal: won as Crabbage).
-- Tables seen: Pancake Stack, Dinner for Four, Smoothie Bar, Chef's Board. Hazards seen: spatula, giant hand, blender, wind. 6 screenshots, ~75 calls. /errors: none.
-- Round wins by me directly: ~3; KOs ~8 total across my own play.
+- Title -> Kaiju Gallery (checked Gobzilla's power text) -> Free Play with 3 bots.
+- Match 1: Gobzilla Jr. (Seed Spray) vs Salmonster/Hotchog/Pizzaraptor, NORMAL bots, first to 5. Played rounds 1-7 by hand (/act), then handed over to auto:hard for rounds 8-12. Finished 3rd (2 rounds, 9 KOs); Salmonster won 5.
+- Match 2: switched to Squidgeon (Ink Cloud) by clicking the seat, set bots HARD, first to 10 (accidentally, the toggle cycles 5/7/10). Played 3 rounds by hand, 0 wins.
+- About 15 rounds, ~85 calls. Used 5 screenshots; /errors = none.
 
 ## What matched my goals / what was fun
-- One-hit KOs with cutlery that STICKS where it lands: a miss leaves you unarmed, so every throw is a commitment. That is a genuinely good risk/reward loop and the best bit of the game.
-- Rounds are short (5-15 s), so losing is never a slog. Visuals are clear and charming (Pancake Stack screenshot read perfectly: spatula warning lane, coloured spawn slabs, belly bars, KO ticker "BLOBLIN skewered YOU").
-- Hard bots are legitimately dangerous: they grab ammo, swipe at close range, and use the table (shoves, falls, wind). Beating them felt earned (double KO round as Crabbage).
-- Crumb -> STOMP -> KAIJU pacing gives a clear mid-round goal; Bubblegumbo hit 100 belly mid-round and I could plan around it.
-- Round-end awards (Crumb Monster, Kaiju Lover, Survivor) are a nice touch for tracking a style.
+- One-hit KOs make every throw matter; knocking Salmonster out with a thrown knife in round 4 and 7 felt great.
+- Seed Spray knocked a rival off the table edge (fall KO) from KAIJU: satisfying, and falls are a real second win condition.
+- The crumb -> STOMP -> KAIJU -> power loop is a clear, readable arc. Seat scoreboard stars and the end-of-match screen (Crumb Monster, Kaiju Lover, Butterfingers awards, instant replay, "fast forward, only bots left") are charming and polished.
+- Bots use KAIJU powers sensibly and punish mistakes (Hotchog's Spike Out knocked me off the edge from ~100px away). Difficulty feels like a real opponent.
+- Round variety (hazards: blender, cleaver, giant hand, toaster, falling cheese, spatula; different tables) keeps rounds from feeling the same.
 
 ## What took too long / was tedious
-- Crumb farming to reach 100 belly eats ~6-8 s of a round that often only lasts 10 s; by the time you're full the fight is over. Bots seem to fill faster than I could.
-- Nothing else; match length (first to 5) is fine.
+- Eating crumbs to 100 belly takes ~4-6s while rounds are only ~10-20s long; bots get KAIJU at about the same time, so first-KAIJU often decides the round.
+- First to 5/7/10 matches ran 12 rounds; the death-wait between rounds (spectating after an early KO) is dead time, especially when you die in the first 1-2 seconds.
 
 ## What was over too quickly / too shallow
-- KAIJU form lasts only ~5 s (kaijuSecs 5.4) and the power needs a target in range. I stomped as Gobzilla, fired Seed Spray at a rival 565 px away (wasted), then got KO'd right after the form expired, so KAIJU felt like a short, mostly cosmetic window, not a comeback or power fantasy. I never saw a kaiju power produce a KO.
-- Early deaths: in two rounds I was knocked out within ~2-5 s of the round starting (Gobzilla R1, R2) by a bot that had already grabbed a spoon. Little counter-play for a player who spawned unarmed/far away.
-- Skill ceiling: with one-hit kills everywhere, best strategy appears to be "grab ammo, throw at closest, hide behind someone else". I didn't find a deep tactical layer (dodging/parrying) in the time I had.
+- KAIJU lasts only ~5.5s and the power has a long cooldown; I got maybe 2 power uses per transformation. Rivals simply kite a (slow) kaiju, so I turned back to small right when they were close, and was then squashed instantly (round 4 and 6). Rewards getting KAIJU first less than it should.
+- Little visible skill depth: no block/dodge beyond dashing, so outcomes after a thrown knife are almost binary. Hard to learn "strategies" beyond "grab knife, throw first".
+- Kaiju powers are not clearly differentiated in what they do to positioning; I couldn't tell the range/aim of Seed Spray or Ink Cloud from state or text.
 
 ## Confusing or unclear
-- Whether you can dodge/block a thrown cutlery is not obvious; deaths often felt sudden ("knocked out by SALMONSTER (cutlery)" with no warning in my state feed).
-- Kaiju-power range/targeting isn't explained: when is a power worth firing, and what does Seed Spray / ClawSnap / GumBubble actually do mechanically? The menu one-liner (e.g. "Spits strawberry seeds that shove rivals in front") is good but short.
-- Belly 99 vs 100: one crumb short of stomp with no clear feedback in my harness state (probably fine on screen).
-- Falling off the table (edge) and wind hazard are hard to read while also fighting.
+- Hazards appear only as a name ("blender", "giant hand") in /state with no position/telegraph that I could read from the data; I died to a blender in round 2 and a giant hand as a KAIJU in match 2 (a hazard killing a full kaiju feels cheap).
+- STOMP needs exactly 100 belly; at 95 it silently did nothing, and I died waiting (match 2 round 2). A visible "belly full" prompt would help (the UI does show STOMP READY on the HUD, but I only saw it after the fact).
+- Spawn fairness: on HARD in match 2 round 1, Salmonster started ~114px from me and killed me within ~1s of the round starting; in other rounds starts were 233px or 900px apart. Feels random, not skill.
+- Bot level toggle cycles through first-to targets 5->7->10 with no "3"; easy to overshoot.
 
 ## Bugs found
-- Possible: stomp is accepted after the round has ended (phase roundEnd) and spends the full belly: "YOU went KAIJU" with belly 0 / kaijuSecs 5.4 at round end, then the next round started with belly 0. Repro: fill belly, win the round, press stomp during the round-over screen. Possibly intentional celebration, but the belly is wasted.
-- Harness-adjacent (not necessarily game bugs): "crumbs" repeatedly stalled at the same spot (x=170,y=364 near a spawn slab) and the kaiju stopped moving; could indicate the crumb-seek AI/pathing getting stuck against a slab. Not reproduced by manual move.
-- /errors: none.
+- None from /errors ("none").
+- Possible quirk: using "attack" while already holding cutlery with a spoon/knife nearby repeated "YOU pickup" for several turns instead of throwing (round 7, match 1). May just be harness-coarse.
+- Hazard kills on KAIJU players ("YOU knocked out (hand)") might be intended but feels bad.
 
 ## Top 3 changes that would raise my score
-1. Make KAIJU a real payoff: lengthen the form or give it a tankiness/size advantage and a longer-range or auto-aimed power, so going giant is a decisive moment, not a ~5 s gamble.
-2. Add a spawn-protection / counter-play window and a clearer incoming-throw telegraph (dodge cue, brief block with swipe) so 2-second deaths feel avoidable and skill-based.
-3. Speed up crumb gathering (denser crumbs near spawn, or bigger belly gains from KOs) so the belly -> KAIJU loop fits inside a 10 s round, and expose per-kaiju power details/range on the setup screen.
+1. Make KAIJU longer or refundable (extend on KO, or a "last stand" shrink-back warning) so the transformation isn't wasted and the revert-to-small squash doesn't decide rounds; show power range/aim clearly.
+2. Add a small skill layer to cutlery fights: a dodge/block with a cooldown, or telegraphed throws, so hard bots can be beaten by reading rather than luck; and fairer starting spawns (min distance from rivals).
+3. Make hazards readable (clear ground telegraph, no hazard kills during the first seconds or on KAIJU), and speed up crumb-eating or let KOs feed belly so the opening isn't a race.

@@ -1,44 +1,41 @@
 # Playtest evaluation — The Collector
 
-**Fun score: 7 / 10** (the collection loop is genuinely motivating and the gallery/rewards screens are lovely, but unlocks are tightly gated to Story with no sense of "next unlock" outside the Rewards panel, and the 3-star/30-star grind is opaque)
+**Fun score: 7 / 10** (the collection loop is clear and the reveals feel good, but the pace is gated by boss/hard chapters, there is only one achievement-colour popup so far, and the Gallery doesn't help me chase what's missing)
 
 ## What I did
-- Title -> Kaiju Gallery (start: 16/20 kaiju, 2 colours of 9, 0/29 achievements) -> Records (0/29) -> Story.
-- Played Story chapters 1-12 with the hard bot standing in for me (/autoplay); chapters needed: ch1-3 first try, ch4 boss 2 tries, ch6 2 tries, ch7 ~3 tries, ch8 boss 3 tries, ch9 3 tries, ch10 2, ch11 2, ch12 final boss 2. Roughly 32 matches total (Records says 32 played, 16 won, 50%), plus a handful of accidental Free Play matches when autoplay started Free Play for me.
-- Unlock tally after 32 matches / all 12 chapters cleared (1-3 stars each): 2 extra kaiju (Minturtle ch5-ish, Pengwhip, Velvaroo => 3 new kaiju: gallery shows 19/20), 3 new tables (Freezer Shelf, Candy Shop, Chef's Nightmare), Rewards 6/7. Final mystery kaiju needs "30 stars in Story" (I have 20/36). Achievements 8/29 with colour styles Lime, Ocean, Grape unlocked quickly (Records says 5 colour swatches open in Gallery at that point).
-- Checked Gallery colour switching (Lime applies to the big preview), Records page 1, Rewards panel, Story map. Screenshots: art-src/.playtest2/7105/shot-2, 11, 17, 19, 20, 23.
-- /errors: none at the end.
+- Started at 67% collection (16/20 kaiju, 15/18 tables, 2/11 colours) on a save with 0% Story. Opened Gallery, read every lock hint (kaiju, colours), Records (2 pages seen), Story map and Story Rewards screen.
+- Played Story chapters 1-8 via auto:hard bot, then 9 (still losing at end). About 26 matches total (about 12 won). Chapter attempts: ch1-3 first try, ch4 boss 4 tries, ch5 2 tries, ch6 2 tries, ch7 4 tries (one with a different kaiju), ch8 boss 3 tries, ch9 2 tries so far, no win yet.
+- Unlocks earned: Minturtle (ch4 boss), Freezer Shelf table (ch6), Pengwhip (ch8 boss), colours Lime (First Bite) and Grape (Forked Up, popped mid-match on defeat screen). Rewards 3/7, stars 19/36, achievements 6/32.
+- Unlock timeline in matches: first-win colour at match 1; Grape around match ~8; Minturtle ~match 9; table ~13; Pengwhip ~match 23.
 
 ## What matched my goals / what was fun
-- The Gallery is a great collector screen: silhouettes with "???" for locked kaiju, a roster of 20, per-kaiju Matches/Wins, and a big dual-form preview (small and KAIJU) that re-tints live when you pick a colour.
-- The Story Rewards panel (🎁 6/7) clearly states exactly which chapter gives which kaiju/table ("Beat Story chapter 10: Proving the Dough"). It is the best part of the unlock design: a visible checklist with a concrete goal each.
-- Pacing of the first hour is good: a new kaiju or table about every 2-3 chapters, and achievements (First Bite, Regular Diner, Forked Up, Crumb Muncher, Size Matters, On a Roll, World Tour) popped quickly, each with a colour or progress bar. Records shows progress bars (942/1000 crumbs, 3/5 streak) and a "Next up" hint, which feeds the "one more match" urge.
-- Story chapters teach mechanics and have boss "kaiju at start" rules; the stage art (picnic blanket, sushi bar, etc.) looks charming in screenshots.
-- "SECOND HELPINGS" and Spicy toggles appear, promising a second collection layer.
+- The Story Rewards screen is a great checklist: every locked item states exactly which chapter / star count unlocks it. Same in Gallery: each locked colour says its achievement. Collector heaven - no guessing.
+- Reveal moments are good: Chapter Clear screen shows the unlocked kaiju with its art and power name; achievement toast with colour name appears in-match.
+- Gallery looks lovely (silhouettes for ??? kaiju, per-kaiju normal + KAIJU-mode art, match/win counters).
+- Records "Next up: Regular Diner (90%)" nudge is exactly the thing that makes me play one more match. Progress bars on every achievement.
+- Colours apply to all kaiju ("works on every kaiju") so one unlock is worth it for the whole roster.
 
 ## What took too long / was tedious
-- The last mystery kaiju needs 30 Story stars, but nothing on the chapter screen tells me how stars are earned (I got 1 star on several clearances by winning). I could not tell if it's rounds lost, time, or KOs. That gate felt like grinding in the dark.
-- Bosses with a hard bot at my seat: boss chapters took 2-3 tries; between tries there are cutscene/dialogue/tip screens that each need Space/Enter (3-6 presses per attempt). Repeated retries make the loop slow. A "skip intro on retry" would help.
-- Colour styles: 7 of 9 are tied to achievements like "Win 10 Gauntlet waves", "Win a Hot Dumpling match" and "Watch 10 Hot Dumplings pop". A collector must play every mode; fine, but those are only reachable by playing modes I did not grind here.
+- Boss chapters (4, 8) and chapters 7, 9 took 3-4 attempts each against hard bot; the kaiju unlocks sit behind those walls. Retries are quick though (Retry goes straight in, no cutscene).
+- The opening cutscene needs about 6 taps of Space every time you launch a chapter via Play (Skip button did not seem to skip the dialogue after the intro text).
+- Many colour achievements need grind/modes: 10 wins, 50 wins, 5-win streak, Gauntlet 5 waves, Daily 3 days in a row (can't be rushed - 3 real days), Dessert Course, Spicy clear, Team Feast. Total colours (11) look like weeks of play for a completionist, which is OK, but only 2 colours came from my ~26 matches.
+- 30 stars for the final mystery kaiju means replaying chapters for 3 stars, with boss chapters that cost many retries.
 
 ## What was over too quickly / too shallow
-- Story clear unlocked 3 kaiju + 3 tables in only ~30 matches. The base collection is therefore finished fast, with the only remaining mid-term goals being stars, Spicy (0/12), Second Helpings and the 29 achievements.
-- Unlocked colours are just a flat tint of the same art (Lime = green strawberry); good but they read more like palette swaps than "collectibles".
-- Records page 1 shows only 14 of 29 achievements and needs a PAGE button; there's no single overall "collection %" figure across kaiju/tables/colours/achievements.
+- Colours are only a palette swap (Classic, Lime, Ocean...) with no preview of how they look on the kaiju besides the small icon; the reward feels smaller than a kaiju.
+- Kaiju/table unlocks: 4 kaiju + 3 tables total in Story, whereas 16 kaiju start unlocked, so the Story unlock set is thin, and the first unlock (ch4) is a long way in.
 
 ## Confusing or unclear
-- No indication in the post-match "CHAPTER CLEAR!" screen of what new stuff I just earned (it said "Chapter N unlocked!" but the kaiju/table reward appeared only inside the Rewards panel; I had to go looking). A "NEW: Pengwhip unlocked!" banner would make unlocks feel rewarding.
-- How stars are awarded; whether Free Play wins count toward story stars.
-- Table collection: Records says 17/18 tables visited, Free Play says "ALL 17, 1 more to unlock in Story" - the two counts disagree a little (17 vs 18) at first glance.
-- /autoplay silently starts Free Play when not on a setup screen, which then counts in stats (harness note).
+- Gallery: clicking a locked colour swatch updates the hint text on the right of the swatch row but the big lower panel keeps showing the previously selected kaiju's description - slightly confusing.
+- The Gallery shows "Matches: 0 · Wins: 0" for Gobzilla even though I had played it a lot (maybe counts only after returning; unclear).
+- Collection 67% at the start with 0% Story felt odd for a "collector" - unclear what is pre-unlocked vs earned.
 
 ## Bugs found
-- Gallery "YOUR COLOUR" swatch row: after colours unlock, the unlocked swatches rendered as empty dark squares in two screenshots (shot-20, shot-21, shot-23). They did show the tinted mini-kaiju in the very first screenshot (shot-2) when only 2 were unlocked. Clicking them works (Lime/Mango applied and the large preview re-tinted, text says "Lime (wearing)"), so only the thumbnails are blank. Repro: unlock 3+ colours, open Kaiju Gallery, look at the YOUR COLOUR row. Possibly a thumbnail-cache issue; may be harness-related.
-- Records screen: the "Next up: ..." line overlaps the "ACHIEVEMENTS 8/29" heading (shot-19), making both hard to read.
-- Chapter 3/ch-select "Best:" stars on the detail panel sometimes lagged a chapter (showed the previously cleared chapter's stars on a new selection) - minor, not 100% sure.
-- /errors: none.
+- No JavaScript errors (/errors returned "none" when checked).
+- Possible: In Story, after finishing a match the results sometimes sit on "DEFEATED"/"CHAPTER CLEAR" overlays in-game with no obvious buttons until another /act (probably harness-related, not counting it).
+- Screenshots: art-src/.playtest3/7105/shot-1.png (Gallery), shot-7.png (Chapter Clear + Pengwhip), shot-9.png (Records).
 
 ## Top 3 changes that would raise my score
-1. Show the unlock moment: a "NEW KAIJU / NEW TABLE / NEW COLOUR" celebration on the chapter-clear and achievement screens, plus a single Collection % on the title/Gallery.
-2. Explain stars (e.g. 3 explicit objectives per chapter) so the 30-star kaiju goal is plannable, and let retries skip the intro/dialogue.
-3. Add more mid-game collectables (per-kaiju skins or hats, Spicy/Second Helpings rewards) and fix the blank colour thumbnails, so the collection has depth beyond the first ~35 matches.
+1. Show a "next unlock" tracker on the Title and after every match (e.g. "2 matches to Ocean colour", "Chapter 10 -> Candy Shop"), and show a colour preview on the kaiju when selecting a swatch.
+2. Add more Story/achievement unlocks earlier (a kaiju or colour from chapters 1-3) and soften the boss walls (e.g. allow 1-star clear on Normal bot) so unlocks keep flowing; add more colours/patterns/hats to collect.
+3. Let the chapter cutscene be skippable in one tap, and fix the Gallery detail panel so it follows the colour you click.

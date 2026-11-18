@@ -3,7 +3,7 @@ import { sfx } from '../audio';
 import { playMusic } from '../music';
 import { getSettings, setSetting } from '../settings';
 import { checkAchievements, loadStats, saveStats, type Stats } from '../stats';
-import { clearTaps, consumeTap, listDevices, readSlot, slotLabel, type Slot } from '../input';
+import { clearTaps, consumeTap, injectTap, listDevices, readSlot, slotLabel, type Slot } from '../input';
 import { CUTLERY_LEN, fitInside, hasArt, kaijuKey } from '../render/art';
 import { ArtRenderer } from '../render/artRender';
 import { drawCutleryShape, drawKaiju, drawTableLive } from '../render/draw';
@@ -69,7 +69,7 @@ export interface GameData {
   attract?: boolean; // title-screen demo: any input goes back to the title
   dessert?: { course: number; bosses: number[] }; // 🍰 Dessert Course (index into COURSES)
   cup?: { game: number; points: number[] }; // 🏆 Party Cup: which game of the cup, points so far
-  story?: { chapter: number; bosses: number[]; spicy?: boolean; campaign?: 'main' | 'seconds'; mutator?: Mutator; bossBelly?: number }; // story chapter: seat 0 is you; bosses start rounds with a full belly
+  story?: { chapter: number; bosses: number[]; spicy?: boolean; campaign?: 'main' | 'seconds'; mutator?: Mutator; bossBelly?: number; helping?: boolean }; // story chapter: seat 0 is you; bosses start rounds with a full belly
   net?: { role: 'host'; host: NetHost } | { role: 'guest'; guest: NetGuest; seat: number };
   seed?: number;
 }
@@ -319,7 +319,7 @@ export class GameScene extends Phaser.Scene {
       const any = this.attractWake || listDevices().some(d => { const i = readSlot(d); return i.throw || i.dash || i.start || i.swipe; });
       if (any || this.world.phase === 'matchEnd') { this.attractWake = false; clearTaps(); this.scene.start('title'); return; }
     }
-    if (consumeTap('Escape')) {
+    if (!this.perkUi.length && consumeTap('Escape')) {
       if (this.net || this.world.phase === 'matchEnd') { this.leave(); return; }
       if (!this.replay) this.setPaused(!this.paused);
     }
@@ -329,7 +329,7 @@ export class GameScene extends Phaser.Scene {
     if (this.pauseUi && this.pauseUi.nav.update(dt) === 'back') this.setPaused(false);
     if (this.story && this.world.phase === 'matchEnd' && (this.world.phaseT > 2.8 || consumeTap('Digit1') || consumeTap('Space') || consumeTap('Enter'))) {
       const me = this.world.players[0], won = this.world.winner === 0;
-      this.scene.start('story', { result: { chapter: this.story.chapter, won, stars: won ? starsFor(this.world.round - me.score) : 0, spicy: !!this.story.spicy, campaign: this.story.campaign } });
+      this.scene.start('story', { result: { chapter: this.story.chapter, won, stars: won ? starsFor(this.world.round - me.score) : 0, spicy: !!this.story.spicy, campaign: this.story.campaign, myRounds: me.score } });
       return;
     }
     const cup = this.initData.cup;
@@ -356,7 +356,8 @@ export class GameScene extends Phaser.Scene {
       return;
     }
     const gw = this.initData.gauntlet;
-    if (this.perkUi.length) { for (const b of this.perkUi) b.update(dt); this.perkKeys?.(); return; }
+    this.updateResultButtons(dt);
+    if (this.perkUi.length) { consumeTap('Escape'); for (const b of this.perkUi) b.update(dt); this.perkKeys?.(); return; }
     if (gw && this.world.phase === 'matchEnd' && (this.world.phaseT > (this.world.winner === 0 ? 1.6 : 4.5) || consumeTap('Space') || consumeTap('Enter') || (this.world.winner !== 0 && consumeTap('Digit1')))) {
       if (this.world.winner === 0) { if (!this.perkUi.length) this.offerPerks(gw); }
       else this.scene.start('title');
@@ -431,6 +432,20 @@ export class GameScene extends Phaser.Scene {
     this.popup(VIEW.w / 2, VIEW.h - 230, 'PICK A PERK FOR THE NEXT WAVE (1 / 2 / 3)', '#8dff6a', 22);
   }
   private perkKeys: (() => void) | null = null;
+  private resultBtns: Button[] = [];
+
+  /** Results screens: clickable REMATCH / CONTINUE and MENU (keys still work). */
+  private updateResultButtons(dt: number): void {
+    const show = this.world.phase === 'matchEnd' && !this.replay && !this.story && !this.initData.gauntlet && !this.initData.dessert && !this.initData.attract && this.net?.role !== 'guest' && this.world.phaseT > 1;
+    if (show && !this.resultBtns.length) {
+      const cupNext = !!this.initData.cup;
+      this.resultBtns = [
+        new Button(this, VIEW.w / 2 - 130, VIEW.h - 96, { w: 230, h: 56, label: cupNext ? '▶ CONTINUE' : '↻ REMATCH', size: 20, accent: 0xff9a3c, onClick: () => injectTap('Digit1') }, 12),
+        new Button(this, VIEW.w / 2 + 130, VIEW.h - 96, { w: 230, h: 56, label: '☰ MENU', size: 20, onClick: () => this.leave() }, 12),
+      ];
+    }
+    for (const b of this.resultBtns) b.update(dt);
+  }
 
   // ---------------------------------------------------------------- online
   private setupNet(data: GameData, seed: number): void {
@@ -550,6 +565,7 @@ export class GameScene extends Phaser.Scene {
           this.art.setupTable(w.layout, this.world.players.map(p => ({ x: p.x, y: p.y, color: this.colors[p.id] })));
           for (const b of this.bossSeats()) if (w.players[b]) w.players[b].meter = this.story?.bossBelly ?? 100;
           for (const pk of this.initData.gauntlet?.perks ?? []) GAUNTLET_PERKS.find(q => q.id === pk)?.apply(w.players[0]); // bosses can go KAIJU straight away
+          if (this.story?.helping && w.players[0]) { w.players[0].meter = 100; w.players[0].shieldT = Math.max(w.players[0].shieldT, 60); } // 🍀 helping hand: start ready to go KAIJU, with a shield
           if (this.story?.spicy) w.players.forEach((p, k) => { if (k > 0 && p.meter < 100) p.meter = SPICY_START_BELLY; }); // 🌶️ rivals start half-full
           this.parts = [];
           this.rings = [];
@@ -966,7 +982,7 @@ export class GameScene extends Phaser.Scene {
         got.forEach((a, k) => this.time.delayedCall(1200 + k * 1600, () => {
           sfx.meterFull();
           const col = COLOURS.find(c => c.unlock === a.id);
-          this.popup(VIEW.w / 2, 620, `🏆 ${a.name.toUpperCase()}: ${a.desc}${col ? `  ·  🎨 ${col.name} colour unlocked!` : ''}`, '#ffd24a', 22);
+          this.popup(VIEW.w / 2, this.initData.gauntlet ? 300 : 535, `🏆 ${a.name.toUpperCase()}: ${a.desc}${col ? `  ·  🎨 ${col.name} colour unlocked!` : ''}`, '#ffd24a', 22);
         }));
         break;
       }

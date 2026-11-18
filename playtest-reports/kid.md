@@ -1,44 +1,44 @@
 # Playtest evaluation — The 9-Year-Old (kid)
 
-**Fun score: 7 / 10** (gorgeous, silly, and rounds are over in seconds so I keep wanting "one more" — but it's too easy early on and I get knocked out and then just watch)
+**Fun score: 7 / 10** (the monsters are hilarious and the rounds are snappy, but the first match dragged, I died to dumb stuff I didn't understand, and Chapter 2 beat me twice on "easy")
 
 ## What I did
-- Title -> Free Play: joined, cycled to Bloblin (the cherry-topped jelly), added 3 bots (Salmonster, Gobzilla, Avocadrake), pressed 1/PLAY.
-- Played one full Free Play match (10 rounds, first to 5): won 5-3-2-0. About 12 KOs. Mixed attack, shove, stomp, power, crumbs.
-- Story: skipped the opening and chapter intros (tapping SKIP / Space), cleared Chapters 1, 2 and 3 (3 stars on the first two).
-- Opened the Kaiju gallery and clicked a few kaiju. Accidentally opened the Table Workshop (the button sits where I expected a menu button).
-- Total about 3 matches' worth of play, roughly 20 minutes of "kid time". /errors: none.
+- Title screen, Free Play (picked Bloblin the jelly because it's the silliest, with Chocomunch and Hotchog bots), 1 full match (11 rounds, won 5-3), Story chapters 1-3 (ch1 3-star first try, ch2 lost twice then cleared, ch3 unlocked), Kaiju Gallery, Records. Roughly 30-40 minutes of play-time.
+- Mashed attack, shove, stomp, crumbs and power. Skipped the story text with Space.
 
 ## What matched my goals / what was fun
-- The kaiju are great. Bloblin with a cherry and whipped cream turning into an angry roaring jelly monster when I went KAIJU got a "whoa!" Strawberry lizard, avocado dragon, bubblegum elephant, hot-dog hedgehog: funny and instantly readable.
-- "BLOBLIN RULES THE TABLE" win screen with the big roaring jelly, plus the fun awards (Crumb Monster, Condiment Hoarder). Unlocking a "Lime colour" felt like a prize.
-- Instant replays, "DOUBLE SKEWER!", "STOLEN!", "ON A ROLL!" popups and the "BLOBLIN skewered SALMONSTER" ticker are exactly what I want to shout about.
-- Each round is about 10-20 seconds, so I never have time to get bored. Different table every round (ice cream parlour, birthday cake, pancake stack...) keeps the screen fresh and the tables look delicious.
-- Going KAIJU and shoving someone off the table with Wobble Wave felt powerful and was the best moment.
-- The Story cutscene art (the golden spoon, Crabbage on the roast chicken) is charming; story characters have jokes ("Ink-credible... we'll be back. Probably wobblier.").
+- The kaiju are great: strawberry lizard, jelly with a cherry, hot-dog hedgehog, chocolate golem, pizza raptor, sloth. I picked on looks and no kaiju felt like a "boring" pick.
+- Going KAIJU (giant, glowing, "KAIJU!" popup) is the best moment. Getting killed by a giant hedgehog is still funny.
+- Funny death captions: "BLOBLIN skewered themselves", "got flicked by the GIANT HAND", "STOLEN!" pop-ups. The giant hand flicking people made me laugh.
+- Tables look different and fun (pancake stack with blueberries, soup, griddle). Chapter-clear screen with 3 big stars, Crabbage's sulky quote and "Chapter 2 unlocked!" feels rewarding.
+- Gallery is the best screen: big colourful portraits, silhouettes of "???" kaiju I want to unlock, colour skins with locks. Makes me want to win to unlock stuff.
+- Story cutscenes (the crab on the turkey, golden spoon with a bow) are charming.
+- Winning a match gives a big "BLOBLIN RULES THE TABLE" screen with silly awards (Crumb Monster, Kaiju Lover).
 
 ## What took too long / was tedious
-- Intro and chapter scenes type out slowly one word at a time. I skipped them. Skipping works but you have to tap a few times (SKIP, then more taps/Space for the pre-match chat) before the match starts.
-- Free Play setup screen is a wall of key legends and tiny text (WASD, L-SHIFT, "bot level", "twist"...). I didn't read any of it. A big green PLAY button would have been better than a small "1 PLAY" at the bottom; clicking it at first did nothing for me (only the key worked in my test).
-- Waiting between rounds / "fast forward only bots left" when I'm dead is dull; being knocked out in round 1 within about 4 seconds, before I had done anything, and then watching bots for 40 seconds was my least fun moment.
+- "First to 5 rounds" with 3 players took 11 rounds. That's way too long for a kid; it felt like a never-ending match. First to 3 would be better by default.
+- Rounds where I died early: I just watch (there's a fast-forward, which is good) but I'm still stuck for 10+ seconds.
+- The story intro and each chapter's intro talk. The dialogue box types slowly ("Tonight the Head Chef hosts the GRAND FEAST. Rule every table in the...") and needs several Space taps. I'd skip it every time. First-time opening cutscene plus dialogue plays before the very first chapter.
+- Setting up Free Play: click seats, cycle kaiju with tiny arrows, lots of buttons (Bot level, Table, First to, Twist, Power-ups, Hazards...). A kid just wants a big PLAY.
 
 ## What was over too quickly / too shallow
-- Story chapters 1-3 are very easy: I won chapter 1 and 2 in about 6-10 seconds of actual fighting each, mostly just spamming attack. No feeling of danger, so button-mashing is enough.
-- A first-to-5 Free Play match is 10 rounds; the first-to-2 story matches are over almost instantly, so the win feels cheap.
-- As a masher, I couldn't really tell why I won or lost some rounds; fights are chaotic and quick.
+- Chapter 1 vs Crabbage was a total pushover (won both rounds in a few seconds) - fine for a tutorial but I never felt in danger.
+- Not much to do in a round beyond grab fork, throw, repeat; the special moves (shove, power) seemed less useful than just spamming throws.
 
 ## Confusing or unclear
-- Not obvious how to get KAIJU: you must eat crumbs, fill the belly, then press stomp. I only knew because the playtest harness told me; a kid would not read "Eat crumbs, then STOMP to go KAIJU" in that small caption.
-- The tip "The giant hand goes for whoever has the fullest belly" is neat but I didn't connect it to getting grabbed ("YOU knocked out (hand)") until it happened.
-- Workshop button on the title bar looks like just another menu item; the title screen has 6 big mode tiles plus 4 small top buttons, a lot at once.
-- Gallery shows lots of "???" and locked colours but doesn't say how to unlock them (I'd want a big hint like "Beat chapter 5").
+- Dying instantly in round 1 with "YOU knocked out (cutlery)" / "BLOBLIN skewered themselves" - I had no idea why I died. Looked like I hit myself? A kid would think the game is broken or cheating.
+- Dying to the giant hand ("hand goes for whoever has the fullest belly") - nobody explained that eating makes you the hand's target, so a kid keeps eating crumbs and gets flicked.
+- Chapter 2 is labelled "easy" but I lost twice to Squidgeon and Bloblin, the second time 1-2 or worse. Frustrating for a beginner right after the pushover chapter 1; the jump is big and the loss screen only says "DASH into a rival near the edge..." (a hint, but I didn't read it).
+- On the Story chapter panel, the "🎬 SCENE" button sits on top of the star-rules text ("★★ lost one · ★ any w..." is cut off).
+- It's not obvious when the game thinks I've "won" vs when an opponent has the star count - the match end took a while to arrive after the last round.
+- After clicking a menu on the title bar, the menu buttons (Settings/Help/Kaiju/Records) are tiny emoji-labelled links; I clicked "RECORDS" when I wanted Kaiju.
 
 ## Bugs found
-- None blocking. /errors returned "none" at the end of the session.
-- Minor: In Free Play setup, clicking the on-screen "1 PLAY" label at (1015,677) did nothing; pressing Digit1 worked (may be a harness quirk with the click target).
-- Minor: After tapping SKIP on the story opening/chapter intro I land back on the chapter map and have to press Play/Enter again, then Space through the pre-match banter before the match starts (several taps).
+- No JavaScript errors (/errors returned "none").
+- Visual nit: SCENE button overlaps the star legend on the Story chapter panel (screenshot art-src/.playtest3/7109/shot-13.png).
+- Possible clarity bug: own-kill "BLOBLIN skewered themselves" on the very first round with no visible cause (shot-6.png, Free Play round 1 Pancake Stack, in the first 3 seconds, while my character did the attack command). May be an own-throw reflecting, may just be harness bot behaviour.
 
 ## Top 3 changes that would raise my score
-1. Don't let me sit dead for 40 seconds: shorter respawn/spectator (or a quick "ghost throw" / reaction emote) and a tougher, scarier early Story (Chapter 1 and 2 shouldn't be won by mashing in under 10 seconds).
-2. Make setup and onboarding kid-proof: a huge PLAY button, hide the key legends behind a "?" and show one big on-screen hint during the first match ("EAT crumbs! Then press STOMP to turn into a KAIJU!").
-3. Make Story intros skippable in one tap straight into the match, and more silly rewards (hats, colour unlocks, funny emotes) with the gallery telling me exactly how to unlock each locked kaiju.
+1. Shorter matches: default "first to 3", and make the round-over / fast-forward after I'm knocked out quicker so I'm not just watching.
+2. Make the first losses explain themselves (why you died: "the hand got you because your belly was full", "you stabbed yourself") and soften Chapter 2 so an "easy" chapter really is easy.
+3. Cut the talking: skippable/auto-advancing story text and a one-tap "PLAY WITH A RANDOM KAIJU" button on Free Play.

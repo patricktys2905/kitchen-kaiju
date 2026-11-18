@@ -646,3 +646,9 @@ From the 10 Sonnet playtester reports in `playtest-reports/`.
 5. **Story curve smoothed:**
    - Grand Feast: chapter 7 (Crabbage) and chapter 9 (Avocadrake) eased; the finale toughened (Pizzaraptor hard). Now 97 → 53–58% → 41%.
    - Second Helpings: chapter 3 (Bluebeary) eased; the Pengwhip boss starts at a 90% belly. Now 94 / 79 / 81 / 67 / 50 / 38%.
+- **After round 3:**
+  - Story: ⏩ SKIP CHAT (S), faster typing, defeat text that matches the score, a 🍀 HELPING HAND retry after 2 losses (`StoryScene.losses`), and the celebration shows right away.
+  - Gauntlet: Escape is safe on the perk picker.
+  - Setup: PLAY with nobody seats you, Team Feast evens up teams, and Free Play and Party Modes keep separate settings (`MenuScene.lastParty`).
+  - Results screens have clickable REMATCH/CONTINUE and MENU buttons.
+  - Kaiju powers rebalanced for frequent KAIJU.

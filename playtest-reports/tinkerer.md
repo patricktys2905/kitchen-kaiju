@@ -1,46 +1,45 @@
 # Playtest evaluation — The Tinkerer
 
-**Fun score: 7.5 / 10** (huge, cheerful pile of knobs that mostly work, but the knobs are mostly "modifiers" rather than depth, and the workshop is thin)
+**Fun score: 7 / 10** (a lot of knobs that really work, and a Workshop that is a delight, but several twists/hazards read weakly on screen and some config state is confusing)
 
 ## What I did
-- Settings: changed SFX/music volume, Player Numbers, Name Tags; opened Keyboard Controls and tried to rebind Swipe.
-- Table Workshop: placed cheesewheel, bumper, candle, removed a prop by tapping it, cycled SURFACE (Sunday Roast -> Dinner for Four) and HAZARD (none / Giant hand / Wind gusts), saved, PLAY IT. Played a full custom-table match (won round 1, 3 KOs).
-- Free Play: cycled all 10 twists with X (Frenzy, Turbo, Boomerangs, Giant Cutlery, Ice Rink, Snack Attack, Fists Only, Bouncy Castle, Mirror Moves, Mini Kaiju), all 16 tables with M (read every blurb), toggled power-ups (U) and hazards (H).
-- Played rounds: custom table + Wind, Boomerangs, Ice Rink on Ice Cream Parlour (killed by the giant hand), Crumb Rush, Hot Dumpling, Fists Only. Went full cycle crumbs -> STOMP -> KAIJU -> power (Seed Spray) once.
-- ~8 matches/rounds, about 95 calls. /errors: none.
+- Settings: changed SFX volume, screen shake, name tags, Kaiju Powers (Classic mode); opened Keyboard Controls and rebound Throw to T, then Move Right to T (swap worked), then Reset.
+- Table Workshop: placed props (bowl, candle, bumper, cheesewheel), removed one, hit the 12-prop cap, cycled Surface and Hazard (Giant hand), saved ("Table Maker unlocked!"), then PLAY IT and played 1.5 rounds on it.
+- Free Play: cycled all 10 twists (Frenzy, Turbo, Boomerangs, Giant Cutlery, Ice Rink, Snack Attack, Fists Only, Bouncy Castle, Mirror Moves, Mini Kaiju). Actually played Boomerangs, Giant Cutlery, Ice Rink, Fists Only, Mini Kaiju. Toggled Power-ups and Hazards off and on, and the First-to cycle (1/3/5/7/10).
+- Party Modes: Team Feast screen, Crumb Rush (most of a round), Hot Dumpling (one round). Seen the Party Cup description.
+- About 12 matches/rounds in total, about 90 calls, 17 screenshots. /errors: none.
 
 ## What matched my goals / what was fun
-- Massive variety for the setup screen: 16 tables each with a one-line hazard blurb, 10 twists, 4 party modes, per-toggle power-ups/hazards. Combining table + twist (ice parlour + Ice Rink) is exactly my kind of fun.
-- Workshop UI is simple and works: select prop, tap table, tap prop to remove, surface/hazard cyclers, 3 slots, PLAY IT jumps straight into a match on my table. It reads clearly (start-spot circles are a nice touch). Custom table appears in the Free Play table picker too.
-- Settings are clear with a one-line explanation each; KAIJU POWERS off = "Classic" is a great tinker option. Player Numbers (colour-blind) is thoughtful.
-- Hot Dumpling and Crumb Rush are genuinely different rules, not reskins; Hot Dumpling's "FAST FORWARD x3, only bots left" is a lovely touch.
-- Art is gorgeous and readable (screenshots of Ice Cream Parlour and the workshop).
+- The Workshop is the star: tap-to-place is instant, start spots are shown, the prop count and cap are clear, the table renders in-game exactly as built (my bowl line-up is clearly visible in play), and the Giant Hand hazard really fires (Crabbage got flicked).
+- Keyboard rebinding is clean: "a key already in use swaps over" with a clear message, plus a Reset button.
+- Setup screens are compact: the whole configuration is a row of cycle buttons and the headline text updates live ("CLASSIC · POWER-UPS: ON · HAZARDS: ON · ⚡ ICE RINK"). 10 twists is a good amount of variety.
+- Classic mode (Kaiju Powers OFF) really does change the game (powerReady / kaijuPowersOn: false reflected in state).
+- Crumb Rush's picnic blanket with the ant line and Hot Dumpling's griddle are distinct and readable; round-end text ("The HOT DUMPLING popped on GOBZILLA!") is clear.
 
 ## What took too long / was tedious
-- Twist cycling with X is a blind cycle through 11 states; no picker, no descriptions on the setup screen, so I had to start a match to learn what "Snack Attack" or "Mirror Moves" does.
-- Party mode switching only via tiny arrows at the title line; I found it by guessing coordinates.
-- Going KAIJU needs ~100 belly and about 10+ seconds of crumb eating, and the kaiju state lasts only ~3-6 s; rounds are mostly over before I could try power variety. Tinkering with kaiju powers is hard to do deliberately.
+- First-to default 3 and cycle order 1/3/5/7/10 means testing twists takes many rounds; there is no quick "1 round" preset button visible beyond cycling.
+- Cycling twists is click-through only; no list/description until you choose one (the description appears only on some screens).
+- Workshop has only 3 slots and no undo for a mis-click (only tap-to-remove or CLEAR).
 
 ## What was over too quickly / too shallow
-- Rounds on small/hazard tables end in 8-25 seconds, so I rarely saw table hazards in action (the Ice Parlour giant hand killed me once; Wind on my custom table was barely visible). Hazards deserve a "hazard preview/sandbox" mode.
-- Workshop: only 16 props, 12 prop cap, no resizing/rotating, no naming, no hazard options beyond a cycler, no sharing/export. Props mostly just obstacles or bumpers; no description of what each prop DOES (cup? candle? pot?) - I had to guess. Surfaces are cosmetic-ish.
-- Power-ups: I saw a shield icon (Crumb Rush) and pickups, but there is no list/glossary of power-ups, so I could not tinker with them intentionally. Settings only offers ON/OFF, not which ones.
-- No per-twist or per-hazard intensity settings (e.g. round time, KO count, crumbs needed) beyond "rounds".
+- Rounds on small tables end in about 10-15 seconds with bots, so a twist barely has time to show itself.
+- Ice Rink was not visibly icy on the wooden table or the griddle (no sheen / tint), so I could not tell it was on beyond the label. Fists Only with the bot-attack command left everything doing nothing for 8 seconds; a short on-screen prompt "no cutlery this round, shove!" would help.
+- Table Workshop has no scale/rotate for props and only 20 props; hazards are one-per-table choice.
 
 ## Confusing or unclear
-- Title screen says "Up to 6 players" but only keyboard-left is human; fine, but the footer of the setup screen is dense (many keys), and chips like X/Z/O/1 are not obvious as "twist / random / online / play".
-- Which key chips are clickable vs informational (the first bots appear pre-added, 4 of 6 seats).
-- Workshop: no feedback when tapping a start-spot circle (prop silently refuses to place); no hint why.
-- Pause menu: QUIT from a round goes back to the setup menu, but a stray /act afterwards seemed to dismiss the pause (probably harness).
+- Settings changes and mode config appear shared between Free Play and Party Modes (twist ICE RINK carried into Party, powerups OFF carried), so it's easy to start a mode with hidden twists. Party Modes also silently inherited "TABLE: ALL / MY TABLE 1".
+- Clicking "click or THROW to join" seats in Party Modes, then returning to Free Play, left me in a 2-seat match where I was no longer the player I started as (my "YOU" became Squidgeon, 2 players only). I could not tell if that was intended.
+- The 🎲 RANDOM button changed mode/table and also seemed to clear the twist; unclear what it randomises.
+- Quit from the pause menu lands on the setup screen (not the title), fine but surprising the first time. Escape right after the round-end screen toggled pause rather than leaving.
+- Hot Dumpling: "shove" as I issued it did not pass the dumpling to a rival (I popped it myself); the pass mechanic is not explained in the HUD beyond "HOT! PASS IT!".
 
 ## Bugs found
-- Possible: In Settings > Keyboard Controls, clicking "Swipe: F" showed "press a key" but the harness key press KeyG did not rebind (stayed "Swipe: F"). Could be a harness quirk (keydown synthetic event), please re-verify by hand.
-- Round-end banner text overlaps the star tally on the cream tablecloth (shot-4: "GOBZILLA WINS THE ROUND" with the score line crammed right under it, partially over a bumper) - low priority.
-- Menu mode arrows on Party Modes: clicking right of the label (x=800) cycles forward, left (x=480) also moved forward at first? (Team Feast -> Crumb Rush on a left click) - may be wrong direction; minor.
-- /errors: none.
-- Screenshots: art-src/.playtest2/7107/shot-3.png (workshop), shot-9.png (ice parlour), shot-11.png (crumb rush), shot-12.png (hot dumpling).
+- Possible: seat assignment changed after visiting Party Modes seat-join buttons then Free Play (steps: Free Play -> play; Party Modes -> click all 4 seats -> play Crumb Rush/Dumpling -> quit -> MODES -> Free Play -> play: match had 2 players, and "you" was Squidgeon). Might be my own seat clicks, not a game flaw.
+- Possible visual: ICE RINK twist has no visible surface change (screenshots shot-11.png, shot-14.png).
+- No JavaScript errors (/errors: none).
+- Workshop: clicking on a white start-spot circle with a prop selected did not obviously reject or place; not verified either way.
 
 ## Top 3 changes that would raise my score
-1. Add descriptions/previews to the setup screen: a twist picker with one-line blurbs (like the table blurbs) and a power-up/hazard glossary, with per-item toggles.
-2. Deepen the Workshop: prop descriptions, rotate/scale, more props/hazards, name tables, bigger prop cap, and a "test sandbox" where I can place hazards and rewatch them without a bot fight.
-3. Make KAIJU/power experimentation easier to reach (faster belly fill in a practice option, or a "Kaiju Lab" mode) so tinkerers can see each of the 20 powers and twist combos without 25 seconds of setup per round.
+1. Make twists visible: ice sheen, bouncy-castle surface, mirror-moves icon in HUD, and a 2-second banner at round start that says what the twist does.
+2. Separate Free Play and Party Modes config, or show a "carried-over settings" summary on the start screen; clarify the seat/you assignment and what RANDOM changes.
+3. Expand the Workshop: more slots, prop rotate/mirror, undo, and a "test round" button with 1 bot and first-to-1 so tinkering loops are tight.
