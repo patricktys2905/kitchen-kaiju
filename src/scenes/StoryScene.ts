@@ -128,6 +128,7 @@ export class StoryScene extends Phaser.Scene {
     const earnedCount = UNLOCKS.filter(u => isEarned(u, loadStory())).length;
     this.rewardsBtn = null;
     if (this.main) {
+      this.buttons.push(new Button(this, 745, 50, { w: 150, h: 44, label: '📜 STORY LOG', size: 15, accent: 0xcdb9a3, onClick: () => this.showLog() }, 6));
       this.rewardsBtn = new Button(this, 775, 676, { w: 210, h: 50, label: `🎁 REWARDS ${earnedCount}/${UNLOCKS.length}`, size: 18, accent: 0xffd24a, onClick: () => this.showRewards() }, 6);
       this.buttons.push(this.rewardsBtn);
     }
@@ -138,14 +139,16 @@ export class StoryScene extends Phaser.Scene {
     this.drawPanel();
     this.drawPick();
 
-    this.buttons.push(new Button(this, 640, 50, { w: 200, h: 44, label: '🎬 OPENING', size: 18, accent: 0xffd24a, onClick: () => { if (this.mode === 'map') { sfx.pickup(); this.playCut(this.camp.opening, () => {}); } } }, 6));
+    this.buttons.push(new Button(this, 585, 50, { w: 150, h: 44, label: '🎬 OPENING', size: 15, accent: 0xffd24a, onClick: () => { if (this.mode === 'map') { sfx.pickup(); this.playCut(this.camp.opening, () => {}); } } }, 6));
     // 🍰 Dessert Course: post-game, after the ending
     // campaign switch: The Grand Feast ⇄ Second Helpings
     if (this.main && secondsUnlocked()) this.buttons.push(new Button(this, 1135, 50, { w: 260, h: 44, label: '🍽 SECOND HELPINGS ▶', size: 16, accent: 0x8dff6a, onClick: () => { if (this.mode === 'map') { sfx.go(); this.scene.restart({ campaign: 'seconds' }); } } }, 6));
+    if (this.main && !secondsUnlocked()) this.buttons.push(new Button(this, 1135, 50, { w: 260, h: 44, label: '🔒 SECOND HELPINGS', sub: 'clear chapter 6 to open', size: 15, accent: 0x6a5a4a, disabled: true, onClick: () => {} }, 6));
+    if (this.main && !this.save.endingSeen) this.buttons.push(new Button(this, 910, 50, { w: 165, h: 44, label: '🔒 DESSERT', sub: 'finish the Grand Feast', size: 15, accent: 0x6a5a4a, disabled: true, onClick: () => {} }, 6));
     if (!this.main) this.buttons.push(new Button(this, 1135, 50, { w: 260, h: 44, label: '◀ THE GRAND FEAST', size: 16, accent: 0xffcf8a, onClick: () => { if (this.mode === 'map') { sfx.go(); this.scene.restart({ campaign: 'main' }); } } }, 6));
     if (this.main && this.save.endingSeen) {
       const done = dessertBest(), next = done >= COURSES.length ? 0 : done;
-      this.buttons.push(new Button(this, 880, 50, { w: 210, h: 44, label: `🍰 DESSERT ${done}/${COURSES.length}`, size: 17, accent: 0xff7ad9, onClick: () => {
+      this.buttons.push(new Button(this, 910, 50, { w: 165, h: 44, label: `🍰 DESSERT ${done}/${COURSES.length}`, size: 17, accent: 0xff7ad9, onClick: () => {
         if (this.mode !== 'map') return;
         sfx.go();
         this.scene.start('game', GameScene.dessertData(next, this.save.pick));
@@ -471,7 +474,7 @@ Next course: ${nextCh.title}. ${nextRival} is already sharpening the cutlery…`
       const lostKey = `${this.camp.id}:${r.chapter}`;
       StoryScene.losses.set(lostKey, (StoryScene.losses.get(lostKey) ?? 0) + 1);
       const head = (r.myRounds ?? 0) > 0 ? 'So close! You took a round off them.' : 'Tough one! Every rival can be beaten.';
-      const BEAT: Record<string, string> = { fall: 'You kept falling off the table. Stay near the middle and DASH back from the edge.', cutlery: 'Thrown cutlery got you. DASH sideways from a charge line, or SWIPE to parry it.', swipe: 'You were swiped up close. Keep your distance, or swipe first.', kaiju: 'A KAIJU flattened you. Step out of the ring before each stomp, then punish the dizzy shrink.', squash: 'A KAIJU flattened you. Step out of the ring before each stomp, then punish the dizzy shrink.', hand: 'The Giant Hand got you. It grabs the fullest belly, so STOMP before it arrives.' };
+      const BEAT: Record<string, string> = { fall: 'You kept falling off the table. Stay near the middle and DASH back from the edge.', cutlery: 'Thrown cutlery got you. DASH sideways from a charge line, or SWIPE to parry it.', swipe: 'You were swiped up close. Keep your distance, or swipe first.', kaiju: 'A KAIJU flattened you. Step out of the ring before each stomp, then punish the dizzy shrink.', squash: 'A KAIJU flattened you. Step out of the ring before each stomp, then punish the dizzy shrink.', hand: 'The Giant Hand got you. It grabs the fullest belly: STOMP first, or DASH just as it arrives to slip under it.' };
       const beat = r.myOut ? BEAT[r.myOut] ?? 'Watch the table hazard: its warning shows before it strikes.' : '';
       const kid = getSettings().kidMode;
       this.overlay.push(this.add.text(640, (CARD.y + 150 + BTN_Y - 40) / 2, kid ? `${head}\n\n💡 ${(beat || ch.tip).split('. ')[0].replace(/\.$/, '')}!` : head + (beat ? '\n\n🔎 What beat you: ' + beat : '') + '\n\n“' + ch.tip + '”', body(kid ? 30 : 23, '#ffe9c7', 800, { align: 'center', wordWrap: { width: 620 }, lineSpacing: 6 })).setOrigin(0.5).setDepth(31));
@@ -551,6 +554,30 @@ Next course: ${nextCh.title}. ${nextRival} is already sharpening the cutlery…`
       this.overlay.push(this.add.text(x + 100, y + 50, got ? (u.kind === 'kaiju' ? `Playable now · ${SPECIES[u.index].food}` : 'Playable now in Free Play and Online') : needText(u), body(14, got ? '#8dff6a' : '#e9dccb', 800, { wordWrap: { width: 290 } })).setDepth(32));
     });
     this.overlayButtons.push(new Button(this, 640, 612, { w: 200, h: 54, label: 'CLOSE', size: 22, onClick: () => { this.clearOverlay(); this.mode = 'map'; } }, 33));
+    this.overlayFocus = 0;
+  }
+
+  /** 📜 Story so far: every chapter you've cleared, as a little storybook (title, who you beat, what they said). */
+  private showLog(): void {
+    if (this.mode !== 'map') return;
+    sfx.pickup();
+    this.mode = 'result'; this.overlayAt = this.time.now;
+    this.clearOverlay();
+    const g = this.add.graphics().setDepth(30);
+    g.fillStyle(0x0d0805, 0.8).fillRect(0, 0, 1280, 720).fillStyle(0x2a1408, 0.98).fillRoundedRect(150, 60, 980, 600, 26).lineStyle(5, 0xcdb9a3, 1).strokeRoundedRect(150, 60, 980, 600, 26);
+    this.overlay.push(g);
+    this.overlay.push(withShadow(this.add.text(640, 100, `📜 ${this.camp.title}: THE STORY SO FAR`, display(32, '#ffd9a0', { strokeThickness: 6 })).setOrigin(0.5).setDepth(31), 3));
+    const done = this.camp.chapters.map((ch, i) => ({ ch, i })).filter(({ i }) => (this.save.stars[i] ?? 0) > 0);
+    const lines = done.length ? done.map(({ ch, i }) => {
+      const rv = chapterRivals(ch, this.save.pick), sp = rv[ch.win.speaker as number]?.species ?? rv[0].species;
+      return `${i + 1}. ${ch.title} ${'★'.repeat(this.save.stars[i] ?? 0)}: you beat ${rv.map(r => SPECIES[r.species].name).join(' & ')}. ${SPECIES[sp].name}: “${ch.win.text}”`;
+    }) : ['Nothing yet! Clear chapter 1 and your story starts here.'];
+    const next = this.camp.chapters[done.length];
+    if (next && done.length) lines.push(`👉 Next: ${next.title}. ${SPECIES[next.rivals[0].species].full} is waiting…`);
+    const t = this.add.text(190, 140, lines.join('\n'), body(15, '#f1e4d2', 800, { wordWrap: { width: 900 }, lineSpacing: 6 })).setDepth(31);
+    for (let f = 15; t.height > 430 && f > 10;) t.setFontSize(--f);
+    this.overlay.push(t);
+    this.overlayButtons.push(new Button(this, 640, 620, { w: 200, h: 54, label: 'CLOSE', size: 22, onClick: () => { this.clearOverlay(); this.mode = 'map'; } }, 33));
     this.overlayFocus = 0;
   }
 

@@ -854,3 +854,26 @@ From the 10 Sonnet playtester reports in `playtest-reports/`.
 - **Party:** the Cup final is first-to-2, "Past champions" shows dates, and "pt/pts" grammar is fixed.
 - **Bots:** BRUTAL retuned so it's no longer easier than HARD.
 - **Records:** shows Trial stars. "Knocked out by" only shows after a loss.
+
+## 67. The six "gaps to 9" from round 7
+1. **Difficulty and fairness:**
+   - A new **TOUGH** bot level between NORMAL and HARD (`DIFFICULTIES` in `src/sim/bot.ts`).
+   - **Dodge the Giant Hand:** a DASH within 0.4 s of the hand reaching you slips under it (`RULES.handDodge`).
+   - Hand knockouts now count for whoever hit you last.
+   - **Kid Mode** starts Free Play / Party with EASY bots and makes the Daily's bots easy.
+   - The hints teach the dodge.
+2. **Depth after the first hours:**
+   - **✨ Shiny forms:** each kaiju's golden shimmer costs 300 🪙 and needs Mastery Lv 3 (`SHINY` in `src/meta.ts`). Buy it from the Gallery panel (next to MOVE LAB); it shows in matches. With 20 kaiju that's 6,000 tokens to spend.
+   - **In-between grind achievements:** House Favourite (25 wins), Spoon Fed Up (100 KOs), Second Breakfast (400 crumbs).
+3. **Party Cup night:**
+   - The 🏆 PARTY CUP button is an **ON/OFF switch** (`MenuScene.cupOn`), and PLAY starts the Cup when it is ON.
+   - **Quitting a Cup or a Gauntlet run asks twice.**
+   - The rules line explains the place points and the ×2 final.
+4. **Story:**
+   - **📜 STORY LOG** (map, bottom left): every chapter you've cleared, who you beat, what they said, and who's next.
+   - Locked **🔒 SECOND HELPINGS** and **🔒 DESSERT** tabs say what opens them.
+5. **Tinkering:**
+   - The **TWIST** button opens a **picker** with all single twists and ⚡⚡ doubles, each with its blurb (the X key still cycles).
+   - The Workshop shows the surface name and a hazard badge on the preview, and has **↶ UNDO**.
+   - Setup panels swallow clicks between their buttons.
+6. **Phone thumb zone:** in matches on wide phones the table sits at the left edge, so THROW/SWIPE/DASH/STOMP sit in the free space on the right instead of over mats and labels.

@@ -72,6 +72,9 @@ export class MenuScene extends Phaser.Scene {
   private rulesBtn: Button | null = null;
   private rulesUi: (Button | Phaser.GameObjects.GameObject)[] = [];
   private keysShown = false;
+  static kidApplied = false;
+  /** 🏆 Party Cup switch (PLAY starts a whole Cup when ON). */
+  static cupOn = false;
   static lastParty: boolean | null = null;
   private keysToggle: ((v: boolean) => void) | null = null;
   private hintText: Phaser.GameObjects.Text | null = null;
@@ -95,7 +98,8 @@ export class MenuScene extends Phaser.Scene {
     // 📱 phones: a keyboard seat with no keyboard is useless, so it becomes the touch seat (with on-screen controls)
     if (isTouchDevice && !this.slots.some(q => q.kind === 'touch')) { const k = this.slots.findIndex(q => q.kind === 'kb' || q.kind === 'local'); if (k >= 0) this.slots = this.slots.map((q, i) => (i === k ? { kind: 'touch', index: 0 } : q)); }
     this.picks = (data.species ?? []).slice(0, this.slots.length);
-    this.difficulty = data.difficulty ?? this.difficulty;
+    this.difficulty = data.difficulty ?? (getSettings().kidMode && !MenuScene.kidApplied ? 'easy' : this.difficulty); // 🧸 Kid Mode starts with EASY bots
+    if (getSettings().kidMode) MenuScene.kidApplied = true;
     this.botLevels = (data.botLevels ?? []).slice(0, this.slots.length);
     this.party = !!data.party;
     // Free Play and Party Modes keep their own twist/power-up choices (they used to leak into each other)
@@ -259,7 +263,7 @@ export class MenuScene extends Phaser.Scene {
         ? [['mode', 'KeyG'], ['cup', 'KeyC'], ['cuplen', 'KeyL'], ['bots', 'Digit2'], ['table', 'KeyM'], ['rounds', 'KeyR'], ['twist', 'KeyX'], ['power', 'KeyU'], ['haz', 'KeyH'], ['dice', 'KeyZ']]
         : [['bots', 'Digit2'], ['table', 'KeyM'], ['rounds', 'KeyR'], ['twist', 'KeyX'], ['power', 'KeyU'], ['haz', 'KeyH'], ['dice', 'KeyZ'], ['online', 'KeyO']];
       const x0 = 640 - ((items.length - 1) * (W + 8)) / 2;
-      this.setBtns = items.map(([id, code], k) => { const b = new Button(this, x0 + k * (W + 8), 512, { w: W, h: 54, label: '', size: 14, onClick: () => { if (!this.keysShown) injectTap(code); } }, 6); (b as Button & { id?: string }).id = id; b.label.setAlign('center').setLineSpacing(-2); return b; });
+      this.setBtns = items.map(([id, code], k) => { const b = new Button(this, x0 + k * (W + 8), 512, { w: W, h: 54, label: '', size: 14, onClick: () => { if (this.keysShown) return; if (id === 'twist') this.toggleTwists(); else injectTap(code); } }, 6); (b as Button & { id?: string }).id = id; b.label.setAlign('center').setLineSpacing(-2); return b; });
       this.playBtn = new Button(this, 640, 596, { w: 320, h: 70, label: '▶ PLAY', size: 32, accent: 0xff9a3c, onClick: () => { if (!this.keysShown) injectTap('Digit1'); } }, 6);
       this.hintText = this.add.text(640, 652, '', { ...BODY, fontStyle: '800', fontSize: '14px', color: '#cdb9a3', align: 'center' }).setOrigin(0.5).setDepth(2);
       this.keysBtn = new Button(this, 92, 690, { w: 150, h: 40, label: '⌨ KEYS', size: 16, onClick: () => show(!this.keysShown) }, 21);
@@ -292,6 +296,26 @@ export class MenuScene extends Phaser.Scene {
   }
 
   /** 🏆 Party Cup with the current seats (bots fill to 3 so every mode works). */
+  /** ⚡ Twist picker: every single twist and every double, in one panel (tap one to pick it). */
+  private twistUi: (Button | Phaser.GameObjects.GameObject)[] = [];
+  private toggleTwists(): void {
+    const close = () => { for (const u of this.twistUi) { if (u instanceof Button) { u.g.destroy(); u.label.destroy(); u.sub?.destroy(); u.zone.destroy(); } else u.destroy(); } this.twistUi = []; };
+    if (this.twistUi.length) { close(); return; }
+    sfx.pickup();
+    const g = this.add.graphics().setDepth(30);
+    g.fillStyle(0x000000, 0.6).fillRect(0, 0, 1280, 720).fillStyle(0x0d0805, 1).fillRoundedRect(60, 90, 1160, 560, 20).lineStyle(3, 0x8dd8ff, 1).strokeRoundedRect(60, 90, 1160, 560, 20);
+    this.twistUi.push(this.add.zone(640, 360, 1280, 720).setInteractive().setDepth(30)); // swallows clicks between the buttons
+    this.twistUi.push(g, this.add.text(640, 122, '⚡ PICK A TWIST (singles, then ⚡⚡ doubles)', body(20, '#8dd8ff', 900)).setOrigin(0.5).setDepth(31));
+    const all = twistChoices();
+    all.forEach(([a, b], k) => {
+      const col = k % 4, row = Math.floor(k / 4), on = a === this.mutator && b === this.mutator2;
+      const btn = new Button(this, 205 + col * 290, 186 + row * 80, { w: 274, h: 72, label: (b !== 'none' ? '⚡⚡ ' : '') + twistShort(a, b), sub: a === 'none' ? 'normal rules' : b === 'none' ? twistBlurb(a, b) : `${mutatorDef(a).name} + ${mutatorDef(b).name}`, size: 15, accent: on ? 0x8dff6a : b !== 'none' ? 0xff7ad9 : 0x8dd8ff, onClick: () => { this.mutator = a; this.mutator2 = b; sfx.go(); close(); } }, 31);
+      this.twistUi.push(btn);
+    });
+    const x = new Button(this, 1180, 122, { w: 56, h: 44, label: '✖', size: 20, onClick: () => close() }, 31);
+    this.twistUi.push(x);
+  }
+
   /** 💾 House Rules panel: 3 save slots + share codes (src/houseRules.ts). */
   private toggleRules(): void {
     if (this.rulesUi.length) { for (const u of this.rulesUi) { if (u instanceof Button) { u.g.destroy(); u.label.destroy(); u.sub?.destroy(); u.zone.destroy(); } else u.destroy(); } this.rulesUi = []; return; }
@@ -303,6 +327,7 @@ export class MenuScene extends Phaser.Scene {
     };
     const g = this.add.graphics().setDepth(30);
     g.fillStyle(0x000000, 0.6).fillRect(0, 0, 1280, 720); // dim everything behind the panel
+    this.rulesUi.push(this.add.zone(640, 360, 1280, 720).setInteractive().setDepth(30)); // swallows clicks between the buttons
     g.fillStyle(0x0d0805, 1).fillRoundedRect(140, 150, 1000, 470, 20).lineStyle(3, 0xffb347, 1).strokeRoundedRect(140, 150, 1000, 470, 20);
     this.rulesUi.push(g);
     const t = this.add.text(640, 186, '💾 HOUSE RULES: save this setup, load one, or share it as a code', body(20, '#ffd24a', 900)).setOrigin(0.5).setDepth(31);
@@ -334,6 +359,7 @@ export class MenuScene extends Phaser.Scene {
   }
 
   private startGame(): void {
+    if (this.party && MenuScene.cupOn) { this.startCup(); return; } // 🏆 Party Cup switched ON: PLAY starts the Cup
     if (!this.registry.get('demoStarted') && !this.slots.some(s => s.kind !== 'bot')) { this.slots.unshift(isTouchDevice ? { kind: 'touch', index: 0 } : { kind: 'kb', index: 0 }); this.picks.unshift(-1); this.fixPicks(); }
     while (this.slots.length < Math.max(2, modeDef(this.mode).minPlayers)) this.addSlot({ kind: 'bot', index: this.slots.length });
     if (this.mode === 'teams' && this.slots.length % 2 === 1 && this.slots.length < MAX_PLAYERS) this.addSlot({ kind: 'bot', index: this.slots.length }); // even teams
@@ -354,6 +380,8 @@ export class MenuScene extends Phaser.Scene {
     this.keysBtn?.update(dt);
     this.rulesBtn?.update(dt);
     for (const u of this.rulesUi) if (u instanceof Button) u.update(dt);
+    for (const u of this.twistUi) if (u instanceof Button) u.update(dt);
+    if (this.twistUi.length && consumeTap('Escape')) { this.toggleTwists(); clearTaps(); return; }
     if (this.rulesUi.length && consumeTap('Escape')) { this.toggleRules(); clearTaps(); return; }
     if (this.keysShown && consumeTap('Escape')) this.keysToggle?.(false);
     this.pollDevices();
@@ -383,7 +411,7 @@ export class MenuScene extends Phaser.Scene {
       if (j >= 0) this.cycle(j, 1);
     }
     if (consumeTap('Digit1')) { this.startGame(); return; }
-    if (this.party && (consumeTap('KeyC') || consumeTap('TouchCup'))) { this.startCup(); return; }
+    if (this.party && (consumeTap('KeyC') || consumeTap('TouchCup'))) { MenuScene.cupOn = !MenuScene.cupOn; sfx.pickup(); }
     if (this.party && consumeTap('KeyL')) setCupLength(cupLength() === 'short' ? 'full' : 'short');
     if (consumeTap('KeyZ') || consumeTap('TouchShuffle')) this.shuffle();
     if (consumeTap('Escape')) { this.scene.start('title'); return; }
@@ -501,7 +529,7 @@ export class MenuScene extends Phaser.Scene {
     if (this.setBtns.length) {
       const tl0 = this.table < 0 ? null : LAYOUTS[this.table];
       const label: Record<string, string> = {
-        mode: `MODE ▶\n${modeDef(this.mode).name}`, cup: '🏆 PARTY\nCUP', cuplen: `CUP LENGTH\n${cupGames(Math.max(3, this.slots.length)).length} GAMES`, bots: `BOT LEVEL\n${this.difficulty.toUpperCase()}`, table: `TABLE\n${tl0 ? tl0.name.toUpperCase() : 'ALL'}`,
+        mode: `MODE ▶\n${modeDef(this.mode).name}`, cup: `🏆 PARTY CUP\n${MenuScene.cupOn ? 'ON' : 'OFF'}`, cuplen: `CUP LENGTH\n${cupGames(Math.max(3, this.slots.length)).length} GAMES`, bots: `BOT LEVEL\n${this.difficulty.toUpperCase()}`, table: `TABLE\n${tl0 ? tl0.name.toUpperCase() : 'ALL'}`,
         rounds: `FIRST TO\n${this.rounds}`, twist: `TWIST${this.mutator2 !== 'none' ? ' ⚡⚡' : ''}\n${this.mutator === 'none' ? 'NONE' : twistShort(this.mutator, this.mutator2)}`, power: `POWER-UPS\n${this.powerups ? 'ON' : 'OFF'}`, haz: `HAZARDS\n${this.hazards ? 'ON' : 'OFF'}`, dice: '🎲\nRANDOM', online: '🌐\nONLINE',
       };
       for (const b of this.setBtns) { const id = (b as Button & { id?: string }).id ?? ''; b.setText(label[id] ?? ''); b.label.setScale(Math.min(1, (this.party ? 106 : 118) / Math.max(1, b.label.width / b.label.scaleX))); }
@@ -509,7 +537,7 @@ export class MenuScene extends Phaser.Scene {
       this.hintText?.setText(people ? `${this.slots.length} at the table · click empty seats to add bots · press ▶ PLAY` : 'Click a seat (or press THROW on a keyboard / gamepad) to join');
       if (this.mutator !== 'none' && this.hintText) this.hintText.setText(`⚡ ${twistName(this.mutator, this.mutator2)}: ${twistBlurb(this.mutator, this.mutator2)}`);
       if (this.party && this.hintText) { const g = cupGames(Math.max(3, this.slots.length)); this.hintText.setText(`${this.hintText.text}
-🏆 Party Cup = ${g.length} games: ${g.map(x => modeDef(x.mode).name).join(' → ')} · points 5 / 3 / 2 / 1`); }
+🏆 Party Cup = ${g.length} games: ${g.map(x => modeDef(x.mode).name).join(' → ')} · places score 5/3/2/1 · final ×2 · switch it ON, then PLAY`); }
     }
     const md = modeDef(this.mode);
     this.modeText.setFontSize(this.party ? 18 : 16).setY(143);

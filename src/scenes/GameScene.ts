@@ -3,7 +3,7 @@ import { sfx } from '../audio';
 import { playMusic } from '../music';
 import { getSettings, setSetting } from '../settings';
 import { ACHIEVEMENTS, checkAchievements, loadStats, saveStats, type Stats } from '../stats';
-import { ACHIEVEMENT_TOKENS, addTokens, completeStep, kaijuMastery, pinnedAchievement, recordMatch, type Receipt } from '../meta';
+import { ACHIEVEMENT_TOKENS, addTokens, completeStep, isShiny, kaijuMastery, pinnedAchievement, recordMatch, type Receipt } from '../meta';
 import { clearTaps, consumeTap, injectTap, listDevices, readSlot, slotLabel, type Slot } from '../input';
 import { CUTLERY_LEN, fitInside, hasArt, kaijuKey } from '../render/art';
 import { ArtRenderer } from '../render/artRender';
@@ -175,6 +175,7 @@ export class GameScene extends Phaser.Scene {
   static lossRun = 0;
   private trialResult: { stars: number; gained: number } | null = null;
   private bossPhase2 = false;
+  private quitArmed = false;
   private firstServiceLines: string[] = [];
   private bannerPlate!: Phaser.GameObjects.Graphics;
   /** 'YOU' marker over the human kaiju for the first seconds of each round (one person playing). */
@@ -235,6 +236,7 @@ export class GameScene extends Phaser.Scene {
     this.receipt = null;
     this.trialResult = null;
     this.bossPhase2 = false;
+    this.quitArmed = false;
     this.firstServiceLines = [];
     this.coachStomp = (this.story?.chapter ?? 99) <= 2 || loadStats().kaijuForms < STOMP_COACH_UNTIL;
     clearTaps();
@@ -273,7 +275,9 @@ export class GameScene extends Phaser.Scene {
     playMusic('battle');
     this.hatImgs = this.world.players.map(() => this.add.image(0, 0, '__MISSING').setOrigin(0.5, 1).setDepth(2.6).setVisible(false));
     this.badgeTexts = this.world.players.map((_, i) => this.add.text(0, 0, `P${i + 1}`, display(16, '#ffffff', { strokeThickness: 4, stroke: '#000000', padding: { x: 4, y: 1 } })).setOrigin(0.5, 0).setDepth(3.9).setVisible(false));
-    this.events.once('shutdown', () => { this.shareBtn?.remove(); this.shareBtn = null; });
+    this.events.once('shutdown', () => { this.shareBtn?.remove(); this.shareBtn = null; if (isTouchDevice) { this.scale.autoCenter = Phaser.Scale.CENTER_BOTH; this.scale.refresh(); } });
+    // 📱 thumb zone: on wide phones the table moves to the left edge, so the on-screen buttons sit in the free space on the right (not over mats or labels)
+    if (isTouchDevice) { this.scale.autoCenter = Phaser.Scale.CENTER_VERTICALLY; this.scale.refresh(); }
     this.tagTexts = this.world.players.map((_, i) => withShadow(this.add.text(0, 0, SPECIES[this.species[i]].name, display(14, this.css[i], { strokeThickness: 4 })).setOrigin(0.5, 1).setDepth(3.9).setVisible(false), 2));
     this.modeText = withShadow(this.add.text(VIEW.w / 2, 96, '', display(26, '#ffe9c7', { strokeThickness: 5 })).setOrigin(0.5, 0).setDepth(6), 3);
     this.banner = withShadow(this.add.text(VIEW.w / 2, VIEW.h / 2 - 20, '', display(90, '#ffe9c7', { strokeThickness: 13, align: 'center', padding: { x: 10, y: 10 } })).setOrigin(0.5).setDepth(10), 8);
@@ -350,7 +354,10 @@ export class GameScene extends Phaser.Scene {
       ['↻ RESTART', () => { this.closePause(); this.scene.restart(this.initData); }],
       [`🎵 MUSIC: ${s.music > 0 ? 'ON' : 'OFF'}`, () => { const m = getSettings().music; if (m > 0) GameScene.lastMusic = m; setSetting('music', m > 0 ? 0 : GameScene.lastMusic); this.closePause(); this.setPaused(true, 2); }],
       [`🔊 SOUND: ${s.volume > 0 ? 'ON' : 'OFF'}`, () => { const v = getSettings().volume; if (v > 0) GameScene.lastVolume = v; setSetting('volume', v > 0 ? 0 : GameScene.lastVolume); this.closePause(); this.setPaused(true, 3); }],
-      ['✖ QUIT', () => { this.closePause(); this.leave(); }],
+      [this.initData.cup || this.initData.gauntlet ? '✖ QUIT (ends the Cup / run)' : '✖ QUIT', () => {
+        if ((this.initData.cup || this.initData.gauntlet) && !this.quitArmed) { this.quitArmed = true; this.closePause(); this.setPaused(true, 4); this.popup(VIEW.w / 2, 690, 'Tap QUIT again to really end it', '#ff8a7a', 20); return; }
+        this.closePause(); this.leave();
+      }],
     ];
     const objs = items.map(([label, fn], i) => new Button(this, VIEW.w / 2, 300 + i * 74, { w: 360, h: 60, label, size: 24, onClick: fn }, 12));
     const nav = new FocusNav(objs, 1);
@@ -773,7 +780,7 @@ export class GameScene extends Phaser.Scene {
           if (e.by !== null && e.by !== e.id && this.net?.role !== 'guest' && this.slots[e.by]?.kind === 'bot' && Math.random() < BOT_EMOTE_CHANCE) this.time.delayedCall(250, () => this.handleEvents([{ type: 'emote', id: e.by!, n: Math.floor(Math.random() * EMOTES.length) }]));
           if (this.initData.gauntlet && e.id === 0 && w.phase === 'play') w.endRound(w.alivePlayers().slice(0, 1)); // one life: the wave is lost
           break;
-        case 'handWarn': sfx.handWarn(); if (!this.handExplained && e.target !== null && this.isHuman(e.target)) { this.handExplained = true; const tp = this.world.players[e.target]; this.popup(tp.x, tp.y - 60, '✋ THE GIANT HAND WANTS YOU: it grabs the fullest belly! Move or STOMP!', '#ffb347', 20); } break;
+        case 'handWarn': sfx.handWarn(); if (!this.handExplained && e.target !== null && this.isHuman(e.target)) { this.handExplained = true; const tp = this.world.players[e.target]; this.popup(tp.x, tp.y - 60, '✋ THE GIANT HAND WANTS YOU (fullest belly)! STOMP, or DASH as it arrives!', '#ffb347', 20); } break;
         case 'handSweep': sfx.handSweep(); this.shake(0.006, 400); break;
         case 'windWarn': sfx.windWarn(); this.popup(640, 140, 'GUST INCOMING!', '#ffffff', 26); break;
         case 'windGust': sfx.windGust(); this.shake(0.003, 1300); break;
@@ -1069,7 +1076,7 @@ export class GameScene extends Phaser.Scene {
     const d = dailySetup();
     return {
       slots: [{ kind: 'local', index: 0 }, ...d.rivals.map((): Slot => ({ kind: 'bot', index: 0 }))], difficulty: 'normal',
-      species: [d.you, ...d.rivals], tables: [d.table], rounds: DAILY.rounds, botLevels: [null, ...DAILY.levels], mode: d.mode, powerups: DAILY.powerups, daily: { date: d.date },
+      species: [d.you, ...d.rivals], tables: [d.table], rounds: DAILY.rounds, botLevels: [null, ...DAILY.levels.map(l => (getSettings().kidMode ? 'easy' : l))], mode: d.mode, powerups: DAILY.powerups, daily: { date: d.date },
     };
   }
 
@@ -1233,7 +1240,7 @@ export class GameScene extends Phaser.Scene {
     if (outs.length && !this.humanWon(w.winner)) lines.push('Knocked out by: ' + outs.map(([k, n]) => (OUT[k] ?? k) + (n > 1 ? ' x' + n : '')).join(', '));
     if (outs.length && !this.humanWon(w.winner)) {
       const top = outs[0][0];
-      const tip: Record<string, string> = { fall: 'Stay away from the edges, and DASH back to the middle.', cutlery: 'DASH sideways when you see a charge line, or SWIPE to parry it back.', kaiju: 'Step out of the ring before each stomp, then hit them while they are dizzy.', squash: 'Step out of the ring before each stomp, then hit them while they are dizzy.', hand: 'The Giant Hand goes for the fullest belly: STOMP before it reaches you.' };
+      const tip: Record<string, string> = { fall: 'Stay away from the edges, and DASH back to the middle.', cutlery: 'DASH sideways when you see a charge line, or SWIPE to parry it back.', kaiju: 'Step out of the ring before each stomp, then hit them while they are dizzy.', squash: 'Step out of the ring before each stomp, then hit them while they are dizzy.', hand: 'The Giant Hand goes for the fullest belly: STOMP first, or DASH as it reaches you.' };
       if (tip[top]) lines.push('💡 ' + tip[top]);
     }
     if (GameScene.lossRun >= 2 && !this.humanWon(w.winner) && !this.initData.cup && !this.initData.gauntlet && !this.initData.trial && !this.story) lines.push('💡 Tough bots? Set BOT LEVEL to EASY, or switch on COMEBACK HELP in Settings.');
@@ -1284,11 +1291,14 @@ export class GameScene extends Phaser.Scene {
   }
 
   private popup(x: number, y: number, text: string, color: string, size = 22): void {
+    // the same callout again close by (e.g. TAG! HOT! back and forth): refresh it instead of stacking a new one
+    const same = this.popups.find(p => p.text.active && p.text.text === text && Math.abs(p.text.x - x) < 160 && Math.abs(p.text.y - y) < 120);
+    if (same) { same.life = 1; same.text.setPosition(Math.max(same.text.width / 2 + 8, Math.min(VIEW.w - same.text.width / 2 - 8, x)), Math.max(132 + same.text.height / 2, y)); return; }
     const t = withShadow(this.add.text(x, y, text, display(size + 2, color, { strokeThickness: 5 })).setOrigin(0.5).setDepth(7), 3);
     // never on top of another pop-up: keep it on screen (below the HUD), then step down past any live one it would cover
     const half = t.width / 2 + 8;
     t.setX(Math.max(half, Math.min(VIEW.w - half, x)));
-    let ty = Math.max(84 + t.height / 2, Math.min(VIEW.h - t.height / 2 - 4, y));
+    let ty = Math.max(132 + t.height / 2, Math.min(VIEW.h - t.height / 2 - 4, y));
     for (let k = 0; k < 6; k++) {
       const hit = this.popups.find(p => p.text.active && Math.abs(p.text.y - ty) < (p.text.height + t.height) / 2 && Math.abs(p.text.x - t.x) < (p.text.width + t.width) / 2);
       if (!hit) break;
@@ -1321,7 +1331,7 @@ export class GameScene extends Phaser.Scene {
     this.rings = this.rings.filter(r => r.t < 0.5);
     for (const p of this.popups) {
       p.life -= dt;
-      p.text.y = Math.max(84 + p.text.height / 2, p.text.y + p.vy * dt); // drifts up, but never into the HUD
+      p.text.y = Math.max(132 + p.text.height / 2, p.text.y + p.vy * dt); // drifts up, but never into the HUD or the mode line
       p.text.setAlpha(Math.min(1, p.life * 2));
       if (p.life <= 0) p.text.destroy();
     }
@@ -1431,6 +1441,11 @@ export class GameScene extends Phaser.Scene {
     }
     if (w.mode === 'crumbRush') {
       for (const p of w.players) if (p.alive && p.invT > 0) { o.lineStyle(3, 0xffffff, 0.4 + 0.4 * Math.sin(t * 20)); o.strokeCircle(p.x, p.y, p.r + 8); }
+    }
+    // ✨ Shiny forms: a golden shimmer and sparkles around your kaiju
+    for (const p of w.players) if (p.alive && this.isHuman(p.id) && !this.net && isShiny(this.species[p.id])) {
+      o.lineStyle(3, 0xffe27a, 0.5 + 0.3 * Math.sin(t * 5)); o.strokeCircle(p.x, p.y, p.r + 7);
+      for (let k = 0; k < 3; k++) { const a = t * 2.2 + k * 2.09; o.fillStyle(0xfff4c2, 0.85); o.fillCircle(p.x + Math.cos(a) * (p.r + 12), p.y + Math.sin(a) * (p.r + 12), 2.5); }
     }
     // 👑 Story boss Phase 2: a pulsing red aura on the boss
     if (this.bossPhase2) for (const b of this.bossSeats()) { const bp = w.players[b]; if (bp?.alive) { o.lineStyle(4, 0xff3b30, 0.45 + 0.35 * Math.sin(t * 7)); o.strokeCircle(bp.x, bp.y, bp.r + 16); } }

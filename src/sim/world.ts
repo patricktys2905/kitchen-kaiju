@@ -100,6 +100,7 @@ export interface Player {
   charge: number;
   dashT: number;
   dashCD: number;
+  dodgeT: number; // after a dash, the Giant Hand passes over you for this long
   dashBumped: boolean;
   swipeT: number;
   swipeCD: number;
@@ -341,7 +342,7 @@ export class World {
   private makePlayer(id: number, name: string): Player {
     return {
       id, name, x: 0, y: 0, vx: 0, vy: 0, kx: 0, ky: 0, r: P.radius, aim: 0, alive: true,
-      holding: null, charging: false, charge: 0, dashT: 0, dashCD: 0, dashBumped: false,
+      holding: null, charging: false, charge: 0, dashT: 0, dashCD: 0, dodgeT: 0, dashBumped: false,
       swipeT: 0, swipeCD: 0, swipeHit: new Set(), meter: 0, kaijuT: 0, stepT: 0, invT: 0,
       lastHitBy: null, lastHitT: 0, bumpT: 0, team: id, pts: 0, respawnT: 0, speedT: 0, shieldT: 0, sugarT: 0, moving: false, score: 0, kos: 0,
       prev: { throw: false, swipe: false, dash: false, stomp: false },
@@ -394,7 +395,7 @@ export class World {
       Object.assign(p, {
         x: sx, y: sy, vx: 0, vy: 0, kx: 0, ky: 0, r: P.radius,
         aim: Math.atan2(TABLE.y + TABLE.h / 2 - sy, TABLE.x + TABLE.w / 2 - sx),
-        alive: true, holding: null, charging: false, charge: 0, dashT: 0, dashCD: 0, dashBumped: false,
+        alive: true, holding: null, charging: false, charge: 0, dashT: 0, dashCD: 0, dodgeT: 0, dashBumped: false,
         swipeT: 0, swipeCD: 0, meter: this.mode === 'practice' ? 0 : RULES.startBelly, kaijuT: 0, stepT: 0, invT: 0, lastHitBy: null, lastHitT: 0, moving: false, pts: 0, respawnT: 0, speedT: 0, shieldT: 0, sugarT: 0,
         prev: { throw: true, swipe: true, dash: true, stomp: true }, // require a fresh press after the countdown
         powerCD: 0, powerT: 0, stunT: 0, pkx: 0, pky: 0,
@@ -495,6 +496,7 @@ export class World {
     if (stunned) { p.stunT -= dt; inp = { ...NO_INPUT }; }
     p.invT -= dt;
     p.dashCD -= dt;
+    if (p.dodgeT > 0) p.dodgeT -= dt;
     p.swipeCD -= dt;
     if (p.speedT > 0) p.speedT -= dt;
     if (p.shieldT > 0) p.shieldT -= dt;
@@ -525,6 +527,7 @@ export class World {
     if (pressed('dash') && p.dashCD <= 0 && !kaiju) {
       const a = ml > 0.2 ? Math.atan2(my, mx) : p.aim;
       p.dashT = P.dashTime;
+      p.dodgeT = RULES.handDodge;
       p.dashCD = P.dashCD * (mods.dashCD ?? 1);
       p.dashBumped = false;
       p.vx = Math.cos(a) * P.dashSpeed * (mods.dashSpeed ?? 1);
@@ -1607,7 +1610,8 @@ export class World {
     const lo = Math.min(prev, h.x, h.x - h.dir * W), hi = Math.max(prev, h.x, h.x - h.dir * W);
     for (const p of this.players) {
       if (!p.alive) continue;
-      if (Math.abs(p.y - h.y) < band / 2 + p.r * 0.5 && p.x + p.r > lo && p.x - p.r < hi) this.ko(p, null, 'hand');
+      // 🖐 a well-timed DASH slips under the hand (counter-play); a KO after a rival's hit counts for that rival
+      if (Math.abs(p.y - h.y) < band / 2 + p.r * 0.5 && p.x + p.r > lo && p.x - p.r < hi && p.dodgeT <= 0 && p.invT <= 0) this.ko(p, p.lastHitBy, 'hand');
     }
     this.crumbs = this.crumbs.filter(c => !(Math.abs(c.y - h.y) < band / 2 && c.x > lo && c.x < hi));
     const done = h.dir > 0 ? h.x - W > TABLE.x + TABLE.w : h.x + W < TABLE.x;

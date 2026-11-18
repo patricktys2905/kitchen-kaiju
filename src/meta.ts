@@ -56,6 +56,7 @@ export interface MetaSave {
   week: string; orders: Record<string, number>; done: string[]; // this week's order progress
   kaijuWonThisWeek: number[];
   owned: string[]; // shop item ids
+  shiny?: number[]; // ✨ species with their Shiny form bought
   dailyMedal: { date: string; medal: number }; // 0 none, 1 bronze, 2 silver, 3 gold
 }
 const KEY = 'kk-meta-v1';
@@ -139,6 +140,17 @@ export function buy(id: string): boolean {
   const cost = priceOf(id);
   if (!item || m.owned.includes(id) || m.tokens < cost) return false;
   m.tokens -= cost; m.owned.push(id); saveMeta(m); return true;
+}
+
+/** ✨ Shiny forms: a golden shimmer for one kaiju (in matches + Gallery). Needs that kaiju at Mastery Lv SHINY.level. EASY TO CHANGE. */
+export const SHINY = { cost: 300, level: 3 };
+export const isShiny = (species: number): boolean => (loadMeta().shiny ?? []).includes(species);
+export function buyShiny(species: number): 'ok' | 'level' | 'tokens' | 'owned' {
+  const m = loadMeta();
+  if ((m.shiny ?? []).includes(species)) return 'owned';
+  if (masteryLevel(m.xp[species] ?? 0) < SHINY.level) return 'level';
+  if (m.tokens < SHINY.cost) return 'tokens';
+  m.tokens -= SHINY.cost; m.shiny = [...(m.shiny ?? []), species]; saveMeta(m); return 'ok';
 }
 
 /** 🎓 Chef Rank: one number from achievements + total mastery (shown in Records). */

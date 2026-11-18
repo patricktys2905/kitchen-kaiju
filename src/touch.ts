@@ -329,7 +329,7 @@ export function initTouch(injectTap: (code: string) => void): void {
   onlinePill = el('div', row, { class: 'pill' }, '🌐 ONLINE');
   tapButton(onlinePill, 'TouchOnline');
   tapButton(el('div', row, { class: 'pill' }, '🎲'), 'TouchShuffle');
-  cupPill = el('div', row, { class: 'pill' }, '🏆 CUP');
+  cupPill = el('div', row, { class: 'pill' }, '🏆 CUP ON/OFF');
   tapButton(cupPill, 'TouchCup');
   tapButton(el('div', row, { class: 'pill go' }, '▶ PLAY'), 'Digit1');
 

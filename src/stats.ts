@@ -53,10 +53,13 @@ export interface Achievement {
 export const ACHIEVEMENTS: Achievement[] = [
   { id: 'first-win', icon: '🥇', name: 'First Bite', desc: 'Win a match', test: s => s.wins >= 1, progress: s => [s.wins, 1] },
   { id: 'wins-10', icon: '🍽️', name: 'Regular Diner', desc: 'Win 10 matches', test: s => s.wins >= 10, progress: s => [s.wins, 10] },
+  { id: 'wins-25', icon: '🍲', name: 'House Favourite', desc: 'Win 25 matches', test: s => s.wins >= 25, progress: s => [s.wins, 25] },
   { id: 'wins-50', icon: '👑', name: 'Head of the Table', desc: 'Win 50 matches', test: s => s.wins >= 50, progress: s => [s.wins, 50] },
   { id: 'kos-25', icon: '🍴', name: 'Forked Up', desc: 'Score 25 knockouts', test: s => s.kos >= 25, progress: s => [s.kos, 25] },
+  { id: 'kos-100', icon: '🥄', name: 'Spoon Fed Up', desc: 'Score 100 knockouts', test: s => s.kos >= 100, progress: s => [s.kos, 100] },
   { id: 'kos-250', icon: '🔪', name: 'Cutlery Drawer', desc: 'Score 250 knockouts', test: s => s.kos >= 250, progress: s => [s.kos, 250] },
   { id: 'crumbs-100', icon: '🍪', name: 'Crumb Muncher', desc: 'Eat 100 crumbs', test: s => s.crumbs >= 100, progress: s => [s.crumbs, 100] },
+  { id: 'crumbs-400', icon: '🥨', name: 'Second Breakfast', desc: 'Eat 400 crumbs', test: s => s.crumbs >= 400, progress: s => [s.crumbs, 400] },
   { id: 'crumbs-1000', icon: '🥐', name: 'Bottomless Belly', desc: 'Eat 1,000 crumbs', test: s => s.crumbs >= 1000, progress: s => [s.crumbs, 1000] },
   { id: 'kaiju-10', icon: '🦖', name: 'Size Matters', desc: 'Go KAIJU 10 times', test: s => s.kaijuForms >= 10, progress: s => [s.kaijuForms, 10] },
   { id: 'streak-3', icon: '🔥', name: 'On a Roll', desc: 'Win 3 matches in a row', test: s => s.bestStreak >= 3, progress: s => [s.bestStreak, 3] },

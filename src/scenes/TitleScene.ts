@@ -111,6 +111,7 @@ export class TitleScene extends Phaser.Scene {
     const t = withShadow(this.add.text(640, 186, '🏁 CHALLENGES', display(34, '#ffcf8a', { strokeThickness: 6 })).setOrigin(0.5).setDepth(31), 3);
     const info = this.add.text(640, 548, `Checkpoints: clear a course's boss wave once, and later runs can start at the next course.   Best wave: ${gauntletBest()}`, body(14, '#cdb9a3', 800)).setOrigin(0.5).setDepth(31);
     this.challengeUi.push(g, t, info);
+    this.challengeUi.push(this.add.zone(640, 360, 1280, 720).setInteractive().setDepth(30)); // swallows clicks between the buttons
     const close = new Button(this, 1050, 186, { w: 60, h: 44, label: '✖', size: 20, onClick: () => this.challenges(pick) }, 31);
     this.challengeUi.push(close); this.extraBtns.push(close);
     this.challengeUi.push(this.add.text(640, 236, 'GAUNTLET: pick where your run starts', body(16, '#ffd9a0', 900)).setOrigin(0.5).setDepth(31));

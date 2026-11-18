@@ -47,6 +47,7 @@ export const RULES = {
   handFirst: 7,
   handWarn: 1.4,
   handSpeed: 1700,
+  handDodge: 0.4, // a DASH within this many seconds of the hand reaching you slips under it
   handBand: 130,
   handWidth: 170,
   handInterval: [8, 12] as [number, number],

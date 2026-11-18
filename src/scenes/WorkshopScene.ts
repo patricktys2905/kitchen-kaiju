@@ -51,7 +51,7 @@ export class WorkshopScene extends Phaser.Scene {
     };
     btn(isTouchDevice ? 250 : 92, 40, 150, '◀ BACK', () => { sfx.leave(); this.scene.start('title'); });
     // palette
-    this.add.text(40, 92, 'PROPS (tap one, then tap the table)', body(14, '#ffd24a', 900)).setDepth(5);
+    this.add.text(40, 84, 'PROPS: tap one, then tap the table', body(13, '#ffd24a', 900)).setDepth(5);
     PROPS.forEach(([style], i) => {
       const x = 70 + (i % 4) * 96, y = 150 + Math.floor(i / 4) * 92;
       const z = this.add.zone(x, y, 88, 84).setInteractive({ useHandCursor: true }).setDepth(7);
@@ -61,7 +61,8 @@ export class WorkshopScene extends Phaser.Scene {
     tableZone.on('pointerup', (p: Phaser.Input.Pointer) => this.tapTable(p.x, p.y));
     btn(110, 548, 180, '◀ SURFACE ▶', () => this.cycleSurface(), 0x4fd1ff);
     btn(310, 548, 180, '⚠ HAZARD ▶', () => this.cycleHazard(), 0xff8a7a);
-    btn(110, 604, 180, '🗑 CLEAR', () => { this.cur().props = []; sfx.thwock(); this.redraw(); });
+    btn(65, 604, 88, '↶ UNDO', () => { const c = this.cur(); if (c.props.length) { c.props.pop(); sfx.pickup(); } else sfx.thwock(); this.redraw(); });
+    btn(157, 604, 88, '🗑 CLEAR', () => { this.cur().props = []; sfx.thwock(); this.redraw(); });
     btn(310, 604, 180, '📂 NEXT SLOT', () => { this.slot = (this.slot + 1) % MAX_CUSTOM; sfx.pickup(); this.redraw(); });
     btn(110, 660, 180, '💾 SAVE', () => this.save(), 0x8dff6a);
     btn(310, 660, 180, '▶ PLAY IT', () => this.playIt(), 0xffd24a);
@@ -159,6 +160,9 @@ export class WorkshopScene extends Phaser.Scene {
     if (key && hasArt(key)) add(this.add.image(PX + W / 2, PY + H / 2, key).setDisplaySize(W, H).setDepth(4));
     else g.fillStyle(0xc89a64, 1).fillRect(PX, PY, W, H);
     const g2 = add(this.add.graphics().setDepth(6));
+    // the chosen surface and hazard, shown ON the preview
+    add(this.add.text(PX + 10, PY + H - 10, `🍽 ${LAYOUTS[c.surface]?.name ?? ''}`, body(14, '#ffffff', 900, { backgroundColor: '#0d0805cc', padding: { x: 8, y: 4 } })).setOrigin(0, 1).setDepth(7));
+    if (c.hazard !== 'none') { const icon: Record<string, string> = { hand: '✋', wind: '💨', cleaver: '🔪', cheese: '🧀', spatula: '🍳' }; add(this.add.text(PX + W - 10, PY + 10, `${icon[c.hazard] ?? '⚠'} ${HAZARD_NAMES[c.hazard]}`, body(16, '#ffb347', 900, { backgroundColor: '#0d0805cc', padding: { x: 8, y: 4 } })).setOrigin(1, 0).setDepth(7)); }
     for (const s of SPAWNS) { const p = toScreen(s[0], s[1]); g2.lineStyle(2, 0xffffff, 0.5).strokeCircle(p.x, p.y, 18); }
     for (const pr of c.props) {
       const p = toScreen(pr.x, pr.y);

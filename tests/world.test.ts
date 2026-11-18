@@ -1295,3 +1295,34 @@ describe('trials, checklist, deals and ranks', () => {
     delete (globalThis as Record<string, unknown>).localStorage;
   });
 });
+
+describe('round 8 additions', () => {
+  it('dashing slips under the Giant Hand, and TOUGH sits between NORMAL and HARD', async () => {
+    const w = makeWorld(3, 'fork', { hazards: true });
+    place(w, 0, 300, 300); place(w, 1, 900, 300); place(w, 2, 640, 640);
+    w.players[0].meter = 40; w.players[1].meter = 40;
+    (w as unknown as { handTimer: number }).handTimer = 0;
+    run(w, 0.2);
+    const hw = w as unknown as { hand: { x: number; state?: string } | null };
+    const ev = run(w, 2.5, () => [{ ...NO_INPUT, dash: !!hw.hand && Math.abs(hw.hand.x - w.players[0].x) < 130 }]); // player 0 dashes just as the hand arrives
+    const kos = ev.filter(e => e.type === 'ko').map(e => (e as { id: number }).id);
+    expect(kos).toContain(1);
+    expect(kos).not.toContain(0);
+    const { DIFFICULTIES } = await import('../src/sim/bot');
+    expect(DIFFICULTIES.indexOf('tough')).toBeGreaterThan(DIFFICULTIES.indexOf('normal'));
+    expect(DIFFICULTIES.indexOf('tough')).toBeLessThan(DIFFICULTIES.indexOf('hard'));
+  });
+
+  it('a Shiny form needs Mastery Lv 3 and tokens, and only sells once', async () => {
+    const store: Record<string, string> = {};
+    (globalThis as Record<string, unknown>).localStorage = { getItem: (k: string) => store[k] ?? null, setItem: (k: string, v: string) => { store[k] = v; }, removeItem: (k: string) => { delete store[k]; } };
+    const { buyShiny, isShiny, loadMeta, saveMeta, MASTERY } = await import('../src/meta');
+    const m = loadMeta(); m.tokens = 1000; saveMeta(m);
+    expect(buyShiny(4)).toBe('level');
+    const m2 = loadMeta(); m2.xp[4] = MASTERY.levels[2]; saveMeta(m2);
+    expect(buyShiny(4)).toBe('ok');
+    expect(isShiny(4)).toBe(true);
+    expect(buyShiny(4)).toBe('owned');
+    delete (globalThis as Record<string, unknown>).localStorage;
+  });
+});

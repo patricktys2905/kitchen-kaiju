@@ -25,7 +25,7 @@ import { colourUnlocked, COLOURS, currentColour, setColour } from '../colours';
 import { GameScene } from './GameScene';
 import { exportSave, importSave } from '../backup';
 import { totalTrialStars, TRIAL_TOKENS, TRIALS, trialStars } from '../trials';
-import { buy, chefRank, completeStep, dailyDeal, loadMeta, MASTERY, masteryInfo, masteryStars, pinAchievement, pinnedAchievement, priceOf, SHOP, weeklyOrders, type OrderStat } from '../meta';
+import { buy, buyShiny, isShiny, SHINY, chefRank, completeStep, dailyDeal, loadMeta, MASTERY, masteryInfo, masteryStars, pinAchievement, pinnedAchievement, priceOf, SHOP, weeklyOrders, type OrderStat } from '../meta';
 import { ACTIONS, bind, keyFor, keyHint, keyLabel, RESERVED, resetKeybinds, type Action } from '../keybinds';
 
 /** Shared backdrop, title, BACK button and keyboard/pad focus handling. */
@@ -231,7 +231,7 @@ export class HelpScene extends PanelScene {
         'SWIPE: a close-range smack. It also knocks flying cutlery out of the air.',
         'DASH: a quick dodge. Dash into a rival to shove them; dash into incoming cutlery to catch it.',
         'STOMP: eat crumbs to fill your belly, then STOMP to go KAIJU: giant, unstoppable, squashes everyone. While KAIJU, THROW or SWIPE fires your kaiju\'s own power (see the Gallery).',
-        'PARRY: SWIPE just as cutlery reaches you to send it back. A dotted line shows a charging throw. The Giant Hand grabs the FULLEST belly, so STOMP before it reaches you.',
+        'PARRY: SWIPE just as cutlery reaches you to send it back. A dotted line shows a charging throw. The Giant Hand grabs the FULLEST belly: STOMP first, or DASH just as it reaches you to slip under it.',
         'Shove rivals off the edge, and watch out for each table\'s hazard!',
       ].join('\n'));
       { const mv = this.content[this.content.length - 1] as Phaser.GameObjects.Text; for (let f = 18; mv.y + mv.height > 462 && f > 14;) mv.setFontSize(--f); } // the moves list always ends above CONTROLS
@@ -384,11 +384,19 @@ export class GalleryScene extends PanelScene {
 
   /** 🥋 MOVE LAB: try the shown kaiju's KAIJU power with a belly that never empties. */
   private labBtn: Button | null = null;
+  private shinyBtn: Button | null = null;
   private addLabBtn(): void {
     this.buttons.push(this.labBtn = new Button(this, 1045, 488, { w: 150, h: 42, label: '🥋 MOVE LAB', sub: 'try its power', size: 15, accent: 0x8dd8ff, onClick: () => {
       const sp = this.shown < 0 ? 0 : this.shown;
       if (!owned().kaiju.includes(sp)) { sfx.thwock(); return; }
       sfx.go(); this.scene.start('game', GameScene.labData(sp));
+    } }, 6));
+    // ✨ buy this kaiju's Shiny form (a token sink once the Pantry is bought out)
+    this.buttons.push(this.shinyBtn = new Button(this, 1045, 640, { w: 150, h: 46, label: '✨ SHINY', sub: '', size: 15, accent: 0xffe27a, onClick: () => {
+      const sp = this.shown < 0 ? 0 : this.shown, r = buyShiny(sp);
+      if (r === 'ok') { sfx.matchWin(); this.showDetail(sp, false); return; }
+      sfx.thwock();
+      this.shinyBtn?.setText('✨ SHINY', r === 'level' ? `needs Mastery Lv ${SHINY.level}` : r === 'tokens' ? `need ${SHINY.cost} 🪙` : 'yours!');
     } }, 6));
   }
 
@@ -445,6 +453,7 @@ export class GalleryScene extends PanelScene {
 
   private showDetail(i: number, click: boolean): void {
     this.labBtn?.setVisible(i < SPECIES.length && owned().kaiju.includes(i)); // 🥋 only for kaiju you own
+    if (this.shinyBtn && i < SPECIES.length) { const own = owned().kaiju.includes(i), sh = isShiny(i); this.shinyBtn.setVisible(own); this.shinyBtn.setText(sh ? '✨ SHINY ✔' : '✨ SHINY', sh ? 'yours!' : `${SHINY.cost} 🪙 · Mastery Lv ${SHINY.level}`); }
     if (click) sfx.pickup();
     this.shown = i;
     for (const o of this.detail) o.destroy();
@@ -467,7 +476,7 @@ export class GalleryScene extends PanelScene {
       ? [`A ${sp.food}.`, `🌟 KAIJU power: ${KITS[i].power} — ${KITS[i].blurb}`, `Trait: ${KITS[i].trait}`, `Matches: ${st.kaijuPlays[i] ?? 0}  ·  Wins: ${st.kaijuWins[i] ?? 0}${u ? '  ·  🎁 Story reward' : ''}`, (() => { const mi = masteryInfo(loadMeta().xp[i] ?? 0); const nextR = MASTERY.rewards[mi.level]; return `Mastery ${masteryStars(mi.level)} Lv ${mi.level} ${mi.title}${mi.need ? ` (${mi.into}/${mi.need} XP)` : ' MAX'}${nextR ? `  ·  next: ${nextR}` : ''}`; })()]
       : [u ? `Unlock: ${needText(u)}` : 'Locked', '', 'Left: normal look · right: KAIJU MODE'];
     // fit inside the panel (x 600..1115, y 518..680): wrap to the width, then shrink the font until it fits
-    const W = 510, H = 160;
+    const W = 355, H = 160; // right side of the panel holds MOVE LAB + SHINY
     let size = 19;
     const info = this.add.text(600, 518, lines.join('\n'), body(size, '#f1e4d2', 800, { lineSpacing: 5, wordWrap: { width: W } })).setDepth(6);
     while (info.height > H && size > 12) { size--; info.setFontSize(size); }
