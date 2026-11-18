@@ -21,6 +21,8 @@ export const COLOURS: Colour[] = [
   { id: 'sky', name: 'Sky', unlock: 'hot', recipe: { hue: 192, sat: 0.8, light: 1.15 } },
   { id: 'lava', name: 'Lava', unlock: 'kaiju-10', recipe: { hue: 14, sat: 1.3, light: 0.85 } },
   // 🛒 bought in the Pantry with Chef Tokens (unlock 'shop:<item id>', see SHOP in src/meta.ts)
+  { id: 'toffee', name: 'Toffee', unlock: 'shop:toffee', recipe: { hue: 30, sat: 0.6, light: 0.78 } },
+  { id: 'lilac', name: 'Lilac', unlock: 'shop:lilac', recipe: { hue: 270, sat: 0.45, light: 1.15 } },
   { id: 'peach', name: 'Peach', unlock: 'shop:peach', recipe: { hue: 18, sat: 0.7, light: 1.18 } },
   { id: 'berry', name: 'Blueberry', unlock: 'shop:berry', recipe: { hue: 245, sat: 1.1, light: 0.85 } },
   { id: 'matcha', name: 'Matcha', unlock: 'shop:matcha', recipe: { hue: 80, sat: 0.55, light: 1.0 } },

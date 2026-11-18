@@ -298,7 +298,8 @@ export class MenuScene extends Phaser.Scene {
       this.scene.restart({ slots: this.slots, species: this.picks, difficulty: r.difficulty as Difficulty, party: r.party, mode: r.mode as GameMode, rounds: r.rounds, mutator: r.mutator as Mutator, powerups: r.powerups, hazards: r.hazards, tables: r.table >= 0 && r.table < LAYOUTS.length ? [r.table] : null });
     };
     const g = this.add.graphics().setDepth(30);
-    g.fillStyle(0x0d0805, 0.97).fillRoundedRect(140, 150, 1000, 470, 20).lineStyle(3, 0xffb347, 1).strokeRoundedRect(140, 150, 1000, 470, 20);
+    g.fillStyle(0x000000, 0.6).fillRect(0, 0, 1280, 720); // dim everything behind the panel
+    g.fillStyle(0x0d0805, 1).fillRoundedRect(140, 150, 1000, 470, 20).lineStyle(3, 0xffb347, 1).strokeRoundedRect(140, 150, 1000, 470, 20);
     this.rulesUi.push(g);
     const t = this.add.text(640, 186, '💾 HOUSE RULES: save this setup, load one, or share it as a code', body(20, '#ffd24a', 900)).setOrigin(0.5).setDepth(31);
     this.rulesUi.push(t);

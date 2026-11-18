@@ -1,4 +1,4 @@
-# Playtest brief (round 5): read this fully before playing
+# Playtest brief (round 6): read this fully before playing
 
 You are an AI playtester for **Kitchen Kaiju**, a couch party brawler. Food kaiju throw cutlery, shove each other off a table,
 eat crumbs to fill their belly, then STOMP to go giant (KAIJU mode, with a per-kaiju power).
@@ -18,26 +18,38 @@ You play the REAL built game through a local HTTP harness. The game is frozen be
 - Budget: about 60–90 harness commands. Play like your profile would: go where they would go and skip what they'd skip.
 - Do NOT edit any game files and do NOT stop or restart the server. Only write your report file.
 
-## New this round (judge these in depth, if your profile would touch them)
-1. **STOMP coach:** a bouncing "BELLY FULL! PRESS E → KAIJU" prompt over your kaiju when your belly is full. It always shows
-   in Story chapters 1–2, and elsewhere until you've gone KAIJU 5 times.
-2. **KAIJU counterplay:**
-   - A ring fills in before each giant stomp, so you can step out.
-   - A flashing ring warns when a KAIJU is about to shrink.
-   - When KAIJU ends, the kaiju is dizzy for 0.75 s and can be hit.
-3. **Gallery progress:**
-   - Locked kaiju and tables show progress, e.g. "you have 12/30 stars" or "3/8 cleared".
-   - Locked colours show achievement progress.
-   - 3 new early colours: Lemon, Sky and Lava.
-4. **Gauntlet lives:**
-   - 3 lives per run; losing a wave costs a life and retries that wave with your perks.
-   - New perks: Ghost Start (untouchable for the first 3 s) and Extra Life.
-5. **Party:**
-   - The new **Golden Spoon** mode: grab the spoon and hold it to score. First to 15 s wins the round; a KO drops it.
-   - **CUP LENGTH** button: a full 6-game Party Cup or a short 3-game one.
+## New this round (round 6: judge these in depth, if your profile would touch them)
+1. **Progression:**
+   - 🪙 Chef Tokens from every match.
+   - Kaiju Mastery levels (shown in each kaiju's Gallery card).
+   - 📋 Weekly Orders and the 🛒 PANTRY shop (title screen, top right).
+   - A 🧾 receipt card on every results screen: tokens, mastery, orders, how you were knocked out, and a tip.
+   - Chef Rank in Records.
+2. **Gauntlet:**
+   - Courses (Starters, Mains, Desserts, Seconds) with a course boss every 4th wave.
+   - Twist waves from wave 5.
+   - A score and grade at the end.
+   - The new BRUTAL bot level.
+   - Pantry items: Lunchbox and Lifeline.
+   - 3 lives (from last round).
+3. **Daily medals:** Bronze, Silver and Gold.
+4. **COMEBACK HELP** (Settings, on by default): whoever is behind on rounds starts the next one with a fuller belly. There is also a mercy tip after repeated losses.
+5. **💾 HOUSE RULES** on the Free Play and Party setup screens: 3 save slots plus share codes.
+6. **Story:**
+   - "What beat you" on defeat cards.
+   - Rivals react to how you won.
+   - Final-boss foreshadowing.
+   - Retry after losing a Dessert course.
+7. **Clarity:**
+   - First matches are shorter.
+   - The Giant Hand explains itself the first time.
+   - KAIJU stomp rings turn RED when you're inside, with a "DIZZY! HIT IT NOW!" call when a KAIJU shrinks.
+8. **Text fit:** every screen was audited so text stays inside its boxes. If you see ANY text that overruns its box, overlaps other text, or is cut off, report it under "Bugs" with the screenshot path.
+
+Last round's additions are still there: STOMP coach, Golden Spoon, CUP LENGTH, Gallery progress, Gauntlet lives.
 
 ## What we want from you: BIG, STRUCTURAL feedback
-The game has had four rounds of polish. Small fixes no longer move scores, so we need your best thinking on **big and complex
+The game has had five rounds of playtesting and fixes. Small fixes no longer move scores, so we need your best thinking on **big and complex
 changes**, such as:
 - missing systems or modes
 - broken or shallow loops

@@ -575,8 +575,8 @@ export class PantryScene extends PanelScene {
     const m = loadMeta();
     this.objs.push(withShadow(this.add.text(560, 118, `SHOP · you have 🪙 ${m.tokens}`, display(24, '#ffd24a', { strokeThickness: 4 })).setDepth(5), 2));
     SHOP.forEach((it, k) => {
-      const x = 720 + (k % 2) * 360, y = 220 + Math.floor(k / 2) * 140, own = m.owned.includes(it.id), afford = m.tokens >= it.cost;
-      const b = new Button(this, x, y, { w: 340, h: 120, label: `${it.name}`, sub: own ? '✔ OWNED' : `${it.desc}\n🪙 ${it.cost}${afford ? '' : '  (not enough yet)'}`, size: 18, accent: own ? 0x8dff6a : afford ? 0xffd24a : 0x6a5a4a, onClick: () => {
+      const x = 720 + (k % 2) * 360, y = 206 + Math.floor(k / 2) * 112, own = m.owned.includes(it.id), afford = m.tokens >= it.cost;
+      const b = new Button(this, x, y, { w: 340, h: 100, label: `${it.name}`, sub: own ? '✔ OWNED' : `${it.desc}\n🪙 ${it.cost}${afford ? '' : '  (not enough yet)'}`, size: 18, accent: own ? 0x8dff6a : afford ? 0xffd24a : 0x6a5a4a, onClick: () => {
         if (own) { sfx.thwock(); return; }
         if (buy(it.id)) { sfx.matchWin(); this.drawShop(); } else sfx.thwock();
       } }, 6);

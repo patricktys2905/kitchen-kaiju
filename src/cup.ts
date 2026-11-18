@@ -27,7 +27,13 @@ export const cupGames = (players: number, len: CupLength = cupLength()) => {
 };
 
 /** Points for each player from a finished match: ranked by round wins, then KOs; ties share the better place. */
-export function placePoints(players: { score: number; kos: number }[]): number[] {
+/** Cup points by finishing place. In Team Feast (teams = true) every teammate gets their TEAM's place. */
+export function placePoints(players: { score: number; kos: number; team?: number }[], teams = false): number[] {
+  if (teams) {
+    const ids = [...new Set(players.map(p => p.team ?? 0))];
+    const tkey = (t: number) => { const m = players.filter(p => (p.team ?? 0) === t); return Math.max(...m.map(p => p.score)) * 1000 + m.reduce((a, p) => a + p.kos, 0); };
+    return players.map(p => CUP.points[ids.filter(t => tkey(t) > tkey(p.team ?? 0)).length] ?? 0);
+  }
   const key = (p: { score: number; kos: number }) => p.score * 1000 + p.kos;
   return players.map(p => {
     const better = players.filter(q => key(q) > key(p)).length;

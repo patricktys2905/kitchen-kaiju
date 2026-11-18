@@ -67,7 +67,7 @@ export interface GameData {
   hazards?: boolean; // table hazards (hand, wind, cleaver…); default on
   mutator?: Mutator; // Free Play / Online rule twist
   hats?: string[]; // online: each seat's hat id ('' = none)
-  gauntlet?: { wave: number; bosses: number[]; perks?: string[]; lives?: number; kos?: number }; // kos = knockouts earlier in the run (for the score) // Gauntlet: seat 0 is you, one round per wave; perks picked between waves
+  gauntlet?: { wave: number; bosses: number[]; perks?: string[]; lives?: number; kos?: number; startBest?: number }; // startBest = best wave before this run (for NEW BEST) // kos = knockouts earlier in the run (for the score) // Gauntlet: seat 0 is you, one round per wave; perks picked between waves
   from?: string; // scene to go back to (practice: 'help' or 'gallery')
   daily?: { date: string }; // Daily Challenge: seat 0 is you
   party?: boolean; // started from the PARTY MODES setup (go back there afterwards)
@@ -311,9 +311,9 @@ export class GameScene extends Phaser.Scene {
     };
   }
   /** A new run: 🛒 Pantry items (Lifeline = +1 life, Lunchbox = a free starting perk). */
-  static runStart(): { lives: number; perks: string[] } {
+  static runStart(): { lives: number; perks: string[]; startBest: number } {
     const free = GAUNTLET_PERKS.filter(p => !p.once);
-    return { lives: GAUNTLET.lives + (shopOwned('lifeline') ? 1 : 0), perks: shopOwned('lunchbox') ? [free[Math.floor(Math.random() * free.length)].id] : [] };
+    return { startBest: gauntletBest(), lives: GAUNTLET.lives + (shopOwned('lifeline') ? 1 : 0), perks: shopOwned('lunchbox') ? [free[Math.floor(Math.random() * free.length)].id] : [] };
   }
 
   private setPaused(on: boolean, focus = 0): void {
@@ -395,7 +395,7 @@ export class GameScene extends Phaser.Scene {
     const gw = this.initData.gauntlet;
     this.updateResultButtons(dt);
     if (this.perkUi.length) { consumeTap('Escape'); for (const b of this.perkUi) b.update(dt); this.perkKeys?.(); return; }
-    if (gw && this.world.phase === 'matchEnd' && this.world.winner !== 0 && (gw.lives ?? GAUNTLET.lives) > 1 && (this.world.phaseT > 2.4 || consumeTap('Space') || consumeTap('Enter'))) {
+    if (gw && this.world.phase === 'matchEnd' && this.world.winner !== 0 && (gw.lives ?? GAUNTLET.lives) > 1 && (this.world.phaseT > 2.4 || consumeTap('Space') || consumeTap('Enter') || consumeTap('Digit1'))) {
       this.retryGauntletWave(gw);
       return;
     }
@@ -403,7 +403,8 @@ export class GameScene extends Phaser.Scene {
       if (!this.perkUi.length) this.offerPerks(gw);
       return;
     }
-    if (gw && this.world.phase === 'matchEnd' && this.world.winner !== 0 && (consumeTap('Digit1') || consumeTap('Space') || consumeTap('Enter'))) { this.newGauntletRun(); return; }
+    // the run is over: give the summary (score + grade) a moment before a key can start a new run
+    if (gw && this.world.phase === 'matchEnd' && this.world.winner !== 0 && this.world.phaseT > 1.5 && (consumeTap('Digit1') || consumeTap('Space') || consumeTap('Enter'))) { this.newGauntletRun(); return; }
     if (!this.story && !gw && !cup && this.world.phase === 'matchEnd' && this.net?.role !== 'guest' && (consumeTap('Digit1') || (anyStart && !this.padPrevStart) || (this.world.phaseT > 1.5 && (consumeTap('Enter') || consumeTap('Space'))))) {
       this.rematch();
       return;
@@ -468,10 +469,10 @@ export class GameScene extends Phaser.Scene {
       next.gauntlet = { ...next.gauntlet!, kos: (gw.kos ?? 0) + this.world.players[0].kos, perks: id === 'heart' ? gw.perks ?? [] : [...(gw.perks ?? []), id], lives: id === 'heart' ? lives + 1 : lives };
       this.scene.restart(next);
     };
-    this.perkUi = pool.map((pk, k) => new Button(this, VIEW.w / 2 + (k - 1) * 340, VIEW.h - 150, { w: 320, h: 96, label: pk.name, sub: pk.desc, size: 22, accent: 0x8dff6a, onClick: () => go(pk.id) }, 14));
+    this.perkUi = pool.map((pk, k) => new Button(this, VIEW.w / 2 + (k - 1) * 340, 470, { w: 320, h: 96, label: pk.name, sub: pk.desc, size: 22, accent: 0x8dff6a, onClick: () => go(pk.id) }, 14));
     const keys = ['Digit1', 'Digit2', 'Digit3'];
     this.perkKeys = () => { const k = keys.findIndex(c => consumeTap(c)); if (k >= 0 && pool[k]) go(pool[k].id); };
-    this.popup(VIEW.w / 2, VIEW.h - 230, 'PICK A PERK FOR THE NEXT WAVE (1 / 2 / 3)', '#8dff6a', 22);
+    this.popup(VIEW.w / 2, 392, 'PICK A PERK FOR THE NEXT WAVE (1 / 2 / 3)', '#8dff6a', 22);
   }
   private perkKeys: (() => void) | null = null;
 
@@ -990,7 +991,7 @@ export class GameScene extends Phaser.Scene {
   private cupTotals(): number[] {
     const cup = this.initData.cup;
     if (!cup) return [];
-    const add = this.world.phase === 'matchEnd' ? placePoints(this.world.players) : this.world.players.map(() => 0);
+    const add = this.world.phase === 'matchEnd' ? placePoints(this.world.players, this.world.mode === 'teams') : this.world.players.map(() => 0);
     return this.world.players.map((_, i) => (cup.points[i] ?? 0) + add[i]);
   }
 
@@ -1049,13 +1050,14 @@ export class GameScene extends Phaser.Scene {
     if (e.type === 'kaiju') T.kaiju[e.id]++;
     if (e.type === 'powerup') T.powers[e.id]++;
     if (e.type === 'ko') { T.deaths[e.id]++; if (e.cause === 'fall' || e.cause === 'wind') T.falls[e.id]++; }
-    if (e.type === 'matchEnd') this.awardsText.setText(this.awards());
+    if (e.type === 'matchEnd') { this.awardsText.setText(this.awards()).setFontSize(17).setWordWrapWidth(0); for (let f = 17; this.awardsText.width > 1000 && f > 11;) this.awardsText.setFontSize(--f); if (this.awardsText.width > 1000) this.awardsText.setWordWrapWidth(1000); }
     if (e.type === 'matchEnd' && this.initData.daily) recordDaily(this.world.players[0].score, this.humanWon(e.winner), this.initData.daily.date);
     if (e.type === 'matchEnd' && this.initData.dessert && e.winner === 0) saveDessert(this.initData.dessert.course + 1);
     if (e.type === 'roundStart' && this.initData.dessert && e.round === 1) { const q = COURSES[this.initData.dessert.course].quip; this.time.delayedCall(200, () => this.popup(VIEW.w / 2, 150, q, '#ffd9a0', 18)); }
     if (e.type === 'matchEnd' && this.initData.gauntlet) {
       const reached = this.initData.gauntlet.wave - (e.winner === 0 ? 0 : 1);
-      if (saveGauntletBest(reached) && e.winner !== 0 && reached > 0 && (this.initData.gauntlet.lives ?? GAUNTLET.lives) <= 1) this.time.delayedCall(600, () => { sfx.matchWin(); this.popup(VIEW.w / 2, 140, '🏅 NEW BEST!', '#ffd24a', 30); });
+      saveGauntletBest(reached);
+      if (e.winner !== 0 && reached > (this.initData.gauntlet.startBest ?? 0) && (this.initData.gauntlet.lives ?? GAUNTLET.lives) <= 1) this.time.delayedCall(600, () => { sfx.matchWin(); this.popup(VIEW.w / 2, 140, '🏅 NEW BEST!', '#ffd24a', 30); });
     }
     if (this.net?.role === 'guest' || !this.slots.some((_, i) => this.isHuman(i))) return;
     this.tallyEvent(e);
@@ -1084,7 +1086,7 @@ export class GameScene extends Phaser.Scene {
         got.forEach((a, k) => this.time.delayedCall(1200 + k * 1600, () => {
           sfx.meterFull();
           const col = COLOURS.find(c => c.unlock === a.id);
-          this.popup(VIEW.w / 2, this.initData.gauntlet ? 300 : 535, `🏆 ${a.name.toUpperCase()}: ${a.desc}${col ? `  ·  🎨 ${col.name} colour unlocked!` : ''}`, '#ffd24a', 22);
+          this.popup(VIEW.w / 2, this.initData.gauntlet ? 335 : 112, `🏆 ${a.name.toUpperCase()}: ${a.desc}${col ? `  ·  🎨 ${col.name} colour unlocked!` : ''}`, '#ffd24a', 22);
         }));
         break;
       }
@@ -1117,7 +1119,7 @@ export class GameScene extends Phaser.Scene {
 
   /** 🧾 The receipt card (bottom-left of the results): tokens, mastery, orders, and how you were knocked out. */
   private renderReceipt(): void {
-    const w = this.world, r = this.receipt, show = !!r && w.phase === 'matchEnd' && !this.replay && w.phaseT > 0.5;
+    const w = this.world, r = this.receipt, show = !!r && w.phase === 'matchEnd' && !this.replay && w.phaseT > 0.5 && !this.perkUi.length;
     this.receiptG.clear();
     if (!show || !r) { this.receiptText.setVisible(false); return; }
     const lines = [...r.lines];
@@ -1129,7 +1131,7 @@ export class GameScene extends Phaser.Scene {
       const tip: Record<string, string> = { fall: 'Stay away from the edges, and DASH back to the middle.', cutlery: 'DASH sideways when you see a charge line, or SWIPE to parry it back.', kaiju: 'Step out of the ring before each stomp, then hit them while they are dizzy.', squash: 'Step out of the ring before each stomp, then hit them while they are dizzy.', hand: 'The Giant Hand goes for the fullest belly: STOMP before it reaches you.' };
       if (tip[top]) lines.push('💡 ' + tip[top]);
     }
-    if (GameScene.lossRun >= 2) lines.push('💡 Tough bots? Set BOT LEVEL to EASY, or switch on COMEBACK HELP in Settings.');
+    if (GameScene.lossRun >= 2 && !this.humanWon(w.winner)) lines.push('💡 Tough bots? Set BOT LEVEL to EASY, or switch on COMEBACK HELP in Settings.');
     this.receiptText.setText(['🧾 THIS MATCH', ...lines].join('\n')).setVisible(true);
     const b = this.receiptText.getBounds();
     this.receiptG.fillStyle(0x1a0d06, 0.88).fillRoundedRect(b.x - 12, b.y - 10, b.width + 24, b.height + 20, 14).lineStyle(2, 0xffb347, 0.9).strokeRoundedRect(b.x - 12, b.y - 10, b.width + 24, b.height + 20, 14);
@@ -1459,7 +1461,7 @@ export class GameScene extends Phaser.Scene {
       if (this.initData.cup) sub = `🏆 PARTY CUP · GAME ${this.initData.cup.game + 1}/${cupGames(w.players.length).length} · ${modeDef(w.mode).name} · ${w.layout.name}`;
       if (this.initData.dessert) { const c = COURSES[this.initData.dessert.course]; sub = `🍰 DESSERT COURSE ${this.initData.dessert.course + 1}/${COURSES.length} · ${c.title.toUpperCase()} · ${w.layout.name}`; }
       if (this.initData.daily) sub = `📅 DAILY CHALLENGE · win this match to clear today and keep your 🔥 streak · ${w.layout.name}`;
-      if (this.initData.gauntlet) sub = `GAUNTLET · ${waveCourse(this.initData.gauntlet.wave)} · WAVE ${this.initData.gauntlet.wave}${this.initData.gauntlet.wave % GAUNTLET.bossEvery === 0 ? ' (COURSE BOSS)' : ''} · ${w.players.length - 1} rival${w.players.length > 2 ? 's' : ''}${this.bossSeats().length ? ' + 👑 BOSS' : ''} · ${w.layout.name}`;
+      if (this.initData.gauntlet) sub = `GAUNTLET · ${waveCourse(this.initData.gauntlet.wave)} · WAVE ${this.initData.gauntlet.wave}${this.initData.gauntlet.wave % GAUNTLET.bossEvery === 0 ? ' (COURSE BOSS)' : ''} · ❤ ${this.initData.gauntlet.lives ?? GAUNTLET.lives} · ${w.players.length - 1} rival${w.players.length > 2 ? 's' : ''}${this.bossSeats().length ? ' + 👑 BOSS' : ''} · ${w.layout.name}`;
       if (w.mutator !== 'none') sub += `\n⚡ TWIST: ${mutatorDef(w.mutator).name} — ${mutatorDef(w.mutator).blurb}`;
       if (this.tip) sub += `\n\n💡 ${this.tip}`;
     } else if (w.phase === 'play' && this.bannerT > 0) {
@@ -1475,7 +1477,7 @@ export class GameScene extends Phaser.Scene {
       sub = chunk(scores, 3).map(r => r.join('      ')).join('\n');
     } else if (w.phase === 'matchEnd' && this.initData.cup) {
       const cup = this.initData.cup, games = cupGames(w.players.length), last = cup.game + 1 >= games.length;
-      const add = placePoints(w.players), tot = this.cupTotals();
+      const add = placePoints(w.players, w.mode === 'teams'), tot = this.cupTotals();
       const order = w.players.map((p, i) => i).sort((a, b) => tot[b] - tot[a]);
       const lead = order[0];
       main = last ? `${w.players[lead].name}\nWINS THE PARTY CUP!` : `PARTY CUP · GAME ${cup.game + 1}/${games.length}`;
@@ -1496,11 +1498,11 @@ export class GameScene extends Phaser.Scene {
       if (w.winner === 0) { main = `WAVE ${wave} CLEARED!`; color = '#8dff6a'; sub = `Next: wave ${wave + 1} · ${'❤'.repeat(Math.max(0, lives))}`; }
       else if (lives > 1) { main = 'LIFE LOST!'; color = '#ffb347'; sub = `${'❤'.repeat(Math.max(0, lives - 1))} left · trying wave ${wave} again with your perks…`; }
       else {
-        const reached = wave - 1, best = Math.max(gauntletBest(), reached);
+        const reached = wave - 1, prev = this.initData.gauntlet.startBest ?? 0, best = Math.max(prev, reached);
         main = 'GAUNTLET OVER'; color = '#ff8a7a';
         const perks = (this.initData.gauntlet.perks ?? []).map(id => GAUNTLET_PERKS.find(q => q.id === id)?.name ?? id);
         const score = runScore(reached, (this.initData.gauntlet.kos ?? 0) + this.world.players[0].kos);
-        sub = `You cleared ${reached} wave${reached === 1 ? '' : 's'} (reached ${waveCourse(wave)})${reached >= best && reached > 0 ? ' · 🏅 NEW BEST!' : ` · best ${best}`}\nScore ${score} · GRADE ${runGrade(score)}${perks.length ? `  ·  perks: ${perks.join(', ')}` : ''}`;
+        sub = `You cleared ${reached} wave${reached === 1 ? '' : 's'} (reached ${waveCourse(wave)})${reached > prev ? ' · 🏅 NEW BEST!' : ` · best ${best}`}\nScore ${score} · GRADE ${runGrade(score)}   (grades: ${GAUNTLET.grades.slice(0, -1).reverse().map(([n, g]) => `${g} ${n}`).join(' · ')})${perks.length ? `\nPerks: ${perks.join(', ')}` : ''}`;
       }
     } else if (w.phase === 'matchEnd' && this.story) {
       main = w.winner === 0 ? 'CHAPTER CLEAR!' : 'DEFEATED';

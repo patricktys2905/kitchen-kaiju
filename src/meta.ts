@@ -2,7 +2,7 @@
 // EASY TO CUSTOMISE: every number lives in META, MASTERY, ORDERS and SHOP below. Saved on this device ('kk-meta-v1').
 
 export const META = {
-  tokens: { play: 5, win: 10, perKo: 1, perKaiju: 2, perWave: 4, dailyBronze: 10, dailySilver: 20, dailyGold: 40, order: 40, masteryLevel: 25 },
+  tokens: { play: 8, win: 10, perKo: 1, perKaiju: 2, perWave: 4, dailyBronze: 10, dailySilver: 20, dailyGold: 40, order: 40, masteryLevel: 25 },
 };
 
 /** Mastery XP per match with a kaiju, and the XP needed to REACH each level (index = level - 1). */
@@ -31,6 +31,8 @@ export const ORDERS: OrderDef[] = [
 export interface ShopItem { id: string; name: string; desc: string; cost: number; kind: 'colour' | 'perk' }
 /** 🛒 The Pantry: spend Chef Tokens. Colours here are extra styles (see COLOURS unlock 'shop:<id>'). */
 export const SHOP: ShopItem[] = [
+  { id: 'toffee', name: '🍬 Toffee colour', desc: 'Warm caramel brown', cost: 40, kind: 'colour' },
+  { id: 'lilac', name: '💜 Lilac colour', desc: 'Soft lilac', cost: 70, kind: 'colour' },
   { id: 'peach', name: '🍑 Peach colour', desc: 'A soft peach style for every kaiju', cost: 120, kind: 'colour' },
   { id: 'berry', name: '🫐 Blueberry colour', desc: 'Deep berry blue', cost: 180, kind: 'colour' },
   { id: 'matcha', name: '🍵 Matcha colour', desc: 'Calm green tea', cost: 240, kind: 'colour' },
@@ -117,7 +119,7 @@ export function recordMatch(s: MatchSummary): Receipt {
   saveMeta(m);
   const lines = [`🪙 +${tokens} Chef Tokens (${m.tokens})`, `${levelUp ? '⬆ ' : ''}Mastery Lv ${info.level} ${info.title}${info.need ? ` · ${info.into}/${info.need} XP` : ' · MAX'}`];
   for (const o of ordersDone) lines.push(`📋 Order done: ${o}`);
-  if (medal) lines.push(`${['', '🥉 Bronze', '🥈 Silver', '🥇 Gold'][medal]} daily medal`);
+  if (medal) lines.push(['', '🥉 Bronze daily medal (for playing today: win for 🥈)', '🥈 Silver daily medal (win without dropping a round for 🥇)', '🥇 Gold daily medal!'][medal]);
   return { tokens, total: m.tokens, xp, species: s.species, level: info.level, levelUp, into: info.into, need: info.need, ordersDone, medal, lines };
 }
 

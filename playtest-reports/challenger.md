@@ -1,82 +1,99 @@
-# Playtest evaluation: The Challenge Seeker (challenger)
+# Playtest evaluation — The Challenge Seeker
 
-**Fun score: 5.5 / 10** (the challenge content is thin, has no scoring depth, and gives me almost no reason to return after one session)
+**Fun score: 6.0 / 10** (the hard modes exist and the course-boss idea is good, but I hit my first boss within about 8 minutes and found nothing past it to aim at: no ladder, no rising stakes, no reason to run it a tenth time.)
 
 ## What I did
-- Title screen, then Gauntlet run 1 (hard bot in my seat): cleared wave 1, lost a life on wave 2, retried and cleared it, cleared wave 3 on the last heart, then GAUNTLET OVER ("You cleared 3 waves, NEW BEST, Score 300").
-- Daily Challenge (today = HOT DUMPLING, Fondue Night): 1 try, FAILED ("best 0 rounds, tries 1, win streak 0 days"). Looked at the failed screen (shot-6).
-- Story: opened chapter 1 (cutscene, skipped with S), cleared it (2 stars), then replayed it with SPICY ON and got "SPICY CLEAR! Feeling Spicy!" (but Story stars stayed at 2).
-- Gauntlet run 2: reached wave 4 cleared, died on wave 5 (3 lives, hearts went 3 -> 2 -> 2 -> 1 -> 1, "You cleared 4 waves, NEW BEST, Score 410"). I chose Ghost Start, Extra Life and Full Belly.
-- Records screen (10 matches played, 5 won, ACHIEVEMENTS 4/34).
-- About 55 harness commands. /errors was empty at start, middle and end.
-- Never reached Dessert Course (locked behind 18 story chapters), and Spicy ch 2+ is locked behind clearing them first.
+- About 55 harness commands on a fresh save (3 achievements, 0% Story).
+- **Gauntlet, 2 runs:**
+  - Run 1: waves 1 to 3 cleared, died in wave 4, grade C, score 360 (shot-4.png).
+  - Run 2: died on the wave-4 COURSE BOSS, grade C, score 350 (shot-21.png).
+  - I picked perks on every wave (Extra Life, Full Belly twice). Waves were mostly piloted by `auto:hard`. By hand I won wave 1 and lost a life on wave 2 (shot-3.png).
+- **Daily Challenge:** played to completion (Hot Dumpling, Fondue Night). Won over 6 rounds, got a Silver medal and a streak of 1 (shot-9.png).
+- **Free Play:** BRUTAL bots plus the KAIJU FRENZY twist, 3 players. I lost the two rounds I played by hand. Then an 8-match autoplay on hard went 3 wins, 5 losses.
+- **Other screens:** Pantry (shot-5.png), Records (shot-18.png), Story select (shot-10.png, shot-11.png).
+- **Not reachable on a fresh save:** Spicy chapters ("SPICY: clear it first"), chapters 5 to 12 and the Dessert Course. As a challenge-seeker I could not touch them.
+- About 30 matches in total. Tokens ended at 738.
+- /errors was "none" at the start, middle and end.
 
 ## What worked for me (briefly)
-- Lives are a good idea: "LIFE LOST! 2 left, trying wave 2 again with your perks" is clear, and a failed wave no longer ends a 10-minute run.
-- The perk draft between waves (PICK A PERK 1/2/3, shot-2) is the best moment in the mode. Ghost Start / Extra Life / Sugar Rush / Full Belly are legible choices.
-- Spicy toggle per chapter ("SPICY: ON (tougher rivals)") is a clean, opt-in difficulty switch, and the Story map shows a separate 0/12 spicy counter.
-- The Daily recap shows a ranked list of the 4 participants with rounds and KOs; that is a good template.
+- The Gauntlet frame is right: three lives, a perk pick after each wave, a course boss on wave 4 ("3 rivals + 👑 BOSS"), and a score with a letter grade. Seeing grade C told me better grades exist.
+- The receipt card's "Knocked out by: 🦖 a KAIJU" plus a tip ("Step out of the ring before each stomp, then hit them while they are dizzy") is the best part of this round. It turned a loss into a lesson, and the tip changed between runs.
+- Daily results are clear: a 4-seat standings list, a streak and a medal. The Pantry is easy to read.
+- "💫 DIZZY! HIT IT NOW!" fired at the right moment.
+- BRUTAL bots are properly hard. They go KAIJU and use powers constantly.
 
 ## The single biggest structural problem
-**Challenges are a flat, unscored, unrewarded ladder with nothing to chase after the first attempt.** I went straight to the hardest content as a challenge seeker would. The Gauntlet gave me 100 points per wave and a "Best wave 3" tag on the title screen, nothing else: no currency, no star, no unlock, no leaderboard, no run history, no modifiers to make a second run different from the first. The Daily is a single Hot Dumpling match that I lost, and the result screen says "Today: not won yet, tries 1, win streak 0 days" with the only prize being a streak counter. Spicy ch 1 gave an achievement but no star (Story stayed at "2/36"), and its difficulty was trivially beaten by a hard bot, so it never felt "tough". The hard content is also silo'd: Gauntlet, Daily and Spicy each live on a different screen and none feeds the others or the Gallery. A challenger needs a clear skill ceiling, a visible "how good was this run" number, and something to unlock for being good. Today the loop is "play, die at wave 4, see 'NEW BEST', go away".
+**Every challenge mode is a one-shot score attempt with no ladder above it, no way to set a target, and nothing carried between runs.**
+
+I went straight for the hardest content. Gauntlet gave me "GRADE C" and "NEW BEST!" twice (the second time with a lower score, 350 against 360, which looks like a bug). Nothing told me what a B or an A needs, or what lies beyond the course boss. I only ever saw "🥗 STARTERS", and the twist waves from wave 5 were beyond my reach, so the run ended before the interesting part. The only carry-over is the Pantry (Lunchbox 250, Lifeline 350), and those make the run easier rather than giving me a harder goal. I finished with 738 unspent tokens and nothing that mattered to buy.
+
+The Daily has the same shape. I won, got Silver, and the screen does not say what Gold takes (shot-9.png). There is one daily mode per day and no difficulty tiers. Spicy chapters and the Dessert Course are gated behind normal clears, so for a challenger the hard content is a long detour behind easy content.
+
+My loop was: try, die at the boss, see grade C, close the app. Failure gives me a tip but no milestone and no next step.
 
 ## Big change proposals (2–3, most important first)
 
-### Proposal 1: Gauntlet rebuild into "The Endless Banquet" (scored, modifiable, rewarded roguelite runs)
-- **Problem it solves:** Gauntlet run 1 ended "Score 300", run 2 "Score 410". The scoring is basically 100 per wave plus a tiny KO bonus; there was no way to tell a great run from a lucky one. Waves 1-3 are the same loop (1 rival, 2 rivals, 3 rivals, all just "more bots"). The perk offers repeated (Ghost Start came up in 3 drafts; Mustard Coat in 3) with no stacking or synergy, so run 2 felt identical to run 1. Extra Life was offered at waves 1, 2, 3 but not always, which feels like luck, not skill.
+### Proposal 1: Gauntlet Ladder (named grade targets, course gates, Marks track)
+- **Problem it solves:** I scored 360 and 350 and was told only "GRADE C". There was no stated goal, no visible course map, and nothing carried across runs. The Starters boss at wave 4 stopped me twice, and the run just ended.
 - **How it would work (detailed design):**
-  - **Run structure:** a run is 12 waves in 3 "courses" of 4 (Starters, Mains, Desserts). Every 4th wave is a boss wave (a single KAIJU-mode champion with a unique pattern, e.g. a "Head Chef" that throws a pan every 4 s, a "Giant Hand" table that slides). Waves 1-3 of a course stay the existing "1, 2, 3 rivals" shape, but every wave carries one **wave rule** from a deck of ~12 (e.g. "Slippery Table: low friction", "Hot Soup: rim hazard", "Double Crumbs", "No Dash", "Rivals start KAIJU-ready"). The rule is announced on the intro card (where the tip text sits now, shot-5 style) so skill, not RNG, decides.
-  - **Score formula (shown live in the HUD and in a breakdown on GAUNTLET OVER):** 100 per wave, +25 per KO, +50 flawless wave (no hit taken), +10 per second left on a 60 s par timer, +200 boss, x(1.0 + 0.25 per life still unspent) at end. Show a letter grade (D to S) with thresholds (S = 4,000+ for a full 12-wave run).
-  - **Perks:** draft remains 3-of-N, but split into 3 categories (Offence, Defence, Utility) with one of each always offered, and **perks stack to level 3** (Ghost Start 3 s / 4 s / 5 s; Mustard Coat blocks 1 / 2 / 3 hits). Add 2-3 synergy perks ("Sugar Dash": dash shoves rivals; "Spicy Belly": full belly adds 10 s of KAIJU). Add a **reroll** token (1 per run, 2 with the Records "Gourmet" achievement).
-  - **Lives:** keep the 3 lives, but a lost wave retry keeps the same rivals and rule (in run 1 wave 2 changed from MOTHBALL+BLOBLIN to SQUIDGEON+BLUEBEARY on retry, which made "retry" feel like a coin flip, not a lesson). Extra Life is removed from the perk pool and instead awarded after each boss.
-  - **Between runs:** a **Gauntlet Pantry** screen (reachable from the Gauntlet card and GAUNTLET OVER) shows best score per course, best grade, total runs, and a "Chef Level" (XP = run score / 10). Chef levels 1-20 unlock new perks into the pool, new wave rules, and cosmetic "Chef Hat" frames in the Gallery.
-- **Example moment:** Wave 7 card: "COURSE 2 · WAVE 3 · DOUBLE TROUBLE · rule: SLIPPERY TABLE". I take the Defence perk "Mustard Coat II" and the Offence perk "Sugar Dash". I clear the wave without a hit (+50 flawless, par timer +140), the HUD ticks up "2,310 · Rank A". Boss at wave 8 telegraphs a pan slam with a red ring; I dodge it and win. GAUNTLET OVER shows a breakdown, "A rank, Chef XP +230, Level 4 reached: unlocked perk Spicy Belly".
-- **Rewards / progression hooks:** Chef Level unlocks perks/rules; first-time S rank per course gives a colour style (e.g. "Flambe" for course 1) so it plugs into the Gallery and the "NEXT UP" ticker on the title; a weekly "best run" display for the device; personal run history (last 10 with seeds).
-- **Risks and edge cases:** more content to balance; stacking perks can break (Ghost Start at 5 s on a 4-rival wave); needs a seed so a run can be shared and replayed. Phones: cards must fit the 3-card perk row (they do today). Online: keep solo-only; local-only run history is enough.
-- **Size:** L (Gauntlet mode, perk system, new wave-rule hooks into table/hazard code, boss AI, result screen, Records/Gallery hooks).
-- **Score impact for me:** +2.0. This is the single change that turns "dies at wave 4, shrug" into "one more run".
+  - **Course map screen.** Tapping GAUNTLET on the title opens a vertical course map before the run: Starters (waves 1 to 4, boss), Mains (5 to 8, boss), Desserts (9 to 12, boss), Seconds (13+, endless, a boss every 4th wave). Each course shows locked or unlocked and the best grade.
+  - **Grade thresholds, shown before and during the run.** Publish the table: C = 250, B = 600, A = 1200, S = 2200. Show the next threshold in the HUD under the wave counter ("B at 600 · you: 360"). The results screen says how far the next grade was.
+  - **Checkpoints.** Killing a course boss earns a Gauntlet Ticket (hold up to 3). A ticket lets a new run start at the next course, with 2 lives and no perks, so it is a fair shortcut and not a free ride.
+  - **Marks and modifiers.** After each run, award Marks: 1 per wave cleared, 3 per boss, 5 for an S. Spend Marks on a 10-node tree of harder-run options (2 lives only, faster stomp cycle, bosses with a second kaiju). Each raises the score multiplier, up to x2.0. This lets a challenger make the Gauntlet harder, not easier.
+  - **Results screen.** The receipt keeps its tokens and mastery lines. Add a "NEXT GOAL" row: "Reach wave 6 for B grade (+150 pts)".
+- **Example moment:** I die on the wave-4 boss with 360 points. The results screen says "Starters boss: 1 hit short. B grade needs 600." I press NEW RUN, see "B at 600" in the HUD, and play wave 3 faster to bank points. This time I kill the boss, earn a ticket and a Mark, and the next run offers "Start at Mains".
+- **Rewards / progression hooks:** grade medals per course (a 12-slot grid in Records), Marks for the modifier tree, tickets, a Gauntlet line on Chef Rank. The reason to return is a visible next step on every run.
+- **Risks and edge cases:** tickets could cheapen runs, so cap them at 3 and cost one per use. Modifiers need a clear label showing the score multiplier. On phones the course map must scroll vertically. Online is not affected.
+- **Size:** L. Touches Gauntlet results and HUD, Records, the title menu, save data and the Pantry.
+- **Score impact for me:** +1.5. It turns "grade C" into a ladder, which is what a challenge-seeker lacks.
 
-### Proposal 2: A real Daily/Weekly challenge system with a rotating ruleset, rewards and a local ladder
-- **Problem it solves:** The Daily was one Hot Dumpling match with a 4-line scoreboard; "FAILED" gave me "Today: not won yet, best 0 rounds, tries 1, win streak 0 days" and "1 / START rematch" with nothing at stake. It showed me in a kaiju I did not choose (BUBBLEGUMBO) with unknown bots, so I could not plan or practise. The result list also confusingly ranks "3. BUBBLEGUMBO (YOU) 0 rounds, 4 KOs" below a bot with 1 round and 0 KOs, with no explanation of why I lost the "match" while holding the most KOs. There is no reason to open Daily more than once.
+### Proposal 2: Daily Challenge tiers with a visible medal rule
+- **Problem it solves:** I won the Daily and got "Silver daily medal" (shot-9.png) with no rule shown. One daily per day with a single win condition takes 5 minutes, then nothing until tomorrow. The screen offers REMATCH but does not say whether a retry counts.
 - **How it would work (detailed design):**
-  - **Daily card on the title** (replaces "Today: HOT DUMPLING") shows 3 tiers as chips: Bronze "Win", Silver "Win without losing a round", Gold "Win with today's **Objective**" (e.g. "Win using only thrown cutlery", "Win with 0 falls", "Win in under 90 s"). Rules, table, mutator, kaiju and bot level are fixed per date (seeded) and shown on a pre-match briefing screen with the objective and a 10 s "practice" button.
-  - **Weekly Gauntlet-style ladder:** a "This Week" strip: 7 daily seeds; completing tiers earns "Daily Tokens" (Bronze 1, Silver 2, Gold 3). The 7-day streak calendar (each day a plate that fills) pays: 3 days = 1 colour crate, 7 days = a weekly exclusive style ("Weekly Gold Fork").
-  - **Retries:** unlimited, but only the best result counts; each try shows a delta "your best: Silver; this try: Bronze".
-  - **Local + (optional) online ladder:** local top-5 per day on this device, plus a share code ("KK-1118-GOLD-72s") a family can compare; an online leaderboard is a later add-on.
-  - **Result screen:** replace the generic 4-row list with a tier banner, objective check marks ("Win ✓, No falls ✗, Under 90 s ✓"), tokens earned and a "Try again for Gold" button.
-- **Example moment:** I open the title. The Daily card says "TODAY: HOT DUMPLING · Gold: pass it on 5 times and never hold it at 0 s · streak 3". I read the briefing, press Practice for 10 s, then play. I win with the fuse going off on a bot but I held it at 0 s once: Silver, 2 tokens. The result screen says "Gold needs a clean run: try again?" and I hit it until I get Gold.
-- **Rewards / progression hooks:** tokens spent in a small "Pantry shop" for cosmetic colours (ties to the Gallery's locked-colour progress) and Gauntlet perks; streak calendar; weekly exclusive.
-- **Risks and edge cases:** the seed must be deterministic (check Hot Dumpling and Golden Spoon with the same RNG seed); time zone rollovers; if the player has not unlocked the daily's kaiju or table the daily must lend them (it already did: I was given Bubblegumbo). Not offering a daily every mode (e.g. Online) to avoid empty days.
-- **Size:** M (Daily mode data, objective checkers, title card, result screen, token store, Records).
-- **Score impact for me:** +1.2. It adds a reliable daily hook, but it only pays off once Proposal 1 has given tokens somewhere to go.
+  - **Three tiers per day, same seed, same mode.** Bronze: win the match (what exists now). Silver: win and meet one extra condition (for example "lose 0 rounds" or "go KAIJU twice"). Gold: win on BRUTAL bots with a stated condition.
+  - **Medal rule shown before the match.** The pre-match card lists all three tiers: "Bronze ✔ · Silver: lose no rounds · Gold: BRUTAL, no rounds lost". Today it only says "win this match to clear today and keep your streak".
+  - **Results screen.** Say which condition was met or missed ("Silver: lost 2 rounds, needed 0").
+  - **Retries.** Unlimited per day. Only the best medal counts. The card keeps "tries N".
+  - **Streak and calendar.** The streak counts any medal. A 7-day grid on the title screen shows medal colours. 5 Golds in a week earns a Pantry colour.
+- **Example moment:** I open the Daily and see "Hot Dumpling · Gold: BRUTAL, no rounds lost". I win on NORMAL, see Silver, then retry on BRUTAL. I lose, retry, and get Gold on try 4.
+- **Rewards / progression hooks:** medals feed Records and Chef Rank. A weekly order "earn 5 Golds" gives a week-long goal. The aim changes each day, which brings players back.
+- **Risks and edge cases:** Hot Dumpling is luck-heavy (I won partly because bots eliminated each other, shot-7.png), so a Gold rule must be checked per mode. Use a fixed UTC reset.
+- **Size:** M. Touches the Daily setup card, results, Records and save data.
+- **Score impact for me:** +1.0.
 
-### Proposal 3: Spicy and Dessert Course as a unified "Hard Mode ladder" with a Master Chef rank
-- **Problem it solves:** Spicy ch 1 ("tougher rivals") was beaten by a hard bot at the same pace as normal, and returned "SPICY CLEAR!" plus an achievement but no Story-star change ("Story stars ★ 2" before and after; the Story header says "🌶️ 0/12"). The title's NEXT UP ticker points me at "Story ch 4", so a challenger is steered to the easiest chapters. Dessert Course is behind 18 chapters, so a challenger cannot reach it in one session. I could not tell what "tougher" meant (more rivals? smarter? faster?) before pressing play.
+### Proposal 3: TRIALS (fixed, handcrafted hard scenarios, ungated)
+- **Problem it solves:** On a fresh save, "SPICY: clear it first" and chapters 5 to 12 were locked (shot-10.png). The only hard content I could open was BRUTAL Free Play, which has no goal and no reward.
 - **How it would work (detailed design):**
-  - **Spicy has 3 heat levels** (🌶️, 🌶️🌶️, 🌶️🌶️🌶️), shown on the chapter card with an explicit list of changes: Heat 1 = rivals one bot level up and +1 rival; Heat 2 = + a chapter mutator (e.g. "Greasy Floor") and rivals start with 25% belly; Heat 3 = + boss gets a second phase and you have a **no-checkpoint** rule (lose a round, lose the "no rounds lost" requirement, but still can finish).
-  - Each heat level gives 1 spicy star (so 36 normal + 36 spicy = 72), and totals feed a **Master Chef rank** (Apprentice, Line Cook, Sous, Head Chef, Master Chef) shown on the Story header and Records. Ranks unlock gear: apron/hat overlays in the Gallery, a Master Chef title on the Daily scoreboard.
-  - **Early Dessert Trial:** unlock a 3-match "Dessert Trial" (a mini-boss rush) after clearing Story ch 4 so a challenger gets a hard-feeling endcap early, and it points the NEXT UP ticker at it.
-  - **Retry help for hard content:** after 2 losses on a Spicy chapter offer a "Chef's Tip" card listing the boss's pattern and which of the player's kaiju counters it, so hard is fair.
-- **Example moment:** I clear chapter 4 on normal and the NEXT UP ticker says "Dessert Trial unlocked: 3 bosses, 3 lives". I choose Heat 2 on chapter 5: the card says "Rivals start half-full, Greasy Floor". I lose one round, the retry tip tells me "BLOBLIN's KAIJU ring takes 1 s to fill: step out", I win and get 🌶️🌶️ and a Line Cook rank-up toast.
-- **Rewards / progression hooks:** a spicy star counter next to ★, Master Chef ranks, exclusive colour styles per Heat 3 chapter clear, a "Spicy 36/36" achievement.
-- **Risks and edge cases:** bot-difficulty tuning (a hard bot already beat Heat 1 at the same speed as normal: stats need real numbers); more content to write for 12 chapters x 3 heats; players who never touch Story won't see it.
-- **Size:** M-L (Story data, chapter card UI, bot difficulty tables, mutators, ranks, Gallery rewards).
-- **Score impact for me:** +1.0. It gives the existing Spicy toggle meaning and makes the hardest content reachable earlier.
+  - A new tile on the Modes screen: TRIALS, 12 fixed scenarios, each a short match with a special rule and a pass condition. Examples: "Survive 60s vs 3 BRUTAL bots", "Win with no weapon pickups", "KO 3 rivals only while they are DIZZY".
+  - 3 stars each (time or lives). The first 4 trials are open at once. Each further row of 4 opens at 6 stars.
+  - Rewards: 30 / 50 / 80 tokens per star tier, and a colour at each 12-star milestone.
+  - Built from existing systems (twists, bot level, Giant Hand, stomp rings). Weekly Orders can add "Earn 6 Trial stars".
+- **Example moment:** I pick "Dizzy Hunter". I stay outside the red ring, wait for "💫 DIZZY! HIT IT NOW!", dash in, and KO the shrinking kaiju. I repeat for 3 KOs, earn 2 stars, and retry for the third.
+- **Rewards / progression hooks:** colours and tokens, plus a Records line "Trials 14/36 ★". It rewards the stomp-ring skill the game now teaches.
+- **Risks and edge cases:** each trial needs balancing. Hazard randomness needs a fixed seed. Keep the scenarios in data so they are cheap to extend.
+- **Size:** L (content-heavy). Touches mode select, match setup rule hooks, results and Records.
+- **Score impact for me:** +1.0.
 
 ## How the new features from this round felt
-- **STOMP coach:** I only saw the Gauntlet and Daily through the bot, so I could not judge the prompt visually; `/look` showed "STOMP READY!" in the HUD instead. In Story ch 1 the HUD shows the state text, so the coach seems to work. No further comment.
-- **KAIJU counterplay (ring before the stomp, shrink warning, 0.75 s dizzy):** I could not read it through the bot-driven runs (I only saw "KAIJU MODE!" status text, with rival rings visible in shot-6). It is a great idea for a Gauntlet boss (bosses with telegraphed stomp rings are exactly the "hard but fair" pattern I want). It needs to be the base of boss waves: see Proposal 1.
-- **Gallery progress:** not visited, so no opinion.
-- **Gauntlet lives:** works and reads clearly (LIFE LOST! 2 left). The weakness is that the retry re-rolls rivals (wave 2 first MOTHBALL+BLOBLIN, then SQUIDGEON+BLUEBEARY), and Extra Life shows up as just another perk instead of a reward. Ghost Start and Extra Life are good but the pool is tiny (about 7 perks seen: Extra Life, Mustard Coat, Hot Feet, Ghost Start, Sugar Rush, Full Belly), with repeats within the same draft sequence. A bigger version is Proposal 1.
-- **Party / Golden Spoon / Cup length:** not visited (not my profile).
+- **Chef Tokens, Mastery, Pantry:** tokens flowed fast (738 after about 30 matches) and Mastery reached Lv 4 quickly. But the shop is shallow: 6 items, and the Gauntlet ones make runs easier. I ended with 738 tokens and no use for them. It needs a lasting sink: harder-run options, tiered Lunchbox and Lifeline, weekly stock (see Proposal 1). Weekly Orders (Knock out 20, Win 5, Go KAIJU 8) are identical for everyone and easy for a challenger.
+- **Receipt card:** the best new feature. "Knocked out by" and the tip changed with each death. It would be stronger with a "Try this" link to practice.
+- **Gauntlet:** Courses, the wave-4 boss, 3 lives and a perk pick every wave work. "LIFE LOST! ❤❤❤ left · trying wave 2 again with your perks…" was clear. Missing: grade thresholds and a view of what is next. I never reached wave 5, so I cannot judge the twist waves. Full Belly stacked twice with no note about stacking.
+- **BRUTAL bots:** properly hard. With KAIJU FRENZY, bots went KAIJU and used powers within the first 4 seconds, and I lost both my rounds. Together these removed the build-up phase, so it felt harsh, not clever. There is no reward for beating BRUTAL.
+- **Daily medals:** Silver was shown but the rule was not (Proposal 2).
+- **COMEBACK HELP / mercy tip:** the Gauntlet defeat tip said "Tough bots? Set BOT LEVEL to EASY, or switch on COMEBACK HELP in Settings." Gauntlet has no BOT LEVEL setting, so that advice does not apply.
+- **House Rules:** I saw the 💾 HOUSE RULES button but did not use it.
+- **Story clarity:** "DIZZY! HIT IT NOW!" appeared at the right moment. I did not reach Story fights, so I cannot judge "What beat you" on defeat cards or the rivals' reactions.
 
 ## Bugs that block play
-- None blocking. /errors was "none" at start, middle and end.
-- Possibly confusing (not blocking): in the Daily results screen (shot-6) I was ranked 3rd with "0 rounds, 4 KOs" despite having the most KOs, and the banner just says "DAILY CHALLENGE FAILED" with no reason. The scoreboard says "3 rounds . 3 KOs" for GOBZILLA, which is the bot seat, and the screen shows two GOBZILLA sprites, so it was hard to tell who I was.
+- None blocking. /errors was "none" throughout.
+- **"NEW BEST!" on a worse run.** Run 1: score 360, "NEW BEST!" (shot-4.png). Run 2: score 350, "NEW BEST!" (shot-21.png). It may be tracking waves, not score, but it reads wrong next to a lower score.
+- **Text overlap, Daily complete (shot-9.png):** the hint "1 / START rematch · Esc menu" is drawn on top of the "DAILY SPECIAL: Win a Daily Challenge" line near [640,515], so neither reads. The bottom awards line wraps to two lines at y=660 to 690 and runs into the table border.
+- **Text overlap, Gauntlet wave-clear (shot-2.png):** the receipt card ("THIS MATCH, +20 Chef Tokens, Mastery") is partly covered by the first perk card ("Mustard Coat"), so it reads "THIS MATC" and "+20 Chef T". This is the screen where the player picks perks.
+- **Tight fit, Gauntlet over (shot-21.png):** the receipt card (three text blocks) reaches the NEW RUN button's left edge. Readable, but close.
 
 ## Small notes (max 5, one line each)
-- Gauntlet title card says only "Best wave 3": show best score and grade too.
-- Perk draft repeated Ghost Start / Mustard Coat across drafts; filter out perks already owned (or stack them visibly).
-- Spicy chapter toggle text "tougher rivals" should list exactly what changes.
-- Cutscene dialogue box hides the chapter map and the "SKIP CHAT (S)" hint is small; first Story launch from the PLAY button needed a click plus S.
-- The NEXT UP ticker only ever points at Story ch 4 for a challenger; add Gauntlet/Daily goals to it.
+- The mercy tip on a Gauntlet defeat refers to BOT LEVEL, which Gauntlet does not have.
+- After results, MENU and then clicking GAUNTLET landed me in Free Play setup once, so I played a Free Play match by accident.
+- "You cleared 3 waves" appeared after dying in wave 4; say whether the dying wave counts.
+- Records shows "Gauntlet best wave 3" but not best score or grade.
+- Pantry items do not say whether Lunchbox and Lifeline are one-time or per-run in the card text.

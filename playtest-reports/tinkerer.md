@@ -1,91 +1,83 @@
 # Playtest evaluation — The Tinkerer
 
-**Fun score: 6.5 / 10** — There are lots of dials (10 twists, 16 tables, hazards, power-ups, a Workshop), but they are all single-pick toggles, and nothing I build or configure is saved, shared, ranked or rewarded.
+**Fun score: 6.5 / 10** (the pieces are fun, but the toys you can tinker with are siloed, one-at-a-time, unrewarded and mostly invisible to progression)
 
-> I used about 55 harness commands on build v2026-11-18-6da0f95.
+> Coverage note: about 60 harness commands. I did NOT see the Gauntlet end screen/grade, a course boss or a twist wave (my bot run reached wave 6, then a stray keypress started a new run), and I did not open Gallery or Records. Claims below are limited to what I saw.
 
 ## What I did
-- Title -> SETTINGS (read all toggles/sliders), KEYBOARD CONTROLS screen (Escape from there returned to Settings, fine), then WORKSHOP.
-- Workshop: placed 6 props (cups, one bumper) from 8 clicks, cycled SURFACE (Sunday Roast -> Dinner for Four), cycled HAZARD (No hazard -> Giant hand -> Wind gusts), SAVE (toast "Table Maker unlocked!"), opened slot 2/3 (empty), then PLAY IT. Played "My Table 1" with Wind gusts (I was idle and got knocked out within about 30 s; BLOBLIN won 3-0; shot-4/5).
-- Free Play setup: cycled all 10 TWISTS (Kaiju Frenzy, Turbo, Boomerangs, Giant Cutlery, Ice Rink, Snack Attack, Fists Only, Bouncy Castle, Mirror Moves, Mini Kaiju), cycled all 16 TABLES, toggled power-ups/hazards, pressed RANDOM. Played Ice Rink on Breakfast Rush (shot-7: ice streaks, sliding kaiju).
-- Party Modes: Team Feast, Crumb Rush, Hot Dumpling, Golden Spoon (played it, shot-10: banner "BLOBLIN HAS THE GOLDEN SPOON", HUD "0/15s"), plus Party Cup / CUP LENGTH buttons seen. Won one Golden Spoon match (6 KOs, autoplay).
-- Gauntlet: wave 1 cleared, saw the perk pick (Full Belly / Mustard Coat / Sugar Rush), hearts shown. Gallery header seen (Collection 68%, 16/20 kaiju, 15/18 tables, 5/15 colours).
-- About 5 matches total (1 manual Workshop, 3 autoplay, 1 Gauntlet wave, plus manual act loops), 1-2 wins. /errors: none at start, middle and end.
+- Settings (all 14 toggles read), Keyboard Controls (rebound Throw to W: it swapped with Move up, with an on-screen explanation), Table Workshop (placed props, cycled surface and hazard, slot switching, Save, PLAY IT), Free Play setup (cycled all 10 twists, all 18+3 tables, First-To 1/3/5/7/10, house rules save + share code), Party Modes setup (Team Feast, Party Cup text, power-ups toggle, RANDOM), Pantry, Gauntlet (6 waves on a bot).
+- Matches: custom-table Free Play to completion (won on hard bot), Boomerangs twist on Picnic Blanket (lost to the Giant Hand), Gauntlet waves 1-6 twice. About 25 minutes of play.
 
 ## What worked for me (briefly)
-- Twists genuinely change how a match feels and are labelled in the HUD (bottom right "ICE RINK"). Ice Rink and Boomerangs stood out.
-- The Workshop is intuitive: tap a prop, tap the table, white circles show start spots, 3 save slots, instant PLAY IT.
-- Settings rows all have a one-line explanation, and Name Tags, Player Numbers and Classic powers are good accessibility/variety options.
-- Golden Spoon reads instantly (banner plus per-player "x/15s" HUD, "STOLEN!" popup). The Gauntlet 1/2/3 perk pick is a nice mini-build moment.
-- Zero JS errors.
+- The twist list is a real asset: 10 twists with a one-line explanation on the setup screen ("BOOMERANGS: Every throw comes back to you"). Tables have good personalities (Sushi Bar, Picnic ants, Chef's Board).
+- Keybinding screen is clear, with swap-on-conflict and a prompt telling you what happened.
+- House Rules slots + code (KK1-base64) is a clean idea; saving a slot and copying the code both worked.
+- Workshop is simple and the hand-made table played correctly (Giant hand hazard, props, start spots); "Table Maker unlocked!" is a nice hit.
+- Receipt card is compact and readable (art-src/.playtest/r6-7107/shot-13.png).
 
 ## The single biggest structural problem
-**Customisation is shallow and siloed: every variety knob is a single-choice toggle, and nothing I configure persists, combines, or earns anything.** I wanted to build "my" game: Ice Rink plus Boomerangs plus Mini Kaiju on my own Workshop table with a Giant Hand, vs hard bots, and then keep that set-up. The Free Play screen allows ONE twist at a time (TWIST cycles NONE -> 10 options -> NONE). Hazards are a bare ON/OFF there, while the Workshop has a separate, different hazard list (No hazard / Giant hand / Wind gusts). 🎲 RANDOM gave no visible feedback (on the Party screen the line still read "TWIST NONE"). Match set-ups are not saved, named, shared or tracked, and the Workshop is not reachable from Gauntlet or Story. The Workshop also has no progression: its only reward ("Table Maker") fired on my first save of a nearly empty table, so after 5 minutes I had seen the whole feature.
+Customisation is a pile of independent switches, not a system. I could pick ONE twist, toggle power-ups and hazards as all-or-nothing, and choose a table, but I could not combine twists, tune any number, choose which power-ups or hazards appear, or give a workshop table its own rules. And none of it feeds progression: the Pantry sells four colours and two Gauntlet perks (shot-14), and nothing tied to the workshop or twists earns or spends anything.
 
-For a tinkerer, variety is the game's best asset, but the structure gives me no way to multiply it, so the 10 twists x 16 tables x modes space is mostly unseen.
+For a tinkerer the fun is in building a ruleset, breaking it, and sharing it. House Rules saves a setup, but the setup is only 7 fields (the share code decodes to `[0,"classic",1,"boomerang",1,1,8,"easy"]`: mode, first-to, twist, power-ups, hazards, table, bot level). There is no depth underneath to explore, so after trying the 10 twists once there is nothing left to discover.
 
-## Big change proposals (2–3, most important first)
+## Big change proposals (2-3, most important first)
 
-### Proposal 1: House Rules (stackable twists, dials, presets, shareable codes)
-- **Problem it solves:** One twist at a time; hazards on/off only; no saved set-ups; RANDOM gives no feedback (all on the Free Play and Party setup screens).
+### Proposal 1: Rule Lab (stackable, tunable rules, with Chaos Score)
+- **Problem it solves:** Twist is a single cycle button (10 values) in Free Play and Party; power-ups/hazards are on/off (shot-9, shot-15). House Rules and codes only store 7 fields.
+- **How it would work (detailed design):** Replace the TWIST / POWER-UPS / HAZARDS buttons with one "RULE LAB" button that opens a full screen with three tabs.
+  - Tab 1 TWISTS: the 10 existing twists as toggle cards; up to 3 active at once (a chaos budget). Incompatible pairs greyed out with a reason (Fists Only + Boomerangs, Giant Cutlery + Mini Kaiju); roughly 8 conflict pairs to define.
+  - Tab 2 DIALS: 5-step selectors: belly fill speed (0.5x to 2x), KAIJU duration (3 s to 12 s), cutlery spawn rate, power-up spawn rate, shove force, table shrink (edge moves in 0 to 30 px per round), start lives (1 to 5).
+  - Tab 3 PICK-LISTS: tick which power-ups and which hazards may appear (replacing all-or-nothing toggles).
+  - A live CHAOS SCORE (0-100) at the top is computed from dials and twists with a label (Chill, Spicy, Wild, Unhinged). It scales token reward from 0.5x to 2x but with a hard cap of 25 tokens per match so it cannot be farmed.
+  - House Rules grows from 3 to 8 slots and the share code carries the whole Rule Lab (KK2-, versioned). Slot labels also show Chaos Score and table name.
+  - Available in Free Play, Party Modes and as a custom Gauntlet. Story and Daily ignore Lab rules.
+- **Example moment:** I pick Boomerangs + Ice Rink, set belly fill to 2x and shove force to 1.5x. The Lab says "Chaos 78: Wild". I save it to slot 4 as "Slippery Returns", copy the code, paste it into the family chat. My friend loads it and the setup screen shows the name.
+- **Rewards / progression hooks:** Achievements for "play 10 distinct twist pairs" and "win at Chaos 80+"; Records shows "Your wildest win"; the Pantry sells extra slots and frames for shared codes.
+- **Risks and edge cases:** Combinatorial balance (enforce the conflict list; ship 6 curated "Recipes" as defaults so nothing is blank). Online: only the host chooses; validate and version codes. Phones: 5-step big buttons, not drag sliders.
+- **Size:** L. Touches Free Play/Party setup, House Rules codec, match-start rule application, Records, Online lobby.
+- **Score impact for me:** +1.2. This is the missing depth for my profile.
+
+### Proposal 2: Workshop 2.0 (zones, timed events, validation and sharing)
+- **Problem it solves:** The workshop only places 16 props, a surface and a hazard on a table (shot-5), with 3 slots always named "My Table 1/2/3", even when empty (the Free Play table cycler offered "MY TABLE 2 — Your own table (No hazard)" for a blank one). There is no way to share a table.
 - **How it would work (detailed design):**
-  - Replace the TWIST button with a **HOUSE RULES** button on Free Play and Party setup. It opens a full-screen panel: left column = the 10 twists as toggle chips (up to 3 active at once), right column = match dials.
-  - Dials (left/right steppers): Round time (30/45/60/90 s), Belly fill speed (0.5x/1x/1.5x/2x), KAIJU duration (5/8/12 s), Cutlery spawn rate (Sparse/Normal/Plenty), Knockouts per round (1/2/3 lives), Shove strength (0.7x/1x/1.5x), Power-up frequency (Off/Rare/Normal/Chaos), Hazard (Off / Giant hand / Wind gusts / Both / Random). This also unifies the Workshop's hazard list with Free Play's.
-  - Stacking rules: conflicts are blocked with a tooltip (Fists Only blocks Boomerangs and Giant Cutlery; Mini Kaiju + Giant Cutlery allowed because it is funny; Turbo + Ice Rink allowed). A "CHAOS" meter at the top sums 1-3 points per rule and shows a tag: Chill / Spicy / Unhinged / Cursed. Cap at 10.
-  - Presets row at the bottom: 8 curated bundles ("Slippery Sushi" = Ice Rink + Boomerangs; "Tiny Terrors" = Mini Kaiju + Turbo + Bouncy Castle; "Bare Knuckle" = Fists Only + both hazards). Plus 5 named "My Rules" save slots.
-  - Rules code: a ~10-character code (e.g. `IR-BM-MK-T45-H2`) that can be typed into Online lobby, Party setup and Daily. Online host's rules apply to everyone and show on the pre-match card.
-  - RANDOM becomes "ROLL THE DICE": chips light up in sequence, then a pre-match card "Tonight's rules: ICE RINK + MINI KAIJU, 45 s" shows for 2 s.
-  - A 3 s rules card is shown above the countdown in every match (today only Quick Tips are shown there).
-- **Example moment:** I open House Rules, toggle Ice Rink + Mini Kaiju, set belly fill 2x; the meter reads "Unhinged 7". I save it as "Zoomies" and hit PLAY. Everyone is tiny and sliding, the belly fills in 5 s so everybody goes KAIJU (still tiny) at once. The results screen says "ZOOMIES: played 3 times, best: YOU 9 KOs". I copy the code and text it to a friend who pastes it into the Online lobby.
-- **Rewards / progression hooks:** Achievements "Rule Breaker" (win with 3 twists on), "Chaos Gourmet" (win at chaos 8+), "Every Flavour" (win with each of the 10 twists; show 7/10 progress like the Gallery does). A new colour (e.g. "Sprinkle") for it. A Gallery tab "Rulebook" listing each twist with your wins. A "Rules of the Week" preset on the title NEXT UP line.
-- **Risks and edge cases:** Broken combos (Turbo + Fists Only + Kaiju Frenzy = constant stomping); chaos cap plus a conflict list. Phones: chips and steppers must be big-touch. Online: validate the code version, show "update needed" for unknown ids. Gauntlet and Story keep fixed rules (grey the panel with a note). Records: only count Standard rules toward crumbs/KOs or label clearly, because "Plenty cutlery" inflates numbers.
-- **Size:** L. Touches Free Play/Party setup, match config (twist becomes an array), Online lobby sync, save data (slots), Records, Gallery.
-- **Score impact for me:** +1.0. It turns existing content into 100+ combinations and gives my set-ups an identity.
+  - Slots 3 to 12, renameable (12 chars), with a thumbnail on the table picker.
+  - New tool tabs: PROPS (existing), ZONES (draw rectangles: ice, sticky, conveyor with direction, bounce pad, crumb spawner), EVENTS (timeline at 20 s / 40 s / 60 s: hazard flare, tablecloth slide, crumb shower), SPAWNS (move the 6 start circles).
+  - Prop budget: a 30 point budget with props costing 1-3 (instead of 12 flat) shown as a meter beside the "0/12 props" line.
+  - A TEST button (30 s solo against a dummy) and auto-validation (every start spot reachable, no prop on a start circle) with a plain-language reason on failure.
+  - Share: COPY TABLE CODE / ENTER A FRIEND'S CODE (same flow as House Rules), and a "Table of the Week" in the Pantry with 3 curated codes.
+  - Reward: matches on your own table pay 3 tokens (max 15/day); a Table Maker ladder (tables played by others 1 / 5 / 10) unlocks colours.
+- **Example moment:** I build "Lava Lane": a conveyor along the middle, a bounce pad at each end, a hazard flare at 30 s. TEST says start spot 4 is blocked, I move it, save, copy the code and host an online room with it.
+- **Rewards / progression hooks:** Table Maker ladder, "played by N" counter per slot, Pantry frames.
+- **Risks and edge cases:** Griefing/unwinnable tables (validation + TEST), online sync (zones are static data inside the code, cheap), phone tap targets (existing workshop buttons are fine, props slightly small), save-size limits.
+- **Size:** L. Workshop, table renderer, hazard system, online room code, Pantry.
+- **Score impact for me:** +0.9.
 
-### Proposal 2: Workshop 2.0 — tables as first-class, shareable, rewarded content
-- **Problem it solves:** I built a table in a few clicks and it vanished into a slot with no reason to return; the only feedback was "Table Maker unlocked!". 8 clicks produced 6 props with no message about the other 2. I could not use my table in Party Modes or Gauntlet, the results screen did not name it, and Wind gusts killed an idle player quickly, which suggests there is no test step. 16 props and a 12-prop cap, with no prop behaviours.
-- **How it would work (detailed design):**
-  - Editor depth: a tap-to-select inspector with 4 prop behaviours: SOLID (current), BOUNCY (bumper/gumdrop launch), SLIPPERY (ice patch), STICKY (jam, slows 40%). New SPAWNER prop drops one cutlery every 6 s. New HOLE prop is a KO tile.
-  - Prop cap 12 -> 20, rising with Workshop level (see rewards). Table SHAPE: Rect / Round / Plus / Two islands joined by a bridge.
-  - Symmetry toggle (mirror L-R, mirror 4-way) so fair 4-6 player layouts take 10 s. Undo button (none today).
-  - TEST WITH BOTS: a 30 s sandbox vs 1 hard bot with a verdict line ("Spawn reach crumbs in 2 s OK / spawn 3 is trapped X"). SAVE warns on unreachable start spots.
-  - Slots 3 -> 12, with an on-screen name editor.
-  - Use anywhere: the TABLE selector in Free Play, Party Modes and Online gets a "MY TABLES" group. Add "Custom Gauntlet" (chain 5 of your tables) and Time Attack (KO N bots fastest) with a personal best per table.
-  - Share: COPY TABLE CODE (~60 chars) and IMPORT. Online host can pick an imported table; guests download it automatically. Later: a curated "Table of the Day".
-- **Example moment:** I mirror-draw a Plus table with 4 corner spawners and a bouncy centre. TEST WITH BOTS says "Spawn 3 is blocked", I move a prop. Save as "Pinball Pit", play 3 bot matches; its Workshop card shows "Played 3 · avg 52 s · your KOs 14". A friend plays it online, taps a thumbs-up, and my Workshop level bar fills.
-- **Rewards / progression hooks:** Workshop Level 1-10 from matches played on own tables and thumbs-ups. L3 unlocks Spawner, L5 Hole, L8 Round shape. Gallery tab "Workshop". Achievements: "Architect" (10 tables saved), "Crowd Pleaser" (25 thumbs-ups), "Home Advantage" (beat hard bots on your own table).
-- **Risks and edge cases:** Unwinnable layouts (Test run plus reachability check). Online: no free-text titles (numeric ids) to avoid moderation. Table code versioning. Phones: 20 props need big tap targets and undo. Performance: spawners + 20 props with 6 players.
-- **Size:** L to XL (editor, new prop physics, spawners, code format, Online sync, test-bot sim).
-- **Score impact for me:** +0.9. Today the Workshop is a 5-minute toy; with sharing, testing and levels it becomes a reason to return.
-
-### Proposal 3: Mutator Ladder — a solo run mode built from stacked twists
-- **Problem it solves:** Twists exist only as a Free Play toggle. Gauntlet is the only "run" structure and my wave 1 was a plain 1-rival fight on Picnic Blanket with no twist. There is no mode where twist variety is the content.
-- **How it would work (detailed design):**
-  - New title tile (or a tab inside Gauntlet): **MUTATOR LADDER**, 10 rungs, each a single round vs 1-3 bots.
-  - Before each rung, pick 1 of 3 mutator cards (twists, same 1/2/3 card UI as the Gauntlet perk pick). Picked mutators STACK for the run, so rung 5 has 4 active twists. Every 3rd rung (3, 6, 9) gives the bots a boss mutator you cannot refuse.
-  - Each mutator carries a Heat value (Turbo +10%, Giant Cutlery +15%, Fists Only +25%) that raises the end-of-run score multiplier. You may Skip a card for a "Pure" rung with 0% bonus.
-  - A Relic every 3 rungs (reuse Ghost Start, Extra Life, Mustard Coat; add counters such as "Ice Skates: immune to Ice Rink sliding").
-  - 3 lives (hearts as in Gauntlet). Rung 10 = "Chaos Final": 3 random mutators, 2 hard bots.
-  - Flow: Title -> MUTATOR LADDER -> kaiju pick -> rung card -> 3 s rules card -> match -> result card (Heat %, stack icons) -> next rung ... -> run-end screen with score, time, stack list and a seed for rematch. Save-and-quit between rungs.
-- **Example moment:** Rung 4. My stack is Ice Rink + Boomerangs + Mini Kaiju; offered Turbo (+10%), Giant Cutlery (+15%) or Skip. I take Giant Cutlery and a giant boomerang sails across the slippery table at tiny me. I dash, it slams a rival off the edge. Boss rung 6 gives the bots Bouncy Castle and my Extra Life relic saves the run.
-- **Rewards / progression hooks:** Heat tokens at run end unlock 12 start-of-run options (starter relics, extra mutators in the pool). New colour (e.g. "Molten Lemon") at Heat 500%. A daily seed (same offers for everyone) with a local top-10. Records: best Heat, deepest rung per kaiju.
-- **Risks and edge cases:** Soft-lock combos (Fists Only + Mirror Moves) need Proposal 1's conflict list. Bots must handle every twist (hard bots on Ice Rink/Boomerangs should not stand still). Target 12-15 min per run. 2-player couch co-op could share lives. Cap the multiplier so skipping is not exploitable.
-- **Size:** L. Reuses the Gauntlet run engine, perk-card UI and twist system (array support from Proposal 1), Records, daily seed.
-- **Score impact for me:** +0.7. It turns twist variety into a progression loop and an excuse to try them all.
+### Proposal 3: Pot Luck (stacking-mutator run mode)
+- **Problem it solves:** Gauntlet is the only run-style mode, and its 1/2/3 perk pick (Ghost Start / Sugar Rush / Mustard Coat) is the only place rules change over time. In about 12 waves I never saw a twist wave or a boss (waves 4 and 5 looked ordinary), and the same tables repeated (Dinner for Four, Fondue Night, Birthday Bash, Leftovers, Picnic, Breakfast Rush). A tinkerer wants to watch rules pile up.
+- **How it would work (detailed design):** New solo/couch mode, 8 rounds vs 3 bots, 3 lives. After every round, pick 1 of 3 cards: a PLAYER perk (+10% dash, start with a spoon), a RIVAL curse (bots start with fuller bellies, bots throw twice) or a TABLE rule (any existing twist or hazard). Cards stack; a table rule must be taken every 2nd round. End screen: the final stack, a grade (S to D) and Chaos Score.
+- **Example moment:** Round 3 I take Ice Rink, round 5 Boomerangs: everything slides and every throw comes back. I clear round 8 and "Ice Boomerang Ballet" is added to my Recipe Book.
+- **Rewards / progression hooks:** Recipe Book (a Gallery-style collection of named combos); each new recipe pays 15 tokens once; weekly seed (same card offers for everyone) with a local best.
+- **Risks and edge cases:** Overlap with Gauntlet (frame it as a build-your-chaos run, share the card UI), stacking balance, RNG fairness (always offer one safe card).
+- **Size:** L. New mode, card UI, perk engine, Records.
+- **Score impact for me:** +0.7.
 
 ## How the new features from this round felt
-- **STOMP coach:** I did not get a screenshot with the bouncing prompt, so I can't judge it in depth. The Gauntlet HUD showed "STOMP READY!" on my kaiju card, and `stomp` below full belly did nothing, which is right.
-- **KAIJU counterplay (ring / shrink flash / dizzy):** Not seen directly (my KAIJU never appeared in a screenshot). Bloblin used KAIJU 6x in one match, so it is frequent; a bigger version should check these cues stay readable with Mini Kaiju / Kaiju Frenzy twists and 6 players.
-- **Gallery progress:** The header "Collection 68%, 16/20 · 15/18 · 5/15" is a good overview. The title NEXT UP line ("Minturtle: Score 25 knockouts -> Grape colour (60%)") changed as I played (Lime -> Lava -> Grape): a strong hook. A bigger version would add tinkerer goals to it ("Win with 3 different twists -> Sprinkle colour").
-- **Gauntlet lives:** Hearts and perk cards work, but wave 1 was a plain 1v1 with no twist; Gauntlet is a natural home for mutators (Proposal 3).
-- **Golden Spoon / CUP LENGTH:** Golden Spoon is clear and funny (shot-10). The Party MODE button cycles Team Feast -> Crumb Rush -> Hot Dumpling -> Golden Spoon -> Classic -> wrap, so plain Classic sits under "Party Modes", which felt odd. CUP LENGTH (6 GAMES) exists; I did not run a full cup in budget.
+- **Chef Tokens / Pantry:** Tokens arrive (+5 for a short lost match, +20 for one Gauntlet wave) and the receipt is clear. The shop is tiny: 4 colours and 2 Gauntlet items, cheapest 120 (about 24 short matches). Nothing relates to customisation (no twist, workshop slot, prop or surface unlocks). A bigger version: Pantry tabs for COLOURS, PROPS and SURFACES, RULES (extra House Rules slots, Lab dials) and RUN ITEMS.
+- **Weekly Orders:** 3 orders at 40 tokens, all generic combat counters (Knock out 20, Win 5, Go KAIJU 8). They never nudge anyone towards setup toys. Add variety orders: "Win with 2 different twists", "Win on 3 tables", "Play your own workshop table".
+- **Receipt card:** Works and fits (shot-13). On my first match, played on a workshop table to the end, the results screen (shot-8) showed no receipt; I could not tell if that is intended.
+- **House Rules:** Works, copy gives feedback. Too shallow (Proposal 1); slot label omits table and power-up/hazard toggles.
+- **Comeback Help:** Setting is clear; I couldn't feel the effect in short matches.
+- **Gauntlet:** Wave/course header and perk pick work. No twist wave or boss seen in about 12 waves, which hurts discoverability.
+- **Daily medals, Mastery, Chef Rank, KAIJU stomp rings, Final-boss foreshadowing:** not tested.
 
 ## Bugs that block play
-- None. /errors was "none" at start, middle and end.
+- None blocking. `/errors` returned "none" at the start, middle and end.
+- Probable: the Gauntlet perk key `1` seems to start a new run when pressed on the end-of-run screen, so the defeat summary/grade can be skipped by accident (this is how I lost sight of it). Repro: in Gauntlet, lose the last life, then press Digit1. Not confirmed by a screenshot.
+- No text overruns found on Settings, Controls, Workshop, Free Play, Party Modes, Pantry, House Rules or the receipt card (shots 2, 5, 9, 11, 13, 14, 15). The receipt card does cover the bottom-left crumb/gift area of the table, which is acceptable.
 
 ## Small notes (max 5, one line each)
-- 🎲 RANDOM on the Party screen gives no visible feedback (TWIST still read NONE afterwards).
-- Workshop: 8 placement clicks produced 6 props with no message about rejected/overlapping placements, and there is no undo.
-- Workshop SAVE fired "Table Maker unlocked!" on an almost empty table.
-- The Party Cup description line (y=652) is cut off at the screen edge ("... TEAM FEAST → GOL").
-- The results screen after a Workshop match shows no table name or active-rules summary.
+- House Rules slot labels leave out table and power-up/hazard toggles, so different saved setups can look identical.
+- Free Play TABLE cycler lists blank workshop slots ("My Table 2 / 3") as playable; hide or mark empty ones.
+- Party RANDOM only re-rolled the table for me; say what it randomises.
+- Workshop prop buttons give no hint of what a prop does (CHEESEWHEEL, BUMPER, POT); add a one-line tooltip.
+- Keyboard Controls has no pause/menu key entry and covers only two players' sets.

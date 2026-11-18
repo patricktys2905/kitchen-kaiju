@@ -285,8 +285,9 @@ export class StoryScene extends Phaser.Scene {
     add(this.add.text(1070, 392, '“' + ch.tip + '”', body(14, '#ffe9c7', 700, { align: 'center', wordWrap: { width: 320 }, fontStyle: 'italic 700' })).setOrigin(0.5, 0).setDepth(5));
     const best = this.save.stars[this.sel] ?? 0;
     const hot = this.save.spicy?.[this.sel] ?? 0;
-    add(this.add.text(1000, 552, best ? `Best: ${'★'.repeat(Math.max(0, best))}${'☆'.repeat(Math.max(0, 3 - best))}${hot ? `  🌶️${hot}` : ''}` : 'Not cleared yet', body(16, '#ffd24a', 900)).setOrigin(0.5).setDepth(5));
-    add(this.add.text(1000, 592, '★★★ no rounds lost · ★★ lost one · ★ any win', body(11, '#cdb9a3', 800)).setOrigin(0.5).setDepth(5));
+    add(this.add.text(1000, 552, best ? `Best: ${'★'.repeat(Math.max(0, best))}${'☆'.repeat(Math.max(0, 3 - best))}${hot ? `  🌶️${hot}` : ''}` : 'Not cleared yet', body(16, '#ffd24a', 900)).setOrigin(0.5).setDepth(5)).setX(1010).setY(558);
+    const legend = add(this.add.text(1070, 588, '★★★ no rounds lost · ★★ lost one · ★ any win', body(11, '#cdb9a3', 800)).setOrigin(0.5).setDepth(5));
+    if (legend.width > 300) legend.setScale(300 / legend.width); // stays inside the panel, above PLAY
     this.spicyBtn?.setText(best ? `🌶️ SPICY: ${this.spicy ? 'ON (tougher rivals)' : 'OFF'}` : '🌶️ SPICY: clear it first');
     if (this.spicyBtn) this.spicyBtn.disabled = !best;
   }
@@ -469,6 +470,7 @@ Next course: ${nextCh.title}. ${nextRival} is already sharpening the cutlery…`
       const BEAT: Record<string, string> = { fall: 'You kept falling off the table. Stay near the middle and DASH back from the edge.', cutlery: 'Thrown cutlery got you. DASH sideways from a charge line, or SWIPE to parry it.', swipe: 'You were swiped up close. Keep your distance, or swipe first.', kaiju: 'A KAIJU flattened you. Step out of the ring before each stomp, then punish the dizzy shrink.', squash: 'A KAIJU flattened you. Step out of the ring before each stomp, then punish the dizzy shrink.', hand: 'The Giant Hand got you. It grabs the fullest belly, so STOMP before it arrives.' };
       const beat = r.myOut ? BEAT[r.myOut] ?? 'Watch the table hazard: its warning shows before it strikes.' : '';
       this.overlay.push(this.add.text(640, (CARD.y + 150 + BTN_Y - 40) / 2, head + (beat ? '\n\n🔎 What beat you: ' + beat : '') + '\n\n“' + ch.tip + '”', body(23, '#ffe9c7', 800, { align: 'center', wordWrap: { width: 620 }, lineSpacing: 6 })).setOrigin(0.5).setDepth(31));
+      if (r.receipt?.length) this.overlay.push(this.add.text(640, BTN_Y - 52, r.receipt.join('   ·   '), body(13, '#cdb9a3', 800)).setOrigin(0.5).setDepth(31)); // losses still pay tokens + mastery
     }
     const btns: { label: string; act: () => void; accent?: number }[] = [];
     if (gotAch.length) this.overlay.push(this.add.text(640, Math.min(y, BTN_Y - 66), `🏆 ${gotAch.map(a => a.name).join(', ')}!`, body(18, '#ffd24a', 900)).setOrigin(0.5, 0).setDepth(31));

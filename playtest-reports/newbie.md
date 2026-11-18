@@ -1,86 +1,98 @@
-# Playtest evaluation — The First-Timer
+# Playtest evaluation: The First-Timer (newbie)
 
-**Fun score: 6.5 / 10** (charming and readable, but the first 10 minutes dump you into a long, flat match with no coaching about the one thing that kills you, and nothing tells you what you earned)
-
-> Note on method: I drove the game through the harness (bots/autoplay for part of the matches), so "feel" is judged from screenshots, text and events, not hands on a pad.
+**Fun score: 7.5 / 10** (the first 5 minutes are well taught and charming, but the title screen gives a first-timer six equal doors and no obvious "next", the Practice drill is a one-off, and the new progression sits behind a currency I could not spend for hours.)
 
 ## What I did
-- Title screen (shot-1): read the layout, the NEXT UP line, tapped HELP and read all 5 tabs (Basics, Cutlery, Tables, Modes, Practice).
-- 1-MINUTE PRACTICE: completed 8/8 (walk, throw, swipe, eat, stomp...), about 25 s of game time. Quitting dropped me back into the Help screen, not the title.
-- Free Play: pressed PLAY without joining a seat (the game auto-seated me vs 1 bot, Picnic Blanket, "First to 5"). Played 9 rounds (about 4-5 min), lost 4-5 to Mothball. Then looked at the match end screen.
-- Gallery (locked kaiju, locked colour progress), Records, Story chapter 1 (opening cutscene, played on Easy Crabbage, won with 2 stars), the chapter-clear screen.
-- 2 matches, about 18 rounds, about 12 minutes. /errors was "none" at start, middle and end.
+- Title screen, then HELP (BASICS tab), then the 1-minute PRACTICE drill (8 steps, all completed by driving the harness, about 50 sec of game time).
+- Free Play: clicked PLAY on a setup screen with zero seats claimed (it auto-seated me), played one full match vs Toastbat on Normal. Lost 2-3 (shot-10).
+- Story: opening cutscene (skipped), Ch 1 (3 stars) and Ch 2 (2 stars) using the bot to drive.
+- Looked at Pantry, Records, Gallery, and ran a Gauntlet (cleared wave 1, died wave 2, grade D, score 120).
+- About 75 harness commands, 5 matches. /errors was "none" at start, middle and end.
 
 ## What worked for me (briefly)
-- The title art and tone are lovely. "Tiny monsters. Giant dinner." sells the game in one line (shot-1).
-- The 1-minute practice is a genuinely good idea and the step prompt at bottom-left ("PRACTICE 4/8 👉 SWIPE up close") is clear.
-- The round-start tip ("The giant hand goes for whoever has the fullest belly") and the table help text are short and funny.
-- Story chapter 1 against an easy Crabbage with a cutscene and a "first to 2" format is the right size for a first win; the chapter-clear screen with a Crabbage quote and star rating feels good.
-- Locked items show how far you are (e.g. "0/4 cleared", "6/25 knockouts", "68/100 crumbs"), so I always knew what to do next.
+- HELP is short and plain: "Be the last kaiju standing on the dinner table" is a one-line goal. Practice then teaches throw, swipe, stomp and dash in 8 ticked steps with a bottom hint ("PRACTICE 4/8 👉 ...").
+- The Story Ch 1 rival tutorial line ("Hold THROW to charge...") and the in-match tips (💡 KAIJU mode makes you immune...) are well timed.
+- The results receipt (🧾 tokens, mastery, "Knocked out by: cutlery x3", "DASH sideways when you see a charge line") gave me a concrete reason I lost. This is the best new thing for a newcomer.
+- Chapter-clear card with a rival quote and animated stars is charming (shot-18).
+- Title-screen "NEXT UP" line gives a goal.
 
 ## The single biggest structural problem
-**There is no guided first-hour path: the game offers 6 big doors at once and the one the game itself recommends (practice) leads to a very long, low-stakes match with no explanation of the biggest risk and no feedback on what the player gained.**
+**There is no guided path from "I finished the tutorial" to "I am hooked", and the early game spreads the player across too many equal doors.** After I finished Practice (the drill ends with "All done! Esc → pause → QUIT", which dropped me on the HELP screen, not on a recommended next step), the title screen showed six big tiles (Story, Free Play, Online, Party Modes, Daily, Gauntlet) plus six small buttons (Settings, Help, Kaiju, Records, Pantry, Workshop), and the Practice button had disappeared. Nothing said "play Story Chapter 1 now". I picked Free Play and, with no explanation of seats, was dropped into a Normal-bot match where I lost 2-3 without ever using my stomp, because 50 seconds of Practice had not yet become reflex.
 
-What I tried: I did practice, then went to Free Play as the profile would. Free Play opened a screen with 6 empty seats, 8 option buttons (BOT LEVEL, TABLE, FIRST TO, TWIST, POWER-UPS, HAZARDS, RANDOM, ONLINE) and "16/20 kaiju" text, and no hint about what to press. Hitting PLAY started a 1v1 that needed **9 rounds** to finish (first to 5, cut-throat, one round per ~30 s). Twice I did exactly what the new STOMP coach asked ("BELLY FULL! PRESS E → KAIJU") and was then knocked off by the Giant Hand (shot-7: the replay banner reads "You got flicked by the GIANT HAND" while the coach is still on screen; in Story ch1 I went KAIJU and died to the hand in the same breath). The hand rule exists only as a 3-second loading-screen tip, so for a first-timer the game's headline power-up looks like a trap. When the match ended (shot-11) the screen only showed placement and "REMATCH / MENU": no XP, no "you unlocked X", no pointer to the next goal, even though the title screen has a "NEXT UP" line that would have been perfect there. The Records screen showed "Matches won 1/10" etc., but I never saw that connection at the moment it happened.
+It matters because a first-timer's first 10 minutes decide whether they play an 11th. The game has a very good on-ramp piece (Story Ch 1 vs an "easy" Crabbage, first to 2) but it is not the default route. Meanwhile the new progression systems (tokens, mastery, orders, Pantry) are invisible to a newcomer: I had 7 tokens after a full match and the cheapest Pantry item is 120, so the economy tells me nothing for roughly 15 matches.
 
-Why it matters for a first-timer: the first match decides whether they ever launch a second. A long match that you lose without understanding why, with no reward moment, ends sessions.
+## Big change proposals (most important first)
 
-## Big change proposals (2–3, most important first)
-
-### Proposal 1: "First Night" guided onboarding ladder (replace the lone practice button)
-- **Problem it solves:** Shot-1 shows "NEW HERE? 1-MINUTE PRACTICE" and a NEXT UP line that assumes you already know what chapter 4 and "Lime colour" are. After practice I was dropped back on the Help screen with no direction. Free Play shows 8 options with no recommended one. I lost a 9-round match without ever being told about the Giant Hand rule or what the bot level means.
+### Proposal 1: "First Service": a guided first-hour onboarding ladder
+- **Problem it solves:** After Practice I was dumped on a flat title screen. I chose Free Play, found 6 empty seats ("click or THROW to join"), pressed PLAY, was auto-seated against a Normal bot, and lost. No step told me what to do next or that Story Ch 1 was the gentle option. The Practice button vanished from the title once done, so I could not revisit it.
 - **How it would work (detailed design):**
-  - A 4-step ladder shown ONLY while Matches played < 3 (stored in the save), as a banner card above the main row that replaces the NEXT UP strip: "FIRST NIGHT 1/4".
-  - Step 1 Practice (existing 8 steps). On quit, route to title, never Help. Add 2 new practice steps at the end: "9/10: Giant Hand! It picks the fullest belly. Step off the red shadow" (spawn a hand against the player, pause-less, with a ring) and "10/10: KAIJU stomp ring: step out of it".
-  - Step 2 "Duel an Easy bot": a pre-configured 1v1, Sunday Roast, FIRST TO 2, Easy bots, power-ups ON, hazards OFF (this is Story ch1 already; reuse it and call it by this name). Win OR lose, hand out a reward. Loss shows a one-line reason ("You were flicked by the Giant Hand: don't sit on a full belly").
-  - Step 3 "Free-for-all": 3 players (you + 2 Easy bots), First to 3, hazards ON.
-  - Step 4 "Pick your kaiju": opens Gallery with the first colour reward equipped.
-  - Each step grants a small guaranteed reward (Lime colour on step 2, 1 new kaiju-preview on step 4), shown in a result card.
-  - Free Play for a new save defaults to the above Easy settings (Bot level EASY, First to 3, Hazards OFF) with a "Recommended for you" glow on PLAY and the 8 options collapsed behind a "MORE OPTIONS" button until match 3.
-- **Example moment:** Mina opens the game, taps the glowing First Night card, completes practice (about 1 min), is dumped into "Duel an Easy bot", goes KAIJU after the coach, sees the hand's red shadow appear, steps aside (thanks to practice step 9), wins 2-1 and gets a "Lime colour unlocked, wear it?" card. She taps Yes and immediately sees her lime kaiju in the next step.
-- **Rewards / progression hooks:** The 4 steps give 1 colour + 1 kaiju-preview + the "First Night" achievement; after completion the ladder becomes the existing NEXT UP line. Returning players never see it.
-- **Risks and edge cases:** Players who skip it must not feel nagged (a small "Skip, I know this" link on the card). Local multiplayer groups of 4 on one device should bypass the ladder automatically if 2+ seats have joined. Needs a save flag per device, not per player.
-- **Size:** M. Touches title screen, practice tutorial, Free Play defaults, Story ch1 messaging, save data.
-- **Score impact for me:** +1.0. It is the main reason my score isn't higher: it turns the first 10 minutes from "figure it out" to "win something".
+  - A persistent 6-step checklist card on the title screen called "FIRST SERVICE" (replaces the one-time "NEW HERE?" button; stays until all 6 are done, then collapses into Records). Steps and rewards:
+    1. Do the 1-minute Practice (15 🪙).
+    2. Win Story Ch 1 (25 🪙).
+    3. Win a Free Play match vs EASY bots (the setup screen auto-selects EASY the first time; 25 🪙).
+    4. Go KAIJU once in a real match (20 🪙).
+    5. Knock someone off the table with a DASH shove (20 🪙).
+    6. Try one other mode: Daily, Party or Gauntlet (30 🪙).
+  - Total 135 🪙: enough to buy the cheapest colour (Peach, 120) in the first session, so the Pantry becomes meaningful immediately.
+  - The title tile matching the next step gets a pulsing outline and a one-line caption ("Next: Win Story Ch 1"). Other tiles stay usable.
+  - Practice ends with a proper end card ("Nice! START STORY CH 1 ▶ / Practice again / Title") instead of "Esc → pause → QUIT".
+  - Free Play setup, first time only: pre-claim seat 1 for the player with a "YOU" banner, default bots to EASY with one line of explanation ("Bots are EASY. Change any time"), and first to 2 rounds.
+  - Result cards of matches that complete a step show a tick ("Step 3 of 6 ✔ +25 🪙").
+- **Example moment:** I finish Practice, see "Practice done +15 🪙" and a big "START STORY CH 1 ▶" button. I win Ch 1; the checklist ticks 2/6 and pulses Free Play with "Win vs EASY bots". By step 4 I have gone KAIJU and sit at about 100 🪙, hungry for the Peach colour.
+- **Rewards / progression hooks:** 135 🪙 in the first hour, a first Chef Rank bump (Dishwasher to Line Cook), and the first Pantry purchase. Weekly Orders only appear on the title after the checklist is done so newcomers are not overloaded.
+- **Risks and edge cases:** Veterans should not be nagged: add "I know how to play: skip" (grants nothing). Online and Party players must still reach their modes without the ladder blocking. Needs 6 save flags; infer steps for old saves from existing stats (Story stars, times gone KAIJU).
+- **Size:** M (title screen, Practice end card, Free Play setup defaults, small save tracker, results hook).
+- **Score impact for me:** +0.8. It fixes the exact moment I was lost and ties the token economy into session one.
 
-### Proposal 2: A "round recap + what you earned" post-match layer
-- **Problem it solves:** At the end of both matches I saw (shot-11) only "MOTHBALL RULES THE TABLE", placement, and REMATCH / MENU. I had progressed Records (6 KOs, 68/100 crumbs, 83% of a "World Tour" achievement) but no screen said so. NEXT UP on the title changed after my match (from "Win a match → Lime" to "Score 25 knockouts → Grape 16%") so the game DOES track this, it just hides it.
+### Proposal 2: Visible, fast-moving progression for new players (a first purchase inside one session)
+- **Problem it solves:** The receipt said "+7 Chef Tokens (7)" after a full Free Play match and "+44" after Story Ch 1, but the cheapest Pantry item is 120 and all six read "(not enough yet)" (shot-13). Records shows rank "Dishwasher" with no next rank, threshold or bar. Gallery colour swatches are 19 nameless padlocks (shot-21). Mastery says "Lv 2 Line Cook 55/100 XP" but not what Lv 3, 5 or 10 gives.
 - **How it would work (detailed design):**
-  - After every match, the result card gets a second page (auto-advances after 4 s, or press Enter): "THIS MATCH": a list of 3 lines max, each with a progress bar, e.g. "KOs +4 → Forked Up 10/25 🎨 Grape", "Crumbs +36 → Crumb Muncher 104/100 ✓ UNLOCKED!", "Story stars +2 → Freezer Shelf table 2/6 chapters".
-  - Pick the 3 lines by "closest to completion". Newly-unlocked items get a full-screen toast with the kaiju or colour on it and an "EQUIP / SEE IN GALLERY" button.
-  - Also add a "WHY YOU LOST" line to any lost round in the first 5 matches, e.g. "You were flicked by the Giant Hand (fullest belly)" or "You fell off the left edge during a toast".
-  - Under the result card show the next NEXT UP line and a big "NEXT: ..." button that jumps straight there (e.g. Story ch 2).
-- **Example moment:** After losing to Mothball 5-4, the card reads "Close one! KOs +4 → Forked Up 10/25. Eat 100 crumbs: DONE! 🎨 Crumb Muncher unlocked. NEXT: Story ch2 'Dinner for Four'." The loss feels productive.
-- **Rewards / progression hooks:** Gives a dopamine hit on every match, shows the achievement system's depth (34 achievements) that I only discovered by opening Records, and nudges toward Story/other modes (retention).
-- **Risks and edge cases:** Must not slow down party play (skip with any button, and hide the second page in 3+ human matches). Team modes need per-team lines. Only show for local profile owner.
-- **Size:** S-M. Touches match-end screen, achievement/records tracker (progress deltas), NEXT UP logic.
-- **Score impact for me:** +0.7.
-
-### Proposal 3: Shorter default matches and a "Quick Match" door
-- **Problem it solves:** Free Play defaults to "First to 5" even against a single bot; my match took 9 rounds and about 4-5 minutes of pure play, with the loser's last-round hope often gone by round 6 (Mothball led 3-1 early; the final was 5-4, nothing to learn from it). A first-timer's attention is gone by round 5. Story ch1 uses first to 2 and was perfect.
-- **How it would work (detailed design):**
-  - Add a 7th title door (or replace the redundant DAILY/GAUNTLET prominence for new saves): "QUICK MATCH 3 min". One tap = you + 2 random bots at your level, random table, FIRST TO 3, power-ups ON, hazards on at medium. Bot level auto-picks from your last 5 results (win 3 in a row: +1 level; lose 3: -1 level) so it adapts. Show a "Bot level" chip, not a menu.
-  - Free Play's default FIRST TO becomes 3 (options 2 / 3 / 5 / 7); a match that has run 12 rounds ends with a sudden-death "Golden Round" instead of dragging on.
-  - Show a round counter "Round 4/5" (max rounds = 2*N-1) rather than only the star row, so players can read progress at a glance. In the top HUD (shot-11) only a row of stars is shown.
-- **Example moment:** After her first win, Mina taps QUICK MATCH, three bots, 3 min later she's seeing the "what you earned" card from Proposal 2, and taps it again, because it never asked her any questions.
-- **Rewards / progression hooks:** Gives one repeatable "play again" button, which the current title screen lacks (every door requires choices); feeds win-streak and achievement counters faster ("Win 10 matches" is otherwise an hour-long grind).
-- **Risks and edge cases:** Adaptive bot level can feel patronising: show it and let players override; for online/local groups it does not apply.
-- **Size:** S-M. Touches title screen, Free Play defaults, match config, bot-level logic.
+  - A "NEXT GOAL" strip on the Pantry and the results receipt with a progress bar ("🪙 71/120: Peach colour"), so every match visibly moves it.
+  - A cheap tier of 6 items at 20 to 60 🪙: 3 results-screen table cloths, 2 emotes, 1 title badge. Purely cosmetic; they show in Records.
+  - Chef Rank ladder with thresholds shown in Records and Pantry: Dishwasher (0), Line Cook (150 lifetime 🪙), Sous Chef (500), Chef de Partie (1200), Head Chef (3000), Executive Chef (7500). Each rank grants one unlock (title, colour or Pantry slot).
+  - Mastery card in Gallery lists the next 3 milestones under the bar ("Lv 3: kaiju-only colour, Lv 5: victory pose, Lv 10: gold frame").
+  - Gallery colour swatches show name and unlock method on focus ("Grape: score 25 knockouts, 7/25").
+- **Example moment:** After my Free Play loss the receipt says "🪙 +7 (7/40 to the Checkered Cloth)". After Story Ch 1 I have 51 and buy it on the Pantry. Then "Next: Peach 120" appears and Story feels like it is paying for something.
+- **Rewards / progression hooks:** Short, medium and long goals on one screen. A losing player still sees progress, turning "I lost" into "I got closer".
+- **Risks and edge cases:** Cheap items must not flatten the economy for the 120 to 400 items; trim token grants 10 to 20% if needed. Phone UI needs a one-line version of the strip. Rank thresholds need balancing against Gauntlet and Daily income.
+- **Size:** M (Pantry, Records, Gallery, receipt, token tuning, 6 new items).
 - **Score impact for me:** +0.6.
 
+### Proposal 3: "Rematch Coach": adaptive first matches and a Gauntlet intro
+- **Problem it solves:** I lost my Free Play match 2-3 on Normal. The receipt tip ("DASH sideways when you see a charge line") was good but came after the match, and nothing linked Story's easy opponents to Free Play's Normal default. Gauntlet started instantly with no explanation of lives, perks or courses, and I was out on wave 2 (grade D).
+- **How it would work (detailed design):**
+  - Track a skill estimate over the first 6 matches (rounds won/lost, KOs, KAIJU uses, falls). The Free Play setup shows "Suggested: EASY / NORMAL / HARD" with one reason line ("You lost to cutlery 3 times: try EASY").
+  - After 2 consecutive losses in the first 10 matches, show a mercy card with buttons (Switch to EASY / Try Story Ch 1 / See tip), extending the existing text-only mercy tip.
+  - In the first 3 matches keep the "BELLY FULL! PRESS E / Y → KAIJU" prompt on screen until pressed (it was excellent in Practice).
+  - Gauntlet, first run only: an explainer card (3 lives, perk after each wave, course boss every 4th wave) and a soft cap at Starters (waves 1 to 4).
+- **Example moment:** I lose my first Free Play match; the setup now reads "Suggested: EASY, because you lost 3 of 5 rounds to cutlery". I tap EASY, win 3-1 and go KAIJU for the first time.
+- **Rewards / progression hooks:** +50% 🪙 for the first 5 EASY wins so EASY is never a trap; a "Graduated to NORMAL" toast.
+- **Risks and edge cases:** Only active in the first 10 matches or with "Beginner help" on in Settings, so veterans are not patronised. The estimate must never leak into online matchmaking. With 4 humans in Free Play, advise the host only.
+- **Size:** S to M (Free Play setup, Gauntlet intro, mercy card, stats).
+- **Score impact for me:** +0.4.
+
 ## How the new features from this round felt
-- **STOMP coach:** The visual prompt is the right idea (bouncing text above the kaiju, readable on busy tables: shots 7 and 19). Problems: it says "PRESS E" in Free Play but "PRESS STOMP" in Story and practice, so it's unclear which is a keyboard prompt vs. a button name; and nothing warns that a full belly is exactly what the Giant Hand targets (I died to the hand twice with the coach still showing). The bigger version: the coach should add a context line when a hand is imminent ("Hand incoming: STOMP NOW or MOVE") and turn red when a hazard targets you.
-- **KAIJU counterplay (ring, shrink warning, dizzy):** In harness play I could not read these precisely (frozen frames); I saw "YOU went KAIJU" and no event for dizzy. For a first-timer the larger issue is that the ring/warning aren't introduced anywhere: Help > Basics doesn't mention them and the practice ends with a stomp but no counterplay step (see Proposal 1).
-- **Gallery progress:** Excellent for a new player: "Unlock: Beat Story chapter 4: Boss of the Belt (0/4 cleared)" and "Ocean: Win 10 matches (0/10)" tell me exactly what to do. This is the clearest guidance in the whole game, and it deserves to be on the post-match card too. Note: the save I got already had 16/20 kaiju unlocked, while Gallery said "0/4 cleared" for Story; a true first-timer would see more locked cards, so I could only judge the shape of it.
-- **Gauntlet lives / Golden Spoon / CUP LENGTH:** Not touched; as a first-timer I'd skip them. Golden Spoon is described in Help > Modes in one clear sentence, which is nice. Note that Help > Modes is the only place party modes are explained before choosing them.
+- **Chef Tokens / receipt card:** Works and is the strongest new thing for a first-timer. The tip line was relevant each time (charge line, step out of the stomp ring). Tokens lack a visible goal (Proposal 2).
+- **Kaiju Mastery:** Visible in the Gallery card and receipt ("Lv 2 Line Cook 55/100 XP", later "Lv 3 Sous Chef"). Nothing says what each level gives; needs listed milestone rewards.
+- **Weekly Orders / Pantry:** Pantry layout is clean (shot-13). The three orders (20 KOs, 5 wins, 8 KAIJU) are sensible, but nothing introduces the Pantry to a newcomer apart from the small title button.
+- **Chef Rank:** Only a name in Records; no next rank or bar.
+- **Gauntlet:** Instant start with no explanation; the perk picker (Sugar Rush / Full Belly / Extra Life) was clear. The end card with Score 120 and Grade D is good. Death to a KAIJU Bluebeary showed a relevant tip ("Step out of the ring before each stomp").
+- **COMEBACK HELP / mercy tip:** Never saw it fire in my 5 matches, so it is invisible to a new player.
+- **House Rules:** Present as a button on Free Play setup; easy for a newcomer to ignore. Not opened.
+- **Story "what beat you" / rivals react:** Crabbage's "Not even ONE round for me?!" after a perfect clear is funny. I only won in Story, so I did not see a defeat card.
+- **Clarity:** First matches were short and the practice flow is good. In Story Ch 2 round 1 the event log said "YOU knocked out (hand)" (the Giant Hand); the bot was driving so I did not see the first-time explanation.
+- **Text fit:** two overlaps on the Gauntlet wave-clear screen and one on the title (below).
 
 ## Bugs that block play
-- None blocking. /errors was "none" at start, middle and end.
-- Soft issue: after finishing practice and choosing QUIT from the pause menu, the game returns to the Help screen (tab Practice) rather than the title/Free Play, so a first-timer must back out and find the next door alone.
+None block play. /errors was "none" at start, middle and end.
+- Overlap (Gauntlet wave-clear): the left perk card ("SUGAR RUSH") covers the "🧾 THIS MATCH" receipt card and cuts off its token line. Repro: Gauntlet, clear wave 1. Screenshot: C:\Users\Pat\kitchen-kaiju\art-src\.playtest\r6-7104\shot-23.png
+- Overlap (same screen): the achievement toast "🏆 ON A ROLL: Win 3 matches in a row" is drawn on top of the "Next: wave 2 · ❤❤❤" line (shot-23).
+- Overlap (title screen): the big "KITCHEN KAIJU" logo's "JU" runs under the SETTINGS and HELP buttons, and the "NEXT UP" text sits over the fork art. Screenshot: C:\Users\Pat\kitchen-kaiju\art-src\.playtest\r6-7104\shot-12.png
+- The HOW TO PLAY MOVES and CONTROLS lines are cut at about 120 characters in /look output only; the screenshot (shot-2.png) fits, so this is harness truncation, not a bug.
 
 ## Small notes (max 5, one line each)
-- Free Play lets you press PLAY with zero seats joined and silently seats you vs 1 bot, which is confusing next to "click or THROW to join".
-- The Free Play options row has 8 equally weighted buttons; the key ones (BOT LEVEL, FIRST TO) should be bigger than TWIST/POWER-UPS/HAZARDS.
-- Help > Controls text is cut off in /look ("...SWIPE: a close-range sm") and long: a pictogram of keys would read faster than a paragraph.
-- Your kaiju is called GOBZILLA in matches but "GOBZILLA JR." in Free Play/Story seat labels; pick one name.
-- The "NEXT UP" line on the title is tiny (about 12 px) and in a similar colour to the scenery; it's the best guidance in the game and is easy to miss.
+- Practice's last step says "Esc → pause → QUIT"; replace with an end card and keep a Practice entry on the Help screen after completion.
+- Free Play setup shows 6 identical empty "click or THROW to join" seats while PLAY auto-seats you anyway; pre-claim seat 1.
+- Free Play says "16/20 kaiju" unlocked while the title says "Clear Story ch 4 → Minturtle"; the unlock count confuses a brand-new player.
+- Gallery colour swatches are 19 nameless padlocks; label them on focus with the unlock condition.
+- The Giant Hand KO text reads "knocked out (hand)"; say "grabbed by the Giant Hand".
