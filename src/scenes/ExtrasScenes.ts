@@ -373,7 +373,7 @@ export class GalleryScene extends PanelScene {
   private colLabel!: Phaser.GameObjects.Text;
   private colG!: Phaser.GameObjects.Graphics;
   private colFor = -1; // which kaiju the swatches currently show
-  private colX = (k: number) => 230 + k * 76;
+  private colX = (k: number) => 214 + k * 70;
 
   private buildColours(): void {
     this.add.text(60, 398, 'YOUR COLOUR', display(18, '#ffd24a', { strokeThickness: 3 })).setOrigin(0, 0.5).setDepth(6);
@@ -383,10 +383,10 @@ export class GalleryScene extends PanelScene {
     this.colIcons = COLOURS.map((_, k) => this.add.image(this.colX(k), 398, '__MISSING').setDepth(8).setVisible(false));
     this.colLocks = COLOURS.map((_, k) => this.add.text(this.colX(k), 398, '🔒', body(22, '#ffffff', 900)).setOrigin(0.5).setDepth(9).setVisible(false));
     COLOURS.forEach((c, k) => {
-      const zone = this.add.zone(this.colX(k), 398, 70, 58).setInteractive().setDepth(10);
+      const zone = this.add.zone(this.colX(k), 398, 64, 58).setInteractive().setDepth(10);
       zone.on('pointerover', () => { this.nav.index = SPECIES.length + k; });
       zone.on('pointerup', () => { this.nav.index = SPECIES.length + k; if (!colourUnlocked(c)) { sfx.thwock(); return; } setColour(c.id); sfx.pickup(); this.showDetail(this.shown < 0 ? 0 : this.shown, false); });
-      this.buttons.push(new Button(this, this.colX(k), 398, { w: 70, h: 58, label: '', size: 12, accent: 0xffd24a, onClick: () => {
+      this.buttons.push(new Button(this, this.colX(k), 398, { w: 64, h: 58, label: '', size: 12, accent: 0xffd24a, onClick: () => {
         this.nav.index = SPECIES.length + k;
         if (!colourUnlocked(c)) { sfx.thwock(); return; }
         setColour(c.id); sfx.pickup(); this.showDetail(this.shown < 0 ? 0 : this.shown, false);
@@ -398,14 +398,14 @@ export class GalleryScene extends PanelScene {
     const cur = currentColour(), sp = this.shown < 0 ? 0 : this.shown;
     if (this.colFor !== sp) {
       this.colFor = sp;
-      COLOURS.forEach((c, k) => { if (hasArt(`kaiju-${sp}`)) fitInside(this.colIcons[k].setTexture(kaijuKey(this, sp, c.id)).setVisible(true), 54, 46); });
+      COLOURS.forEach((c, k) => { if (hasArt(`kaiju-${sp}`)) fitInside(this.colIcons[k].setTexture(kaijuKey(this, sp, c.id)).setVisible(true), 50, 44); });
     }
     const g = this.colG;
     g.clear();
     COLOURS.forEach((c, k) => {
       const got = colourUnlocked(c);
       this.colIcons[k].setTint(got ? 0xffffff : 0x2a2420);
-      if (c.id === cur.id) { g.lineStyle(3, 0x8dff6a, 1); g.strokeRoundedRect(this.colX(k) - 37, 366, 74, 64, 14); }
+      if (c.id === cur.id) { g.lineStyle(3, 0x8dff6a, 1); g.strokeRoundedRect(this.colX(k) - 34, 366, 68, 64, 14); }
       this.colLocks[k]?.setVisible(!got);
     });
     const ck = i - SPECIES.length, focus = ck >= 0 && ck < COLOURS.length ? COLOURS[ck] : cur;

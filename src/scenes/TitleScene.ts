@@ -18,6 +18,7 @@ import { modeDef } from '../sim/modes';
 import { GameScene } from './GameScene';
 import { owned } from '../story/unlocks';
 import { loadStats } from '../stats';
+import { nextGoals } from '../goals';
 
 function dailySub(): string {
   const d = loadDaily(), today = d.date === todayKey();
@@ -59,6 +60,8 @@ export class TitleScene extends Phaser.Scene {
     withShadow(withGradient(title, '#fff6cf', '#ffb347'), 8);
     popIn(this, title, 1.3, 700);
     withShadow(this.add.text(372, 150, 'Tiny monsters. Giant dinner.', body(24, '#ffd9a0', 900)).setOrigin(0.5).setDepth(2), 3);
+    const goals = nextGoals();
+    if (goals.length) withShadow(this.add.text(372, 196, '🎯 NEXT UP\n' + goals.join('\n'), body(14, '#fff1d6', 900, { align: 'center', lineSpacing: 3 })).setOrigin(0.5, 0).setDepth(2), 3);
 
     const save = loadStory();
     const storySub = secondsUnlocked() ? `Ch ${Math.min(save.unlocked, CHAPTERS.length)}/${CHAPTERS.length} · 🍽 Seconds open!` : save.stars.some(s => s) ? `Ch ${Math.min(save.unlocked, CHAPTERS.length)}/${CHAPTERS.length} · ★ ${totalStars(save)}` : `${CHAPTERS.length} chapters`;

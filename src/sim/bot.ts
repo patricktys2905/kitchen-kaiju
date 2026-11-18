@@ -43,6 +43,7 @@ export class BotBrain {
   private aimA = 0;
   private aimOffset = 0;
   private time = 0;
+  private parryAim: { x: number; y: number } | null = null;
   private dodgeRoll = new Map<number, boolean>(); // one dodge decision per incoming throw (not per frame)
   private history: { t: number; pos: { x: number; y: number; vx: number; vy: number }[] }[] = [];
 
@@ -201,7 +202,13 @@ export class BotBrain {
       const px = -c.vy, py = c.vx, pl = Math.hypot(px, py) || 1, side = px * cx + py * cy > 0 ? 1 : -1;
       add((px / pl) * side, (py / pl) * side, 2.6);
       if (!this.dodgeRoll.has(c.id)) this.dodgeRoll.set(c.id, this.rng.next() < T.dodge);
-      if (cd < 110 && p.dashCD <= 0 && this.dodgeRoll.get(c.id)) out.dash = !p.prev.dash;
+      // some rolls become a ⚔ parry: swipe the cutlery back at whoever threw it
+      if (this.dodgeRoll.get(c.id) && p.holding !== null && p.swipeCD <= 0 && cd < p.r + P.swipeReach + 30 && this.rng.next() < T.dodge * 0.6) {
+        const o = c.owner !== null ? w.players[c.owner] : null;
+        out.swipe = !p.prev.swipe;
+        this.parryAim = o ? { x: o.x - p.x, y: o.y - p.y } : { x: -cx, y: -cy };
+        this.dodgeRoll.set(c.id, false);
+      } else if (cd < 110 && p.dashCD <= 0 && this.dodgeRoll.get(c.id)) out.dash = !p.prev.dash;
     }
 
     // Get out of the giant hand's lane.
@@ -297,6 +304,7 @@ export class BotBrain {
       this.aimOffset = (this.rng.next() - 0.5) * 2 * T.aimErr;
       out.throw = true;
     }
+    if (this.parryAim) { out.aimX = this.parryAim.x; out.aimY = this.parryAim.y; this.parryAim = null; }
     return out;
   }
 }

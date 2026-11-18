@@ -14,6 +14,7 @@ export const COLOURS: Colour[] = [
   { id: 'golden', name: 'Golden', unlock: 'dessert', recipe: { hue: 45, sat: 1.25, light: 1.05, glow: 0.6 } },
   { id: 'midnight', name: 'Midnight', unlock: 'gauntlet-5', recipe: { hue: 235, sat: 0.55, light: 0.62 } },
   { id: 'ghost', name: 'Ghost', unlock: 'spicy-1', recipe: { sat: 0.12, light: 1.25 } },
+  { id: 'toasty', name: 'Toasty', unlock: 'story-3', recipe: { hue: 26, sat: 0.75, light: 0.82 } },
   { id: 'cherry', name: 'Cherry', unlock: 'flawless', recipe: { hue: 352, sat: 1.25, light: 0.92 } },
   { id: 'mint', name: 'Mint', unlock: 'daily-3', recipe: { hue: 150, sat: 0.8, light: 1.12 } },
 ];

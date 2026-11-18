@@ -150,6 +150,8 @@ export class GameScene extends Phaser.Scene {
   private tagTexts: Phaser.GameObjects.Text[] = [];
   private hatImgs: Phaser.GameObjects.Image[] = [];
   private seatCols: string[] = [];
+  private twistG!: Phaser.GameObjects.Graphics;
+  private twistChip: Phaser.GameObjects.Text | null = null;
   private rampage: Record<number, number> = {}; // KOs during the current KAIJU form, per seat
   private perkUi: Button[] = [];
   private badgeTexts: Phaser.GameObjects.Text[] = [];
@@ -201,6 +203,8 @@ export class GameScene extends Phaser.Scene {
     clearTaps();
     this.baseG = this.add.graphics().setDepth(-2.5);
     this.tableG = this.add.graphics().setDepth(-1);
+    this.twistG = this.add.graphics().setDepth(-0.9);
+    this.twistChip = this.world.mutator !== 'none' ? withShadow(this.add.text(VIEW.w - 14, VIEW.h - 8, `⚡ ${mutatorDef(this.world.mutator).name}`, display(15, '#8dd8ff', { strokeThickness: 4 })).setOrigin(1, 1).setDepth(6), 2) : null;
     this.dynG = this.add.graphics().setDepth(0);
     this.overG = this.add.graphics().setDepth(3.6);
     this.fxG = this.add.graphics().setDepth(3.8);
@@ -329,7 +333,7 @@ export class GameScene extends Phaser.Scene {
     if (this.pauseUi && this.pauseUi.nav.update(dt) === 'back') this.setPaused(false);
     if (this.story && this.world.phase === 'matchEnd' && (this.world.phaseT > 2.8 || consumeTap('Digit1') || consumeTap('Space') || consumeTap('Enter'))) {
       const me = this.world.players[0], won = this.world.winner === 0;
-      this.scene.start('story', { result: { chapter: this.story.chapter, won, stars: won ? starsFor(this.world.round - me.score) : 0, spicy: !!this.story.spicy, campaign: this.story.campaign, myRounds: me.score } });
+      this.scene.start('story', { result: { chapter: this.story.chapter, won, stars: won ? starsFor(this.world.round - me.score) : 0, spicy: !!this.story.spicy, campaign: this.story.campaign, myRounds: me.score, myKos: me.kos, myKaiju: this.tally.kaiju[0] ?? 0 } });
       return;
     }
     const cup = this.initData.cup;
@@ -358,11 +362,11 @@ export class GameScene extends Phaser.Scene {
     const gw = this.initData.gauntlet;
     this.updateResultButtons(dt);
     if (this.perkUi.length) { consumeTap('Escape'); for (const b of this.perkUi) b.update(dt); this.perkKeys?.(); return; }
-    if (gw && this.world.phase === 'matchEnd' && (this.world.phaseT > (this.world.winner === 0 ? 1.6 : 4.5) || consumeTap('Space') || consumeTap('Enter') || (this.world.winner !== 0 && consumeTap('Digit1')))) {
-      if (this.world.winner === 0) { if (!this.perkUi.length) this.offerPerks(gw); }
-      else this.scene.start('title');
+    if (gw && this.world.phase === 'matchEnd' && this.world.winner === 0 && (this.world.phaseT > 1.6 || consumeTap('Space') || consumeTap('Enter'))) {
+      if (!this.perkUi.length) this.offerPerks(gw);
       return;
     }
+    if (gw && this.world.phase === 'matchEnd' && this.world.winner !== 0 && (consumeTap('Digit1') || consumeTap('Space') || consumeTap('Enter'))) { this.newGauntletRun(); return; }
     if (!this.story && !gw && !cup && this.world.phase === 'matchEnd' && this.net?.role !== 'guest' && (consumeTap('Digit1') || (anyStart && !this.padPrevStart))) {
       this.rematch();
       return;
@@ -432,15 +436,39 @@ export class GameScene extends Phaser.Scene {
     this.popup(VIEW.w / 2, VIEW.h - 230, 'PICK A PERK FOR THE NEXT WAVE (1 / 2 / 3)', '#8dff6a', 22);
   }
   private perkKeys: (() => void) | null = null;
+
+  /** Twists you can see: an icy sheen for Ice Rink, rubber bumpers for Bouncy Castle (others: the ⚡ chip + round-start banner). */
+  private renderTwist(t: number): void {
+    const g = this.twistG, m = this.world.mutator, { x, y, w, h } = TABLE;
+    g.clear();
+    if (m === 'ice') {
+      g.fillStyle(0xcff3ff, 0.16); g.fillRoundedRect(x, y, w, h, 18);
+      g.lineStyle(3, 0xffffff, 0.22);
+      for (let k = 0; k < 16; k++) { const sx = x + 30 + ((k * 173 + t * 20) % (w - 120)), sy = y + 30 + ((k * 97) % (h - 120)); g.lineBetween(sx, sy, sx + 70, sy + 70); }
+      g.fillStyle(0xffffff, 0.5);
+      for (let k = 0; k < 18; k++) { const px = x + ((k * 197) % w), py = y + ((k * 113) % h), tw = 0.5 + 0.5 * Math.sin(t * 3 + k); g.fillCircle(px, py, 1.5 + tw * 2); }
+    } else if (m === 'bouncy') {
+      for (let k = 0; k < 4; k++) {
+        const c = Math.floor(t * 4 + k) % 2 ? 0xff7ad9 : 0xffd24a;
+        g.lineStyle(10, c, 0.75);
+        if (k === 0) g.lineBetween(x + 10, y + 5, x + w - 10, y + 5);
+        if (k === 1) g.lineBetween(x + 10, y + h - 5, x + w - 10, y + h - 5);
+        if (k === 2) g.lineBetween(x + 5, y + 10, x + 5, y + h - 10);
+        if (k === 3) g.lineBetween(x + w - 5, y + 10, x + w - 5, y + h - 10);
+      }
+    }
+  }
+  private newGauntletRun(): void { sfx.go(); this.scene.restart(GameScene.gauntletWave(1, this.species[0], this.slots[0])); }
   private resultBtns: Button[] = [];
 
   /** Results screens: clickable REMATCH / CONTINUE and MENU (keys still work). */
   private updateResultButtons(dt: number): void {
-    const show = this.world.phase === 'matchEnd' && !this.replay && !this.story && !this.initData.gauntlet && !this.initData.dessert && !this.initData.attract && this.net?.role !== 'guest' && this.world.phaseT > 1;
+    const gLost = !!this.initData.gauntlet && this.world.winner !== 0;
+    const show = this.world.phase === 'matchEnd' && !this.replay && !this.story && (!this.initData.gauntlet || gLost) && !this.initData.dessert && !this.initData.attract && this.net?.role !== 'guest' && this.world.phaseT > 1;
     if (show && !this.resultBtns.length) {
       const cupNext = !!this.initData.cup;
       this.resultBtns = [
-        new Button(this, VIEW.w / 2 - 130, VIEW.h - 96, { w: 230, h: 56, label: cupNext ? '▶ CONTINUE' : '↻ REMATCH', size: 20, accent: 0xff9a3c, onClick: () => injectTap('Digit1') }, 12),
+        new Button(this, VIEW.w / 2 - 130, VIEW.h - 96, { w: 230, h: 56, label: gLost ? '↻ NEW RUN' : cupNext ? '▶ CONTINUE' : '↻ REMATCH', size: 20, accent: 0xff9a3c, onClick: () => (gLost ? this.newGauntletRun() : injectTap('Digit1')) }, 12),
         new Button(this, VIEW.w / 2 + 130, VIEW.h - 96, { w: 230, h: 56, label: '☰ MENU', size: 20, onClick: () => this.leave() }, 12),
       ];
     }
@@ -561,6 +589,7 @@ export class GameScene extends Phaser.Scene {
         case 'roundStart':
           this.replayBuf.reset();
           if (e.round === 1 && this.bossSeats().length) this.time.delayedCall(150, () => this.bossCard());
+          if (w.mutator !== 'none') { const md = mutatorDef(w.mutator); this.time.delayedCall(e.round === 1 && this.bossSeats().length ? 1600 : 250, () => this.popup(VIEW.w / 2, TABLE.y + 70, `⚡ TWIST: ${md.name} — ${md.blurb}`, '#8dd8ff', 24)); }
           this.tip = getSettings().tips && !this.initData.attract && !this.practice ? randomTip(this.mode, w.layout, w.mutator === 'ice') : '';
           this.art.setupTable(w.layout, this.world.players.map(p => ({ x: p.x, y: p.y, color: this.colors[p.id] })));
           for (const b of this.bossSeats()) if (w.players[b]) w.players[b].meter = this.story?.bossBelly ?? 100;
@@ -624,6 +653,7 @@ export class GameScene extends Phaser.Scene {
           this.burst(e.x, e.y, col, 14, 260, 0.45);
           break;
         }
+        case 'parry': sfx.clink(); this.shake(0.004, 100); this.popup(e.x, e.y - 30, '⚔ PARRY!', this.css[e.id], 24); this.rings.push({ x: e.x, y: e.y, r: 0, t: 0, max: 50, color: 0xffffff }); break;
         case 'frenzy': sfx.meterFull(); this.popup(VIEW.w / 2, 150, '🍽 FEEDING FRENZY! Bellies are filling up…', '#ffd24a', 26); break;
         case 'minePop': sfx.bump(); this.shake(0.005, 120); this.burst(e.x, e.y, 0x4a6aff, 16, 240, 0.45); this.rings.push({ x: e.x, y: e.y, r: 0, t: 0, max: 70, color: 0x4a6aff }); break;
         case 'stunned': break;
@@ -1075,6 +1105,8 @@ export class GameScene extends Phaser.Scene {
     this.overG.clear();
     if (!hasArt('ob-candle')) drawTableLive(g, w.layout, t);
     this.art.frame(w, t, g, this.overG);
+    this.renderTwist(t);
+    this.twistChip?.setVisible(!this.replay);
     this.renderModeFx();
     this.updateShareButton();
     this.updatePractice();
@@ -1306,7 +1338,8 @@ export class GameScene extends Phaser.Scene {
       else {
         const reached = wave - 1, best = Math.max(gauntletBest(), reached);
         main = 'GAUNTLET OVER'; color = '#ff8a7a';
-        sub = `You cleared ${reached} wave${reached === 1 ? '' : 's'} · best ${best}`;
+        const perks = (this.initData.gauntlet.perks ?? []).map(id => GAUNTLET_PERKS.find(q => q.id === id)?.name ?? id);
+        sub = `You cleared ${reached} wave${reached === 1 ? '' : 's'}${reached >= best && reached > 0 ? ' · 🏅 NEW BEST!' : ` · best ${best}`}\nScore ${reached * 100 + this.world.players[0].kos * 10}${perks.length ? `  ·  perks: ${perks.join(', ')}` : ''}`;
       }
     } else if (w.phase === 'matchEnd' && this.story) {
       main = w.winner === 0 ? 'CHAPTER CLEAR!' : 'DEFEATED';

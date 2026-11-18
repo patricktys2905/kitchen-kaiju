@@ -82,6 +82,7 @@ export const ACHIEVEMENTS: Achievement[] = [
   { id: 'flawless', icon: '💎', name: 'Clean Sweep', desc: 'Win a first-to-3+ match without losing a round', test: s => (s.flawless ?? 0) >= 1 },
   { id: 'rampage', icon: '🦖', name: 'Rampage', desc: 'Knock out 3 rivals in one KAIJU form', test: s => (s.bestRampage ?? 0) >= 3, progress: s => [s.bestRampage ?? 0, 3] },
   { id: 'daily-3', icon: '🔥', name: 'Regular', desc: 'Win the Daily Challenge 3 days in a row', test: () => { try { return (JSON.parse(localStorage.getItem('kk-daily-v1') ?? '{}').streak ?? 0) >= 3; } catch { return false; } } },
+  { id: 'story-3', icon: '🥡', name: 'Leftovers Cleared', desc: 'Clear Story chapter 3', test: () => { try { return (loadStory().stars[2] ?? 0) > 0; } catch { return false; } } },
   { id: 'matches-25', icon: '🍲', name: 'Dinner Party Animal', desc: 'Finish 25 matches', test: s => s.matches >= 25, progress: s => [s.matches, 25] },
 ];
 

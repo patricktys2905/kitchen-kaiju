@@ -41,6 +41,7 @@ export type GameEvent =
   | { type: 'eat'; id: number; x: number; y: number }
   | { type: 'meterFull'; id: number }
   | { type: 'frenzy' }
+  | { type: 'parry'; id: number; from: number | null; x: number; y: number }
   | { type: 'kaiju'; id: number; x: number; y: number }
   | { type: 'stomp'; id: number; x: number; y: number; r: number }
   | { type: 'shrink'; id: number }
@@ -440,6 +441,7 @@ export class World {
       this.lastCount = n;
       if (this.phaseT >= RULES.countdown) {
         this.phase = 'play';
+        for (const p of this.players) if (p.alive) p.invT = Math.max(p.invT, RULES.spawnShield); // a moment of safety at the start
         this.phaseT = 0;
         this.emit({ type: 'go' });
       }
@@ -683,8 +685,11 @@ export class World {
       const d = Math.hypot(c.x - p.x, c.y - p.y);
       if (d > reach + 6) continue;
       if (Math.abs(angleDiff(Math.atan2(c.y - p.y, c.x - p.x), p.aim)) > P.swipeArc) continue;
-      this.land(c);
-      this.emit({ type: 'deflect', x: c.x, y: c.y });
+      // ⚔ PARRY: a swipe sends the cutlery straight back where you aim (it's yours now)
+      const from = c.owner, v = Math.max(c.speed, Math.hypot(c.vx, c.vy)) * RULES.parrySpeed;
+      c.owner = p.id; c.vx = Math.cos(p.aim) * v; c.vy = Math.sin(p.aim) * v; c.angle = p.aim; c.speed = v; c.traveled = 0; c.boomerang = false; c.bounced = false;
+      c.x = p.x + Math.cos(p.aim) * (p.r + 14); c.y = p.y + Math.sin(p.aim) * (p.r + 14);
+      this.emit({ type: 'parry', id: p.id, from, x: c.x, y: c.y });
     }
   }
 

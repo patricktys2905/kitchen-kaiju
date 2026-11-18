@@ -12,6 +12,7 @@ function makeWorld(n = 2, kind: CutleryKind = 'fork', extra: Partial<Constructor
     seed: 7, hazards: false, crumbSpawns: false, pickupSpawns: false, layout: 0, starterKind: kind, ...extra,
   });
   while (w.phase !== 'play') w.step(DT, []);
+  for (const pl of w.players) pl.invT = 0; // skip the start-of-round safety in focused tests
   w.crumbs = [];
   w.drainEvents();
   return w;
@@ -834,6 +835,7 @@ describe('smoothie bar blender', () => {
     expect(li).toBeGreaterThanOrEqual(0);
     const w = new World({ players: [{ name: 'a' }, { name: 'b' }], seed: 3, layout: li, crumbSpawns: false, pickupSpawns: false });
     while (w.phase !== 'play') w.step(DT, []);
+    for (const pl of w.players) pl.invT = 0; // skip the start-of-round safety in focused tests
     const z = LAYOUTS[li].blender!;
     place(w, 0, z.x + 200, z.y); place(w, 1, 160, 150);
     w.layout = { ...w.layout, obstacles: [] };
@@ -903,6 +905,7 @@ describe('fondue night cheese', () => {
     expect(li).toBeGreaterThanOrEqual(0);
     const w = new World({ players: [{ name: 'a' }, { name: 'b' }], seed: 5, layout: li, crumbSpawns: false, pickupSpawns: false });
     while (w.phase !== 'play') w.step(DT, []);
+    for (const pl of w.players) pl.invT = 0; // skip the start-of-round safety in focused tests
     place(w, 0, 300, 600); place(w, 1, 1000, 160);
     const ev = run(w, RULES.cheeseFirst + 0.05);
     const warn = ev.find(e => e.type === 'cheeseWarn');
@@ -978,6 +981,7 @@ describe('pancake stack spatula', () => {
     expect(li).toBeGreaterThanOrEqual(0);
     const w = new World({ players: [{ name: 'a' }, { name: 'b' }], seed: 9, layout: li, crumbSpawns: false, pickupSpawns: false });
     while (w.phase !== 'play') w.step(DT, []);
+    for (const pl of w.players) pl.invT = 0; // skip the start-of-round safety in focused tests
     const ev = run(w, RULES.spatulaFirst + 0.05);
     expect(ev.some(e => e.type === 'spatulaWarn')).toBe(true);
     const sp = w.spatula!;
@@ -1062,6 +1066,7 @@ describe('kaiju powers', () => {
   const powered = (species: number[], extra: Partial<ConstructorParameters<typeof World>[0]> = {}) => {
     const w = new World({ players: species.map(s => ({ name: 'P' + s, species: s })), kaijuPowers: true, seed: 7, hazards: false, crumbSpawns: false, pickupSpawns: false, layout: 0, starterKind: 'fork', ...extra });
     while (w.phase !== 'play') w.step(DT, []);
+    for (const pl of w.players) pl.invT = 0; // skip the start-of-round safety in focused tests
     w.crumbs = [];
     w.drainEvents();
     return w;
@@ -1162,5 +1167,22 @@ describe('colour styles', () => {
     expect(cols[0]).toBe('golden');
     expect(new Set([cols[0], cols[1], cols[3]]).size).toBe(3);
     expect(cols[2]).toBe('classic');
+  });
+});
+
+describe('parry and spawn safety', () => {
+  it('a swipe sends a thrown fork back the way the swiper aims', () => {
+    const w = makeWorld(2, 'fork');
+    place(w, 0, 400, 380); place(w, 1, 560, 380);
+    const ev = run(w, 0.6, t => [tap(1, 0, t), { ...NO_INPUT, aimX: -1, aimY: 0, swipe: t > 0.05 && t < 0.12 }]);
+    const parry = ev.find(e => e.type === 'parry');
+    expect(parry).toBeTruthy();
+    expect(w.players[0].alive).toBe(false); // the fork came back at the thrower
+  });
+
+  it('everyone is safe for a moment when a round starts', () => {
+    const w = new World({ players: [{ name: 'A' }, { name: 'B' }], seed: 3, hazards: false, layout: 0 });
+    while (w.phase !== 'play') w.step(DT, []);
+    expect(w.players.every(p => p.invT > 0.5)).toBe(true);
   });
 });

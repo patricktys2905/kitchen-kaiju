@@ -28,6 +28,8 @@ export interface StoryResult {
   spicy?: boolean; // a 🌶️ Spicy replay
   campaign?: CampaignId;
   myRounds?: number; // rounds you won (for the defeat card)
+  myKos?: number; // your knockouts this match (for the Head Chef's comment)
+  myKaiju?: number; // times you went KAIJU
 }
 
 const CARD_W = 178, CARD_H = 112;
@@ -445,6 +447,13 @@ export class StoryScene extends Phaser.Scene {
         if (shown.length) y += 72;
         y += GAP;
       }
+      // 👨‍🍳 the Head Chef reacts to how you played, then teases the next course
+      const nextCh = this.camp.chapters[r.chapter + 1], nextRival = nextCh ? SPECIES[nextCh.rivals[0].species].full : '';
+      const praise = r.stars === 3 ? "Not a single round dropped. Chef's kiss! 🤌" : (r.myKos ?? 0) >= 4 ? `${r.myKos} knockouts! The whole kitchen is talking.` : (r.myKaiju ?? 0) >= 2 ? `You went KAIJU ${r.myKaiju} times. The table is still shaking.` : (r.myKaiju ?? 0) === 0 ? 'Next time, eat those crumbs and STOMP: KAIJU wins fights.' : 'A hard-fought plate. Well served.';
+      const chef = this.add.text(640, y, `👨‍🍳 ${praise}${nextCh ? `
+Next course: ${nextCh.title}. ${nextRival} is already sharpening the cutlery…` : ''}`, body(15, '#ffd9a0', 800, { align: 'center', wordWrap: { width: 640 } })).setOrigin(0.5, 0).setDepth(31);
+      this.overlay.push(chef);
+      y += chef.height + 10;
       if (unlockedNew && !last) { this.overlay.push(this.add.text(640, y, `Chapter ${r.chapter + 2} unlocked!`, body(18, '#8dff6a', 900)).setOrigin(0.5, 0).setDepth(31)); y += 26 + GAP; }
     } else {
       const lostKey = `${this.camp.id}:${r.chapter}`;

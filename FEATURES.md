@@ -65,6 +65,7 @@ Each section says **where to customise it**.
 - 58. Colour styles (replace hats)
 - 59. Playtest fixes (round 1)
 - 60. Playtest round 2 themes
+- 61. Combat depth, goals, readable twists, more story
 
 **Where to find things:** title screen cards (Story · Free Play · Online · Party Modes · Daily · Gauntlet), the top-right row (Settings · How to Play · Kaiju · Records), and Free Play keys (G mode · U power-ups · H hazards · X twist · C cup).
 
@@ -652,3 +653,19 @@ From the 10 Sonnet playtester reports in `playtest-reports/`.
   - Setup: PLAY with nobody seats you, Team Feast evens up teams, and Free Play and Party Modes keep separate settings (`MenuScene.lastParty`).
   - Results screens have clickable REMATCH/CONTINUE and MENU buttons.
   - Kaiju powers rebalanced for frequent KAIJU.
+
+## 61. Combat depth, goals, readable twists, more story (from the round 3 playtest)
+
+1. **Combat depth:**
+   - ⚔ **Parry:** a swipe timed on incoming cutlery sends it back where you aim (it becomes yours, a little faster: `RULES.parrySpeed`), with a "⚔ PARRY!" pop-up. Hard bots parry sometimes too.
+   - **Spawn safety:** everyone is untouchable for 1 s when a round starts (`RULES.spawnShield`).
+   - Throws already show a dotted charge line as a warning.
+2. **Long-term goals:**
+   - The title shows **🎯 NEXT UP**: your nearest Story unlock and your closest colour reward (with %). See `src/goals.ts`.
+   - New early reward: clearing Story chapter 3 (**Leftovers Cleared**) unlocks the **Toasty** colour.
+   - **Gauntlet recap:** "GAUNTLET OVER" shows waves cleared, 🏅 NEW BEST, a score (waves × 100 + KOs × 10) and your perks, with **↻ NEW RUN** and **☰ MENU** buttons.
+3. **Readable twists:**
+   - Every twist gets a "⚡ TWIST: name — what it does" banner at each round start, plus a ⚡ chip in the corner.
+   - **Ice Rink** puts an icy sheen with frost streaks and sparkles on the table.
+   - **Bouncy Castle** shows flashing striped bumpers along the edges.
+4. **More story:** after a chapter clear, the 👨‍🍳 Head Chef reacts to how you played (a flawless run, lots of KOs, going KAIJU, or a nudge to STOMP) and teases the next course and its first rival.
