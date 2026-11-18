@@ -1,4 +1,5 @@
 import * as Phaser from 'phaser';
+import { BotBrain } from './sim/bot';
 import { unlockAudio } from './audio';
 import { initInput, injectTap } from './input';
 import { applyKeybinds } from './keybinds';
@@ -37,3 +38,5 @@ const game = new Phaser.Game({
 
 // Handy for debugging / automated smoke tests.
 (window as unknown as { __game: Phaser.Game }).__game = game;
+// playtest harness hooks (scripts/playtest): bot brains + a speed multiplier
+(window as unknown as { __BotBrain: typeof BotBrain }).__BotBrain = BotBrain;

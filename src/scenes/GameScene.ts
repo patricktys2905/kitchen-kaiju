@@ -373,9 +373,9 @@ export class GameScene extends Phaser.Scene {
       this.checkEmotes(human, dt);
       const ff = this.onlyBotsLeft();
       this.ffText?.setVisible(ff).setAlpha(0.75 + 0.25 * Math.sin(this.time.now / 150));
-      this.acc += dt * (this.world.mutator === 'turbo' ? MUTATOR_RULES.turboSpeed : 1) * (ff ? FAST_FORWARD : 1);
+      this.acc += dt * (this.world.mutator === 'turbo' ? MUTATOR_RULES.turboSpeed : 1) * (ff ? FAST_FORWARD : 1) * ((window as unknown as { __kkSpeed?: number }).__kkSpeed ?? 1);
       let n = 0;
-      while (this.acc >= STEP && n < 16) {
+      while (this.acc >= STEP && n < 16 * ((window as unknown as { __kkSpeed?: number }).__kkSpeed ?? 1)) {
         const inputs = this.slots.map((_, i) => this.bots[i]?.decide(this.world, STEP) ?? human[i]);
         this.world.step(STEP, inputs);
         this.replayBuf.record(this.world, STEP);
