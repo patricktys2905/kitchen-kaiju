@@ -22,7 +22,7 @@ export const P = {
   swipeArc: 0.85, // half-angle in radians (~100 deg total)
   bumpForce: 600,
   fallSpeed: 160, // knockback speed above which you can be pushed off the table
-  crumbValue: 9, // meter gained per crumb (12 crumbs = full)
+  crumbValue: 10, // meter gained per crumb (10 crumbs = full)
   kaijuTime: 6,
   kaijuSpeed: 0.65,
   stompEvery: 0.6,
@@ -48,6 +48,7 @@ export const RULES = {
   handWidth: 170,
   handInterval: [8, 12] as [number, number],
   suddenDeathAt: 45,
+  maxRoundsPer: 2.4, // a match ends after target × this many rounds (leader wins), so 6-player matches don't drag on
   frenzyFill: 7, // after suddenDeathAt (Classic + Team Feast): everyone's belly fills this much per second, so stand-offs end in KAIJU fights
   suddenDeathInterval: [3.5, 5] as [number, number],
   // Birthday Bash: gusts of wind

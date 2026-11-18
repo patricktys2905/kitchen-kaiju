@@ -375,6 +375,7 @@ export class GalleryScene extends PanelScene {
     this.add.text(60, 398, 'YOUR COLOUR', display(18, '#ffd24a', { strokeThickness: 3 })).setOrigin(0, 0.5).setDepth(6);
     this.colLabel = this.add.text(1040, 398, '', body(13, '#e9dccb', 800, { wordWrap: { width: 200 } })).setOrigin(0, 0.5).setDepth(6);
     this.colG = this.add.graphics().setDepth(8);
+    this.colFor = -1; // new images on every visit: draw the swatches again
     this.colIcons = COLOURS.map((_, k) => this.add.image(this.colX(k), 398, '__MISSING').setDepth(8).setVisible(false));
     this.colLocks = COLOURS.map((_, k) => this.add.text(this.colX(k), 398, '🔒', body(22, '#ffffff', 900)).setOrigin(0.5).setDepth(9).setVisible(false));
     COLOURS.forEach((c, k) => {
@@ -494,7 +495,7 @@ export class RecordsScene extends PanelScene {
     // the closest unearned achievement you're working towards
     const next = ACHIEVEMENTS.filter(a => !s.achieved.includes(a.id) && a.progress).map(a => ({ a, k: a.progress!(s)[0] / a.progress!(s)[1] })).sort((p, q) => q.k - p.k)[0];
     this.nextText?.destroy();
-    this.nextText = next ? this.add.text(500, 128, `👉 Next up: ${next.a.name} (${Math.round(next.k * 100)}%) — ${next.a.desc}`, body(13, '#ffcf8a', 900)).setOrigin(0, 1).setDepth(5) : null;
+    this.nextText = next ? this.add.text(500, 642, `👉 Next up: ${next.a.name} (${Math.round(next.k * 100)}%) — ${next.a.desc}`, body(13, '#ffcf8a', 900, { wordWrap: { width: 740 } })).setOrigin(0, 0).setDepth(5) : null;
     ACHIEVEMENTS.slice(page * PER_PAGE, (page + 1) * PER_PAGE).forEach((a, i) => {
       const col = i % 2, row = Math.floor(i / 2), x = 500 + col * 380, y = 146 + row * 54;
       const got = s.achieved.includes(a.id);

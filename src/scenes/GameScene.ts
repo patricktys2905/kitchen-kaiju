@@ -236,7 +236,7 @@ export class GameScene extends Phaser.Scene {
     this.bannerSub = withShadow(this.add.text(VIEW.w / 2, VIEW.h / 2 + 50, '', body(22, '#ffffff', 900, { stroke: '#2a1408', strokeThickness: 5, align: 'center' })).setOrigin(0.5).setDepth(10), 3);
     if (this.mode === 'practice') {
       const g = this.add.graphics().setDepth(9);
-      const text = this.add.text(24, VIEW.h - 24, '', body(15, '#f1e4d2', 800, { lineSpacing: 4, wordWrap: { width: 420 } })).setOrigin(0, 1).setDepth(10);
+      const text = this.add.text(18, VIEW.h - 5, '', body(13, '#f1e4d2', 800, { lineSpacing: 1, wordWrap: { width: 420 } })).setOrigin(0, 1).setDepth(10);
       const p0 = this.world.players[0];
       this.practice = { done: PRACTICE_STEPS.map(() => false), moved: 0, lx: p0.x, ly: p0.y, text, g };
     }
@@ -887,10 +887,11 @@ export class GameScene extends Phaser.Scene {
     PRACTICE_STEPS.forEach((st, i) => { if (!P0.done[i] && st.done({ type: 'go' }, P0.moved)) this.tick(i); });
     const next = P0.done.indexOf(false);
     const all = next < 0, doneN = P0.done.filter(Boolean).length;
-    P0.text.setText(all ? `PRACTICE ${doneN}/${PRACTICE_STEPS.length}  🎉 All done! Esc → pause → QUIT` : `PRACTICE ${doneN}/${PRACTICE_STEPS.length}  ${'✅'.repeat(doneN)}${'⬜'.repeat(PRACTICE_STEPS.length - doneN)}\n👉 ${PRACTICE_STEPS[next].text}\n     ${PRACTICE_STEPS[next].keys}`);
-    const bx = 14, by = VIEW.h - 14 - P0.text.height - 20, bw = Math.max(260, P0.text.width + 20);
-    P0.g.clear(); P0.g.fillStyle(0x0d0805, 0.78); P0.g.fillRoundedRect(bx, by, bw, P0.text.height + 20, 14);
-    P0.g.lineStyle(2, all ? 0x8dff6a : 0xffb347, 1); P0.g.strokeRoundedRect(bx, by, bw, P0.text.height + 20, 14);
+    // two short lines in the strip below the table (TABLE ends at y 670), so it never covers the action
+    P0.text.setText(all ? `PRACTICE ${doneN}/${PRACTICE_STEPS.length}  🎉 All done!\nEsc → pause → QUIT` : `PRACTICE ${doneN}/${PRACTICE_STEPS.length}  👉 ${PRACTICE_STEPS[next].text}\n${PRACTICE_STEPS[next].keys}`);
+    const bx = 10, by = TABLE.y + TABLE.h + 3, bw = Math.min(440, P0.text.width + 16), bh = VIEW.h - by - 3;
+    P0.g.clear(); P0.g.fillStyle(0x0d0805, 0.78); P0.g.fillRoundedRect(bx, by, bw, bh, 10);
+    P0.g.lineStyle(2, all ? 0x8dff6a : 0xffb347, 1); P0.g.strokeRoundedRect(bx, by, bw, bh, 10);
   }
 
   private tick(i: number): void {
@@ -1161,7 +1162,7 @@ export class GameScene extends Phaser.Scene {
         for (let k = 0; k < 10; k++) { const r = k % 2 ? 2.8 : 6.5, a = (k / 10) * Math.PI * 2 - Math.PI / 2; pts.push({ x: sx + Math.cos(a) * r, y: sy + Math.sin(a) * r }); }
         g.fillPoints(pts as unknown as Phaser.Math.Vector2[], true);
       }
-      this.scoreTexts[i]?.setText(w.opts.target > 5 ? `${p.score}/${w.opts.target}` : '').setPosition(x + pw - 66, 33);
+      this.scoreTexts[i]?.setText(w.opts.target > 5 && w.mode !== 'practice' ? `${p.score}/${w.opts.target}` : '').setPosition(x + pw - 66, 33);
       for (let s = 0; s < (w.opts.target > 5 ? 0 : w.opts.target); s++) {
         const sx = x + pw - 76 + s * 14, sy = 41;
         g.fillStyle(s < p.score ? this.colors[i] : 0x3a2c22, 1);
@@ -1197,7 +1198,7 @@ export class GameScene extends Phaser.Scene {
       this.infoTexts[i].setText(info);
       if (w.mode === 'teams') { g.fillStyle(MODE_RULES.teams.colors[p.team] ?? 0xffffff, 0.9); g.fillRoundedRect(x - 4, 70, pw, 4, 2); }
     });
-    this.roundText.setText(`${w.mode !== 'classic' ? modeDef(w.mode).name + '\n' : ''}ROUND ${w.round} · ${w.layout.name.toUpperCase()}`);
+    this.roundText.setText(this.initData.gauntlet ? `GAUNTLET\nWAVE ${this.initData.gauntlet.wave} · ${w.layout.name.toUpperCase()}` : `${w.mode !== 'classic' ? modeDef(w.mode).name + '\n' : ''}ROUND ${w.round} · ${w.layout.name.toUpperCase()}`);
     if (this.slots.length <= 4) { const room = VIEW.w - 16 - (this.hudX(this.slots.length - 1) + this.hudW) - 8; this.roundText.setScale(Math.min(1, room / Math.max(1, this.roundText.width / this.roundText.scaleX))); }
     const left = w.timeLeft();
     let mt = '';
@@ -1250,7 +1251,7 @@ export class GameScene extends Phaser.Scene {
       main = last ? `${w.players[lead].name}\nWINS THE PARTY CUP!` : `PARTY CUP · GAME ${cup.game + 1}/${games.length}`;
       color = last ? this.css[lead] : '#ffd24a';
       const rows = order.map((i, k) => `${k === 0 ? '🏆' : k === 1 ? '🥈' : k === 2 ? '🥉' : `${k + 1}.`} ${w.players[i].name}  ${tot[i]} pts${add[i] ? `  (+${add[i]})` : ''}`);
-      const table = rows.length > 4 ? chunk(rows, 2).map(r => r.join('        ')).join('\n') : rows.join('\n');
+      const table = rows.join('\n');
       const nextName = last ? '' : modeDef(games[cup.game + 1].mode).name;
       sub = table + (this.net?.role === 'guest'
         ? (last ? '\n\nEsc to leave' : `\n\nNext: ${nextName} · waiting for the host…`)
@@ -1276,9 +1277,10 @@ export class GameScene extends Phaser.Scene {
       color = this.css[w.winner];
       if (w.mode === 'teams') { const tm = w.players[w.winner].team; main = `TEAM ${MODE_RULES.teams.names[tm]}\nRULES THE TABLE`; color = MODE_RULES.teams.css[tm]; }
       const ranked = w.players.slice().sort((a, b) => b.score - a.score || b.kos - a.kos);
-      const lines = ranked.map((p, i) => `${i + 1}. ${p.name}  ${p.score} round${p.score === 1 ? '' : 's'} · ${p.kos} KO${p.kos === 1 ? '' : 's'}`);
-      // more than 4 players: two columns (1st|2nd, 3rd|4th, 5th|6th)
-      let table = lines.length > 4 ? chunk(lines, 2).map(r => r.join('        ')).join('\n') : lines.join('\n');
+      const solo = this.slots.filter(sl => sl.kind !== 'bot').length === 1; // one person playing: mark them as YOU
+      const lines = ranked.map((p, i) => `${i + 1}. ${p.name}${solo && this.isHuman(p.id) ? ' (YOU)' : ''}  —  ${p.score} round${p.score === 1 ? '' : 's'} · ${p.kos} KO${p.kos === 1 ? '' : 's'}`);
+      // one column (two columns of centred text ran into each other); the font shrinks for 5–6 players
+      let table = lines.join('\n');
       if (this.initData.daily) {
         const d = loadDaily(), won = this.humanWon(w.winner);
         main = won ? 'DAILY CHALLENGE\nCOMPLETE!' : 'DAILY CHALLENGE\nFAILED';
@@ -1289,7 +1291,7 @@ export class GameScene extends Phaser.Scene {
     }
     if (main !== this.lastBanner) { this.lastBanner = main; if (main) popIn(this, this.banner, 1.5, 380); }
     this.banner.setText(main).setColor(color).setFontSize(main.length > 14 ? 58 : 90);
-    this.bannerSub.setText(sub).setFontSize(w.players.length > 4 && (w.phase === 'roundEnd' || w.phase === 'matchEnd') ? 20 : 22);
+    this.bannerSub.setText(sub).setFontSize(w.players.length > 4 && w.phase === 'matchEnd' ? 17 : w.players.length > 4 && w.phase === 'roundEnd' ? 20 : 22);
     if (this.paused && !this.netNotice) {
       this.banner.setY(200);
     } else if (w.phase === 'matchEnd') {

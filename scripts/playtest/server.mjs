@@ -192,5 +192,7 @@ http.createServer(async (req, res) => {
     res.writeHead(200, { 'content-type': 'text/plain; charset=utf-8' }); res.end(body);
   } catch (e) { res.writeHead(500); res.end(`error: ${e.message}`); }
 }).listen(PORT, () => console.log(`playtest server on http://localhost:${PORT} (out: ${OUT})`));
+// wait for the art to load and the title to appear before freezing
+for (let i = 0; i < 240; i++) { if (await pg.evaluate(() => window.__game?.scene.isActive('title')).catch(() => false)) break; await wait(500); }
 await freeze();
 process.on('SIGTERM', async () => { await browser.close(); preview.kill(); process.exit(0); });

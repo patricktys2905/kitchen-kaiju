@@ -1,47 +1,57 @@
-# Playtest evaluation — qa (The QA Tester)
+# Playtest evaluation — The QA Tester (qa)
 
-**Fun score: 6.5 / 10** (charming, polished, stable art and menus, but state leaks between modes, a few overlap bugs, and early-game deaths to the Giant Hand feel unfair; no JS errors at all, which is great)
+**Fun score: 7 / 10** (rock solid for a party brawler: zero JS errors across ~95 actions, clean flows; a few small layout/consistency nits and the Practice checklist still covering the bottom-left corner)
 
 ## What I did
-- ~105 curl calls. Visited: Title, Settings (all toggles, Keyboard Controls rebind, Back up/Move save), Help (Basics/Cutlery/Tables/Modes, Practice), Gallery, Records, Workshop (placed/removed props, Play It), Story (chapter 1 played and cleared, 3 stars, intro/chapter cutscenes), Free Play, Party Modes (cycled all 4 modes, played Hot Dumpling), Daily, Gauntlet (lost wave 1), Online (Host/Join HTML panels, bad room code).
-- Matches: ~4 manual/bot-assisted (1 Story loss, 1 Story win), plus Hot Dumpling, Daily, Gauntlet, Practice, and 2 autoplay matches.
-- Escape/pause at odd moments: mid-countdown, mid-match, mid-cutscene, paused, results screens. /errors was "none" after every action.
+- Visited: Title, Settings, Help (Basics/Cutlery/Tables/Modes tabs) + Practice, Kaiju Gallery, Records (page 1), Workshop (placed prop, changed hazard, saved, Play It), Story (map, opening cutscene, chapter-1 dialogue, played + cleared ch.1 3 stars), Free Play (6 players, My Table 1), Party Modes (Team Feast started), Daily (Hot Dumpling, played to FAILED screen), Gauntlet (cleared wave 1), Online (chooser, Join form; did not Host - network).
+- Matches: Free Play 6-player first-to-3 won; Gauntlet wave 1 won; Daily lost; Story ch.1 won; Team Feast and Practice started only.
+- Escape pressed on: title, settings, every menu, countdown, pause, replay, round-end, wave-cleared, results, cutscene, dialogue, Online Join form.
+- Checked /errors after nearly every risky action: always "none".
+
+## Previously reported issues: status
+1. Escape in matches/pause: FIXED. Esc during countdown opens pause, Esc again resumes; Esc during instant replay skips it (Free Play); Esc on results -> menu -> title; Esc in cutscene/dialogue -> story map. Nit: Esc on the Gauntlet "WAVE 1 CLEARED!" screen drops you straight to the title with no confirm (run ends).
+2. Daily/Practice returning to the right screen: FIXED. Practice QUIT -> Help; Daily QUIT/Esc -> title; Story QUIT -> Story map. Nit: Workshop "PLAY IT" then QUIT lands on Free Play menu, not Workshop.
+3. Pause MUSIC/SOUND toggles keep saved levels: FIXED. Set SFX 5/5 and MUSIC 3/5 in Settings, toggled both off/on in pause (Daily), quit, reopened Settings: still SFX ■■■■■, MUSIC ■■■□□.
+4. Round label vs 4th HUD card: FIXED. 4-player: label top-right, no clash. 6-player: label moves to bottom-left ("ROUND 1 · MY TABLE 1"), nothing overlaps the 6 cards.
+5. Results ticker vs SHARE button: MOSTLY FIXED. SHARE is bottom-left, ticker centred at x~700, no overlap. BUT see bug B2: with long names the ticker wraps to 2 lines.
+6. Practice checklist hiding the dummy: NOT FIXED. The bottom-left checklist panel still covers the corner of the table; I walked my kaiju to the bottom-left and it was almost completely hidden behind the panel (see B1). Default spawns (me top-right, dummy bottom-right) avoid it, so you only notice if anyone walks/gets shoved there.
+7. Replay round pips: PARTLY. During INSTANT REPLAY the top cards show the old pips (winner shows ☆☆☆ ... after replay the same HUD shows ★☆☆). Not wrong exactly, but the pip for the round being replayed isn't shown until the replay ends. No dedicated pips on the replay overlay.
 
 ## What matched my goals / what was fun
-- Zero JavaScript errors across heavy abuse (rapid clicks across title buttons, Escape/Space spam, mid-match settings toggles, restart from pause).
-- Art and UI are very good: title, gallery, workshop, settings, chapter-clear card look professional.
-- Keybinding rebind with automatic swap on conflict works; Back up / move save works; Online panel rejects a bad code with a clear message ("Room codes are 4 letters.").
-- Practice checklist, round tips under countdown, and "GAUNTLET OVER / CHAPTER CLEAR" screens are clear.
+- Stability: no JS errors, no soft-locks, no dead buttons in ~95 actions.
+- Pause menu, quit destinations and settings persistence are now consistent.
+- 6-player free-for-all reads well; bottom ticker + round label placement is smart.
+- Story chapter clear screen, dialogue and star rewards feel polished; Records/Gallery look good.
 
 ## What took too long / was tedious
-- Story ch.1 start needs many Space presses (opening video, chapter video, 3-4 dialog boxes) before the first match, every time you replay it (SKIP exists, but Escape sometimes backs out instead).
-- Hot Dumpling / Daily / bot-only starts with no human join are silently allowed (confusing when "you" is a bot).
+- Opening cutscene + chapter dialogue need several taps before the first throw (skippable though).
+- Instant replay after every round in Gauntlet wave 1 of 2 players is a lot for a 3-second fight.
 
 ## What was over too quickly / too shallow
-- Rounds against an easy bot were over in ~9s (see Giant Hand note); little time to learn.
-- Gauntlet wave 1 already ended in ~8s for a hard-bot player.
+- Easy bots die in one or two throws; a 6-player easy match was 3 rounds in under a minute for me (the bot-controlled seat 0 harness helps, but still).
 
 ## Confusing or unclear
-- HUD says "Esc menu" but Escape instantly quits the match (see bug 3) rather than opening a menu; P opens the real pause menu.
-- Help tab highlighting: on the Help screen after clicking CUTLERY both BASICS and CUTLERY look selected (BASICS has the keyboard focus ring).
-- The Gallery shows a faint empty dark colour-swatch row ("YOUR COLOUR"), no indication why they are blank (locked?).
+- Gauntlet match shows "ROUND 1 · BIRTHDAY BASH" in the HUD while the countdown says "WAVE 1"; "WAVE n" is what the player cares about.
+- Hot Dumpling feed says "BUBBLEGUMBO skewered GOBZILLA" in a mode about passing a dumpling; mode-specific wording would help.
+- Daily "FAILED" screen says "best 0 rounds · tries 1" with no explanation of what "win" means (win the match?).
+- Esc does nothing visible on the Online "Join a game" form (may be a harness key-focus limitation since the input is focused); BACK button works.
+- Records heading overlap (B3).
 
 ## Bugs found
-1. **Pause menu overlaps the INSTANT REPLAY banner** - Free Play with 2 bots (Digit1), let a round end (instant replay plays), press P during the replay. Pause menu is drawn with "INSTANT REPLAY" banner still on screen above RESUME, plus ghost "FIRST BITE!" text behind the menu (screenshot art-src/.playtest/7110/shot-23.png).
-2. **Pause menu SOUND/MUSIC toggles overwrite the saved slider settings** - Settings default SFX ■■■■□, Music ■■□□□. Start a match, P, click MUSIC then SOUND (both OFF), quit. Settings now shows SOUND EFFECTS □□□□□ OFF and MUSIC □□□□□ OFF; re-enabling in Settings goes to ■□□□□ (1/5), the previous levels (4/5 and 2/5) are lost.
-3. **Escape in a match / on the pause menu quits to menu with no confirm and no resume** - start any match, press Escape: back to Story/Free Play immediately (a lost Story round; Esc on the pause menu also quits instead of resuming). The HUD hint "Esc menu" suggests a menu that never appears.
-4. **Top-right "HOT DUMPLING - ROUND 1 - FONDUE NIGHT" title collides with the 4th player's HUD card** - Daily (click DAILY on title) with 4 players; the round label text starts inside the Norigon HUD panel (shot-29.png).
-5. **Mode/roster state leaks between screens** - (a) Title > DAILY, play, press Escape: you land on PARTY MODES (not Title) with Daily's roster (Bubblegumbo/Salmonster/Gobzilla Jr./Norigon with pencil marks on bot difficulty) preloaded. (b) Later Free Play showed "First to 3 rounds" and a bot roster from Daily/autoplay. (c) Help > PRACTICE then Escape also returns to PARTY MODES instead of Help.
-6. **Story: first Escape after leaving a match does nothing** - Start Story ch.1, lose or win, return to chapter map, press Escape: stays on the map; a second Escape goes to Title (also needed to skip the first-visit opening video).
-7. **Practice dummy (Dumplord) is hidden under the tutorial checklist panel** (top-right, ~1100,135) so "Knock out the dummy" objective target is occluded; also long item "STOMP to go KAIJU and squash the dummy" wraps to column 0 with no indent (shot-52/54).
-8. **Results screen: scrolling ticker runs under the SHARE button** - finish any 4-player match (autoplay?n=1): bottom ticker "Most KOs / Crumb Monster..." is clipped at the left by the SHARE button; ticker text overlaps it (shot-57.png). Leaderboard text sits on busy table art (white on cream) and is hard to read.
-9. **Chapter-1 intro video caption reads "CRAB" and Chapter 2 caption "TWO'"** (shot-11, shot-44) - captions look truncated/mid-word; and the opening video has a low-contrast "THE GRAND FEAST" caption baked behind the plate (shot-7).
-10. **Story ch.1 (tutorial, "easy") killed by GIANT HAND at ~9s in both rounds** when standing still/using the harness "attack" command; hazard arrives with no on-screen warning I could see in /look, in the very first stage. Round 2 HUD also showed 5 empty pip stars for a "first to 2" chapter (shot-17.png) while round 1 showed 2 pips. (May be harness-induced, but pips mismatch looks real.)
-11. **Gallery info panel text exists in the DOM/scene (/look lists "GOBZILLA JR. A strawberry lizard... Trait/Matches" at y=470-518) but nothing is drawn there** in the screenshot (shot-2.png) - panel is blank/under the colour row.
-12. Minor: Workshop prop placement near the table edge (e.g. cupcake at 1200,360) silently does nothing; no feedback why.
-- Harness limitations I did NOT count as bugs: /look doesn't list overlay/canvas texts (Chapter Clear card, SHARE button), /act "events" always empty, game frozen between commands, Online HTML screens.
+B1. Practice checklist covers the table's bottom-left corner (Practice).
+   Repro: Title -> HELP -> PRACTICE. During play, move left+down (act move:-1,1 for 4s) until the kaiju is at the lower-left corner. The "PRACTICE n/8" panel at [24,696] draws over the kaiju (only a sliver visible). Screenshot: art-src/.playtest2/7110/shot-7.png. Same applies to the dummy if it ever stands there.
+B2. Results footer ticker wraps to two lines and runs into art.
+   Repro: Title -> DAILY (Hot Dumpling, Norigon/Bubblegumbo/Salmonster/Gobzilla), lose the match. On the "DAILY CHALLENGE FAILED" screen the line "Most KOs: BUBBLEGUMBO · Crumb Monster: SALMONSTER (11 crumbs) · Survivor: SALMONSTER" wraps ("Survivor:" / "SALMONSTER" on second line) and the second line sits at the very bottom edge over the lemon/mat art. Screenshot: shot-24.png. Fix: shrink font/ellipsize or drop one stat when too long.
+B3. Records screen: "ACHIEVEMENTS 0/29" header overlaps the "👉 Next up: First Bite (0%) — Win a match" hint line.
+   Repro: Title -> RECORDS (fresh save). Texts at [500,108] and [500,128] collide; screenshot shot-9.png.
+B4. Free Play results screen: a plain white rounded square (looks like a missing-icon pickup/touch-button sprite) is drawn at ~[150,220] near the top-left mat.
+   Repro: Free Play, 6 players, table My Table 1, win the match. See shot-19.png. Not confirmed what it is; might be a leftover pickup (mustard shield?) with no sprite.
+B5. (Minor, inconsistent) Gauntlet HUD says ROUND instead of WAVE (see Confusing).
+B6. (Minor, unconfirmed) First time I entered STORY and clicked the opening-cutscene SKIP at [1190,44], the game ended on the title screen rather than the story map. I could not reproduce it a second time (later SKIP went to the chapter dialogue and map). May be harness timing, but worth checking the first-run opening skip path.
+B7. (Minor) Esc on Gauntlet "WAVE CLEARED" goes to title and abandons the run with no confirm / no "continue" option; Esc during Gauntlet replay seemed not to skip it the first time (state still INSTANT REPLAY after Esc, unlike Free Play where Esc skipped it) - could be a frame timing artifact.
+Console: /errors returned "none" every time.
 
 ## Top 3 changes that would raise my score
-1. Fix the state leaks: Escape/Back from Daily and Practice must return to where you came from, and Daily/autoplay rosters/rounds must not overwrite Free Play/Party Modes setup.
-2. Make Escape behave: Esc in a match should open pause (or ask to confirm quitting), Esc on the pause menu should resume; pause toggles should be per-session and not overwrite saved volume levels.
-3. Clean up HUD/overlay polish: round-label vs 4th HUD card, INSTANT REPLAY over the pause menu, results ticker under SHARE, practice panel covering the dummy; plus telegraph the Giant Hand earlier in the opening chapters.
+1. Fix layout collisions: Practice panel over the table corner, Records header overlap, wrapping results ticker.
+2. Make the Gauntlet/Daily flow clearer: WAVE labels in the HUD, a confirm on Esc during wave-cleared, explain Daily win condition.
+3. More match texture on Easy: bots that dodge/hold cutlery longer so first matches last more than one throw, and shorter replays when only 2 players.

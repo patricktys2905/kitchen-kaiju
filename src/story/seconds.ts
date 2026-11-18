@@ -10,7 +10,7 @@ export const SECONDS_CHAPTERS: Chapter[] = [
     title: 'Smoothie Operators', table: 15, rounds: 2,
     rivals: [{ species: 12, level: 'easy' }, { species: 13, level: 'easy' }],
     intro: [
-      { speaker: 'chef', text: 'The Golden Spoon is yours… but the back of the fridge wants SECOND HELPINGS.' },
+      { speaker: 'chef', text: 'You\'ve made a name at the Grand Feast… and the back of the fridge wants SECOND HELPINGS.' },
       { speaker: 0, text: 'Oh… it\'s the champion. I\'d run, but… the blender\'s on. Fine.' },
       { speaker: 1, text: 'Back for seconds? Don\'t be pit-iful.' },
     ],
@@ -77,7 +77,7 @@ export const SECONDS_ENDING: Line[] = [
 ];
 
 // noVideo: Veo drifted off-model in these clips twice (Nov 2026: new characters, buck teeth, Toastbat turned into a bunny); the still plays instead.
-export const SECONDS_OPENING: Cutscene = { key: 's2-open', heading: 'SECOND HELPINGS', caption: 'You won the Golden Spoon. The back of the fridge wants a rematch.' };
+export const SECONDS_OPENING: Cutscene = { key: 's2-open', heading: 'SECOND HELPINGS', caption: 'Halfway through the Feast… and the back of the fridge wants a rematch.' };
 export const SECONDS_END_CUT: Cutscene = { key: 's2-end', rev: 2, heading: 'SECONDS: SERVED', caption: 'Two crowns, one kaiju. Save room for dessert!' };
 export const SECONDS_CUTS: Cutscene[] = [
   { key: 's2-0', heading: 'CHAPTER 1 · SMOOTHIE OPERATORS', caption: 'Sloba is too lazy to run from the blender. Are you?' },

@@ -1,36 +1,48 @@
-# Playtest round 1 — 10 Sonnet agents (2026-11-18)
+# Playtest round 2 — 10 Sonnet agents (2026-11-18), after the round 1 fixes
 
-Each agent played the real build through `scripts/playtest/server.mjs` as one profile from `scripts/playtest/profiles.md`. Full sheets are in this folder. Release bar (the post's rule): **every profile at 9.0 or higher**.
+Round 1 reports and summary are in `round1/`. Release bar: every profile at **9.0 or higher**.
 
-| Profile | Score | Main complaint |
-|---|---|---|
-| Tinkerer | 8 | Setup options are hidden behind keyboard keys; the Workshop needs more hazards and props |
-| Kid | 7 | Bots too easy early; too much waiting between fights |
-| First-Timer | 7 | Can't click or tap to join on the setup screen; confusing labels; Escape quits with no confirm |
-| Party Host | 7 | Party matches too long; phones-as-controllers hidden; no Cup preview |
-| Story Fan | 7 | Norigon boss too long or hard; little story payoff; Second Helpings hard to find |
-| Collector | 6.5 | Colour unlocks not explained; reward pop-ups missing; last kaiju behind a slow 30-star gate |
-| QA Tester | 6.5 | State leaks between modes; Escape and pause; overlapping elements (12 bugs with repro steps) |
-| Achiever | 6 | Doesn't say where mode-specific achievements are earned; grind too long; no unlock pop-ups |
-| Fighter | 6 | KAIJU form too short and fragile; unclear deaths; difficulty jump from Normal to Hard |
-| Challenge Seeker | 6 | Gauntlet waves 1–8 too easy; Daily has no identity; Spicy only slightly harder |
+| Profile | Round 1 | Round 2 | Main remaining ask |
+|---|---|---|---|
+| Tinkerer | 8 | 7.5 | Twist/power-up/hazard picker with descriptions; deeper Workshop; a Kaiju Lab to try powers |
+| Kid | 7 | 7 | Less waiting after being knocked out; harder chapters 1–2; a simpler setup with a big PLAY button |
+| First-Timer | 7 | 7 | A simpler Free Play setup with one big PLAY button; shorter Free Play matches; offer Practice on first launch |
+| Party Host | 7 | 7 | Matches dragging (17 rounds); a visible mode picker; a Party Cup preview |
+| Story Fan | 7 | 7 | Difficulty cliffs (Grand Feast ch7, Second Helpings ch3); KAIJU rarely happens in Story |
+| Collector | 6.5 | 7 | A celebration screen for new unlocks; a collection %; explain how stars are earned |
+| QA Tester | 6.5 | 7 | Small layout bugs (all fixed after round 2, see below) |
+| Achiever | 6 | 6.5 | Less grind; more skill-based achievements |
+| Fighter | 6 | 6.5 | KAIJU should matter more and happen more; fewer deaths in the first 2 seconds |
+| Challenge Seeker | 6 | 6 | Stakes for Gauntlet and Daily (upgrades, rewards, a leaderboard); Spicy chapter 1 still too easy |
 
-**Average: 6.7 / 10.** No JavaScript errors in any run.
+**Average: 6.7 → 6.85.** No JavaScript errors in either round.
 
-## Themes (how many profiles raised each)
-1. **Unclear feedback (6):** you don't see what killed you, what an achievement unlocks, KAIJU time or power cooldown, Cup standings, or where to earn things.
-2. **Difficulty curve (5):** Normal bots, early chapters and early Gauntlet are too easy; Hard and the Norigon boss jump too steeply; Spicy is barely harder.
-3. **KAIJU form too short or fragile (3):** about 4 s, and it's knocked out quickly.
-4. **Mouse/touch and setup discoverability (4):** clicking a seat doesn't join; twists, hazards and power-ups are keyboard-only; labels like "2 bots" (actually difficulty) and the "Z" dice symbol are unclear.
-5. **Pacing (4):** party matches too long; dialogue and cutscenes can't be skipped on retry; waiting between fights.
-6. **Bugs (QA):**
-   - Escape from Daily or Practice goes to the wrong screen, and their settings leak into Free Play.
-   - Escape quits matches with no confirm, and Escape on the pause menu quits instead of resuming.
-   - The pause menu's sound toggles overwrite saved volumes.
-   - Overlaps: the round label on the 4th HUD card, the replay banner over pause, the results ticker under SHARE, and the Practice checklist over the dummy.
-7. **Daily and Second Helpings presentation (2):** Daily doesn't say it's daily and has no streak; Second Helpings is only a small corner button.
+## Verified fixed by the QA tester (round 2)
+- Escape and pause behave.
+- Daily, Practice and Story return to the right screens.
+- The pause menu's sound toggles keep your saved levels.
+- The round label no longer collides with the player cards.
+- The results ticker no longer runs under SHARE.
+
+## Fixed right after round 2 (from these reports)
+- **Party matches dragging:** Crumb Rush tie rounds gave nobody a point, so close matches could repeat forever. Tied leaders now all score. Every match also ends after `target × RULES.maxRoundsPer` (2.4) rounds, with the leader winning (ties play on).
+- **STOMP after a round ended** used up your full belly. It now only works mid-round.
+- **Belly stuck at 99:** a crumb now adds 10 (10 crumbs = full), so it no longer stalls one short of full.
+- **Gallery colour swatches** were blank on a second visit (a stale cache). Fixed.
+- **Records:** the "Next up" line moved below the list, so it no longer overlaps the header.
+- **Gauntlet HUD** now says "GAUNTLET · WAVE n" instead of "ROUND 1".
+- **Results:** shown in one column, so it no longer collides on 6-player/Team Feast screens, and your kaiju is marked "(YOU)" when one person is playing. Same for the Party Cup standings.
+- **Practice panel:** two short lines in the strip below the table, so it covers nothing.
+- **Second Helpings intro:** no longer claims the Golden Spoon is already yours (it opens after chapter 6).
+
+## Biggest themes still keeping scores around 7
+1. **KAIJU form is rare and short** (Fighter, Story, Tinkerer, Challenger): bellies rarely fill before rounds end.
+2. **Setup screen too cluttered for beginners** (Kid, First-Timer): they want one big PLAY button and the key legend hidden.
+3. **No stakes or rewards for hard modes** (Challenger, Achiever): Gauntlet upgrades, Daily rewards, more skill-based achievements.
+4. **Unlocks don't feel like an event** (Collector): a "NEW KAIJU / TABLE / COLOUR" celebration screen and a collection %.
+5. **Story difficulty cliffs:** Grand Feast chapter 7 and Second Helpings chapter 3.
 
 ## Harness caveats
-- Agents control the game with coarse commands, so their verdicts on combat feel are rough.
-- The headless browser probably can't play the cutscene videos (the Story Fan saw stills only).
-- Achievement stats don't count while a bot drives your seat (autoplay).
+- Agents act in coarse turns, so combat feel and reaction-time complaints are rough.
+- The headless browser may not play cutscene videos.
+- A key rebind didn't stick for one agent (probably harness timing; unconfirmed).

@@ -610,3 +610,13 @@ From the 10 Sonnet playtester reports in `playtest-reports/`.
   - 🍽 **Feeding frenzy:** in Classic and Team Feast, after 45 s everyone's belly fills (`RULES.frenzyFill`), so stand-offs end in KAIJU fights.
   - Party Modes default to first-to-3 (`PARTY_ROUNDS`).
   - Story retries skip the intro chat once you've seen it in this session.
+- **After round 2:**
+  - Crumb Rush ties score for all tied leaders, and matches end after `target × RULES.maxRoundsPer` rounds, with the leader winning.
+  - You can't STOMP after a round has ended.
+  - A crumb adds 10 belly.
+  - Gallery swatches redraw on every visit, and the Records "Next up" line sits below the list.
+  - The Gauntlet HUD shows WAVE.
+  - Results are one column, with "(YOU)" for a solo player.
+  - The Practice panel sits below the table.
+  - The Second Helpings intro text is fixed.
+- **Playtest loop:** `scripts/playtest/server.mjs` (harness), `profiles.md` and `sheet-template.md` next to it, and reports in `playtest-reports/` (`round1/` + round 2 + `SUMMARY.md`).

@@ -541,7 +541,7 @@ export class World {
     }
 
     // Stomp: become kaiju
-    if (pressed('stomp') && p.meter >= 100 && !kaiju) this.becomeKaiju(p);
+    if (pressed('stomp') && p.meter >= 100 && !kaiju && this.phase === 'play') this.becomeKaiju(p);
 
     p.prev = { throw: inp.throw, swipe: inp.swipe, dash: inp.dash, stomp: inp.stomp };
 
@@ -1657,7 +1657,7 @@ export class World {
       if (this.roundT >= MODE_RULES.crumbRush.roundTime) {
         const best = Math.max(...this.players.map(p => p.pts));
         const top = this.players.filter(p => p.pts === best);
-        this.endRound(best > 0 && top.length === 1 ? top : []);
+        this.endRound(best > 0 ? top : []); // tied leaders all score (no endless tie rounds)
       }
     } else if (this.phase === 'play' && this.players.length > 1 && this.mode === 'teams') {
       const alive = this.alivePlayers();
@@ -1673,7 +1673,12 @@ export class World {
         this.emit({ type: 'roundEnd', winner: this.winner });
       }
     } else if (this.phase === 'roundEnd' && this.phaseT >= RULES.roundEndTime) {
-      const champ = this.players.find(p => p.score >= this.opts.target);
+      let champ = this.players.find(p => p.score >= this.opts.target);
+      // match cap: after RULES.maxRoundsPer × target rounds, the leader wins (ties play on until someone leads)
+      if (!champ && this.round >= Math.ceil(this.opts.target * RULES.maxRoundsPer)) {
+        const best = Math.max(...this.players.map(p => p.score)), top = this.players.filter(p => p.score === best);
+        if (best > 0 && new Set(top.map(p => p.team)).size === 1) champ = top[0];
+      }
       if (champ) {
         this.phase = 'matchEnd';
         this.phaseT = 0;

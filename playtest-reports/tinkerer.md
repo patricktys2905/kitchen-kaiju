@@ -1,43 +1,46 @@
 # Playtest evaluation — The Tinkerer
 
-(The agent ran out of budget before writing this file; saved from its hand-back report.)
-
-**Fun score: 8 / 10** — I'd come back for the Workshop and for the table and twist combinations.
+**Fun score: 7.5 / 10** (huge, cheerful pile of knobs that mostly work, but the knobs are mostly "modifiers" rather than depth, and the workshop is thin)
 
 ## What I did
-- Visited Settings, Keyboard Controls, Table Workshop, Free Play setup, Party Modes, Kaiju Gallery and Records.
-- Played about 7 matches or rounds.
+- Settings: changed SFX/music volume, Player Numbers, Name Tags; opened Keyboard Controls and tried to rebind Swipe.
+- Table Workshop: placed cheesewheel, bumper, candle, removed a prop by tapping it, cycled SURFACE (Sunday Roast -> Dinner for Four) and HAZARD (none / Giant hand / Wind gusts), saved, PLAY IT. Played a full custom-table match (won round 1, 3 KOs).
+- Free Play: cycled all 10 twists with X (Frenzy, Turbo, Boomerangs, Giant Cutlery, Ice Rink, Snack Attack, Fists Only, Bouncy Castle, Mirror Moves, Mini Kaiju), all 16 tables with M (read every blurb), toggled power-ups (U) and hazards (H).
+- Played rounds: custom table + Wind, Boomerangs, Ice Rink on Ice Cream Parlour (killed by the giant hand), Crumb Rush, Hot Dumpling, Fists Only. Went full cycle crumbs -> STOMP -> KAIJU -> power (Seed Spray) once.
+- ~8 matches/rounds, about 95 calls. /errors: none.
 
 ## What matched my goals / what was fun
-- **Settings:** all of them work and are well described: sound, music, shake, reduced effects, replays, player numbers, tips, big touch buttons, KAIJU POWERS, rumble and name tags.
-- **Keyboard rebinding** works (Move up → I showed in the Free Play footer immediately).
-- **Workshop:** 4 surfaces, 6 hazards, 16 props and 3 save slots, with Save and Play It. Saving unlocked "Table Maker". A custom table with a row of pineapples and the Giant Hand hazard played properly, and showed in the table list.
-- **Tables:** 16 playable, each with a clear one-line description.
-- **Twists:** all 10 work. Snack Attack gets you to STOMP almost instantly; Ice Rink is readable.
-- **Party modes:** Team Feast, Crumb Rush and Hot Dumpling all ran. Hot Dumpling shows a clear "STOLEN!" callout.
-- **Gallery:** 20 kaiju with a power description each, plus 9 colour styles with their unlock conditions. Records tracks 29 achievements.
-- **Presentation** is great: readable HUD, instant replay, and a funny kill feed ("got BLENDED into a smoothie").
+- Massive variety for the setup screen: 16 tables each with a one-line hazard blurb, 10 twists, 4 party modes, per-toggle power-ups/hazards. Combining table + twist (ice parlour + Ice Rink) is exactly my kind of fun.
+- Workshop UI is simple and works: select prop, tap table, tap prop to remove, surface/hazard cyclers, 3 slots, PLAY IT jumps straight into a match on my table. It reads clearly (start-spot circles are a nice touch). Custom table appears in the Free Play table picker too.
+- Settings are clear with a one-line explanation each; KAIJU POWERS off = "Classic" is a great tinker option. Player Numbers (colour-blind) is thoughtful.
+- Hot Dumpling and Crumb Rush are genuinely different rules, not reskins; Hot Dumpling's "FAST FORWARD x3, only bots left" is a lovely touch.
+- Art is gorgeous and readable (screenshots of Ice Cream Parlour and the workshop).
 
 ## What took too long / was tedious
-- Finding any non-default option means reading the keyboard footer.
-- The Workshop prop palette doesn't say what each prop does.
+- Twist cycling with X is a blind cycle through 11 states; no picker, no descriptions on the setup screen, so I had to start a match to learn what "Snack Attack" or "Mirror Moves" does.
+- Party mode switching only via tiny arrows at the title line; I found it by guessing coordinates.
+- Going KAIJU needs ~100 belly and about 10+ seconds of crumb eating, and the kaiju state lasts only ~3-6 s; rounds are mostly over before I could try power variety. Tinkering with kaiju powers is hard to do deliberately.
 
 ## What was over too quickly / too shallow
-- KAIJU form lasts about 3–4 seconds, and the power cooldown and time left aren't shown clearly.
-- The Workshop has only 6 hazards. The blender, toaster, griddle and conveyor exist only on built-in tables.
+- Rounds on small/hazard tables end in 8-25 seconds, so I rarely saw table hazards in action (the Ice Parlour giant hand killed me once; Wind on my custom table was barely visible). Hazards deserve a "hazard preview/sandbox" mode.
+- Workshop: only 16 props, 12 prop cap, no resizing/rotating, no naming, no hazard options beyond a cycler, no sharing/export. Props mostly just obstacles or bumpers; no description of what each prop DOES (cup? candle? pot?) - I had to guess. Surfaces are cosmetic-ish.
+- Power-ups: I saw a shield icon (Crumb Rush) and pickups, but there is no list/glossary of power-ups, so I could not tinker with them intentionally. Settings only offers ON/OFF, not which ones.
+- No per-twist or per-hazard intensity settings (e.g. round time, KO count, crumbs needed) beyond "rounds".
 
 ## Confusing or unclear
-- Twists, hazards, power-ups and random table are only on keyboard keys (X, U, H, M, Z). The footer's "Z" is a dice symbol with no label.
-- Party Modes can only change mode by clicking the small arrows next to its name; ArrowRight does nothing visible.
-- Twists and settings carry over between modes without saying so.
-- Placing a prop near a start spot or the right edge silently does nothing. The 12-prop cap isn't explained up front.
+- Title screen says "Up to 6 players" but only keyboard-left is human; fine, but the footer of the setup screen is dense (many keys), and chips like X/Z/O/1 are not obvious as "twist / random / online / play".
+- Which key chips are clickable vs informational (the first bots appear pre-added, 4 of 6 seats).
+- Workshop: no feedback when tapping a start-spot circle (prop silently refuses to place); no hint why.
+- Pause menu: QUIT from a round goes back to the setup menu, but a stray /act afterwards seemed to dismiss the pause (probably harness).
 
 ## Bugs found
-- No JavaScript errors.
-- Cosmetic: the in-match header says GOBZILLA while the setup card says GOBZILLA JR.
-- Records showed 0 "times gone KAIJU" after a bot-driven seat went KAIJU. This is probably the harness, because a bot-driven seat doesn't count as a person.
+- Possible: In Settings > Keyboard Controls, clicking "Swipe: F" showed "press a key" but the harness key press KeyG did not rebind (stayed "Swipe: F"). Could be a harness quirk (keydown synthetic event), please re-verify by hand.
+- Round-end banner text overlaps the star tally on the cream tablecloth (shot-4: "GOBZILLA WINS THE ROUND" with the score line crammed right under it, partially over a bumper) - low priority.
+- Menu mode arrows on Party Modes: clicking right of the label (x=800) cycles forward, left (x=480) also moved forward at first? (Team Feast -> Crumb Rush on a left click) - may be wrong direction; minor.
+- /errors: none.
+- Screenshots: art-src/.playtest2/7107/shot-3.png (workshop), shot-9.png (ice parlour), shot-11.png (crumb rush), shot-12.png (hot dumpling).
 
 ## Top 3 changes that would raise my score
-1. **Expand the Workshop:** more hazards and props, explain the 12-prop cap, show a clear cue when a tap is blocked, and let tables be shared or exported.
-2. **Make setup options tappable** on screen, with a twist picker that names and describes each twist.
-3. **Give KAIJU form more depth and feedback:** last longer, and show the power cooldown and time left clearly.
+1. Add descriptions/previews to the setup screen: a twist picker with one-line blurbs (like the table blurbs) and a power-up/hazard glossary, with per-item toggles.
+2. Deepen the Workshop: prop descriptions, rotate/scale, more props/hazards, name tables, bigger prop cap, and a "test sandbox" where I can place hazards and rewatch them without a bot fight.
+3. Make KAIJU/power experimentation easier to reach (faster belly fill in a practice option, or a "Kaiju Lab" mode) so tinkerers can see each of the 20 powers and twist combos without 25 seconds of setup per round.
