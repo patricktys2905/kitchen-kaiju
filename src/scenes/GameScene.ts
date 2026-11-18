@@ -1002,7 +1002,7 @@ export class GameScene extends Phaser.Scene {
       b.t -= dt;
       const p = this.world.players[i];
       if (!p.alive) b.t = 0;
-      b.text.setPosition(p.x, p.y - p.r * (p.kaijuT > 0 ? 3.4 : 2.6) - 10).setAlpha(Math.min(1, b.t * 3)).setVisible(b.t > 0);
+      b.text.setPosition(p.x, Math.max(84 + b.text.height, p.y - p.r * (p.kaijuT > 0 ? 3.4 : 2.6) - 10)).setAlpha(Math.min(1, b.t * 3)).setVisible(b.t > 0);
     });
   }
 
@@ -1072,7 +1072,9 @@ export class GameScene extends Phaser.Scene {
     const all = next < 0, doneN = P0.done.filter(Boolean).length;
     // two short lines in the strip below the table (TABLE ends at y 670), so it never covers the action
     P0.text.setText(all ? `PRACTICE ${doneN}/${PRACTICE_STEPS.length}  🎉 All done!\nEsc → pause → QUIT` : `PRACTICE ${doneN}/${PRACTICE_STEPS.length}  👉 ${PRACTICE_STEPS[next].text}\n${PRACTICE_STEPS[next].keys}`);
-    const bx = 10, by = TABLE.y + TABLE.h + 3, bw = Math.min(440, P0.text.width + 16), bh = VIEW.h - by - 3;
+    // phones: the strip at the bottom-left is where your thumb and the joystick hint are, so it goes top-left instead
+    if (isTouchDevice) P0.text.setOrigin(0, 0).setPosition(18, 90);
+    const bx = 10, by = isTouchDevice ? 85 : TABLE.y + TABLE.h + 3, bw = Math.min(440, P0.text.width + 16), bh = isTouchDevice ? P0.text.height + 10 : VIEW.h - by - 3;
     P0.g.clear(); P0.g.fillStyle(0x0d0805, 0.78); P0.g.fillRoundedRect(bx, by, bw, bh, 10);
     P0.g.lineStyle(2, all ? 0x8dff6a : 0xffb347, 1); P0.g.strokeRoundedRect(bx, by, bw, bh, 10);
   }
@@ -1090,6 +1092,7 @@ export class GameScene extends Phaser.Scene {
   private practiceDone(): void {
     if (this.perkUi.length) return;
     const s = completeStep('practice');
+    if (this.practice) { this.practice.text.setVisible(false); this.practice.g.clear(); this.practice = null; } // the card replaces the checklist
     sfx.matchWin();
     this.popup(VIEW.w / 2, 300, `🎓 PRACTICE COMPLETE!${s ? `  +${s.reward} 🪙` : ''}`, '#8dff6a', 34);
     const go = (k: number) => {
@@ -1158,11 +1161,9 @@ export class GameScene extends Phaser.Scene {
         } else st.streak = 0;
         const got = checkAchievements(st);
         if (got.length) addTokens(got.length * ACHIEVEMENT_TOKENS);
-        got.forEach((a, k) => this.time.delayedCall(1200 + k * 1600, () => {
-          sfx.meterFull();
-          const col = COLOURS.find(c => c.unlock === a.id);
-          this.popup(VIEW.w / 2, 0, `🏆 ${a.name.toUpperCase()}: ${a.desc} · +${ACHIEVEMENT_TOKENS} 🪙${col ? `  ·  🎨 ${col.name} colour!` : ''}`, '#ffd24a', 17);
-        }));
+        // 🏆 new achievements go on the receipt card (a fixed spot, so they never land on the results text)
+        got.forEach(a => { const col = COLOURS.find(c => c.unlock === a.id); this.receipt?.lines.push(`🏆 ${a.name} +${ACHIEVEMENT_TOKENS} 🪙${col ? ` · 🎨 ${col.name} colour!` : ''}`); });
+        if (got.length) this.time.delayedCall(700, () => sfx.meterFull());
         break;
       }
     }
@@ -1219,7 +1220,7 @@ export class GameScene extends Phaser.Scene {
       const tip: Record<string, string> = { fall: 'Stay away from the edges, and DASH back to the middle.', cutlery: 'DASH sideways when you see a charge line, or SWIPE to parry it back.', kaiju: 'Step out of the ring before each stomp, then hit them while they are dizzy.', squash: 'Step out of the ring before each stomp, then hit them while they are dizzy.', hand: 'The Giant Hand goes for the fullest belly: STOMP before it reaches you.' };
       if (tip[top]) lines.push('💡 ' + tip[top]);
     }
-    if (GameScene.lossRun >= 2 && !this.humanWon(w.winner)) lines.push('💡 Tough bots? Set BOT LEVEL to EASY, or switch on COMEBACK HELP in Settings.');
+    if (GameScene.lossRun >= 2 && !this.humanWon(w.winner) && !this.initData.cup && !this.initData.gauntlet && !this.initData.trial && !this.story) lines.push('💡 Tough bots? Set BOT LEVEL to EASY, or switch on COMEBACK HELP in Settings.');
     this.receiptText.setText(['🧾 THIS MATCH', ...lines].join('\n')).setVisible(true);
     const b = this.receiptText.getBounds();
     this.receiptG.fillStyle(0x1a0d06, 0.88).fillRoundedRect(b.x - 12, b.y - 10, b.width + 24, b.height + 20, 14).lineStyle(2, 0xffb347, 0.9).strokeRoundedRect(b.x - 12, b.y - 10, b.width + 24, b.height + 20, 14);
@@ -1278,7 +1279,7 @@ export class GameScene extends Phaser.Scene {
       ty = hit.text.y + (hit.text.height + t.height) / 2 + 2;
     }
     t.setY(Math.min(VIEW.h - t.height / 2 - 4, ty));
-    popIn(this, t, 1.8, 260);
+    popIn(this, t, Math.max(1, Math.min(1.8, (2 * Math.min(t.x, VIEW.w - t.x) - 8) / t.width)), 260); // the pop-in growth never pushes it off screen
     this.popups.push({ text: t, vy: -50, life: 1 });
   }
 
@@ -1304,7 +1305,7 @@ export class GameScene extends Phaser.Scene {
     this.rings = this.rings.filter(r => r.t < 0.5);
     for (const p of this.popups) {
       p.life -= dt;
-      p.text.y += p.vy * dt;
+      p.text.y = Math.max(84 + p.text.height / 2, p.text.y + p.vy * dt); // drifts up, but never into the HUD
       p.text.setAlpha(Math.min(1, p.life * 2));
       if (p.life <= 0) p.text.destroy();
     }

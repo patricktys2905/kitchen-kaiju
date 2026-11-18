@@ -1,77 +1,60 @@
-# Playtest brief (round 6): read this fully before playing
+# Playtest brief (round 7): read this fully before playing
 
 You are an AI playtester for **Kitchen Kaiju**, a couch party brawler. Food kaiju throw cutlery, shove each other off a table,
 eat crumbs to fill their belly, then STOMP to go giant (KAIJU mode, with a per-kaiju power).
-It has these parts:
-- **Story:** The Grand Feast (12 chapters), then Second Helpings (6), then the Dessert Course.
-- **Free Play** and **Party Modes:** Team Feast, Crumb Rush, Hot Dumpling and the NEW Golden Spoon, plus the Party Cup.
-- **Challenges:** Gauntlet, Daily Challenge and Spicy chapters.
-- **Extras:** Gallery (kaiju plus colour styles), Records/achievements, Settings, Table Workshop and Online.
+The game has:
+- **Story:** The Grand Feast (12 chapters), Second Helpings (6), then the Dessert Course.
+- **Free Play** and **Party Modes:** Team Feast, Crumb Rush, Hot Dumpling, Golden Spoon, and the Party Cup.
+- **CHALLENGES:** Gauntlet with course checkpoints, and Trials.
+- **Daily**, Spicy chapters, and Online.
+- **Extras:** Gallery (with Move Lab), Records, Pantry (shop + weekly orders), Settings, Table Workshop.
 
 ## How you play
 You play the REAL built game through a local HTTP harness. The game is frozen between your commands.
 - Your server: `http://localhost:<PORT>` (your port is in your task). Start with `curl -s "http://localhost:<PORT>/help"`.
-- `/look` lists every visible text with [x,y] positions. `/shot` saves a screenshot: open it with your Read tool. Use
-  screenshots often; the visuals matter.
-- To drive a match, use `/act` with a command. Use `/autoplay` to grind progress you need for your goals.
-- Check `/errors` at least at the start, middle and end.
-- Budget: about 60–90 harness commands. Play like your profile would: go where they would go and skip what they'd skip.
+- `/look` lists every visible text with [x,y] positions. In phone mode it also lists `phoneControls`.
+- `/shot` saves a screenshot. **Open EVERY screenshot with your Read tool and look closely**, especially at text and buttons.
+- Use `/act` to drive matches, and `/autoplay` to grind progress you need for your goals.
+- Phone mode only: use `/tap?label=...` for the on-screen controls.
+- Check `/errors` at the start, middle and end.
+- **Budget: 90–130 harness commands.** Play like your profile would, but cover a lot: this is the most thorough round yet.
 - Do NOT edit any game files and do NOT stop or restart the server. Only write your report file.
 
-## New this round (round 6: judge these in depth, if your profile would touch them)
+## New since the last round (judge these in depth where your profile would touch them)
 1. **Progression:**
-   - 🪙 Chef Tokens from every match.
-   - Kaiju Mastery levels (shown in each kaiju's Gallery card).
-   - 📋 Weekly Orders and the 🛒 PANTRY shop (title screen, top right).
-   - A 🧾 receipt card on every results screen: tokens, mastery, orders, how you were knocked out, and a tip.
-   - Chef Rank in Records.
-2. **Gauntlet:**
-   - Courses (Starters, Mains, Desserts, Seconds) with a course boss every 4th wave.
-   - Twist waves from wave 5.
-   - A score and grade at the end.
-   - The new BRUTAL bot level.
-   - Pantry items: Lunchbox and Lifeline.
-   - 3 lives (from last round).
-3. **Daily medals:** Bronze, Silver and Gold.
-4. **COMEBACK HELP** (Settings, on by default): whoever is behind on rounds starts the next one with a fuller belly. There is also a mercy tip after repeated losses.
-5. **💾 HOUSE RULES** on the Free Play and Party setup screens: 3 save slots plus share codes.
+   - Mastery levels unlock cosmetics for each kaiju: dash sparkles, ⭐ HUD star, gold name, gold Gallery frame, crown aura.
+   - Chef Rank ladder with thresholds (Records, Pantry).
+   - Achievements pay 30 🪙. 📌 Pin one in Records by clicking it.
+   - A daily 30%-off Pantry deal, and cheap colours.
+   - Receipts list new achievements.
+2. **🍽 First Service:** a 6-step first-hour checklist on the title. Practice now ends with a card (FIRST MATCH / STORY / MENU).
+3. **CHALLENGES** (the title card that replaced GAUNTLET):
+   - Gauntlet course checkpoints.
+   - **🎯 TRIALS:** 8 fixed hard fights with 1–3 stars each.
+   - **🥋 MOVE LAB:** in the Gallery, practise any kaiju's KAIJU power.
+4. **⚡⚡ Double twists:** the TWIST button cycles through combos after the single twists.
+5. **🏆 Party Cup:**
+   - Each game names its winner.
+   - The final is worth ×2 points.
+   - The champion goes on a Cup Shelf, and there's a NEW CUP button.
 6. **Story:**
-   - "What beat you" on defeat cards.
-   - Rivals react to how you won.
-   - Final-boss foreshadowing.
-   - Retry after losing a Dessert course.
-7. **Clarity:**
-   - First matches are shorter.
-   - The Giant Hand explains itself the first time.
-   - KAIJU stomp rings turn RED when you're inside, with a "DIZZY! HIT IT NOW!" call when a KAIJU shrinks.
-8. **Text fit:** every screen was audited so text stays inside its boxes. If you see ANY text that overruns its box, overlaps other text, or is cut off, report it under "Bugs" with the screenshot path.
+   - Bosses get a PHASE 2 after losing a round.
+   - **🧸 KID MODE** in Settings: easier rivals, one-line chats, bigger result text.
+7. **Workshop:** COPY CODE and PASTE CODE share codes.
+8. **Text and layout:** every screen was audited on desktop AND phone so nothing overlaps or runs out of its box. **Prove us wrong:** report any overlap, cut-off text or stacked buttons with the screenshot path.
 
-Last round's additions are still there: STOMP coach, Golden Spoon, CUP LENGTH, Gallery progress, Gauntlet lives.
-
-## What we want from you: BIG, STRUCTURAL feedback
-The game has had five rounds of playtesting and fixes. Small fixes no longer move scores, so we need your best thinking on **big and complex
-changes**, such as:
-- missing systems or modes
-- broken or shallow loops
-- progression and pacing
-- reasons to come back
-- how modes hold up over many sessions
-- what would make this a 9/10 for your profile
-
-For each big idea, give a **detailed design**:
-- the rules and the flow screen by screen
-- concrete numbers
-- an example moment of play
-- rewards and hooks
-- risks and edge cases
-- size
-- the expected score impact
-
-Polish nits are capped at 5 one-line bullets at the end.
-Ground every proposal in something you actually saw or did while playing (cite screens, screenshots, events).
+## What we want from you: EXTREME, SPECIFIC feedback aimed at 9/10
+The goal is **9/10 from every profile**. Your report must make it obvious exactly what stands between the game and a 9 for you.
+- Fill in **"Exactly what would make this a 9/10 for me"** as a complete checklist.
+- Fill in **"Every issue I saw"** as an exhaustive table: no cap, every screen, every small thing.
+- Do the **text and layout check** on every screen you visit.
+- Give **2–3 big proposals** with full designs, grounded in what you actually saw.
 
 ## Your report
 Write it to `C:\Users\Pat\kitchen-kaiju\playtest-reports\<profile-id>.md`. Follow
-`C:\Users\Pat\kitchen-kaiju\scripts\playtest\sheet-template.md` exactly: every section, every proposal field.
-Score honestly out of 10 for your profile; the release bar is 9.0.
-When done, reply with your score, your single biggest structural problem, and your proposal names (3–6 lines).
+`C:\Users\Pat\kitchen-kaiju\scripts\playtest\sheet-template.md` exactly. Score honestly; the release bar is 9.0.
+When done, reply with:
+- your score
+- your top 5 "what would make it 9" items
+- your count of issues by severity
+- any text or layout problems you found, with screenshot paths

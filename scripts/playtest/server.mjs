@@ -15,10 +15,12 @@ const preview = spawn(process.execPath, ['node_modules/vite/bin/vite.js', 'previ
 for (let i = 0; i < 80; i++) { try { if ((await (await fetch(`http://localhost:${PREVIEW}/`)).text()).includes('Kitchen Kaiju')) break; } catch {} await wait(250); }
 const exe = ['C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe', 'C:/Program Files/Microsoft/Edge/Application/msedge.exe', '/opt/pw-browsers/chromium'].find(p => fs.existsSync(p));
 const browser = await chromium.launch({ executablePath: exe, headless: true });
-const pg = await (await browser.newContext({ viewport: { width: 1280, height: 720 } })).newPage();
+// TOUCH=1: a phone (landscape, touch, the on-screen controls showing) — the /click endpoint then taps
+const TOUCH = !!process.env.TOUCH;
+const pg = await (await browser.newContext(TOUCH ? { viewport: { width: 1000, height: 462 }, deviceScaleFactor: 2, hasTouch: true, isMobile: true } : { viewport: { width: 1280, height: 720 } })).newPage();
 const errors = [];
 pg.on('pageerror', e => errors.push(String(e.message).slice(0, 200)));
-await pg.goto(`http://localhost:${PREVIEW}/`);
+await pg.goto(`http://localhost:${PREVIEW}/` + (TOUCH ? '?touch' : ''));
 await wait(3000);
 let shotN = 0;
 
@@ -35,7 +37,9 @@ async function summary() {
       if (o.type !== 'Text' || !o.visible || o.alpha < 0.2 || !o.text?.trim()) continue;
       texts.push(`[${Math.round(o.x)},${Math.round(o.y)}] ${o.text.replace(/\s+/g, ' ').slice(0, 140)}`);
     }
-    return { scenes: act, screen: top?.scene.key, texts: texts.slice(0, 80) };
+    // 📱 phone mode: the on-screen HTML controls too
+    const controls = [...document.querySelectorAll('#tc .layer.on .btn, #tc .layer.on .small, #tc .layer.on .pill, #tc .layer.on .fsbtn')].filter(e => e.getBoundingClientRect().width && getComputedStyle(e).display !== 'none').map(e => e.textContent.trim());
+    return { scenes: act, screen: top?.scene.key, texts: texts.slice(0, 80), ...(controls.length ? { phoneControls: controls } : {}) };
   });
 }
 
@@ -133,16 +137,29 @@ const HELP = `Kitchen Kaiju playtest API (the game is FROZEN between your comman
    Rounds/matches advance by themselves; between rounds just /act again. After a match use /look and click buttons.
 /autoplay?n=3&level=normal -> plays your NEXT n matches quickly with a bot in your seat (for grinding progress);
                               start each match yourself first (from a setup screen) or it starts Free Play for you.
-/errors                   -> any JavaScript errors seen so far (report them as bugs!)`;
+/errors                   -> any JavaScript errors seen so far (report them as bugs!)
+/tap?label=THROW          -> PHONE MODE: tap an on-screen phone control by its text (see phoneControls in /look),
+                             e.g. FULL SCREEN, JOIN, KAIJU, + BOT, PAUSE, EMOTE. Add &hold=1.5 to hold it for that long.`;
 
 const handlers = {
   async help() { return HELP; },
+  async tap(q) {
+    await thaw();
+    const el = pg.locator('#tc .layer.on .btn, #tc .layer.on .small, #tc .layer.on .pill, #tc .layer.on .fsbtn', { hasText: String(q.label ?? '') }).first();
+    if (!(await el.count())) { await freeze(); return 'No visible phone control with that label. /look lists phoneControls.'; }
+    const b = await el.boundingBox();
+    if (q.hold) { await pg.touchscreen.tap(b.x + b.width / 2, b.y + b.height / 2); await el.dispatchEvent('pointerdown'); await wait(Math.min(4000, +q.hold * 1000)); await el.dispatchEvent('pointerup'); }
+    else await pg.touchscreen.tap(b.x + b.width / 2, b.y + b.height / 2);
+    await wait(700); await freeze();
+    return JSON.stringify(await summary(), null, 1);
+  },
   async look() { return JSON.stringify(await summary(), null, 1); },
   async shot() { const f = `${OUT}/shot-${++shotN}.png`; await thaw(); await wait(150); await pg.screenshot({ path: f }); await freeze(); return f; },
   async click(q) {
     await thaw();
     const box = await pg.locator('canvas').boundingBox();
-    await pg.mouse.click(box.x + (+q.x / 1280) * box.width, box.y + (+q.y / 720) * box.height);
+    const px = box.x + (+q.x / 1280) * box.width, py = box.y + (+q.y / 720) * box.height;
+    if (TOUCH) await pg.touchscreen.tap(px, py); else await pg.mouse.click(px, py);
     await wait(900);
     await freeze();
     return JSON.stringify(await summary(), null, 1);

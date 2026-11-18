@@ -11,7 +11,7 @@ import { Button } from '../render/ui';
 import { TABLE } from '../sim/constants';
 import { LAYOUTS } from '../sim/layouts';
 import { owned } from '../story/unlocks';
-import { setTouchMode } from '../touch';
+import { isTouchDevice, setTouchMode } from '../touch';
 import { checkAchievements, loadStats, saveStats } from '../stats';
 
 // the table preview is drawn scaled down on the right
@@ -49,7 +49,7 @@ export class WorkshopScene extends Phaser.Scene {
       this.buttons.push(b);
       return b;
     };
-    btn(92, 40, 150, '◀ BACK', () => { sfx.leave(); this.scene.start('title'); });
+    btn(isTouchDevice ? 250 : 92, 40, 150, '◀ BACK', () => { sfx.leave(); this.scene.start('title'); });
     // palette
     this.add.text(40, 92, 'PROPS (tap one, then tap the table)', body(14, '#ffd24a', 900)).setDepth(5);
     PROPS.forEach(([style], i) => {

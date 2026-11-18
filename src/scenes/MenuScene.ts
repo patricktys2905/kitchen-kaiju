@@ -191,7 +191,7 @@ export class MenuScene extends Phaser.Scene {
     this.slotTexts = [];
     this.slotSub = [];
     // Team Feast: a RED TEAM / BLUE TEAM tag on top of each seat card (teams alternate by seat, like in the match)
-    this.teamTags = Array.from({ length: MAX_PLAYERS }, (_, i) => this.add.text(CARD_X(i), 184, '', { ...BODY, fontStyle: '900', fontSize: '15px', color: '#ffffff' }).setOrigin(0.5).setDepth(3).setVisible(false));
+    this.teamTags = Array.from({ length: MAX_PLAYERS }, (_, i) => this.add.text(CARD_X(i), 203, '', { ...BODY, fontStyle: '900', fontSize: '15px', color: '#ffffff' }).setOrigin(0.5).setDepth(3).setVisible(false));
     this.slotFood = [];
     for (let i = 0; i < MAX_PLAYERS; i++) {
       this.slotTexts.push(withShadow(this.add.text(CARD_X(i), 338, '', { ...TITLE, fontSize: '22px', strokeThickness: 5 }).setOrigin(0.5).setDepth(2), 3));
@@ -268,7 +268,7 @@ export class MenuScene extends Phaser.Scene {
     setTouchMode('menu');
     playMusic('menu');
     this.backBtn = new Button(this, 1192, 34, { w: 150, h: 44, label: '◀ MODES', size: 18, onClick: () => this.scene.start('title') }, 6);
-    this.add.text(1272, 712, `v${__APP_VERSION__}`, { ...BODY, fontSize: '11px', color: '#8a7a6a' }).setOrigin(1, 1).setDepth(5);
+    if (!isTouchDevice) this.add.text(1272, 712, `v${__APP_VERSION__}`, { ...BODY, fontSize: '11px', color: '#8a7a6a' }).setOrigin(1, 1).setDepth(5);
     // First visit on a phone: seat the touch player straight away.
     if (isTouchDevice && !this.registry.get('touchSeeded')) {
       this.registry.set('touchSeeded', true);
@@ -453,8 +453,8 @@ export class MenuScene extends Phaser.Scene {
       if (team >= 0) {
         g.fillStyle(tcol, s ? 0.28 : 0.12); g.fillRoundedRect(x - CARD_W / 2, 184, CARD_W, 216, 16);
         g.lineStyle(6, tcol, s ? 1 : 0.5); g.strokeRoundedRect(x - CARD_W / 2, 184, CARD_W, 216, 16);
-        g.fillStyle(tcol, 1); g.fillRoundedRect(x - 66, 171, 132, 28, 14);
-        g.lineStyle(2, 0xffffff, 0.8); g.strokeRoundedRect(x - 66, 171, 132, 28, 14);
+        g.fillStyle(tcol, 1); g.fillRoundedRect(x - 66, 190, 132, 26, 13);
+        g.lineStyle(2, 0xffffff, 0.8); g.strokeRoundedRect(x - 66, 190, 132, 26, 13);
         this.teamTags[i].setText(`${MODE_RULES.teams.names[team]} TEAM`).setVisible(true);
       } else {
         this.teamTags[i].setVisible(false);

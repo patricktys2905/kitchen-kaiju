@@ -2,47 +2,60 @@
 
 **Fun score: X / 10** (one line why)
 
-> **Focus on BIG, structural feedback.** Small polish items (a label, a colour, a typo, a number tweak) go ONLY in the short
-> "Small notes" list at the end, at most 5 bullets. Most of this sheet is about what is missing or wrong at the level of
-> systems, modes, progression, pacing and reasons to come back. For each big suggestion, explain it in enough depth that a
-> developer could build it without asking you questions.
+> This round the bar is **9/10 from EVERY profile**. Give an **extreme amount of feedback**:
+> - Leave nothing out.
+> - Be specific: name the screen, the button, the exact text, and the screenshot path.
+> - Big structural ideas need full designs.
+> - Small issues ALSO matter now: list every one you see. There is no cap.
 
 ## What I did
-(bullets: screens visited, modes played, matches played/won, roughly how long)
+(bullets: every screen visited, modes played, matches played/won, roughly how long, harness commands used)
 
-## What worked for me (briefly)
+## What worked for me
 -
 
+## 🧾 Exactly what would make this a 9/10 for me
+A numbered, complete checklist. If ALL of these were done, I would score 9 or higher. Order them by impact, and for each one give:
+- **what** to change
+- **where** (screen/mode)
+- **how it should behave** (numbers where relevant)
+- **score impact** (+X.X)
+1.
+
+## 🔍 Every issue I saw (exhaustive)
+One row per issue. Severity: **blocker / major / minor / polish**.
+
+| # | Severity | Screen | What's wrong (exact text/element) | Screenshot | Suggested fix |
+|---|---|---|---|---|---|
+
+## 🔠 Text and layout check (do this on EVERY screen you visit)
+For each screen:
+- Does any text overlap other text?
+- Does any text run past its box or button edge?
+- Are any two buttons on top of each other?
+- Is anything cut off at the screen edge?
+- Is anything too small to read?
+
+List every screen you checked, with OK or the problem plus a screenshot path. **Open your screenshots with Read and look closely.**
+
 ## The single biggest structural problem
-(One problem, the one that most caps your score. Describe it in 1–2 paragraphs: what you were trying to do, where the game
-let you down, and WHY it matters for someone like you. Not a bug or a polish nit: a missing system, a broken loop, a pacing
-or progression problem, a mode that doesn't hold up.)
+(1–2 paragraphs: the missing system, broken loop or pacing problem that most caps your score, and why.)
 
 ## Big change proposals (2–3, most important first)
-For EACH proposal, fill in all of these:
-
 ### Proposal 1: <short name>
-- **Problem it solves:** (link it to what you saw while playing)
-- **How it would work (detailed design):** the rules, the flow screen by screen, what the player sees and presses, numbers
-  where they matter (timers, counts, costs, rewards), and how it fits with existing modes/Story/Gallery/stats
-- **Example moment:** a short play-by-play of what a session with this feature would feel like
-- **Rewards / progression hooks:** what it unlocks or tracks, and why it brings players back
-- **Risks and edge cases:** what could go wrong (balance, confusion, phones, online, 1 vs 6 players)
-- **Size:** S / M / L / XL, and which existing parts it touches
-- **Score impact for me:** +X.X, and why
+- **Problem it solves:**
+- **How it would work (detailed design):** rules, flow screen by screen, what the player sees and presses, numbers
+- **Example moment:**
+- **Rewards / progression hooks:**
+- **Risks and edge cases:**
+- **Size:** S / M / L / XL
+- **Score impact for me:** +X.X
 
 ### Proposal 2: <short name>
 (same fields)
 
-### Proposal 3 (optional): <short name>
-(same fields)
-
-## How the new features from this round felt
-(If the brief lists new features, judge each one in depth: did it work, is it deep enough, what bigger version would it need?)
+## How this round's new features felt
+(Judge each new feature from the brief that you touched, in depth.)
 
 ## Bugs that block play
-(Only bugs that stop or seriously harm play. Exact steps to reproduce; /errors output and screenshot paths.)
--
-
-## Small notes (max 5, one line each)
 -

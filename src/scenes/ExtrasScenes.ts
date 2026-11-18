@@ -381,8 +381,9 @@ export class GalleryScene extends PanelScene {
   }
 
   /** 🥋 MOVE LAB: try the shown kaiju's KAIJU power with a belly that never empties. */
+  private labBtn: Button | null = null;
   private addLabBtn(): void {
-    this.buttons.push(new Button(this, 300, 46, { w: 210, h: 46, label: '🥋 MOVE LAB', sub: 'try its KAIJU power', size: 17, accent: 0x8dd8ff, onClick: () => {
+    this.buttons.push(this.labBtn = new Button(this, 1045, 488, { w: 150, h: 42, label: '🥋 MOVE LAB', sub: 'try its power', size: 15, accent: 0x8dd8ff, onClick: () => {
       const sp = this.shown < 0 ? 0 : this.shown;
       if (!owned().kaiju.includes(sp)) { sfx.thwock(); return; }
       sfx.go(); this.scene.start('game', GameScene.labData(sp));
@@ -441,6 +442,7 @@ export class GalleryScene extends PanelScene {
   }
 
   private showDetail(i: number, click: boolean): void {
+    this.labBtn?.setVisible(i < SPECIES.length && owned().kaiju.includes(i)); // 🥋 only for kaiju you own
     if (click) sfx.pickup();
     this.shown = i;
     for (const o of this.detail) o.destroy();
@@ -613,7 +615,7 @@ export class TrialsScene extends PanelScene {
     this.add.text(640, 92, `★ win  ·  ★★ win without losing a round  ·  ★★★ also hit the knockout goal  ·  ${TRIAL_TOKENS} 🪙 per new star  ·  total ★ ${totalTrialStars()}/${TRIALS.length * 3}`, body(15, '#cdb9a3', 800)).setOrigin(0.5).setDepth(5);
     TRIALS.forEach((t, k) => {
       const x = 340 + (k % 2) * 600, y = 168 + Math.floor(k / 2) * 128, s = stars[t.id] ?? 0;
-      const rivals = t.rivals.map(r => `${SPECIES[r.species].name}${r.boss ? ' 👑' : ''} (${r.level})`).join(', ');
+      const rivals = t.rivals.length > 3 ? `${t.rivals.length} rivals (${t.rivals[0].level})` : t.rivals.map(r => `${SPECIES[r.species].name}${r.boss ? ' 👑' : ''} (${r.level})`).join(', ');
       this.buttons.push(new Button(this, x, y, { w: 570, h: 112, label: `${t.name}   ${'★'.repeat(s)}${'☆'.repeat(Math.max(0, 3 - s))}`, sub: `${t.desc}\nYou: ${SPECIES[t.you].name} vs ${rivals} · ★★★: ${t.kos}+ KOs`, size: 22, accent: s === 3 ? 0xffd24a : s ? 0x8dff6a : 0xffb347, onClick: () => { sfx.go(); this.scene.start('game', GameScene.trialData(t.id)); } }, 6));
     });
   }

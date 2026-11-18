@@ -790,3 +790,30 @@ From the 10 Sonnet playtester reports in `playtest-reports/`.
    - **🧸 KID MODE** (Settings): Story rivals one level easier (`KID_EASE`), one-line chats and bigger receipt text.
 7. **Workshop share codes:** 📋 COPY CODE and 📥 PASTE CODE (`KKT1-…`) to swap tables with friends; then SAVE to keep one.
 8. **Settings** rows shrink to fit, so the action buttons stay on screen. The text audit covers the new screens too (Trials, the Challenges chooser, a Trial result, the Cup final, the Move Lab and the Practice end card).
+
+## 65. Layout pass for phone and desktop (after "lots of windows of text overlapping")
+
+- **`npm run audit:text` is now much stricter**, and `TOUCH=1` runs it as a **phone**: a landscape phone-sized screen with touch and the real on-screen controls. It checks:
+  - text × text
+  - **button × button** (two clickable things stacked)
+  - text that half-crosses a button edge
+  - text that's off screen or wider than its box
+  - **phone controls** (FULL SCREEN, THROW/SWIPE/DASH/STOMP, EMOTE, pills) covering game text or buttons, or each other
+  
+  Scenes are restarted cleanly and the audit waits until each screen has drawn, so it never checks an empty screen. `ALL=1` saves every screenshot for an eyeball pass, and both modes cover about 103 states.
+- **Fixed:**
+  - Gallery 🥋 MOVE LAB sat on top of BACK on phones. It now lives in the kaiju panel and only shows for kaiju you own.
+  - Story map title under FULL SCREEN on phones.
+  - Workshop BACK under FULL SCREEN.
+  - In-match FULL SCREEN covering EMOTE and the HUD (it now sits on the right, below PAUSE / MENU / EMOTE).
+  - STOMP clipping THROW.
+  - Practice checklist under your thumb on phones (it moves to the top-left).
+  - The version text under the phone pills.
+  - Achievement toasts landing on result titles (they now go on the receipt card).
+  - Pop-ups growing or drifting off screen or into the HUD.
+  - Emote bubbles going off the top.
+  - Team tags crossing the card edge.
+  - Long button sub lines (they wrap first, then shrink).
+  - The 5-rival Trial line.
+  - The "Tough bots?" tip only shows in Free Play / Party.
+- **Playtest harness phone mode:** `TOUCH=1 node scripts/playtest/server.mjs <port> <dir>`. `/look` lists `phoneControls`, and `/tap?label=THROW` taps them. There is a new **Phone Player** profile (#11), and the report template asks for an exhaustive issue table plus a "what would make it 9/10" checklist.

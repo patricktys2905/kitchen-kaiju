@@ -12,7 +12,7 @@ import { chapterRivals, KID_EASE, SPICY_BUMP, type Line } from '../story/chapter
 import { CAMPAIGNS, loadCampaign, secondsUnlocked, type Campaign, type CampaignId } from '../story/campaigns';
 import { checkAchievements, loadStats, saveStats } from '../stats';
 import { loadStory, recordResult, recordSpicy, saveStory, totalStars, type StorySave } from '../story/save';
-import { setTouchMode } from '../touch';
+import { isTouchDevice, setTouchMode } from '../touch';
 import { playMusic } from '../music';
 import { KITS } from '../sim/powers';
 import { getSettings } from '../settings';
@@ -99,8 +99,8 @@ export class StoryScene extends Phaser.Scene {
     if (hasArt('bg-story')) this.add.image(640, 360, 'bg-story').setDisplaySize(1280, 720).setDepth(-3);
     else drawFloor(this.add.graphics().setDepth(-3));
     this.add.graphics().setDepth(-2).fillStyle(0x0d0805, 0.55).fillRect(0, 0, 1280, 720);
-    withShadow(this.add.text(30, 26, this.camp.title, display(40, '#ffcf8a', { strokeThickness: 7 })).setDepth(5), 4);
-    this.progressText = this.add.text(34, 78, '', body(15, '#e9dccb', 800)).setDepth(5);
+    withShadow(this.add.text(isTouchDevice ? 190 : 30, 26, this.camp.title, display(isTouchDevice ? 32 : 40, '#ffcf8a', { strokeThickness: 7 })).setDepth(5), 4);
+    this.progressText = this.add.text(isTouchDevice ? 194 : 34, 78, '', body(15, '#e9dccb', 800)).setDepth(5);
     this.updateProgress();
     this.mapG = this.add.graphics().setDepth(1);
 

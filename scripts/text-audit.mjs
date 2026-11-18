@@ -6,15 +6,17 @@ import fs from 'node:fs';
 import { chromium } from 'playwright-core';
 
 const wait = ms => new Promise(r => setTimeout(r, ms));
-const OUT = 'art-src/.audit';
+// TOUCH=1 audits the phone layout (?touch, phone-shaped screen, on-screen controls) into art-src/.audit-touch
+const TOUCH = !!process.env.TOUCH;
+const OUT = TOUCH ? 'art-src/.audit-touch' : 'art-src/.audit';
 fs.mkdirSync(OUT, { recursive: true });
-const pv = spawn(process.execPath, ['node_modules/vite/bin/vite.js', 'preview', '--port', '7340', '--strictPort'], { stdio: 'ignore' });
+const pv = spawn(process.execPath, ['node_modules/vite/bin/vite.js', 'preview', '--port', TOUCH ? '7343' : '7340', '--strictPort'], { stdio: 'ignore' });
 await wait(2500);
 const exe = ['C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe', 'C:/Program Files/Microsoft/Edge/Application/msedge.exe', '/opt/pw-browsers/chromium'].find(p => fs.existsSync(p));
 const browser = await chromium.launch({ executablePath: exe, headless: true });
-const pg = await (await browser.newContext({ viewport: { width: 1280, height: 720 } })).newPage();
+const pg = await (await browser.newContext(TOUCH ? { viewport: { width: 1000, height: 462 }, deviceScaleFactor: 1, hasTouch: true, isMobile: true } : { viewport: { width: 1280, height: 720 } })).newPage();
 const errs = []; pg.on('pageerror', e => errs.push(e.message));
-await pg.goto('http://localhost:7340/'); await wait(6000);
+await pg.goto(`http://localhost:${TOUCH ? 7343 : 7340}/` + (TOUCH ? '?touch' : '')); await wait(6000);
 
 // a lived-in save so locked/unlocked/progress texts all show up
 await pg.evaluate(() => {
@@ -28,27 +30,59 @@ async function audit(name) {
   await wait(250);
   const found = await pg.evaluate(() => {
     const g = window.__game, out = [];
-    const texts = [];
+    const texts = [], buttons = [], dom = [];
+    const inter = (a, b) => { const ix = Math.min(a.x + a.w, b.x + b.w) - Math.max(a.x, b.x), iy = Math.min(a.y + a.h, b.y + b.h) - Math.max(a.y, b.y); return ix > 2 && iy > 2 ? ix * iy : 0; };
+    const inside = (a, b, m = 3) => a.x >= b.x - m && a.y >= b.y - m && a.x + a.w <= b.x + b.w + m && a.y + a.h <= b.y + b.h + m;
     for (const s of g.scene.getScenes(true)) for (const o of s.children.list) {
+      // buttons = interactive zones that are switched on (Button.setVisible(false) disables them)
+      if (o.type === 'Zone' && o.input?.enabled && o.visible !== false) { const b = o.getBounds(); if (b.width > 8 && b.height > 8 && b.width * b.height < 0.6 * 1280 * 720 && !buttons.some(q => q.x === b.x && q.y === b.y && q.w === b.width && q.h === b.height)) buttons.push({ x: b.x, y: b.y, w: b.width, h: b.height, d: o.depth }); continue; }
       if (o.type !== 'Text' || !o.visible || o.alpha < 0.25 || !o.text?.trim()) continue;
       const b = o.getBounds();
       if (b.width < 2) continue;
+      // trim the text's own padding so glow/shadow padding doesn't count as overlap
+      const p = o.padding ?? {}, sx = o.scaleX, sy = o.scaleY;
+      const box = { x: b.x + (p.left ?? 0) * sx, y: b.y + (p.top ?? 0) * sy, w: b.width - ((p.left ?? 0) + (p.right ?? 0)) * sx, h: b.height - ((p.top ?? 0) + (p.bottom ?? 0)) * sy };
       const ww = o.style?.wordWrapWidth;
-      if (ww && b.width > ww * o.scaleX + 6) out.push(`TOO WIDE FOR ITS BOX "${o.text.replace(/s+/g, " ").slice(0, 50)}" (${Math.round(b.width)} > ${Math.round(ww * o.scaleX)})`);
-      texts.push({ t: o.text.replace(/\s+/g, ' ').slice(0, 60), x: b.x, y: b.y, w: b.width, h: b.height, d: o.depth, sc: s.scene.key });
+      if (ww && box.w > ww * sx + 6) out.push(`TOO WIDE FOR ITS BOX "${o.text.replace(/\s+/g, ' ').slice(0, 50)}" (${Math.round(box.w)} > ${Math.round(ww * sx)})`);
+      texts.push({ t: o.text.replace(/\s+/g, ' ').slice(0, 60), ...box, d: o.depth });
+    }
+    // 📱 the phone's HTML controls (FULL SCREEN, joystick, THROW/SWIPE/DASH/STOMP, pills) in game coordinates
+    const cv = document.querySelector('canvas')?.getBoundingClientRect();
+    if (cv) for (const el of document.querySelectorAll('#tc .layer.on .btn, #tc .layer.on .small, #tc .layer.on .pill, #tc .layer.on #joybase, #tc .layer.on .fsbtn')) {
+      const r = el.getBoundingClientRect(), cs = getComputedStyle(el);
+      if (!r.width || !r.height || cs.display === 'none' || cs.visibility === 'hidden' || Number(cs.opacity) < 0.2) continue;
+      dom.push({ t: (el.textContent || el.id || 'control').trim().slice(0, 20), x: (r.left - cv.left) * 1280 / cv.width, y: (r.top - cv.top) * 720 / cv.height, w: r.width * 1280 / cv.width, h: r.height * 720 / cv.height });
     }
     for (const a of texts) {
       if (a.x < -2 || a.y < -2 || a.x + a.w > 1282 || a.y + a.h > 722) out.push(`OFF-SCREEN "${a.t}" [${Math.round(a.x)},${Math.round(a.y)} ${Math.round(a.w)}x${Math.round(a.h)}]`);
     }
+    // text × text
     for (let i = 0; i < texts.length; i++) for (let j = i + 1; j < texts.length; j++) {
       const a = texts[i], b = texts[j];
       if (Math.abs(a.d - b.d) > 3) continue; // different layers (e.g. a panel over the screen) are fine
-      const ix = Math.min(a.x + a.w, b.x + b.w) - Math.max(a.x, b.x), iy = Math.min(a.y + a.h, b.y + b.h) - Math.max(a.y, b.y);
-      if (ix <= 2 || iy <= 2) continue;
-      const k = (ix * iy) / Math.min(a.w * a.h, b.w * b.h);
-      if (k > 0.12) out.push(`OVERLAP "${a.t}" × "${b.t}" (${Math.round(k * 100)}%)`);
+      const k = inter(a, b) / Math.min(a.w * a.h, b.w * b.h);
+      if (k > 0.08) out.push(`TEXT OVERLAP "${a.t}" × "${b.t}" (${Math.round(k * 100)}%)`);
     }
-    return out;
+    // button × button (two clickable things on top of each other)
+    for (let i = 0; i < buttons.length; i++) for (let j = i + 1; j < buttons.length; j++) {
+      const a = buttons[i], b = buttons[j];
+      if (Math.abs(a.d - b.d) > 6) continue; // an overlay panel's buttons sit above the screen's on purpose
+      const k = inter(a, b) / Math.min(a.w * a.h, b.w * b.h);
+      if (k > 0.04) out.push(`BUTTON OVERLAP [${Math.round(a.x)},${Math.round(a.y)} ${Math.round(a.w)}x${Math.round(a.h)}] × [${Math.round(b.x)},${Math.round(b.y)} ${Math.round(b.w)}x${Math.round(b.h)}] (${Math.round(k * 100)}%)`);
+    }
+    // text half on / half off a button (labels sit fully inside their own button)
+    for (const t of texts) for (const b of buttons) {
+      if (t.d < b.d - 6 || t.d > b.d + 8) continue;
+      const a = inter(t, b);
+      if (a > 0.1 * t.w * t.h && !inside(t, b)) out.push(`TEXT CROSSES A BUTTON EDGE "${t.t}"`);
+    }
+    // phone controls covering game text or buttons
+    for (const c of dom) {
+      for (const t of texts) if (inter(c, t) > 0.02 * Math.min(c.w * c.h, t.w * t.h)) out.push(`PHONE CONTROL "${c.t}" COVERS TEXT "${t.t}"`);
+      for (const b of buttons) if (inter(c, b) > 0.15 * Math.min(c.w * c.h, b.w * b.h)) out.push(`PHONE CONTROL "${c.t}" COVERS A BUTTON [${Math.round(b.x)},${Math.round(b.y)}]`);
+    }
+    for (let i = 0; i < dom.length; i++) for (let j = i + 1; j < dom.length; j++) if (inter(dom[i], dom[j]) > 4) out.push(`PHONE CONTROLS OVERLAP "${dom[i].t}" × "${dom[j].t}"`);
+    return [...new Set(out)];
   });
   if (process.env.ALL) await pg.screenshot({ path: `${OUT}/all-${String(++shotN).padStart(3, '0')}-${name.replace(/[^a-z0-9]+/gi, '-')}.png` });
   if (found.length) {
@@ -58,7 +92,17 @@ async function audit(name) {
   }
   console.log(`${found.length ? '✗' : '✓'} ${name}${found.length ? '  (' + found.length + ')' : ''}`);
 }
-const start = async (key, data = {}, ms = 1500) => { await pg.evaluate(([k, d]) => { const g = window.__game; for (const s of g.scene.getScenes(true)) s.scene.stop(); g.scene.start(k, d); }, [key, data]); await wait(ms); };
+const start = async (key, data = {}, ms = TOUCH ? 2600 : 1500) => {
+  await pg.evaluate(([k, d]) => {
+    const g = window.__game, sc = g.scene.getScene(k);
+    for (const s of g.scene.getScenes(true)) if (s.scene.key !== k) s.scene.stop();
+    if (sc && sc.scene.isActive()) sc.scene.restart(d); else g.scene.start(k, d);
+  }, [key, data]);
+  await wait(ms);
+  // wait until the scene is really running and has drawn things (never audit an empty screen)
+  for (let i = 0; i < 30; i++) { const ok = await pg.evaluate(k => { const s = window.__game.scene.getScene(k); return !!s && s.scene.isActive() && s.children.list.length > 5; }, key); if (ok) break; await wait(300); }
+  await wait(300);
+};
 const scene = k => `window.__game.scene.getScene('${k}')`;
 
 await start('title', {}, 2500); await audit('title');

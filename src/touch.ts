@@ -43,7 +43,7 @@ const CSS = `
 #tc #b-throw { width: 21vmin; height: 21vmin; right: calc(3vmin + env(safe-area-inset-right)); bottom: 4vmin; font-size: 3.6vmin; border-color: #ffcf8a; background: #ff9a3c55; }
 #tc #b-dash  { width: 14vmin; height: 14vmin; right: calc(27vmin + env(safe-area-inset-right)); bottom: 3vmin; font-size: 2.8vmin; }
 #tc #b-swipe { width: 14vmin; height: 14vmin; right: calc(6vmin + env(safe-area-inset-right)); bottom: 28vmin; font-size: 2.8vmin; }
-#tc #b-stomp { width: 13vmin; height: 13vmin; right: calc(23vmin + env(safe-area-inset-right)); bottom: 21vmin; font-size: 2.6vmin; opacity: 0.4; }
+#tc #b-stomp { width: 13vmin; height: 13vmin; right: calc(26vmin + env(safe-area-inset-right)); bottom: 25vmin; font-size: 2.6vmin; opacity: 0.4; }
 #tc #b-stomp.ready { opacity: 1; border-color: #ff3b3b; background: #ff3b3b88; animation: kkpulse 0.5s infinite alternate; }
 body.bigbtns #tc #b-throw { width: 26vmin; height: 26vmin; font-size: 4.4vmin; }
 body.bigbtns #tc #b-dash { width: 17.5vmin; height: 17.5vmin; right: calc(32vmin + env(safe-area-inset-right)); font-size: 3.4vmin; }
@@ -335,14 +335,12 @@ export function initTouch(injectTap: (code: string) => void): void {
 
   // ---- match end
   const end = el('div', root, { class: 'layer' });
-  const erow = el('div', end, { class: 'row' });
-  tapButton(el('div', erow, { class: 'pill go' }, '↻ REMATCH'), 'Digit1');
-  tapButton(el('div', erow, { class: 'pill' }, 'MENU'), 'Escape');
+  // (REMATCH / MENU are big buttons drawn by the game itself now, so this layer only keeps FULL SCREEN)
 
   const titleLayer = el('div', root, { class: 'layer' });
   for (const layer of [menu, top, end, titleLayer]) {
     const b = el('div', layer, { class: 'fsbtn' }, '⛶ FULL SCREEN');
-    if (layer === top) Object.assign(b.style, { left: 'auto', right: 'calc(1.5vmin + env(safe-area-inset-right))', top: '29.5vh' });
+    if (layer === top || layer === end) Object.assign(b.style, { left: 'auto', right: 'calc(1.5vmin + env(safe-area-inset-right))', top: '38vh' }); // in matches: right side, below PAUSE / MENU / EMOTE (the HUD cards are top-left)
     // own handler: the shared tap handler also auto-enters full screen on press, which would fight the toggle
     b.addEventListener('pointerdown', e => { e.preventDefault(); b.classList.add('down'); });
     b.addEventListener('pointercancel', () => b.classList.remove('down'));
