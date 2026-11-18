@@ -1,51 +1,46 @@
 # Playtest evaluation — The Party Host
 
-**Fun score: 7.5 / 10** (great party-night structure and presentation; I'd host it, but a few sharp edges in group setup/flow keep it from a 9)
+**Fun score: 7 / 10** (Setup is quick and the modes read well on a TV; the party menu only has 4 modes and the Cup runs long for a game night.)
 
 ## What I did
-- Title -> Party Modes setup screen; joined as seat 1, tapped empty seats to add bots (up to 6 total); toggled modes via MODE button; used RANDOM; looked at BOT LEVEL on a seat.
-- Team Feast: first tried with 1 human + 1 bot (accidentally 1v1), then 3v3 with 5 bots; played a full match (first to 3, won).
-- Hot Dumpling: ~2 rounds (1 manual-ish with "attack", rest auto). Crumb Rush: ~4 rounds, abandoned mid-match.
-- Full Party Cup (5 games, 6 players): Classic -> Crumb Rush -> Team Feast -> Hot Dumpling -> Classic. Finished with a cup winner screen.
-- Online: Host a Game screen (room code, QR, options), then closed the room. Could not test joining.
-- ~75 curl calls, 14 screenshots. /errors: none.
+- Title -> Party Modes. Joined 2 seats, played a full Team Feast match (lost 1-3 to a bot, 4 rounds). Then filled all 6 seats with bots and played a full Hot Dumpling match and a full Party Cup (5 games: Classic, Crumb Rush, Hot Dumpling, Team Feast, Classic), about 45 rounds in total.
+- Cycled through every mode button (Crumb Rush, Hot Dumpling, Classic, Team Feast) and looked at the table/option row.
+- Opened Online -> Host a Game and read the room screen (code, QR, option buttons). I could not connect friends. I closed the room again.
+- Roughly 60 harness calls. I played mostly with auto:normal because 6 bots is chaos.
 
 ## What matched my goals / what was fun
-- Setup is genuinely quick: click seats to add bots, Play. Seats/teams persist between matches (rematch and Esc-to-menu keep the roster), which is perfect for game night.
-- Mode descriptions are one clear line each ("Pass the steaming dumpling before it pops", "Eat the most crumbs before time runs out"). Each mode feels distinct: Team Feast with teammates' cutlery passing through, Dumpling with tag/steal popups, Crumb Rush with respawns ("BACK IN 2") and a countdown.
-- Round-start tips on every countdown ("Cheese shadows grow before the splat. Step out of the ring!") teach newcomers without a tutorial.
-- End-of-match screen is a highlight: ranked list plus silly awards (Crumb Monster, Kaiju Lover, Butterfingers, Survivor), SHARE button, giant kaiju portrait. Fits party banter perfectly.
-- Party Cup: points table (5/3/2/1) after each game, clear "Next: CRUMB RUSH" preview, five varied games in ~10 min. Great fit for an evening.
-- Online lobby is exactly what a host wants: 4-letter code, QR to scan with phone, TV mode ("you play too" off), Party Cup toggle, bots fill to N, mode/twist/hazards options.
-- "FAST FORWARD x3 - only bots left" after I got knocked out keeps eliminated players from waiting. Excellent for 6-player rounds.
-- Art/readability: 6 kaiju are distinct, player strips across the top are clear, big KAIJU! callouts with power name.
+- Setup is easy: click a seat to join, click again to add a bot, one big PLAY button, and a 6-seat row. The seat count and Red/Blue team seats are obvious for a living-room group.
+- The Online room is well designed for a host: 4-letter code, a QR to scan, bot fill-up, Party Cup toggle, Mode/Twist/Hazards, and a "TV mode (you don't play)" option. This is exactly what I want for a TV and phones.
+- Party Cup is the best feature: a points table after each game (5/3/2/1), a "Next: CRUMB RUSH" teaser, and a "CRABBAGE WINS THE PARTY CUP!" ending. It gives a night a shape.
+- The round intro tips ("Your cutlery passes straight through teammates", "Mustard Shield blocks one hit, but not a fall") are short and useful for new guests.
+- Crumb Rush is the friendliest mode for non-gamers. You respawn ("BACK IN 3"), and the timer and crumb counters are readable.
+- Hot Dumpling is chaotic and funny ("HOT! PASS IT!", the "popped on CHOCOMUNCH" message). Kaiju stomps, the crab and blueberry-bear art, and the "INSTANT REPLAY" with "FAST FORWARD x3 · only bots left" are nice touches.
+- End-of-match awards (Butterfingers, Crumb Monster, Kaiju Lover) are the kind of thing friends laugh about.
 
 ## What took too long / was tedious
-- Crumb Rush as a standalone "first to 3" match: each round ~50s plus intermissions, so 4+ rounds is 4-5 minutes; fine for a mode, but a friend knocked out early in Classic/Team Feast waits for round reset anyway.
-- Classic rounds in a 6-player free-for-all can drag when two survivors hide/dance for ages (watched several 20-40s endings, though fast-forward helps if only bots remain).
-- Party Cup games each need a 1/START press on the interstitial (see confusing).
+- The Party Cup's final Classic game took about 7 rounds (first to 3 with 6 players), roughly 10 minutes, after four earlier games. A full Cup looks like 30+ minutes. There is no short Cup option.
+- When you are knocked out in Classic or Hot Dumpling you watch for a long time. The fast-forward only shows when just bots are left. With 4+ humans, early KOs would sit idle for ages.
+- The Party Cup button is a plain toggle with no description of length.
 
 ## What was over too quickly / too shallow
-- Team Feast with 1v1 (the default when you add just one bot) ends in 10 seconds and has no point; the game should warn or auto-balance.
-- Early Classic/Team Feast rounds can end in ~10-15s when everyone rushes the edge; a 6-player table sometimes seemed chaotic more than tactical.
-- Dumpling: a pop is sudden and mostly luck; fun for a party but shallow for repeat play.
+- Only 4 party modes (Classic, Crumb Rush, Hot Dumpling, Team Feast). I expected more variety for a "party modes" menu (e.g. a capture-the-plate or king-of-the-table mode).
+- Team Feast with an odd or small number of players is just a duel. It does not suggest "add 2 more" or balance teams.
+- Hot Dumpling often ended within 5-10 seconds of a round, mostly through plain cutlery KOs rather than passing the dumpling.
 
 ## Confusing or unclear
-- Add-a-player flow: clicking an already-joined bot's seat cycles its difficulty (silently turned SLOBA to HARD for me) while clicking empty seats adds bots. Not obvious without reading the tiny "(tap)" label.
-- Team Feast with no even teams shows "(add a player or bot to even it up)" but still lets you PLAY; with 1v1 it also quietly filled nothing.
-- Party Cup tie-break: final standings had three players tied on 12 pts, with BLUEBEARY declared winner and MOTHBALL (+5 last game) 3rd. No explanation of the tie-break, which will cause arguments among friends.
-- The MODE button cycles in a different order than the arrows beside the mode label (Dumpling -> Classic -> Team -> Crumb) and the arrow keys; fine but slightly odd.
-- "Online" says "Up to 5 friends" but "Bots fill up to 4 players" default; can't tell if the 6-seat local limit applies online.
-- Interstitial/results screens only say "1 / START to continue" and clicking/tapping the screen did not advance (tested at the text); a phone/mouse-only host has no obvious button. (May be a harness quirk for taps; keyboard Digit1 worked, Enter did not.)
-- Clicking Party Cup immediately starts the cup using the current roster, with no confirm; at least the explanation text is visible beforehand.
+- The mode button cycles forward only, one click at a time. Getting from Team Feast back to Classic took 3 clicks and I overshot once. The "◀ ▶" arrows in the heading looked clickable but I wasn't sure they were.
+- Party Cup has no on-screen state in the setup screen text that I could see ("PARTY CUP" button looked the same on and off). I only knew it was on from the "Next:" teaser on the first game's result.
+- Cup score screen text sits over a busy table and the confetti and is hard to read. Ties are shown as separate ranks (8 pts for 3rd and 4th) with no tie note.
+- Bot level, round count and table are separate buttons with no preview of what they mean. There's no "recommended for 4 friends" preset.
+- The Online room says "Bots fill up to 4 players" but the offline party menu allows 6. It is not clear what "Up to 5 friends" means with bots.
 
 ## Bugs found
-- None from /errors ("none").
-- Minor: Party Cup standings put players with equal points in an order that doesn't match podium icons (e.g. 3 tied at 12 shown with trophy/silver/bronze but "(+5)" player third) - see above.
-- Online lobby screen reports no texts to /look (DOM overlay, likely harness only).
-- Screenshots: art-src/.playtest3/7106/shot-9.png (cup interstitial), shot-12.png (cup winner), shot-14.png (online room).
+- /errors: none ("none") at the end of the run.
+- Minor: after a Hot Dumpling match, the result screen's buttons (REMATCH / MENU) did not appear in /look text the second time. Pressing Escape worked, so it may be a harness quirk. The first time they showed fine.
+- Online lobby screen is an HTML overlay, so /look returns no texts there (harness gap, not a game flaw).
+- Screenshots: art-src/.playtest4/7106/shot-1.png (setup), shot-4.png (Hot Dumpling), shot-6.png (Cup table), shot-7.png (Crumb Rush), shot-12/13.png (Online).
 
 ## Top 3 changes that would raise my score
-1. Make Team Feast safe: auto-balance (a bot fills the short team) or block Play with an uneven/1v1 roster, and explain Party Cup tie-breaks on the final screen (or play a sudden-death round).
-2. Add clickable CONTINUE / REMATCH / MENU buttons on every interstitial and results screen (not only "1 / START"), so a TV host with a mouse or phone can drive the party; separate "add bot" from "change bot level" on seat tiles.
-3. Keep rounds snappy for 6 players: a stalemate shrinker (table edge closing in or a hurry-up timer) in Classic/Team Feast, and shorter standalone Crumb Rush (first to 2) so a game night can chain modes quickly.
+1. Add Party Cup length options (3 games / 5 games, first-to-2 rounds in Cup) and show the length on the setup screen. Add a "spectate fast" speed-up when a human is KO'd.
+2. Add 2-3 more party modes, and make Team Feast auto-balance teams or warn when it is lopsided.
+3. Polish setup: make the mode selector a clear previous/next with a short description, show Party Cup ON clearly, and add a "4 friends on one TV" preset. Put the Cup score text on a dark panel so it stays readable.

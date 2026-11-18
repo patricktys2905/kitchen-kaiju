@@ -1,46 +1,43 @@
-# Playtest evaluation — challenger ("The Challenge Seeker")
+# Playtest evaluation — The Challenge Seeker (challenger)
 
-**Fun score: 6 / 10** (Daily and Gauntlet have a great shape, perks and a boss, but the first 4 waves and the Spicy replay I tried were far too easy for a hard-content seeker, and the 1-life Gauntlet start felt unfair.)
+**Fun score: 6 / 10** (Combat and the stomp -> KAIJU power loop are fun and the hard content bites, but the challenge modes are thin, the rules for dying are opaque, and there was little to chase after a loss.)
 
 ## What I did
-- Gauntlet x3. Run 1 and 2 died in wave 1 (0 waves cleared). Run 3 cleared 4 waves, chose 4 perks, and lost to the wave-5 BOSS (Mothball went KAIJU and squashed me). Best 4.
-- Daily Challenge (Hot Dumpling, Fondue Night, 4 players, first to 3). Try 1: lost after 8 rounds. Try 2: won; I played the first 4 rounds myself and used auto:hard (time passing) to finish the rest. Streak 1 day.
-- Story: fresh profile. Chapter 1 normal (3 stars, 2-0), then chapter 1 Spicy (tougher rivals) won 2-0. Confirmed that Chapter 12 is locked until the previous chapter is cleared, so Spicy and the late chapters are not reachable quickly.
-- Party Modes screen: cycled modes (Classic, Crumb Rush, Hot Dumpling, Team Feast), bot level Easy/Normal/Hard, and played one Crumb Rush round against a bot. There is no obvious "Dessert Course" entry. It may be a table or story unlock I could not reach.
-- About 90 curl calls, around 25 matches or rounds sets, 13 screenshots. /errors: none.
+- Gauntlet x3 attempts (~25 /act calls): best run 3 waves (score 310), second run died in wave 2, third restarted by accident. Perks used: Mustard Coat x2, Full Belly, tried Hot Feet.
+- Daily Challenge (Hot Dumpling, Fondue Night, first to 3): 2 tries, lost both (best 2 rounds vs 3 needed). Used /act?cmd=auto:hard for many rounds there; this stands in for time passing and I could not micro-manage each one.
+- Free Play, 5 players, all bots HARD: 2 matches/many rounds, 0 match wins.
+- Story: opened the chapter screen only. Spicy replays are locked behind clearing each chapter (0/12 spicy), and Dessert Course was not reachable. I did not play story chapters (autoplay started Free Play instead of Story, harness quirk).
+- Records: 9 matches, 4 won, Gauntlet best wave 3, 4/33 achievements. About 100 curl calls, 7 screenshots. /errors: none.
 
 ## What matched my goals / what was fun
-- Daily Challenge result screen is excellent: leaderboard of rounds and KOs, tries counter, win streak, rematch on key 1. Gives a clear "one more try" hook.
-- Gauntlet perk pick between waves (Sugar Rush, Mustard Coat shield, Hot Feet, Full Belly) is a good roguelite layer. Wave size scales 1, 2, 3 rivals then a boss at wave 5.
-- The tension of belly at 100 vs the giant hand/spatula (the fullest belly gets targeted) is a real, readable risk/reward rule.
-- Boss wave going KAIJU and squashing me felt like a proper fair-feeling wall.
-- Hot Dumpling in a 4-way is chaotic and funny ("TAG! HOT!", instant replay, fast-forward when only bots remain).
+- Gauntlet is a clean hook: waves add rivals, perk pick between waves, and the end screen says "NEW BEST". The perk choice (Full Belly / Mustard Coat / Hot Feet) is quick to read.
+- Hard bots are actually threatening. They rush cutlery within seconds and chain KAIJU squashes, so I could not coast.
+- The stomp-then-power moment is strong; Seed Spray into a fall KO felt great. Hot Dumpling in the Daily is a fun, different rule set.
+- Next-up goals on the title ("Clear 5 Gauntlet waves -> Midnight colour (60%)") give me a target.
+- Daily fail screen is informative (ranking, rounds, KOs, tries, streak).
 
 ## What took too long / was tedious
-- The Daily Hot Dumpling match went 8 rounds (first to 3 with 4 players and sudden-death-ish dumpling pops). Try 1 was long and mostly luck. Rounds have a dead 4-5 s roundEnd + countdown each time.
-- Gauntlet waves 1-4 are rubber-stamp wins: the bot walks into thrown cutlery. Several minutes before it gets interesting.
-- Story gating: a challenger must clear chapters 1-12 before most Spicy content opens.
+- Gauntlet only has "first to 1" per wave, so the whole run is 1 round per wave and can end in seconds; a wave 4 loss ended a 3-wave run instantly with no retry/continue.
+- Daily is first to 3 rounds, up to 8+ rounds with 4 players; one try is long and I lost both times, with no sense that the second try was different.
 
 ## What was over too quickly / too shallow
-- Wave 1 of Gauntlet is a first-to-1 round, so a single hazard hit ends the whole run with "cleared 0 waves". Two of my three runs ended this way (giant hand at belly 95-100; spatula flip at belly 95). That feels like a coin flip, not skill.
-- Spicy chapter 1 ("tougher rivals") was still Crabbage "easy", knocked out in one throw each round. Spicy needs to be noticeably harder from the first chapter.
-- Gauntlet end screen only shows "cleared 4 waves · best 4". No recap of perks taken, no reward, no leaderboard or seed to compare. Weak payoff for a run.
-- Hard bots in Gauntlet/Story: I could not choose bot level for Gauntlet; the bots felt normal-or-below.
+- Gauntlet waves 1-3 were trivial (1-2 rivals, I won in ~10 seconds each), then wave 4 jumped to 3 rivals on a hazard table and I died. Difficulty feels like a cliff rather than a ramp.
+- Perks do not seem to stack meaningfully (picked Mustard Coat twice, then still died instantly to cheese). Only 3 perk options, same every time, so no build variety.
+- No Dessert Course or Spicy reachable early for a challenge seeker; the hardest content is gated behind full story clearing.
 
 ## Confusing or unclear
-- Hot Dumpling: I could not tell from the HUD (I only had text) when I was holding it or how long the fuse was; I was popped ("boom") right after a kaiju stomp. In Kaiju mode I also died to the dumpling pop, which feels harsh. Worth a clearer fuse indicator on the holder.
-- Why a stomp-to-KAIJU at belly 100 right after a giant hand warning is not safer: kaiju form still got flipped/popped.
-- Escape in a match opens a Pause menu (fine), but Escape on the end screens returns to a menu without a clear "retry" for Gauntlet (needed to go back to the title).
-- Perk screen appears only after the next /act following the clear overlay; fine, but "Next: wave N" with no hint what the wave contains (boss) until it loads.
-- "Dessert Course" - I never found where it is.
+- Dying to the Fondue cheese hazard twice (once in Gauntlet with a Mustard Coat, once in Daily) with no warning. /state showed `dangers: []` and edgeDistance 41 when I was near it, so the cheese is not flagged as a danger in the data and I had little way of reading it. The shield perk's text says it "blocks one hit" but not hazards.
+- The "you" seat: in the Daily, my player was shown as GOBZILLA in HUD at first and then BUBBLEGUMBO; event text uses both "YOU" and my kaiju name, so who I am in a 4-way is unclear.
+- Free Play showed two MOTHBALLs in a result list (auto game 1) - duplicate kaiju in one match is odd.
+- The Gauntlet-over screen sometimes had no buttons in /look/shot, only text ("Esc menu" hints not shown on Gauntlet over after the second run). First run showed NEW RUN / MENU buttons; second run showed none and I had to press Enter (which restarted instantly) or Escape.
+- Hot Dumpling: bot (auto:hard) kept being "boomed" holding the dumpling; the passing rule ("touch a rival") is easy to miss under pressure.
 
 ## Bugs found
-- None of the JavaScript kind: /errors returned "none" after all runs.
-- Possible design bug: in Crumb Rush I was repeatedly KO'd by "cheese" hazard (events: "YOU knocked out (cheese)" 4 times in one 45 s round). Respawning into it is a bit punishing; may be the Fondue Night table hazard. Screenshot: C:\Users\Pat\kitchen-kaiju\art-src\.playtest3\7108\shot-13.png
-- Gauntlet run 1 end screen: Gauntlet Over after wave 1 with no "retry" button visible via /look (only the Share button), had to leave to the title. (May be a harness-only gap.)
-- Screenshots: shot-9 (daily result), shot-11 (gauntlet over), shot-6 (story map with Spicy toggle), all in C:\Users\Pat\kitchen-kaiju\art-src\.playtest3\7108\
+- Gauntlet over screen: after losing wave 2 (second run), the NEW RUN / MENU buttons were not rendered (shot art-src/.playtest4/7108/shot-4.png); clicking where they were did nothing; Enter restarted a new run, Escape paused it. First run (shot-3.png) showed them. Repro: lose gauntlet while a rival is still in KAIJU mode / killed by squash, after a prior gauntlet over.
+- Free Play result screen once listed "MOTHBALL" twice as separate players (duplicate kaiju seats).
+- /errors: none.
 
 ## Top 3 changes that would raise my score
-1. Make hard content actually hard: Spicy and Gauntlet bots should out-think a thrown-knife trade (dodging, counter-throws, using KAIJU on time); add a "bot level" choice or scaling for Gauntlet waves 1-4.
-2. Soften the wave-1 Gauntlet coin flip: either give a free shield/extra life on wave 1, or use first-to-2 early, and make hazards (giant hand, spatula) telegraph longer for a player at belly 100. Then give runs a real payoff: recap screen with perks taken, a score, and a daily/weekly seed leaderboard.
-3. Shorten and clarify Hot Dumpling/Daily: first to 2 rounds or a faster round timer, an on-screen fuse bar over the holder, and a one-button retry at the end of Daily/Gauntlet. Also surface where Dessert Course and the later Spicy chapters unlock (a visible "next unlock" goal).
+1. Make Gauntlet a real ramp and a real run: more than one round per wave (or a lives/HP bar), a smoother 4 -> 5 -> 6 rival climb, bigger perk pool with stacking and rarity, and a run-end screen with a clear "try again" button.
+2. Telegraph hazards (fondue cheese edge, dumpling timer) and make the shield perk cover them, so deaths feel earned rather than random.
+3. Give challenge seekers reachable hard content: unlock Spicy/Dessert Course sooner or via Gauntlet milestones, and give Daily a reason to retry (varying modifiers, shorter match, or a visible target score).

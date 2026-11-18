@@ -88,6 +88,7 @@ export class StoryScene extends Phaser.Scene {
   }
 
   create(): void {
+    this.closeCelebration = null;
     clearTaps();
     setTouchMode('title');
     playMusic(this.main ? 'story' : 'story2');
@@ -177,6 +178,7 @@ export class StoryScene extends Phaser.Scene {
   /** Defeats per chapter this session (2+ offers the 🍀 HELPING HAND retry). */
   static losses = new Map<string, number>();
   private helping = false;
+  private closeCelebration: (() => void) | null = null;
   private get main(): boolean { return this.camp.id === 'main'; }
   private progressText!: Phaser.GameObjects.Text;
   /** Overall progress line: chapters, stars, spicy clears, dessert, rewards → one completion %. EASY TO CUSTOMISE: the weights. */
@@ -476,7 +478,7 @@ Next course: ${nextCh.title}. ${nextRival} is already sharpening the cutlery…`
   private celebrate(rewards: ReturnType<typeof newlyEarned>): void {
     const objs: Phaser.GameObjects.GameObject[] = [];
     const g = this.add.graphics().setDepth(40);
-    g.fillStyle(0x0d0805, 0.88); g.fillRect(0, 0, 1280, 720);
+    g.fillStyle(0x0d0805, 0.97); g.fillRect(0, 0, 1280, 720);
     objs.push(g);
     const kaiju = rewards.some(u => u.kind === 'kaiju');
     const head = withShadow(this.add.text(640, 120, kaiju ? '🎉 NEW KAIJU!' : '🎉 NEW TABLE!', display(72, '#ffd24a', { strokeThickness: 10 })).setOrigin(0.5).setDepth(41), 6);
@@ -498,9 +500,9 @@ Next course: ${nextCh.title}. ${nextRival} is already sharpening the cutlery…`
     sfx.matchWin?.();
     const zone = this.add.zone(640, 360, 1280, 720).setInteractive().setDepth(43);
     objs.push(zone);
-    const close = () => { for (const o of objs) o.destroy(); this.input.keyboard?.off('keydown', close); };
+    const close = () => { for (const o of objs) o.destroy(); this.closeCelebration = null; };
     zone.once('pointerup', close);
-    this.input.keyboard?.once('keydown', close);
+    this.closeCelebration = close;
     this.overlay.push(...objs);
   }
 
@@ -638,6 +640,7 @@ Next course: ${nextCh.title}. ${nextRival} is already sharpening the cutlery…`
     if (consumeTap('ArrowLeft') || consumeTap('KeyA')) dx = -1;
     if (consumeTap('ArrowRight') || consumeTap('KeyD')) dx = 1;
     if (consumeTap('ArrowUp') || consumeTap('KeyW')) dy = -1;
+    const skipKey = this.mode === 'dialogue' && consumeTap('KeyS'); // S = skip the chat (elsewhere it's 'down')
     if (consumeTap('ArrowDown') || consumeTap('KeyS')) dy = 1;
     if (consumeTap('Enter') || consumeTap('Space') || consumeTap('Digit1') || consumeTap('NumpadEnter')) go = true;
     if (consumeTap('Escape') || consumeTap('Backspace')) back = true;
@@ -656,6 +659,8 @@ Next course: ${nextCh.title}. ${nextRival} is already sharpening the cutlery…`
       this.padPrev.set(id, { mx, my, a: inp.throw || inp.start, b: inp.dash, y: inp.stomp });
     }
     clearTaps();
+    // 🎉 the celebration takes every key until it closes (Space used to hit the card underneath too)
+    if (this.closeCelebration) { if (go || back) this.closeCelebration(); return; }
 
     if (this.mode === 'cut') {
       this.cutT += dt;
@@ -671,7 +676,7 @@ Next course: ${nextCh.title}. ${nextRival} is already sharpening the cutlery…`
       const line = this.lines[this.lineIdx];
       if (this.lineText && line) {
         this.lineShown = Math.min(line.text.length, this.lineShown + dt * 90);
-        if (consumeTap('KeyS')) { this.skipChat(); return; }
+        if (skipKey) { this.skipChat(); return; }
         this.lineText.setText(line.text.slice(0, Math.floor(this.lineShown)));
       }
       if (go) this.advance();

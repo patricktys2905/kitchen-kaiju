@@ -1,55 +1,45 @@
-# Playtest round 3 — 10 Sonnet agents (2026-11-18), after the round 2 themes
+# Playtest round 4 — 10 Sonnet agents (2026-11-18), after parry / goals / twist visuals / Chef lines
 
-Earlier rounds are in `round1/` and `round2/`. Release bar: every profile at **9.0 or higher**.
+Earlier rounds are in `round1/`–`round3/`. Release bar: every profile at **9.0 or higher**.
 
-| Profile | R1 | R2 | R3 |
-|---|---|---|---|
-| Party Host | 7 | 7 | **7.5** |
-| Achiever | 6 | 6.5 | **7** |
-| QA Tester | 6.5 | 7 | 7 |
-| Collector | 6.5 | 7 | 7 |
-| Story Fan | 7 | 7 | 7 |
-| First-Timer | 7 | 7 | 7 |
-| Kid | 7 | 7 | 7 |
-| Tinkerer | 8 | 7.5 | 7 |
-| Fighter | 6 | 6.5 | 6 |
-| Challenge Seeker | 6 | 6 | 6 |
-| **Average** | **6.7** | **6.85** | **6.85** |
+| Profile | R1 | R2 | R3 | R4 |
+|---|---|---|---|---|
+| Achiever | 6 | 6.5 | 7 | 7 |
+| Story Fan | 7 | 7 | 7 | 7* |
+| First-Timer | 7 | 7 | 7 | 7 |
+| Party Host | 7 | 7 | 7.5 | 7 |
+| Tinkerer | 8 | 7.5 | 7 | 7 |
+| Kid | 7 | 7 | 7 | 7 |
+| QA Tester | 6.5 | 7 | 7 | 7 |
+| Fighter | 6 | 6.5 | 6 | 6.5 |
+| Collector | 6.5 | 7 | 7 | 6.5* |
+| Challenge Seeker | 6 | 6 | 6 | 6 |
+| **Average** | **6.7** | **6.85** | **6.85** | **6.8** |
 
-No JavaScript errors in any of the 30 runs. The QA tester confirmed every earlier bug fix holds.
+\* Their test servers were stopped early by mistake (the reports were already written; they just played less).
 
-## The scores have plateaued at about 7, and that is a signal in itself
-Three rounds of fixes removed every concrete bug and most complaints. Yet each profile's score barely moves, because each agent re-scores from its profile's wish-list, which keeps growing:
-- the Fighter wants dodge/block depth
-- the Challenge Seeker wants leaderboards
-- the Tinkerer wants a bigger Workshop
-- the Story Fan wants more narrative
+No JavaScript errors in any run that checked.
 
-These are content and feature asks, not polish. The harness also limits what the agents can feel: they act in coarse turns, so the combat-feel profiles (Fighter, Challenge Seeker) are the most pessimistic. A 9+ from them probably needs real players.
+## Verdict on the AI playtest loop
+Four rounds and many fixes later, scores sit flat at about 7: the bugs are gone, but each profile's wish-list grows into bigger features. The latest asks are:
+- more party modes
+- Workshop drag/rotate
+- Gauntlet lives
+- more cosmetics
+- earlier STOMP teaching
 
-## Fixed right after round 3 (from these reports)
-- **Story:**
-  - The SCENE button no longer overlaps the star legend.
-  - ⏩ SKIP CHAT (S) skips the whole intro, and dialogue types faster.
-  - The defeat card fits the score ("You took a round off them" vs "Tough one").
-  - After 2 defeats on a chapter, a 🍀 **HELPING HAND** retry starts each round ready to go KAIJU, with a shield.
-  - The NEW KAIJU celebration appears at once, so a quick NEXT can't skip it.
-- **Gauntlet:** Escape no longer abandons the run on the perk picker, and achievement toasts no longer sit under the perk cards.
-- **Setup:**
-  - PLAY with nobody joined seats you instead of starting a bots-only match.
-  - Team Feast adds a bot to even up odd teams.
-  - Free Play and Party Modes no longer share twist, power-up, hazard or table settings.
-- **Results screens:** clickable ↻ REMATCH / ▶ CONTINUE and ☰ MENU buttons.
-- **Kaiju balance** with frequent KAIJU (100-run check):
-  - The fast-slide powers (Salmonster, Pengwhip, Norigon) were toned down.
-  - Squidgeon's Ink Cloud now dazes, and Bloblin, Hotchog, Minturtle, Sloba, Velvaroo and Bluebeary (5 mines) were buffed.
-  - Bots now use Mothball's Flutter.
-  - The spread is now 15–33%, which matches pure luck (18–34%).
-- `smoke:phone` waits for the menu instead of a fixed 0.9 s.
+The combat profiles are capped by the harness (they act in coarse turns). More rounds of the same loop are unlikely to reach 9; real players are the better next signal.
 
-## What would move scores further (bigger features, not fixes)
-1. **Combat depth** (Fighter, Challenger): a dodge/parry window, readable throw telegraphs, and spawn protection.
-2. **Stakes and long-term goals** (Challenger, Achiever, Collector): a Gauntlet run recap and score, a "next unlock" tracker, earlier Story unlocks, more cosmetics.
-3. **Twist readability** (Tinkerer): visible ice/bouncy surfaces, and a twist banner at round start.
-4. **More story** (Story Fan): callbacks, more lines per chapter, between-chapter scenes.
-5. **Real human playtests:** the agents can't judge feel well, and that's where a 9 lives.
+## Fixed right after round 4
+- **REMATCH/MENU missing on later end screens:** the scene object kept the last match's destroyed buttons. They are now reset each match (plus the perk UI and rampage counters).
+- **SKIP CHAT (S) did nothing:** S was being read as "down" first. It now skips the chat in dialogue.
+- **NEW KAIJU celebration:** now opaque, and it takes all keys until closed (Space used to hit the card behind it).
+- **Twists:** the explanation now sits in the countdown text, and the Ice Rink sheen is much stronger (tint, frosty rim, brighter streaks).
+- **Second Helpings intro** reworded for players who are only halfway through the Feast.
+
+## Biggest remaining asks (for later)
+1. Teach STOMP/KAIJU in chapters 1–2, and fix chapter 2's difficulty spike for hand players.
+2. More collectables early, and progress counters on every locked Gallery item.
+3. Counterplay against a rival KAIJU (a stomp telegraph or a brief vulnerable window).
+4. Gauntlet lives or multi-round waves, plus a bigger perk pool.
+5. Party: Cup length options and more modes.

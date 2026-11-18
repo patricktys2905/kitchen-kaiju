@@ -200,6 +200,9 @@ export class GameScene extends Phaser.Scene {
   }
 
   create(): void {
+    this.resultBtns = []; // Phaser reuses this scene object: forget buttons from the last match
+    this.perkUi = [];
+    this.rampage = {};
     clearTaps();
     this.baseG = this.add.graphics().setDepth(-2.5);
     this.tableG = this.add.graphics().setDepth(-1);
@@ -442,8 +445,9 @@ export class GameScene extends Phaser.Scene {
     const g = this.twistG, m = this.world.mutator, { x, y, w, h } = TABLE;
     g.clear();
     if (m === 'ice') {
-      g.fillStyle(0xcff3ff, 0.16); g.fillRoundedRect(x, y, w, h, 18);
-      g.lineStyle(3, 0xffffff, 0.22);
+      g.fillStyle(0xbfeaff, 0.34); g.fillRoundedRect(x, y, w, h, 18);
+      g.lineStyle(3, 0x8fd8ff, 0.9); g.strokeRoundedRect(x + 4, y + 4, w - 8, h - 8, 16); // frosty rim
+      g.lineStyle(4, 0xffffff, 0.5);
       for (let k = 0; k < 16; k++) { const sx = x + 30 + ((k * 173 + t * 20) % (w - 120)), sy = y + 30 + ((k * 97) % (h - 120)); g.lineBetween(sx, sy, sx + 70, sy + 70); }
       g.fillStyle(0xffffff, 0.5);
       for (let k = 0; k < 18; k++) { const px = x + ((k * 197) % w), py = y + ((k * 113) % h), tw = 0.5 + 0.5 * Math.sin(t * 3 + k); g.fillCircle(px, py, 1.5 + tw * 2); }
@@ -1304,6 +1308,7 @@ export class GameScene extends Phaser.Scene {
       if (this.initData.dessert) { const c = COURSES[this.initData.dessert.course]; sub = `🍰 DESSERT COURSE ${this.initData.dessert.course + 1}/${COURSES.length} · ${c.title.toUpperCase()} · ${w.layout.name}`; }
       if (this.initData.daily) sub = `📅 DAILY CHALLENGE · win this match to clear today and keep your 🔥 streak · ${w.layout.name}`;
       if (this.initData.gauntlet) sub = `GAUNTLET · WAVE ${this.initData.gauntlet.wave} · ${w.players.length - 1} rival${w.players.length > 2 ? 's' : ''}${this.bossSeats().length ? ' + 👑 BOSS' : ''} · ${w.layout.name}`;
+      if (w.mutator !== 'none') sub += `\n⚡ TWIST: ${mutatorDef(w.mutator).name} — ${mutatorDef(w.mutator).blurb}`;
       if (this.tip) sub += `\n\n💡 ${this.tip}`;
     } else if (w.phase === 'play' && this.bannerT > 0) {
       main = 'DIG IN!';

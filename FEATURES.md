@@ -669,3 +669,9 @@ From the 10 Sonnet playtester reports in `playtest-reports/`.
    - **Ice Rink** puts an icy sheen with frost streaks and sparkles on the table.
    - **Bouncy Castle** shows flashing striped bumpers along the edges.
 4. **More story:** after a chapter clear, the 👨‍🍳 Head Chef reacts to how you played (a flawless run, lots of KOs, going KAIJU, or a nudge to STOMP) and teases the next course and its first rival.
+- **After round 4:**
+  - REMATCH/MENU buttons reset every match, so they always appear.
+  - S skips the Story chat.
+  - The NEW KAIJU celebration is opaque and takes all keys until closed.
+  - The twist explanation sits in the countdown text, and the Ice Rink sheen is much stronger.
+  - The Second Helpings intro is reworded.

@@ -10,7 +10,7 @@ export const SECONDS_CHAPTERS: Chapter[] = [
     title: 'Smoothie Operators', table: 15, rounds: 2,
     rivals: [{ species: 12, level: 'easy' }, { species: 13, level: 'easy' }],
     intro: [
-      { speaker: 'chef', text: 'You\'ve made a name at the Grand Feast… and the back of the fridge wants SECOND HELPINGS.' },
+      { speaker: 'chef', text: 'Halfway through the Grand Feast, word is out… and the back of the fridge wants SECOND HELPINGS.' },
       { speaker: 0, text: 'Oh… it\'s the champion. I\'d run, but… the blender\'s on. Fine.' },
       { speaker: 1, text: 'Back for seconds? Don\'t be pit-iful.' },
     ],

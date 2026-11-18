@@ -1,45 +1,45 @@
 # Playtest evaluation — The Tinkerer
 
-**Fun score: 7 / 10** (a lot of knobs that really work, and a Workshop that is a delight, but several twists/hazards read weakly on screen and some config state is confusing)
+**Fun score: 7 / 10** (Huge amount of knobs and they all work; the round-to-round action is fun but short on depth, and the Workshop is thinner than the rest of the customisation.)
 
 ## What I did
-- Settings: changed SFX volume, screen shake, name tags, Kaiju Powers (Classic mode); opened Keyboard Controls and rebound Throw to T, then Move Right to T (swap worked), then Reset.
-- Table Workshop: placed props (bowl, candle, bumper, cheesewheel), removed one, hit the 12-prop cap, cycled Surface and Hazard (Giant hand), saved ("Table Maker unlocked!"), then PLAY IT and played 1.5 rounds on it.
-- Free Play: cycled all 10 twists (Frenzy, Turbo, Boomerangs, Giant Cutlery, Ice Rink, Snack Attack, Fists Only, Bouncy Castle, Mirror Moves, Mini Kaiju). Actually played Boomerangs, Giant Cutlery, Ice Rink, Fists Only, Mini Kaiju. Toggled Power-ups and Hazards off and on, and the First-to cycle (1/3/5/7/10).
-- Party Modes: Team Feast screen, Crumb Rush (most of a round), Hot Dumpling (one round). Seen the Party Cup description.
-- About 12 matches/rounds in total, about 90 calls, 17 screenshots. /errors: none.
+- Title -> Settings: changed SFX/Music volume, Screen Shake, Name Tags; opened Keyboard Controls, rebound Throw to T, then Reset to Default (worked). Did not toggle Kaiju Powers or Reduced Effects in a match.
+- Table Workshop: placed cup/sundae/teapot/lollipop (6 props), cycled surface (Sunday Roast -> Leftovers) and hazard (wind gusts), tried placing on a start spot (refused), saved and played it. Used slot 2: 6 cakes in a row, Sushi Bar surface + Hot cheese hazard, saved and played it. Cycled all 16 surfaces and 7 hazards (None, Giant hand, Wind, Cleaver, Hot cheese, Spatula).
+- Free Play: cycled all 10 twists (Kaiju Frenzy, Turbo, Boomerangs, Giant Cutlery, Ice Rink, Snack Attack, Fists Only, Bouncy Castle, Mirror Moves, Mini Kaiju), First-To (1/3/5/7/10), Power-ups and Hazards on/off, all 13+ tables' descriptions.
+- Matches played (all first-to-1 or 3): Free Play My Table 1 (classic, 2 rounds, wind) ; Boomerangs (won); Chef's Board + Ice Rink (lost); Chef's Board + Kaiju Frenzy with power-ups/hazards off (won); Party Modes Crumb Rush 2-player (lost); My Table 2 (lost). Roughly 4 wins/3 losses by bot/auto play with some manual /act. About 80 calls.
+- Party Modes screen: Team Feast / Crumb Rush / Hot Dumpling / Classic / Party Cup selector, seats, RANDOM button seen (RANDOM, ONLINE, Party Cup not played).
 
 ## What matched my goals / what was fun
-- The Workshop is the star: tap-to-place is instant, start spots are shown, the prop count and cap are clear, the table renders in-game exactly as built (my bowl line-up is clearly visible in play), and the Giant Hand hazard really fires (Crabbage got flicked).
-- Keyboard rebinding is clean: "a key already in use swaps over" with a clear message, plus a Reset button.
-- Setup screens are compact: the whole configuration is a row of cycle buttons and the headline text updates live ("CLASSIC · POWER-UPS: ON · HAZARDS: ON · ⚡ ICE RINK"). 10 twists is a good amount of variety.
-- Classic mode (Kaiju Powers OFF) really does change the game (powerReady / kaijuPowersOn: false reflected in state).
-- Crumb Rush's picnic blanket with the ant line and Hot Dumpling's griddle are distinct and readable; round-end text ("The HOT DUMPLING popped on GOBZILLA!") is clear.
+- Twist descriptions are one-liners that appear instantly when you cycle, and each one visibly changes the match (Kaiju Frenzy: everyone goes KAIJU within seconds of the start - chaos; Ice Rink shows slide streaks).
+- Table descriptions are charming and tell you the hazard ("Get out of the red!"), plus warning banners like "GUST INCOMING!".
+- The Workshop is easy to grasp: pick prop, tap table, tap prop to remove, start circles shown, 3 slots, Play It goes straight into a match, and the saved table appears in Free Play as "MY TABLE 1". Surface x hazard combos (16 x 7) give a lot of variety cheaply.
+- Keyboard rebinding is clear ("Press the new key (Esc to cancel)") and Reset works.
+- The top bar tells you what each kaiju holds and powers/KO feed lines ("CRABBAGE skewered BLOBLIN") are readable.
 
 ## What took too long / was tedious
-- First-to default 3 and cycle order 1/3/5/7/10 means testing twists takes many rounds; there is no quick "1 round" preset button visible beyond cycling.
-- Cycling twists is click-through only; no list/description until you choose one (the description appears only on some screens).
-- Workshop has only 3 slots and no undo for a mis-click (only tap-to-remove or CLEAR).
+- Classic rounds can stall into a long two-player dance (round 1 of the first match ran past 70s with two kaiju trading pickups before anyone landed a hit). No sudden-death/shrink pressure.
+- Cycling a 16-table, 10-twist list by clicking one button repeatedly is slow; no back arrow or pick-from-list on the Free Play setup buttons (First-To skips 3->5->7->10->1 so overshooting costs several clicks).
+- Workshop hazard/surface cycling is forward-only too (17 clicks to get back a step).
 
 ## What was over too quickly / too shallow
-- Rounds on small tables end in about 10-15 seconds with bots, so a twist barely has time to show itself.
-- Ice Rink was not visibly icy on the wooden table or the griddle (no sheen / tint), so I could not tell it was on beyond the label. Fists Only with the bot-attack command left everything doing nothing for 8 seconds; a short on-screen prompt "no cutlery this round, shove!" would help.
-- Table Workshop has no scale/rotate for props and only 20 props; hazards are one-per-table choice.
+- Workshop: only 18 props, max 12, no rotation/size, props can't be moved (remove and re-place), no names, no preview of the hazard, no sharing. The props mostly seem to be obstacles; I couldn't tell what each one does (cup, bumper, pot, pancakes) - no tooltips. "Bumper" and "Cheesewheel" suggest special behaviour that is undocumented.
+- Twists are all single-toggle; you can't stack two (e.g. Mini + Boomerang), and no custom-rules mode combining twist + power-up pool.
+- Power-ups: I only saw a "Mustard shield" and Condiment Hoarder stat; no list of what power-ups exist or option to enable specific ones.
 
 ## Confusing or unclear
-- Settings changes and mode config appear shared between Free Play and Party Modes (twist ICE RINK carried into Party, powerups OFF carried), so it's easy to start a mode with hidden twists. Party Modes also silently inherited "TABLE: ALL / MY TABLE 1".
-- Clicking "click or THROW to join" seats in Party Modes, then returning to Free Play, left me in a 2-seat match where I was no longer the player I started as (my "YOU" became Squidgeon, 2 players only). I could not tell if that was intended.
-- The 🎲 RANDOM button changed mode/table and also seemed to clear the twist; unclear what it randomises.
-- Quit from the pause menu lands on the setup screen (not the title), fine but surprising the first time. Escape right after the round-end screen toggled pause rather than leaving.
-- Hot Dumpling: "shove" as I issued it did not pass the dumpling to a rival (I popped it myself); the pass mechanic is not explained in the HUD beyond "HOT! PASS IT!".
+- Free Play setup showed 4 seats (Seats 5-6 "add a bot") but a 5th bot (MOTHBALL) appeared in the next match after I pressed Enter on the setup screen; I'm not sure Enter = add bot (may be my harness input) - worth checking.
+- Table setting "ALL 16" then picked "My Table 1" for Crumb Rush round 1 - custom tables apparently are in the rotation; fine, but unexpected.
+- Wind gusts on my custom table knocked me out ("YOU knocked out (wind)") 3 times in a Crumb Rush 2-player match with no obvious way to brace; the "Brace!" hint exists on the table description but wasn't clear how to do it.
+- Match-end screen text says "1 / START rematch . Esc menu"; REMATCH/MENU buttons were not always listed/clickable right after the match ended (could be a harness timing issue).
+- Escape inside a match is a pause menu, and a second Escape does not leave - I pressed it several times and stayed in-game; fine, but surprising after menus where Escape always goes back.
 
 ## Bugs found
-- Possible: seat assignment changed after visiting Party Modes seat-join buttons then Free Play (steps: Free Play -> play; Party Modes -> click all 4 seats -> play Crumb Rush/Dumpling -> quit -> MODES -> Free Play -> play: match had 2 players, and "you" was Squidgeon). Might be my own seat clicks, not a game flaw.
-- Possible visual: ICE RINK twist has no visible surface change (screenshots shot-11.png, shot-14.png).
-- No JavaScript errors (/errors: none).
-- Workshop: clicking on a white start-spot circle with a prop selected did not obviously reject or place; not verified either way.
+- None from /errors (reported "none" at the end).
+- Possible: 5th bot appearing after an Enter keypress on Free Play setup (see above).
+- Possible: Workshop placement refuses props closer than ~100px silently (14 clicks 50px apart placed only 6 props) with no feedback why the others were rejected.
+- Screenshots: art-src/.playtest4/7107/shot-2.png (workshop), shot-7.png (chef's board + ice), shot-9.png (custom table 2).
 
 ## Top 3 changes that would raise my score
-1. Make twists visible: ice sheen, bouncy-castle surface, mirror-moves icon in HUD, and a 2-second banner at round start that says what the twist does.
-2. Separate Free Play and Party Modes config, or show a "carried-over settings" summary on the start screen; clarify the seat/you assignment and what RANDOM changes.
-3. Expand the Workshop: more slots, prop rotate/mirror, undo, and a "test round" button with 1 bot and first-to-1 so tinkering loops are tight.
+1. Deepen the Workshop: prop tooltips/behaviour list, rotate/drag, more slots, ability to place two hazards, and visible feedback when a placement is rejected.
+2. Setup UX: previous/next arrows (or a pick list) for tables, twists and First-To; let me stack twists and pick which power-ups are in the pool.
+3. Add late-round pressure (sudden death / shrinking table / hazard speed-up) so classic rounds never stall into minute-long standoffs.
