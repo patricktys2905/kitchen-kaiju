@@ -473,7 +473,7 @@ export class RecordsScene extends PanelScene {
       ['Times gone KAIJU', s.kaijuForms],
       ['Best win streak', s.bestStreak],
       ['Gauntlet best wave', s.gauntlet ?? 0],
-      ['Tables visited', `${s.tables.length}/${LAYOUTS.length}`],
+      ['Tables visited', `${s.tables.filter(i => !LAYOUTS[i]?.custom).length}/${LAYOUTS.filter(l => !l.custom).length}`],
       ['Favourite kaiju', fav ? SPECIES[Number(fav[0])].full : '–'],
       ['Story stars', `★ ${totalStars(story)}`],
     ];

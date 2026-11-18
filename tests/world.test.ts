@@ -680,6 +680,19 @@ describe('party modes', () => {
   });
 });
 
+describe('kaiju counterplay', () => {
+  it('a kaiju is dizzy (and not shielded) for a moment when KAIJU ends', () => {
+    const w = makeWorld(2);
+    place(w, 0, 400, 380); place(w, 1, 900, 380);
+    const p = w.players[0];
+    p.kaijuT = 0.05; p.stepT = 5;
+    run(w, 0.1);
+    expect(p.kaijuT).toBe(0);
+    expect(p.stunT).toBeGreaterThan(0.5);
+    expect(p.invT).toBeLessThanOrEqual(0);
+  });
+});
+
 describe('golden spoon', () => {
   it('touch to grab, holding scores, a KO drops it, and holding long enough wins the round', () => {
     const w = makeWorld(3, 'fork', { mode: 'goldenSpoon', hazards: false });

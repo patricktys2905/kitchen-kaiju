@@ -40,7 +40,7 @@ export const GAUNTLET_PERKS: Perk[] = [
 ];
 
 /** Which tables a wave can use (any you own). */
-export const gauntletTables = (owned: number[]): number[] => (owned.length ? owned : LAYOUTS.map((_, i) => i));
+export const gauntletTables = (owned: number[]): number[] => { const base = owned.filter(i => !LAYOUTS[i]?.custom); return base.length ? base : LAYOUTS.map((_, i) => i).filter(i => !LAYOUTS[i].custom); }; // Workshop tables stay out of runs
 
 const KEY = 'kk-gauntlet-best';
 export const gauntletBest = (): number => Number(localStorage.getItem(KEY) ?? 0) || 0;

@@ -378,7 +378,7 @@ export class GameScene extends Phaser.Scene {
       return;
     }
     if (gw && this.world.phase === 'matchEnd' && this.world.winner !== 0 && (consumeTap('Digit1') || consumeTap('Space') || consumeTap('Enter'))) { this.newGauntletRun(); return; }
-    if (!this.story && !gw && !cup && this.world.phase === 'matchEnd' && this.net?.role !== 'guest' && (consumeTap('Digit1') || (anyStart && !this.padPrevStart))) {
+    if (!this.story && !gw && !cup && this.world.phase === 'matchEnd' && this.net?.role !== 'guest' && (consumeTap('Digit1') || (anyStart && !this.padPrevStart) || (this.world.phaseT > 1.5 && (consumeTap('Enter') || consumeTap('Space'))))) {
       this.rematch();
       return;
     }
@@ -474,8 +474,7 @@ export class GameScene extends Phaser.Scene {
   /** Lost a wave but still have a life: same wave again, perks kept. */
   private retryGauntletWave(gw: NonNullable<GameData['gauntlet']>): void {
     sfx.go();
-    const again = GameScene.gauntletWave(gw.wave, this.species[0], this.slots[0]);
-    again.gauntlet = { ...again.gauntlet!, perks: gw.perks ?? [], lives: (gw.lives ?? GAUNTLET.lives) - 1 };
+    const again: GameData = { ...this.initData, gauntlet: { ...gw, perks: gw.perks ?? [], lives: (gw.lives ?? GAUNTLET.lives) - 1 } }; // the same table and rivals
     this.scene.restart(again);
   }
   private newGauntletRun(): void { sfx.go(); this.scene.restart(GameScene.gauntletWave(1, this.species[0], this.slots[0])); }
@@ -487,6 +486,7 @@ export class GameScene extends Phaser.Scene {
     const s = this.slots[i];
     if (!s || s.kind === 'touch') return 'tap STOMP';
     if (s.kind === 'pad') return 'press Y';
+    if (s.kind === 'local') return 'press E / Y';
     if (s.kind === 'kb') return s.index === 1 ? 'press .' : 'press E';
     return 'press STOMP';
   }
