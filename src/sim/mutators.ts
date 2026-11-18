@@ -33,5 +33,7 @@ export const MUTATOR_COMBOS: [Mutator, Mutator][] = [['ice', 'turbo'], ['tiny', 
 /** Every twist choice in order: none, singles, then combos. Each is [first, second]. */
 export const twistChoices = (): [Mutator, Mutator][] => [...enabledMutators().map((m): [Mutator, Mutator] => [m.id, 'none']), ...MUTATOR_COMBOS];
 export const twistName = (a: Mutator, b: Mutator = 'none'): string => (b === 'none' ? mutatorDef(a).name : `${mutatorDef(a).name} + ${mutatorDef(b).name}`);
+/** Short label for small buttons: ICE + TURBO. */
+export const twistShort = (a: Mutator, b: Mutator = 'none'): string => (b === 'none' ? mutatorDef(a).name : `${mutatorDef(a).name.split(' ').pop()} + ${mutatorDef(b).name.split(' ').pop()}`);
 export const twistBlurb = (a: Mutator, b: Mutator = 'none'): string => (b === 'none' ? mutatorDef(a).blurb : `${mutatorDef(a).blurb}. ${mutatorDef(b).blurb}`);
 export const mutatorDef = (id: Mutator) => MUTATORS.find(m => m.id === id) ?? MUTATORS[0];

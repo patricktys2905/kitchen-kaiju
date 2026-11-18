@@ -46,8 +46,8 @@ export const SHOP: ShopItem[] = [
   { id: 'berry', name: '🫐 Blueberry colour', desc: 'Deep berry blue', cost: 180, kind: 'colour' },
   { id: 'matcha', name: '🍵 Matcha colour', desc: 'Calm green tea', cost: 240, kind: 'colour' },
   { id: 'chrome', name: '🥄 Silverware colour', desc: 'Shiny cutlery chrome', cost: 400, kind: 'colour' },
-  { id: 'lunchbox', name: '🍱 Lunchbox', desc: 'Gauntlet runs start with a free perk', cost: 250, kind: 'perk' },
-  { id: 'lifeline', name: '❤ Lifeline', desc: 'Gauntlet runs start with +1 life', cost: 350, kind: 'perk' },
+  { id: 'lunchbox', name: '🍱 Lunchbox', desc: 'A free perk on every Gauntlet run', cost: 250, kind: 'perk' },
+  { id: 'lifeline', name: '❤ Lifeline', desc: '+1 ❤ on every Gauntlet run', cost: 350, kind: 'perk' },
 ];
 
 export interface MetaSave {
@@ -159,10 +159,10 @@ export function pinAchievement(id: string | null): void { try { if (id) localSto
 
 /** 🏷 Today's deal: one Pantry item 30% off, picked by the date. */
 export function dailyDeal(d = new Date()): { id: string; cost: number } | null {
-  const left = SHOP.filter(s => !loadMeta().owned.includes(s.id));
-  if (!left.length) return null;
+  // picked from the WHOLE shop by date, so the deal never jumps to another item when you buy something
   const day = Math.floor(new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime() / 864e5);
-  const it = left[day % left.length];
+  const it = SHOP[day % SHOP.length];
+  if (loadMeta().owned.includes(it.id)) return null;
   return { id: it.id, cost: Math.round(it.cost * 0.7) };
 }
 export const priceOf = (id: string): number => { const deal = dailyDeal(); const it = SHOP.find(s => s.id === id); return deal?.id === id ? deal.cost : it?.cost ?? 0; };

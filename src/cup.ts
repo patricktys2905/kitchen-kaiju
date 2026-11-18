@@ -10,7 +10,7 @@ export const CUP = {
     { mode: 'hotDumpling', rounds: 2 },
     { mode: 'teams', rounds: 2 },
     { mode: 'goldenSpoon', rounds: 1 },
-    { mode: 'classic', rounds: 3 }, // the final
+    { mode: 'classic', rounds: 2 }, // the final (worth ×2 points)
   ] as { mode: GameMode; rounds: number }[],
   points: [5, 3, 2, 1, 0, 0], // 1st, 2nd, 3rd…
 };

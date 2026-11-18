@@ -18,7 +18,7 @@ import { cupGames, cupLength, setCupLength } from '../cup';
 import { loadStats } from '../stats';
 import { loadRules, parseCode, rulesCode, rulesSummary, saveRules, SLOTS, type HouseRules } from '../houseRules';
 import { getSettings, setSetting } from '../settings';
-import { mutatorDef, twistBlurb, twistChoices, twistName, type Mutator } from '../sim/mutators';
+import { mutatorDef, twistBlurb, twistChoices, twistName, twistShort, type Mutator } from '../sim/mutators';
 import { enabledModes, MODE_RULES, modeDef, type GameMode } from '../sim/modes';
 import { KITS } from '../sim/powers';
 import { currentColour, seatColours } from '../colours';
@@ -92,6 +92,8 @@ export class MenuScene extends Phaser.Scene {
   init(data: MenuData): void {
     this.own = owned();
     this.slots = data.slots ?? [];
+    // 📱 phones: a keyboard seat with no keyboard is useless, so it becomes the touch seat (with on-screen controls)
+    if (isTouchDevice && !this.slots.some(q => q.kind === 'touch')) { const k = this.slots.findIndex(q => q.kind === 'kb' || q.kind === 'local'); if (k >= 0) this.slots = this.slots.map((q, i) => (i === k ? { kind: 'touch', index: 0 } : q)); }
     this.picks = (data.species ?? []).slice(0, this.slots.length);
     this.difficulty = data.difficulty ?? this.difficulty;
     this.botLevels = (data.botLevels ?? []).slice(0, this.slots.length);
@@ -315,7 +317,9 @@ export class MenuScene extends Phaser.Scene {
     const code = rulesCode(cur());
     const share = new Button(this, 420, 545, { w: 380, h: 56, label: '📋 COPY THIS SETUP AS A CODE', size: 16, onClick: () => { try { void navigator.clipboard?.writeText(code); } catch { /* blocked */ } info.setText(`Code: ${code}  (copied)`); sfx.pickup(); } }, 31);
     const paste = new Button(this, 860, 545, { w: 380, h: 56, label: '📥 ENTER A FRIEND\'S CODE', size: 16, onClick: () => { const c = window.prompt('Paste a House Rules code (KK1-…)'); const r = c ? parseCode(c) : null; if (r) apply(r); else if (c) { info.setText('That code didn\'t work. Check it and try again.'); sfx.thwock(); } } }, 31);
-    const info = this.add.text(640, 596, 'Esc closes', body(13, '#cdb9a3', 800)).setOrigin(0.5).setDepth(31);
+    const close = new Button(this, 1100, 186, { w: 60, h: 44, label: '✖', size: 20, onClick: () => this.toggleRules() }, 31);
+    this.rulesUi.push(close);
+    const info = this.add.text(640, 596, isTouchDevice ? '' : 'Esc closes', body(13, '#cdb9a3', 800)).setOrigin(0.5).setDepth(31);
     this.rulesUi.push(share, paste, info);
   }
 
@@ -498,7 +502,7 @@ export class MenuScene extends Phaser.Scene {
       const tl0 = this.table < 0 ? null : LAYOUTS[this.table];
       const label: Record<string, string> = {
         mode: `MODE ▶\n${modeDef(this.mode).name}`, cup: '🏆 PARTY\nCUP', cuplen: `CUP LENGTH\n${cupGames(Math.max(3, this.slots.length)).length} GAMES`, bots: `BOT LEVEL\n${this.difficulty.toUpperCase()}`, table: `TABLE\n${tl0 ? tl0.name.toUpperCase() : 'ALL'}`,
-        rounds: `FIRST TO\n${this.rounds}`, twist: `TWIST${this.mutator2 !== 'none' ? ' ⚡⚡' : ''}\n${this.mutator === 'none' ? 'NONE' : twistName(this.mutator, this.mutator2)}`, power: `POWER-UPS\n${this.powerups ? 'ON' : 'OFF'}`, haz: `HAZARDS\n${this.hazards ? 'ON' : 'OFF'}`, dice: '🎲\nRANDOM', online: '🌐\nONLINE',
+        rounds: `FIRST TO\n${this.rounds}`, twist: `TWIST${this.mutator2 !== 'none' ? ' ⚡⚡' : ''}\n${this.mutator === 'none' ? 'NONE' : twistShort(this.mutator, this.mutator2)}`, power: `POWER-UPS\n${this.powerups ? 'ON' : 'OFF'}`, haz: `HAZARDS\n${this.hazards ? 'ON' : 'OFF'}`, dice: '🎲\nRANDOM', online: '🌐\nONLINE',
       };
       for (const b of this.setBtns) { const id = (b as Button & { id?: string }).id ?? ''; b.setText(label[id] ?? ''); b.label.setScale(Math.min(1, (this.party ? 106 : 118) / Math.max(1, b.label.width / b.label.scaleX))); }
       const people = this.slots.filter(q => q.kind !== 'bot').length;

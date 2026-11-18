@@ -817,3 +817,40 @@ From the 10 Sonnet playtester reports in `playtest-reports/`.
   - The 5-rival Trial line.
   - The "Tough bots?" tip only shows in Free Play / Party.
 - **Playtest harness phone mode:** `TOUCH=1 node scripts/playtest/server.mjs <port> <dir>`. `/look` lists `phoneControls`, and `/tap?label=THROW` taps them. There is a new **Phone Player** profile (#11), and the report template asks for an exhaustive issue table plus a "what would make it 9/10" checklist.
+
+## 66. Round 7 fixes (11 testers, about 470 issues logged)
+- **Phone:**
+  - A keyboard seat on a touch device becomes the touch seat (menu and match), so a phone is never left without controls.
+  - Taps on THROW/SWIPE/DASH/STOMP count for 120 ms (`TAP_HOLD` in `src/touch.ts`).
+  - Keyboard hints become tap wording on touch, and Challenges / House Rules have ✖ close buttons.
+- **Layout:**
+  - A dark plate behind round and result text.
+  - Result buttons right away, moved clear of the receipt.
+  - First Service ticks and achievements go on the receipt.
+  - Move Lab banner at the bottom, and Esc leaves the Move Lab.
+  - FAST FORWARD hidden during replays.
+  - Short double-twist labels (`twistShort`).
+  - Help tabs show one highlight.
+  - Bigger Gallery counter, and a NEXT UP plate.
+  - Shorter shop texts.
+  - Chapter-clear card never runs under its buttons.
+  - Story star row clear of SCENE.
+  - GAUNTLET OVER lines wrap.
+  - Button sub lines shrink before they wrap.
+  - Help Basics fits above CONTROLS.
+- **New player:**
+  - A "▼ YOU" marker for the first 4 s of each round.
+  - Practice → FIRST MATCH starts a match.
+  - Help explains parry, charge lines and the Giant Hand.
+- **Story:**
+  - Phase 2 shows on the boss's HUD card with a red aura.
+  - The chapter 4 boss starts at 70% belly.
+  - Kid Mode: a one-sentence big defeat card, and Helping Hand from the first loss.
+  - The Spicy rival card shows the tougher level, and "TIP" no longer appears twice.
+- **Economy:**
+  - The receipt total includes achievement payouts, and rank points are explained.
+  - The daily deal is stable when you buy things.
+  - The Tacowl unlock says "Grand Feast stars".
+- **Party:** the Cup final is first-to-2, "Past champions" shows dates, and "pt/pts" grammar is fixed.
+- **Bots:** BRUTAL retuned so it's no longer easier than HARD.
+- **Records:** shows Trial stars. "Knocked out by" only shows after a loss.

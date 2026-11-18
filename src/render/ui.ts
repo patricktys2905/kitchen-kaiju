@@ -70,7 +70,8 @@ export class Button {
     const { w, h } = this.o, L = this.label, S = this.sub;
     L.setScale(1); S?.setScale(1);
     const maxW = w - 20, maxH = h - 10;
-    S?.setWordWrapWidth(maxW, true); // long sub lines wrap first (then everything shrinks only if it still does not fit)
+    S?.setWordWrapWidth(null); // a sub line wraps only when shrinking it would make it too small to read
+    if (S && S.text && S.width * 0.78 > maxW) S.setWordWrapWidth(maxW, true);
     let fl = Math.min(1, maxW / Math.max(1, L.width)), fs = S && S.text ? Math.min(1, maxW / Math.max(1, S.width)) : 1;
     const gap = S && S.text ? 3 : 0;
     const total = () => L.height * fl + (S && S.text ? gap + S.height * fs : 0);

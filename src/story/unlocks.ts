@@ -28,7 +28,7 @@ export function isEarned(u: Unlock, s: StorySave): boolean {
 }
 
 export function needText(u: Unlock, s: StorySave = loadStory()): string {
-  if ('stars' in u.need) return `Collect ${u.need.stars} Story stars (you have ${Math.min(totalStars(s), u.need.stars)}/${u.need.stars})`;
+  if ('stars' in u.need) return `Collect ${u.need.stars} stars in THE GRAND FEAST (you have ${Math.min(totalStars(s), u.need.stars)}/${u.need.stars}): replay chapters for ★★★`;
   const ch = u.need.chapter, done = s.stars.filter(x => (x ?? 0) > 0).length;
   return `Beat Story chapter ${ch + 1}: ${CHAPTERS[ch].title} (${Math.min(done, ch + 1)}/${ch + 1} cleared)`;
 }

@@ -135,7 +135,7 @@ export class WorkshopScene extends Phaser.Scene {
     const index = BASE_COUNT + Math.min(this.slot, this.list.length - 1);
     sfx.go();
     this.scene.start('game', {
-      slots: [{ kind: 'kb', index: 0 }, { kind: 'bot', index: 0 }, { kind: 'bot', index: 0 }, { kind: 'bot', index: 0 }],
+      slots: [isTouchDevice ? { kind: 'touch', index: 0 } : { kind: 'kb', index: 0 }, { kind: 'bot', index: 0 }, { kind: 'bot', index: 0 }, { kind: 'bot', index: 0 }],
       difficulty: 'easy', species: owned().kaiju.slice(0, 4), tables: [index], rounds: 3,
     });
   }

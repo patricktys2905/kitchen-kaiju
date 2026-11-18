@@ -10,7 +10,8 @@ type Btn = 'throw' | 'swipe' | 'dash' | 'stomp';
 export type TouchMode = 'off' | 'menu' | 'game' | 'watch' | 'end' | 'title'; // 'title': title / story screens (just FULL SCREEN)
 
 const held: Record<Btn, boolean> = { throw: false, swipe: false, dash: false, stomp: false };
-const latched: Record<Btn, boolean> = { throw: false, swipe: false, dash: false, stomp: false }; // quick taps between frames
+const latched: Record<Btn, number> = { throw: 0, swipe: 0, dash: 0, stomp: 0 }; // when a quick tap happened: it counts as held for TAP_HOLD ms (frames with no game step can't eat it)
+const TAP_HOLD = 120;
 let mx = 0, my = 0;
 let aim: { x: number; y: number } | null = null;
 let aimClearTimer = 0;
@@ -25,8 +26,7 @@ export interface TouchRead {
 export function readTouch(): TouchRead {
   const out: TouchRead = { mx, my, throw: false, swipe: false, dash: false, stomp: false };
   for (const b of ['throw', 'swipe', 'dash', 'stomp'] as Btn[]) {
-    out[b] = held[b] || latched[b];
-    latched[b] = false;
+    out[b] = held[b] || performance.now() - latched[b] < TAP_HOLD;
   }
   if (aim) { out.aimX = aim.x; out.aimY = aim.y; }
   return out;
@@ -169,7 +169,7 @@ function holdButton(b: HTMLElement, key: Btn): void {
     e.preventDefault();
     b.setPointerCapture(e.pointerId);
     held[key] = true;
-    latched[key] = true;
+    latched[key] = performance.now();
     b.classList.add('down');
     goFullscreen();
   });
@@ -263,7 +263,7 @@ export function initTouch(injectTap: (code: string) => void): void {
     e.preventDefault();
     throwBtn.setPointerCapture(e.pointerId);
     tId = e.pointerId; tx = e.clientX; ty = e.clientY;
-    held.throw = true; latched.throw = true;
+    held.throw = true; latched.throw = performance.now();
     clearTimeout(aimClearTimer);
     aim = null;
     throwBtn.classList.add('down');

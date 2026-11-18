@@ -280,12 +280,12 @@ export class StoryScene extends Phaser.Scene {
     rivals.forEach((r, k) => {
       const x = 1070 + (k - (rivals.length - 1) / 2) * 108;
       if (hasArt(`kaiju-${r.species}`)) add(fitInside(this.add.image(x, 300, `kaiju-${r.species}`), 84, 72).setDepth(5));
-      add(this.add.text(x, 344, SPECIES[r.species].name + (r.boss ? '\n👑 BOSS' : `\n${r.level}`), body(12, r.boss ? '#ff8a7a' : SPECIES[r.species].css, 900, { align: 'center' })).setOrigin(0.5, 0).setDepth(5));
+      add(this.add.text(x, 344, SPECIES[r.species].name + (r.boss ? '\n👑 BOSS' : `\n${this.spicyOn() ? `🌶️ ${SPICY_BUMP[r.level]}` : getSettings().kidMode ? KID_EASE[r.level] : r.level}`), body(12, r.boss ? '#ff8a7a' : SPECIES[r.species].css, 900, { align: 'center' })).setOrigin(0.5, 0).setDepth(5));
     });
     add(this.add.text(1070, 392, '“' + ch.tip + '”', body(14, '#ffe9c7', 700, { align: 'center', wordWrap: { width: 320 }, fontStyle: 'italic 700' })).setOrigin(0.5, 0).setDepth(5));
     const best = this.save.stars[this.sel] ?? 0;
     const hot = this.save.spicy?.[this.sel] ?? 0;
-    add(this.add.text(1000, 552, best ? `Best: ${'★'.repeat(Math.max(0, best))}${'☆'.repeat(Math.max(0, 3 - best))}${hot ? `  🌶️${hot}` : ''}` : 'Not cleared yet', body(16, '#ffd24a', 900)).setOrigin(0.5).setDepth(5)).setX(1010).setY(558);
+    add(this.add.text(1000, 552, best ? `Best: ${'★'.repeat(Math.max(0, best))}${'☆'.repeat(Math.max(0, 3 - best))}${hot ? `  🌶️${hot}` : ''}` : 'Not cleared yet', body(16, '#ffd24a', 900)).setOrigin(0, 0.5).setDepth(5)).setX(918).setY(560).setFontSize(14);
     const legend = add(this.add.text(1070, 588, '★★★ no rounds lost · ★★ lost one · ★ any win', body(11, '#cdb9a3', 800)).setOrigin(0.5).setDepth(5));
     if (legend.width > 300) legend.setScale(300 / legend.width); // stays inside the panel, above PLAY
     this.spicyBtn?.setText(best ? `🌶️ SPICY: ${this.spicy ? 'ON (tougher rivals)' : 'OFF'}` : '🌶️ SPICY: clear it first');
@@ -302,7 +302,7 @@ export class StoryScene extends Phaser.Scene {
     if (this.mode !== 'map' || this.sel >= this.save.unlocked) return;
     sfx.go();
     const ch = this.camp.chapters[this.sel], rivals = chapterRivals(ch, this.save.pick);
-    this.lines = getSettings().kidMode ? [ch.intro[0]] : [...ch.intro, { speaker: 'chef', text: 'TIP: ' + ch.tip }]; // 🧸 Kid Mode: one line
+    this.lines = getSettings().kidMode ? [ch.intro[0]] : [...ch.intro, { speaker: 'chef', text: ch.tip }]; // 🧸 Kid Mode: one line
     // retries skip the chat: you've heard it already this session
     const key = `${this.camp.id}:${this.sel}`;
     if (StoryScene.talked.has(key)) { this.launch(); return; }
@@ -457,19 +457,24 @@ export class StoryScene extends Phaser.Scene {
       // 👨‍🍳 the Head Chef reacts to how you played, then teases the next course
       const nextCh = this.camp.chapters[r.chapter + 1], nextRival = nextCh ? SPECIES[nextCh.rivals[0].species].full : '';
       const praise = r.stars === 3 ? "Not a single round dropped. Chef's kiss! 🤌" : (r.myKos ?? 0) >= 4 ? `${r.myKos} knockouts! The whole kitchen is talking.` : (r.myKaiju ?? 0) >= 2 ? `You went KAIJU ${r.myKaiju} times. The table is still shaking.` : (r.myKaiju ?? 0) === 0 ? 'Next time, eat those crumbs and STOMP: KAIJU wins fights.' : 'A hard-fought plate. Well served.';
-      const chef = this.add.text(640, y, `👨‍🍳 ${praise}${nextCh ? `
-Next course: ${nextCh.title}. ${nextRival} is already sharpening the cutlery…` : ''}`, body(15, '#ffd9a0', 800, { align: 'center', wordWrap: { width: 640 } })).setOrigin(0.5, 0).setDepth(31);
+      const unlockLine = unlockedNew && !last ? `
+✅ Chapter ${r.chapter + 2} unlocked: ${nextCh?.title ?? ''}. ${nextRival} is already sharpening the cutlery…` : nextCh ? `
+Next course: ${nextCh.title}. ${nextRival} is already sharpening the cutlery…` : '';
+      const chef = this.add.text(640, y, `👨‍🍳 ${praise}${unlockLine}`, body(15, '#ffd9a0', 800, { align: 'center', wordWrap: { width: 640 } })).setOrigin(0.5, 0).setDepth(31);
       this.overlay.push(chef);
       y += chef.height + 10;
-      if (r.receipt?.length) { const rc = this.add.text(640, y, r.receipt.join('   ·   '), body(14, '#cdb9a3', 800)).setOrigin(0.5, 0).setDepth(31); this.overlay.push(rc); y += rc.height + 6; }
-      if (unlockedNew && !last) { this.overlay.push(this.add.text(640, y, `Chapter ${r.chapter + 2} unlocked!`, body(18, '#8dff6a', 900)).setOrigin(0.5, 0).setDepth(31)); y += 26 + GAP; }
+      if (r.receipt?.length && y + 22 < BTN_Y - 44) { const rc = this.add.text(640, y, r.receipt.join('   ·   '), body(14, '#cdb9a3', 800)).setOrigin(0.5, 0).setDepth(31); this.overlay.push(rc); y += rc.height + 6; }
+      // never under the buttons: squeeze everything above them if a big unlock made the card too tall
+      const over = y - (BTN_Y - 44);
+      if (over > 0) for (const o of this.overlay) { const tt = o as Phaser.GameObjects.Text & { y: number }; if (typeof tt.y === 'number' && tt.y > CARD.y + 120) tt.y -= over * ((tt.y - CARD.y - 120) / Math.max(1, y - CARD.y - 120)); }
     } else {
       const lostKey = `${this.camp.id}:${r.chapter}`;
       StoryScene.losses.set(lostKey, (StoryScene.losses.get(lostKey) ?? 0) + 1);
       const head = (r.myRounds ?? 0) > 0 ? 'So close! You took a round off them.' : 'Tough one! Every rival can be beaten.';
       const BEAT: Record<string, string> = { fall: 'You kept falling off the table. Stay near the middle and DASH back from the edge.', cutlery: 'Thrown cutlery got you. DASH sideways from a charge line, or SWIPE to parry it.', swipe: 'You were swiped up close. Keep your distance, or swipe first.', kaiju: 'A KAIJU flattened you. Step out of the ring before each stomp, then punish the dizzy shrink.', squash: 'A KAIJU flattened you. Step out of the ring before each stomp, then punish the dizzy shrink.', hand: 'The Giant Hand got you. It grabs the fullest belly, so STOMP before it arrives.' };
       const beat = r.myOut ? BEAT[r.myOut] ?? 'Watch the table hazard: its warning shows before it strikes.' : '';
-      this.overlay.push(this.add.text(640, (CARD.y + 150 + BTN_Y - 40) / 2, head + (beat ? '\n\n🔎 What beat you: ' + beat : '') + '\n\n“' + ch.tip + '”', body(23, '#ffe9c7', 800, { align: 'center', wordWrap: { width: 620 }, lineSpacing: 6 })).setOrigin(0.5).setDepth(31));
+      const kid = getSettings().kidMode;
+      this.overlay.push(this.add.text(640, (CARD.y + 150 + BTN_Y - 40) / 2, kid ? `${head}\n\n💡 ${(beat || ch.tip).split('. ')[0].replace(/\.$/, '')}!` : head + (beat ? '\n\n🔎 What beat you: ' + beat : '') + '\n\n“' + ch.tip + '”', body(kid ? 30 : 23, '#ffe9c7', 800, { align: 'center', wordWrap: { width: 620 }, lineSpacing: 6 })).setOrigin(0.5).setDepth(31));
       if (r.receipt?.length) this.overlay.push(this.add.text(640, BTN_Y - 52, r.receipt.join('   ·   '), body(13, '#cdb9a3', 800)).setOrigin(0.5).setDepth(31)); // losses still pay tokens + mastery
     }
     const btns: { label: string; act: () => void; accent?: number }[] = [];
@@ -477,7 +482,7 @@ Next course: ${nextCh.title}. ${nextRival} is already sharpening the cutlery…`
     if (r.won && last && !this.save.endingSeen) btns.push({ label: 'THE ENDING ▶', act: () => this.showEnding(), accent: 0xffd24a });
     else if (r.won && !last) btns.push({ label: 'NEXT ▶', act: () => { this.clearOverlay(); this.mode = 'map'; this.select(r.chapter + 1); this.play(); }, accent: 0xff9a3c });
     btns.push({ label: r.won ? 'REPLAY' : 'RETRY', act: () => { this.clearOverlay(); this.mode = 'map'; this.sel = r.chapter; this.helping = false; this.play(); }, accent: r.won ? undefined : 0xff9a3c });
-    if (!r.won && (StoryScene.losses.get(`${this.camp.id}:${r.chapter}`) ?? 0) >= 2 && !r.spicy) btns.unshift({ label: '🍀 HELPING HAND', act: () => { this.clearOverlay(); this.mode = 'map'; this.sel = r.chapter; this.helping = true; this.play(); }, accent: 0x8dff6a });
+    if (!r.won && (StoryScene.losses.get(`${this.camp.id}:${r.chapter}`) ?? 0) >= (getSettings().kidMode ? 1 : 2) && !r.spicy) btns.unshift({ label: '🍀 HELPING HAND', act: () => { this.clearOverlay(); this.mode = 'map'; this.sel = r.chapter; this.helping = true; this.play(); }, accent: 0x8dff6a });
     btns.push({ label: 'MAP', act: () => { this.clearOverlay(); this.mode = 'map'; } });
     btns.forEach((b, k) => this.overlayButtons.push(new Button(this, 640 + (k - (btns.length - 1) / 2) * 210, BTN_Y, { w: 190, h: 64, label: b.label, size: 24, accent: b.accent, onClick: b.act }, 33)));
     this.overlayFocus = 0;

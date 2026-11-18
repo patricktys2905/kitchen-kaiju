@@ -64,7 +64,7 @@ export const CHAPTERS: Chapter[] = [
     win: { speaker: 1, text: 'Fine… but the boss of the Sushi Bar eats newcomers for breakfast.' },
   },
   {
-    title: 'Boss of the Belt', table: 3, rounds: 2, boss: true, bossBelly: 85,
+    title: 'Boss of the Belt', table: 3, rounds: 2, boss: true, bossBelly: 70,
     rivals: [{ species: 7, level: 'easy', boss: true }, { species: 14, level: 'easy' }],
     intro: [
       { speaker: 1, text: 'Bow before the boss of the belt!' },

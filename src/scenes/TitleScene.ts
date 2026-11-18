@@ -63,7 +63,7 @@ export class TitleScene extends Phaser.Scene {
     popIn(this, title, 1.3, 700);
     withShadow(this.add.text(372, 150, 'Tiny monsters. Giant dinner.', body(24, '#ffd9a0', 900)).setOrigin(0.5).setDepth(2), 3);
     const goals = nextGoals();
-    if (goals.length) withShadow(this.add.text(372, 196, '🎯 NEXT UP\n' + goals.join('\n'), body(14, '#fff1d6', 900, { align: 'center', lineSpacing: 3 })).setOrigin(0.5, 0).setDepth(2), 3);
+    if (goals.length) { const nt = withShadow(this.add.text(372, 196, '🎯 NEXT UP\n' + goals.join('\n'), body(14, '#fff1d6', 900, { align: 'center', lineSpacing: 3 })).setOrigin(0.5, 0).setDepth(2), 3); const b = nt.getBounds(); this.add.graphics().setDepth(1.5).fillStyle(0x0d0805, 0.72).fillRoundedRect(b.x - 14, b.y - 8, b.width + 28, b.height + 16, 12); }
 
     const save = loadStory();
     const storySub = secondsUnlocked() ? `Ch ${Math.min(save.unlocked, CHAPTERS.length)}/${CHAPTERS.length} · 🍽 Seconds open!` : save.stars.some(s => s) ? `Ch ${Math.min(save.unlocked, CHAPTERS.length)}/${CHAPTERS.length} · ★ ${totalStars(save)}` : `${CHAPTERS.length} chapters`;
@@ -72,7 +72,7 @@ export class TitleScene extends Phaser.Scene {
       { label: 'STORY', sub: storySub, accent: 0xff9a3c, scene: 'story' },
       { label: 'FREE PLAY', sub: 'Up to 6 · bots', accent: 0x4fd1ff, scene: 'menu' },
       { label: 'ONLINE', sub: 'Play with friends', accent: 0x8dff6a, scene: 'lobby' },
-      { label: 'PARTY MODES', sub: 'Teams · Rush · Dumpling', accent: 0xffd24a, scene: 'menu', data: { mode: 'teams', party: true } },
+      { label: 'PARTY MODES', sub: '5 party games', accent: 0xffd24a, scene: 'menu', data: { mode: 'teams', party: true } },
       { label: 'DAILY', sub: dailySub(), accent: 0x8dff6a, scene: 'game', data: GameScene.dailyData() },
       { label: 'CHALLENGES', sub: `Gauntlet${gauntletBest() ? ` (best ${gauntletBest()})` : ''} · 🎯 Trials ${totalTrialStars()}★`, accent: 0xff5a7a, scene: 'challenges' },
     ];
@@ -109,8 +109,10 @@ export class TitleScene extends Phaser.Scene {
     const g = this.add.graphics().setDepth(30);
     g.fillStyle(0x000000, 0.6).fillRect(0, 0, 1280, 720).fillStyle(0x140b05, 1).fillRoundedRect(190, 150, 900, 430, 22).lineStyle(3, 0xff5a7a, 1).strokeRoundedRect(190, 150, 900, 430, 22);
     const t = withShadow(this.add.text(640, 186, '🏁 CHALLENGES', display(34, '#ffcf8a', { strokeThickness: 6 })).setOrigin(0.5).setDepth(31), 3);
-    const info = this.add.text(640, 548, `Checkpoints: reach a course's boss wave to start later runs from that course.   Best wave: ${gauntletBest()}   ·   Esc closes`, body(14, '#cdb9a3', 800)).setOrigin(0.5).setDepth(31);
+    const info = this.add.text(640, 548, `Checkpoints: clear a course's boss wave once, and later runs can start at the next course.   Best wave: ${gauntletBest()}`, body(14, '#cdb9a3', 800)).setOrigin(0.5).setDepth(31);
     this.challengeUi.push(g, t, info);
+    const close = new Button(this, 1050, 186, { w: 60, h: 44, label: '✖', size: 20, onClick: () => this.challenges(pick) }, 31);
+    this.challengeUi.push(close); this.extraBtns.push(close);
     this.challengeUi.push(this.add.text(640, 236, 'GAUNTLET: pick where your run starts', body(16, '#ffd9a0', 900)).setOrigin(0.5).setDepth(31));
     const best = gauntletBest(), starts = GAUNTLET.courses.map((c, k) => ({ c, wave: 1 + k * GAUNTLET.bossEvery, open: k === 0 || best >= k * GAUNTLET.bossEvery }));
     starts.forEach((s, k) => {
