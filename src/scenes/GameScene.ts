@@ -20,7 +20,7 @@ import { NO_INPUT, World, type GameEvent, type PlayerInput } from '../sim/world'
 import { chapterRivals, starsFor } from '../story/chapters';
 import { COURSES, saveDessert } from '../story/dessert';
 import { cupGames, placePoints } from '../cup';
-import { GAUNTLET, gauntletBest, gauntletTables, saveGauntletBest, waveSetup } from '../gauntlet';
+import { GAUNTLET, GAUNTLET_PERKS, gauntletBest, gauntletTables, saveGauntletBest, waveSetup } from '../gauntlet';
 import { owned } from '../story/unlocks';
 import { currentHat, HAT_FIT, HAT_SCALE, hatArtKey, HATS, HATS_ENABLED } from '../hats';
 import { COLOURS, currentColour, parseLook, seatColours } from '../colours';
@@ -62,7 +62,7 @@ export interface GameData {
   hazards?: boolean; // table hazards (hand, wind, cleaver…); default on
   mutator?: Mutator; // Free Play / Online rule twist
   hats?: string[]; // online: each seat's hat id ('' = none)
-  gauntlet?: { wave: number; bosses: number[] }; // Gauntlet: seat 0 is you, one round per wave
+  gauntlet?: { wave: number; bosses: number[]; perks?: string[] }; // Gauntlet: seat 0 is you, one round per wave; perks picked between waves
   from?: string; // scene to go back to (practice: 'help' or 'gallery')
   daily?: { date: string }; // Daily Challenge: seat 0 is you
   party?: boolean; // started from the PARTY MODES setup (go back there afterwards)
@@ -150,6 +150,8 @@ export class GameScene extends Phaser.Scene {
   private tagTexts: Phaser.GameObjects.Text[] = [];
   private hatImgs: Phaser.GameObjects.Image[] = [];
   private seatCols: string[] = [];
+  private rampage: Record<number, number> = {}; // KOs during the current KAIJU form, per seat
+  private perkUi: Button[] = [];
   private badgeTexts: Phaser.GameObjects.Text[] = [];
   private shareBtn: HTMLButtonElement | null = null;
   private stats: Stats | null = null; // lifetime stats (null for online guests)
@@ -354,8 +356,9 @@ export class GameScene extends Phaser.Scene {
       return;
     }
     const gw = this.initData.gauntlet;
-    if (gw && this.world.phase === 'matchEnd' && (this.world.phaseT > (this.world.winner === 0 ? 2.2 : 4.5) || consumeTap('Digit1') || consumeTap('Space') || consumeTap('Enter'))) {
-      if (this.world.winner === 0) this.scene.restart(GameScene.gauntletWave(gw.wave + 1, this.species[0], this.slots[0]));
+    if (this.perkUi.length) { for (const b of this.perkUi) b.update(dt); this.perkKeys?.(); return; }
+    if (gw && this.world.phase === 'matchEnd' && (this.world.phaseT > (this.world.winner === 0 ? 1.6 : 4.5) || consumeTap('Space') || consumeTap('Enter') || (this.world.winner !== 0 && consumeTap('Digit1')))) {
+      if (this.world.winner === 0) { if (!this.perkUi.length) this.offerPerks(gw); }
       else this.scene.start('title');
       return;
     }
@@ -410,6 +413,24 @@ export class GameScene extends Phaser.Scene {
     if (!people.length) return false; // attract mode / all-bot matches play at normal speed
     return people.every(i => { const pl = w.players[i]; return pl && !pl.alive && !(pl.respawnT > 0); }) && w.alivePlayers().length > 1;
   }
+
+  /** Gauntlet: after a cleared wave, pick 1 of 3 perks that last the rest of the run. */
+  private offerPerks(gw: NonNullable<GameData['gauntlet']>): void {
+    const pool = GAUNTLET_PERKS.slice().sort(() => Math.random() - 0.5).slice(0, 3);
+    const go = (id: string) => {
+      for (const b of this.perkUi) { b.g.destroy(); b.label.destroy(); b.sub?.destroy(); b.zone.destroy(); }
+      this.perkUi = [];
+      sfx.go();
+      const next = GameScene.gauntletWave(gw.wave + 1, this.species[0], this.slots[0]);
+      next.gauntlet = { ...next.gauntlet!, perks: [...(gw.perks ?? []), id] };
+      this.scene.restart(next);
+    };
+    this.perkUi = pool.map((pk, k) => new Button(this, VIEW.w / 2 + (k - 1) * 340, VIEW.h - 150, { w: 320, h: 96, label: pk.name, sub: pk.desc, size: 22, accent: 0x8dff6a, onClick: () => go(pk.id) }, 14));
+    const keys = ['Digit1', 'Digit2', 'Digit3'];
+    this.perkKeys = () => { const k = keys.findIndex(c => consumeTap(c)); if (k >= 0 && pool[k]) go(pool[k].id); };
+    this.popup(VIEW.w / 2, VIEW.h - 230, 'PICK A PERK FOR THE NEXT WAVE (1 / 2 / 3)', '#8dff6a', 22);
+  }
+  private perkKeys: (() => void) | null = null;
 
   // ---------------------------------------------------------------- online
   private setupNet(data: GameData, seed: number): void {
@@ -527,7 +548,8 @@ export class GameScene extends Phaser.Scene {
           if (e.round === 1 && this.bossSeats().length) this.time.delayedCall(150, () => this.bossCard());
           this.tip = getSettings().tips && !this.initData.attract && !this.practice ? randomTip(this.mode, w.layout, w.mutator === 'ice') : '';
           this.art.setupTable(w.layout, this.world.players.map(p => ({ x: p.x, y: p.y, color: this.colors[p.id] })));
-          for (const b of this.bossSeats()) if (w.players[b]) w.players[b].meter = this.story?.bossBelly ?? 100; // bosses can go KAIJU straight away
+          for (const b of this.bossSeats()) if (w.players[b]) w.players[b].meter = this.story?.bossBelly ?? 100;
+          for (const pk of this.initData.gauntlet?.perks ?? []) GAUNTLET_PERKS.find(q => q.id === pk)?.apply(w.players[0]); // bosses can go KAIJU straight away
           if (this.story?.spicy) w.players.forEach((p, k) => { if (k > 0 && p.meter < 100) p.meter = SPICY_START_BELLY; }); // 🌶️ rivals start half-full
           this.parts = [];
           this.rings = [];
@@ -922,9 +944,9 @@ export class GameScene extends Phaser.Scene {
     const st = (this.stats ??= loadStats()), w = this.world;
     switch (e.type) {
       case 'roundStart': if (!st.tables.includes(w.layoutIndex)) st.tables.push(w.layoutIndex); break;
-      case 'ko': if (e.by !== null && e.by !== e.id && this.isHuman(e.by)) { st.kos++; if (e.cause === 'blend') st.blends = (st.blends ?? 0) + 1; } if (e.cause === 'boom' && !this.isHuman(e.id)) st.pops++; break;
+      case 'ko': if (e.by !== null && e.by !== e.id && this.isHuman(e.by)) { st.kos++; if (w.players[e.by]?.kaijuT > 0) { this.rampage[e.by] = (this.rampage[e.by] ?? 0) + 1; st.bestRampage = Math.max(st.bestRampage ?? 0, this.rampage[e.by]); } if (e.cause === 'blend') st.blends = (st.blends ?? 0) + 1; } if (e.cause === 'boom' && !this.isHuman(e.id)) st.pops++; break;
       case 'eat': if (this.isHuman(e.id)) st.crumbs++; break;
-      case 'kaiju': if (this.isHuman(e.id)) st.kaijuForms++; break;
+      case 'kaiju': if (this.isHuman(e.id)) { st.kaijuForms++; this.rampage[e.id] = 0; } break;
       case 'roundEnd': if (this.humanWon(e.winner)) st.roundsWon++; break;
       case 'matchEnd': {
         if (this.initData.gauntlet) st.gauntlet = Math.max(st.gauntlet ?? 0, this.initData.gauntlet.wave - (e.winner === 0 ? 0 : 1));
@@ -932,6 +954,7 @@ export class GameScene extends Phaser.Scene {
         if (this.initData.cup && this.initData.cup.game + 1 >= cupGames(this.slots.length).length) { const tot = this.cupTotals(), best = Math.max(...tot); if (tot.some((v, i) => v === best && this.isHuman(i))) st.cups = (st.cups ?? 0) + 1; }
         this.slots.forEach((_, i) => { if (this.isHuman(i)) st.kaijuPlays[this.species[i]] = (st.kaijuPlays[this.species[i]] ?? 0) + 1; });
         if (this.humanWon(e.winner)) {
+          if (w.opts.target >= 3 && e.winner !== null && w.players[e.winner].score === w.round) st.flawless = (st.flawless ?? 0) + 1;
           st.wins++;
           st.streak++;
           st.bestStreak = Math.max(st.bestStreak, st.streak);
@@ -1231,6 +1254,7 @@ export class GameScene extends Phaser.Scene {
       sub = `${w.mode !== 'classic' ? modeDef(w.mode).name + ' · ' : ''}${w.mutator !== 'none' ? '⚡ ' + mutatorDef(w.mutator).name + ' · ' : ''}Round ${w.round} · ${w.layout.name}`;
       if (this.initData.cup) sub = `🏆 PARTY CUP · GAME ${this.initData.cup.game + 1}/${cupGames(w.players.length).length} · ${modeDef(w.mode).name} · ${w.layout.name}`;
       if (this.initData.dessert) { const c = COURSES[this.initData.dessert.course]; sub = `🍰 DESSERT COURSE ${this.initData.dessert.course + 1}/${COURSES.length} · ${c.title.toUpperCase()} · ${w.layout.name}`; }
+      if (this.initData.daily) sub = `📅 DAILY CHALLENGE · win this match to clear today and keep your 🔥 streak · ${w.layout.name}`;
       if (this.initData.gauntlet) sub = `GAUNTLET · WAVE ${this.initData.gauntlet.wave} · ${w.players.length - 1} rival${w.players.length > 2 ? 's' : ''}${this.bossSeats().length ? ' + 👑 BOSS' : ''} · ${w.layout.name}`;
       if (this.tip) sub += `\n\n💡 ${this.tip}`;
     } else if (w.phase === 'play' && this.bannerT > 0) {

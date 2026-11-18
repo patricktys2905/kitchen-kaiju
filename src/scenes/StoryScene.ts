@@ -274,7 +274,8 @@ export class StoryScene extends Phaser.Scene {
     add(this.add.text(1070, 392, '“' + ch.tip + '”', body(14, '#ffe9c7', 700, { align: 'center', wordWrap: { width: 320 }, fontStyle: 'italic 700' })).setOrigin(0.5, 0).setDepth(5));
     const best = this.save.stars[this.sel] ?? 0;
     const hot = this.save.spicy?.[this.sel] ?? 0;
-    add(this.add.text(1000, 560, best ? `Best: ${'★'.repeat(best)}${'☆'.repeat(3 - best)}${hot ? `  🌶️${hot}` : ''}` : 'Not cleared yet', body(16, '#ffd24a', 900)).setOrigin(0.5).setDepth(5));
+    add(this.add.text(1000, 552, best ? `Best: ${'★'.repeat(best)}${'☆'.repeat(3 - best)}${hot ? `  🌶️${hot}` : ''}` : 'Not cleared yet', body(16, '#ffd24a', 900)).setOrigin(0.5).setDepth(5));
+    add(this.add.text(1000, 572, '★★★ no rounds lost · ★★ lost one · ★ any win', body(11, '#cdb9a3', 800)).setOrigin(0.5).setDepth(5));
     this.spicyBtn?.setText(best ? `🌶️ SPICY: ${this.spicy ? 'ON (tougher rivals)' : 'OFF'}` : '🌶️ SPICY: clear it first');
     if (this.spicyBtn) this.spicyBtn.disabled = !best;
   }
@@ -413,6 +414,7 @@ export class StoryScene extends Phaser.Scene {
       if (hasArt(`kaiju-${sp}`)) this.overlay.push(fitInside(this.add.image(370, y + qh / 2, `kaiju-${sp}`), 120, 120).setDepth(31));
       y += qh + GAP + 6;
       if (rewards.length) {
+        this.time.delayedCall(1500, () => { if (this.mode === 'result') this.celebrate(rewards); });
         const label = withShadow(this.add.text(640, y + 14, '🎁 UNLOCKED: ' + rewards.map(u => `${unlockName(u)}${u.kind === 'table' ? ' (table)' : ''}`).join(' + '), display(22, '#ffd24a', { strokeThickness: 4, align: 'center', wordWrap: { width: 660 } })).setOrigin(0.5, 0).setDepth(31), 3);
         label.setY(y);
         this.overlay.push(label);
@@ -440,6 +442,38 @@ export class StoryScene extends Phaser.Scene {
     btns.push({ label: 'MAP', act: () => { this.clearOverlay(); this.mode = 'map'; } });
     btns.forEach((b, k) => this.overlayButtons.push(new Button(this, 640 + (k - (btns.length - 1) / 2) * 210, BTN_Y, { w: 190, h: 64, label: b.label, size: 24, accent: b.accent, onClick: b.act }, 33)));
     this.overlayFocus = 0;
+  }
+
+  /** 🎉 Full-screen "NEW KAIJU / NEW TABLE" moment for Story unlocks (tap anywhere to close). */
+  private celebrate(rewards: ReturnType<typeof newlyEarned>): void {
+    const objs: Phaser.GameObjects.GameObject[] = [];
+    const g = this.add.graphics().setDepth(40);
+    g.fillStyle(0x0d0805, 0.88); g.fillRect(0, 0, 1280, 720);
+    objs.push(g);
+    const kaiju = rewards.some(u => u.kind === 'kaiju');
+    const head = withShadow(this.add.text(640, 120, kaiju ? '🎉 NEW KAIJU!' : '🎉 NEW TABLE!', display(72, '#ffd24a', { strokeThickness: 10 })).setOrigin(0.5).setDepth(41), 6);
+    popIn(this, head, 1.8, 500);
+    objs.push(head);
+    rewards.forEach((u, k) => {
+      const x = 640 + (k - (rewards.length - 1) / 2) * 340, key = u.kind === 'kaiju' ? `kaiju-${u.index}` : LAYOUTS[u.index].table;
+      for (let r = 0; r < 3; r++) { const ring = this.add.circle(x, 360, 60 + r * 40, 0xffd24a, 0.08).setDepth(41); objs.push(ring); this.tweens.add({ targets: ring, scale: 1.5, alpha: 0, duration: 1400, delay: r * 300, repeat: -1 }); }
+      if (hasArt(key)) {
+        const img = this.add.image(x, 360, key).setDepth(42);
+        if (u.kind === 'kaiju') fitInside(img, 260, 260); else img.setDisplaySize(320, 170);
+        const sc = img.scaleX; img.setScale(0); this.tweens.add({ targets: img, scale: sc, duration: 600, ease: 'Back.easeOut' });
+        objs.push(img);
+      }
+      objs.push(withShadow(this.add.text(x, 520, unlockName(u).toUpperCase(), display(34, u.kind === 'kaiju' ? SPECIES[u.index].css : '#ffe9c7', { strokeThickness: 6 })).setOrigin(0.5).setDepth(42), 4));
+      if (u.kind === 'kaiju') objs.push(this.add.text(x, 560, `🌟 ${KITS[u.index].power}: ${KITS[u.index].blurb}`, body(16, '#ffe9c7', 800, { align: 'center', wordWrap: { width: 320 } })).setOrigin(0.5, 0).setDepth(42));
+    });
+    objs.push(this.add.text(640, 680, 'Playable now in Free Play, Party Modes and Online  ·  tap to continue', body(16, '#cdb9a3', 800)).setOrigin(0.5).setDepth(42));
+    sfx.matchWin?.();
+    const zone = this.add.zone(640, 360, 1280, 720).setInteractive().setDepth(43);
+    objs.push(zone);
+    const close = () => { for (const o of objs) o.destroy(); this.input.keyboard?.off('keydown', close); };
+    zone.once('pointerup', close);
+    this.input.keyboard?.once('keydown', close);
+    this.overlay.push(...objs);
   }
 
   private showRewards(): void {

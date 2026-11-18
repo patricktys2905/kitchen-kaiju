@@ -64,6 +64,7 @@ Each section says **where to customise it**.
 - 57. Hats sit on each kaiju's actual head
 - 58. Colour styles (replace hats)
 - 59. Playtest fixes (round 1)
+- 60. Playtest round 2 themes
 
 **Where to find things:** title screen cards (Story · Free Play · Online · Party Modes · Daily · Gauntlet), the top-right row (Settings · How to Play · Kaiju · Records), and Free Play keys (G mode · U power-ups · H hazards · X twist · C cup).
 
@@ -620,3 +621,28 @@ From the 10 Sonnet playtester reports in `playtest-reports/`.
   - The Practice panel sits below the table.
   - The Second Helpings intro text is fixed.
 - **Playtest loop:** `scripts/playtest/server.mjs` (harness), `profiles.md` and `sheet-template.md` next to it, and reports in `playtest-reports/` (`round1/` + round 2 + `SUMMARY.md`).
+
+## 60. Playtest round 2 themes (all five)
+
+1. **KAIJU happens most rounds:**
+   - Everyone starts each round with a 25% belly (`RULES.startBelly`).
+   - A knockout feeds the winner 30 belly (`RULES.koBelly`).
+   - Crumbs refill faster and more of them stay on the table (`crumbEvery 0.4`, `maxCrumbs 26`).
+   - Result: KAIJU now appears in about 89% of rounds (about 1.4 per round, about 2 power uses). Measure with `npx vite-node scripts/kaiju-rate.ts`.
+2. **Cleaner setup (computers):**
+   - A row of big clickable setting buttons: mode, party cup, bot level, table, rounds, twist, power-ups, hazards, 🎲 random, online.
+   - A big ▶ PLAY button and a one-line hint (Party Modes also lists the Party Cup's games and points).
+   - The full key legend and rules are behind **⌨ KEYS** (Escape closes it).
+   - Party Modes default to first-to-3 and Free Play to first-to-5, every time.
+   - First launch: the title offers **👋 NEW HERE? 1-MINUTE PRACTICE** until you've played a match or tried it. Quitting Practice from there returns to the title.
+3. **Stakes:**
+   - **Gauntlet perks:** after every cleared wave, pick 1 of 3 (Full Belly, Mustard Coat shield, Hot Feet, Sugar Rush; keys 1/2/3 or click). Perks stack for the run. Defined in `GAUNTLET_PERKS` in `src/gauntlet.ts`.
+   - New skill achievements: **Clean Sweep** (win first-to-3+ without losing a round) unlocks the **Cherry** colour, **Rampage** (3 KOs in one KAIJU form), and **Regular** (win the Daily 3 days running) unlocks the **Mint** colour.
+   - The Daily match states its goal: win it to clear today and keep your 🔥 streak.
+4. **Unlocks feel like an event:**
+   - New Story kaiju or tables get a full-screen 🎉 **NEW KAIJU! / NEW TABLE!** moment, with the art, name and KAIJU power.
+   - The Gallery shows **Collection %** (kaiju, tables, colours).
+   - The Story panel explains stars (★★★ no rounds lost · ★★ lost one · ★ any win).
+5. **Story curve smoothed:**
+   - Grand Feast: chapter 7 (Crabbage) and chapter 9 (Avocadrake) eased; the finale toughened (Pizzaraptor hard). Now 97 → 53–58% → 41%.
+   - Second Helpings: chapter 3 (Bluebeary) eased; the Pengwhip boss starts at a 90% belly. Now 94 / 79 / 81 / 67 / 50 / 38%.

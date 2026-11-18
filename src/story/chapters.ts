@@ -95,7 +95,7 @@ export const CHAPTERS: Chapter[] = [
   },
   {
     title: 'Short Order Showdown', table: 6, rounds: 3,
-    rivals: [{ species: 10, level: 'normal' }, { species: 5, level: 'normal' }, { species: 2, level: 'normal' }],
+    rivals: [{ species: 10, level: 'normal' }, { species: 5, level: 'normal' }, { species: 2, level: 'easy' }],
     intro: [
       { speaker: 0, text: 'Order up! One newcomer, extra crispy.' },
       { speaker: 1, text: 'Round two. I\'m awake now.' },
@@ -116,7 +116,7 @@ export const CHAPTERS: Chapter[] = [
   },
   {
     title: 'Picnic Panic', table: 8, rounds: 3,
-    rivals: [{ species: 12, level: 'normal' }, { species: 13, level: 'hard' }, { species: 14, level: 'normal' }],
+    rivals: [{ species: 12, level: 'normal' }, { species: 13, level: 'normal' }, { species: 14, level: 'normal' }],
     intro: [
       { speaker: 0, text: 'Mmm… picnic… nap… slurp. Oh, a fight? Fine. I\'ll get to it… eventually.' },
       { speaker: 1, text: 'Back from the chopping board, and greener than ever.' },
@@ -149,7 +149,7 @@ export const CHAPTERS: Chapter[] = [
   },
   {
     title: 'The Grand Feast', table: 11, rounds: 3, boss: true,
-    rivals: [{ species: 6, level: 'hard', boss: true }, { species: 15, level: 'normal' }, { species: 11, level: 'normal' }],
+    rivals: [{ species: 6, level: 'hard', boss: true }, { species: 15, level: 'normal' }, { species: 11, level: 'hard' }],
     intro: [
       { speaker: 'chef', text: 'Breakfast is served. The last table. The Golden Spoon sits on its cake stand, waiting.' },
       { speaker: 0, text: 'Every kaiju in this kitchen bows to DUMPLORD. The Golden Spoon stays with ME!' },

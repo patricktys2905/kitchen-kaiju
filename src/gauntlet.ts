@@ -25,6 +25,15 @@ export function waveSetup(wave: number): WaveSetup {
   return { rivals, levels, boss: wave % GAUNTLET.bossEvery === 0 };
 }
 
+/** 🎁 Perks you pick between Gauntlet waves; they stack and last the whole run. EASY TO CUSTOMISE. */
+export interface Perk { id: string; name: string; desc: string; apply: (p: { meter: number; shieldT: number; speedT: number; sugarT: number }) => void }
+export const GAUNTLET_PERKS: Perk[] = [
+  { id: 'belly', name: '🍪 Full Belly', desc: 'Start each wave 40% nearer KAIJU', apply: p => { p.meter = Math.min(100, p.meter + 40); } },
+  { id: 'shield', name: '🟡 Mustard Coat', desc: 'A shield that blocks one hit', apply: p => { p.shieldT = 60; } },
+  { id: 'speed', name: '🌶️ Hot Feet', desc: 'Move faster every wave', apply: p => { p.speedT = 60; } },
+  { id: 'sugar', name: '🍬 Sugar Rush', desc: 'Dash and swipe recharge fast', apply: p => { p.sugarT = 60; } },
+];
+
 /** Which tables a wave can use (any you own). */
 export const gauntletTables = (owned: number[]): number[] => (owned.length ? owned : LAYOUTS.map((_, i) => i));
 

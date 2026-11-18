@@ -17,6 +17,7 @@ import { dailySetup, loadDaily, todayKey } from '../daily';
 import { modeDef } from '../sim/modes';
 import { GameScene } from './GameScene';
 import { owned } from '../story/unlocks';
+import { loadStats } from '../stats';
 
 function dailySub(): string {
   const d = loadDaily(), today = d.date === todayKey();
@@ -28,6 +29,7 @@ function dailySub(): string {
 export const ATTRACT_AFTER = 40;
 
 export class TitleScene extends Phaser.Scene {
+  private extraBtns: Button[] = [];
   private nav!: FocusNav;
   private idle = 0;
   private t = 0;
@@ -38,6 +40,7 @@ export class TitleScene extends Phaser.Scene {
   }
 
   create(): void {
+    this.extraBtns = [];
     this.idle = 0;
     const wake = () => { this.idle = 0; };
     this.input.on('pointerdown', wake);
@@ -80,6 +83,14 @@ export class TitleScene extends Phaser.Scene {
     this.nav.index = extras.length; // start on STORY
     this.add.text(1272, 712, `v${__APP_VERSION__}`, body(11, '#a89680', 700)).setOrigin(1, 1).setDepth(5);
     this.add.text(640, 574, '◀ ▶ choose   ·   ENTER / A / tap to start', body(15, '#f1e4d2', 800)).setOrigin(0.5).setDepth(2).setAlpha(0.85);
+    // first time here: offer the 1-minute Practice (until you've finished a match or tried it)
+    let tried = false;
+    try { tried = !!localStorage.getItem('kk-practice-tried'); } catch { /* blocked */ }
+    if (!tried && loadStats().matches === 0) {
+      const pb = new Button(this, 640, 520, { w: 420, h: 50, label: '👋 NEW HERE?  1-MINUTE PRACTICE ▶', size: 18, accent: 0x8dff6a, onClick: () => { try { localStorage.setItem('kk-practice-tried', '1'); } catch { /* blocked */ } sfx.go(); this.scene.start('game', { ...GameScene.practiceData(loadStory().pick), from: 'title' }); } }, 6);
+      this.extraBtns.push(pb);
+      popIn(this, pb.label, 1.2, 500);
+    }
 
     // ?demo=N skips straight into a bot match (attract mode / tests)
     if (Number(new URLSearchParams(location.search).get('demo') ?? 0) >= 2 && !this.registry.get('demoStarted')) this.scene.start('menu');
@@ -101,6 +112,7 @@ export class TitleScene extends Phaser.Scene {
     applyPendingUpdate();
     this.art?.setScale(this.art.scaleX * 0 + (1300 / this.art.width) * (1 + Math.sin(this.t * 0.25) * 0.008)); // slow breathing zoom
     this.nav.update(dt);
+    for (const b of this.extraBtns) b.update(dt);
     this.idle += dt;
     if (navigator.getGamepads && Array.from(navigator.getGamepads()).some(g => g?.buttons.some(b => b.pressed))) this.idle = 0;
     if (ATTRACT_AFTER > 0 && this.idle > ATTRACT_AFTER) { this.idle = 0; this.startAttract(); return; }

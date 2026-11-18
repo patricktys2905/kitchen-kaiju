@@ -300,6 +300,10 @@ export class GalleryScene extends PanelScene {
 
   protected build(): void {
     const own = owned().kaiju;
+    // collection progress: kaiju, tables and colour styles
+    const tAll = LAYOUTS.filter(l => !l.custom).length, tOwn = owned().tables.filter(i => !LAYOUTS[i]?.custom).length, cOwn = COLOURS.filter(colourUnlocked).length;
+    const pct = Math.round(100 * (own.length + tOwn + cOwn) / (SPECIES.length + tAll + COLOURS.length));
+    this.add.text(1240, 50, `Collection ${pct}%\n🐉 ${own.length}/${SPECIES.length} · 🍽 ${tOwn}/${tAll} · 🎨 ${cOwn}/${COLOURS.length}`, body(14, '#ffd24a', 900, { align: 'right' })).setOrigin(1, 0.5).setDepth(6);
     SPECIES.forEach((sp, i) => {
       const x = 104 + (i % 10) * 119, y = 160 + Math.floor(i / 10) * 132;
       const b = new Button(this, x, y, { w: 108, h: 118, label: '', size: 12, accent: sp.color, onClick: () => { this.nav.index = i; this.showDetail(i, true); } }, 6);
@@ -369,20 +373,20 @@ export class GalleryScene extends PanelScene {
   private colLabel!: Phaser.GameObjects.Text;
   private colG!: Phaser.GameObjects.Graphics;
   private colFor = -1; // which kaiju the swatches currently show
-  private colX = (k: number) => 250 + k * 92;
+  private colX = (k: number) => 230 + k * 76;
 
   private buildColours(): void {
     this.add.text(60, 398, 'YOUR COLOUR', display(18, '#ffd24a', { strokeThickness: 3 })).setOrigin(0, 0.5).setDepth(6);
-    this.colLabel = this.add.text(1040, 398, '', body(13, '#e9dccb', 800, { wordWrap: { width: 200 } })).setOrigin(0, 0.5).setDepth(6);
+    this.colLabel = this.add.text(1036, 398, '', body(13, '#e9dccb', 800, { wordWrap: { width: 210 } })).setOrigin(0, 0.5).setDepth(6);
     this.colG = this.add.graphics().setDepth(8);
     this.colFor = -1; // new images on every visit: draw the swatches again
     this.colIcons = COLOURS.map((_, k) => this.add.image(this.colX(k), 398, '__MISSING').setDepth(8).setVisible(false));
     this.colLocks = COLOURS.map((_, k) => this.add.text(this.colX(k), 398, '🔒', body(22, '#ffffff', 900)).setOrigin(0.5).setDepth(9).setVisible(false));
     COLOURS.forEach((c, k) => {
-      const zone = this.add.zone(this.colX(k), 398, 80, 58).setInteractive().setDepth(10);
+      const zone = this.add.zone(this.colX(k), 398, 70, 58).setInteractive().setDepth(10);
       zone.on('pointerover', () => { this.nav.index = SPECIES.length + k; });
       zone.on('pointerup', () => { this.nav.index = SPECIES.length + k; if (!colourUnlocked(c)) { sfx.thwock(); return; } setColour(c.id); sfx.pickup(); this.showDetail(this.shown < 0 ? 0 : this.shown, false); });
-      this.buttons.push(new Button(this, this.colX(k), 398, { w: 80, h: 58, label: '', size: 12, accent: 0xffd24a, onClick: () => {
+      this.buttons.push(new Button(this, this.colX(k), 398, { w: 70, h: 58, label: '', size: 12, accent: 0xffd24a, onClick: () => {
         this.nav.index = SPECIES.length + k;
         if (!colourUnlocked(c)) { sfx.thwock(); return; }
         setColour(c.id); sfx.pickup(); this.showDetail(this.shown < 0 ? 0 : this.shown, false);
@@ -394,14 +398,14 @@ export class GalleryScene extends PanelScene {
     const cur = currentColour(), sp = this.shown < 0 ? 0 : this.shown;
     if (this.colFor !== sp) {
       this.colFor = sp;
-      COLOURS.forEach((c, k) => { if (hasArt(`kaiju-${sp}`)) fitInside(this.colIcons[k].setTexture(kaijuKey(this, sp, c.id)).setVisible(true), 60, 48); });
+      COLOURS.forEach((c, k) => { if (hasArt(`kaiju-${sp}`)) fitInside(this.colIcons[k].setTexture(kaijuKey(this, sp, c.id)).setVisible(true), 54, 46); });
     }
     const g = this.colG;
     g.clear();
     COLOURS.forEach((c, k) => {
       const got = colourUnlocked(c);
       this.colIcons[k].setTint(got ? 0xffffff : 0x2a2420);
-      if (c.id === cur.id) { g.lineStyle(3, 0x8dff6a, 1); g.strokeRoundedRect(this.colX(k) - 42, 366, 84, 64, 14); }
+      if (c.id === cur.id) { g.lineStyle(3, 0x8dff6a, 1); g.strokeRoundedRect(this.colX(k) - 37, 366, 74, 64, 14); }
       this.colLocks[k]?.setVisible(!got);
     });
     const ck = i - SPECIES.length, focus = ck >= 0 && ck < COLOURS.length ? COLOURS[ck] : cur;

@@ -17,6 +17,8 @@ export interface Stats {
   cups: number; // Party Cups won by a human
   blends: number; // rivals shoved into the Smoothie Bar blender by a human
   twistWins: number; // matches won by a human with a twist (mutator) on
+  flawless: number; // matches (first to 3+) won without losing a round
+  bestRampage: number; // most rivals knocked out during one KAIJU form
   modeWins: Partial<Record<GameMode, number>>;
   kaijuWins: Record<number, number>; // species -> match wins
   kaijuPlays: Record<number, number>; // species -> matches played
@@ -26,7 +28,7 @@ export interface Stats {
 
 const KEY = 'kk-stats-v1';
 const fresh = (): Stats => ({
-  matches: 0, wins: 0, roundsWon: 0, kos: 0, crumbs: 0, kaijuForms: 0, pops: 0, streak: 0, bestStreak: 0, gauntlet: 0, cups: 0, blends: 0, twistWins: 0,
+  matches: 0, wins: 0, roundsWon: 0, kos: 0, crumbs: 0, kaijuForms: 0, pops: 0, streak: 0, bestStreak: 0, gauntlet: 0, cups: 0, blends: 0, twistWins: 0, flawless: 0, bestRampage: 0,
   modeWins: {}, kaijuWins: {}, kaijuPlays: {}, tables: [], achieved: [],
 });
 
@@ -77,6 +79,9 @@ export const ACHIEVEMENTS: Achievement[] = [
   { id: 'twist', icon: '🌀', name: 'Plot Twist', desc: 'Win a match with a twist on', test: s => (s.twistWins ?? 0) >= 1 },
   { id: 'seconds-3', icon: '🍨', name: 'Room for More', desc: 'Clear chapter 3 of Second Helpings', test: () => safeSeconds() >= 3 },
   { id: 'seconds-6', icon: '🥞', name: 'Second Helpings', desc: 'Finish the Second Helpings story', test: () => safeSeconds() >= 6 },
+  { id: 'flawless', icon: '💎', name: 'Clean Sweep', desc: 'Win a first-to-3+ match without losing a round', test: s => (s.flawless ?? 0) >= 1 },
+  { id: 'rampage', icon: '🦖', name: 'Rampage', desc: 'Knock out 3 rivals in one KAIJU form', test: s => (s.bestRampage ?? 0) >= 3, progress: s => [s.bestRampage ?? 0, 3] },
+  { id: 'daily-3', icon: '🔥', name: 'Regular', desc: 'Win the Daily Challenge 3 days in a row', test: () => { try { return (JSON.parse(localStorage.getItem('kk-daily-v1') ?? '{}').streak ?? 0) >= 3; } catch { return false; } } },
   { id: 'matches-25', icon: '🍲', name: 'Dinner Party Animal', desc: 'Finish 25 matches', test: s => s.matches >= 25, progress: s => [s.matches, 25] },
 ];
 

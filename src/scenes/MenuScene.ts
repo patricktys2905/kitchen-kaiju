@@ -60,6 +60,12 @@ export class MenuScene extends Phaser.Scene {
   private teamTags: Phaser.GameObjects.Text[] = [];
   private slotFood: Phaser.GameObjects.Text[] = [];
   private infoText!: Phaser.GameObjects.Text;
+  private setBtns: Button[] = [];
+  private playBtn: Button | null = null;
+  private keysBtn: Button | null = null;
+  private keysShown = false;
+  private keysToggle: ((v: boolean) => void) | null = null;
+  private hintText: Phaser.GameObjects.Text | null = null;
   private tableText!: Phaser.GameObjects.Text;
   private tableThumb: Phaser.GameObjects.Image | null = null;
   private devPrev = new Map<string, { throw: boolean; dash: boolean; start: boolean; mx: number; y: boolean }>();
@@ -80,9 +86,8 @@ export class MenuScene extends Phaser.Scene {
     this.picks = (data.species ?? []).slice(0, this.slots.length);
     this.difficulty = data.difficulty ?? this.difficulty;
     this.botLevels = (data.botLevels ?? []).slice(0, this.slots.length);
-    if (data.rounds) this.rounds = data.rounds;
-    else if (this.party) this.rounds = PARTY_ROUNDS; // party nights: shorter matches
     this.party = !!data.party;
+    this.rounds = data.rounds ?? (this.party ? PARTY_ROUNDS : DEFAULT_ROUNDS); // party nights: shorter matches
     if (data.mode) this.mode = data.mode;
     if (!this.party) this.mode = 'classic';
     else if (this.mode === 'classic') this.mode = enabledModes().find(m => m.id !== 'classic')?.id ?? 'classic';
@@ -214,15 +219,38 @@ export class MenuScene extends Phaser.Scene {
           ...[0, 1].map(p => { const k = (a: Parameters<typeof keyFor>[1]) => keyLabel(keyFor(p, a)); return `Keyboard ${p ? 'Right' : 'Left'}   [${k('up')} ${k('left')} ${k('down')} ${k('right')}] move  [${k('throw')}] throw  [${k('swipe')}] swipe  [${k('dash')}] dash  [${k('stomp')}] stomp  [${k('emote')}] emote`; }),
           'Gamepad   [L-STICK] move  [R-STICK] aim  [A] throw  [X] swipe  [B] dash  [Y] stomp  [LT] emote',
         ];
-    lines.forEach((l, i) => this.chipLine(chipG, 640, 494 + i * 27, l, 14));
+    // desktop: the full key legend lives behind a ⌨ KEYS button (beginners found it cluttered)
+    const before = this.children.list.length;
+    const keyG = isTouchDevice ? chipG : this.add.graphics().setDepth(2);
+    lines.forEach((l, i) => this.chipLine(keyG, 640, (isTouchDevice ? 494 : 500) + i * 27, l, 14));
     const rules = [
       'Cutlery STICKS where it lands, so a miss leaves you unarmed, and anything loose is fair game.',
       'Eat crumbs, then STOMP to go KAIJU. Shove rivals off the edge. Every table has its own hazard.',
     ];
-    if (!isTouchDevice) this.add.text(640, 574, rules.join('\n'), { ...BODY, fontStyle: '700', fontSize: '14px', align: 'center', color: '#cdb9a3', lineSpacing: 4 }).setOrigin(0.5, 0).setDepth(2);
+    if (!isTouchDevice) this.add.text(640, 586, rules.join('\n'), { ...BODY, fontStyle: '700', fontSize: '14px', align: 'center', color: '#cdb9a3', lineSpacing: 4 }).setOrigin(0.5, 0).setDepth(2);
     if (!isTouchDevice) {
-      this.chipLine(chipG, 640, 644, '[THROW] join   [◀ ▶] pick kaiju   [DASH] leave   [B] [N] add / remove bot   ·   click any key below', 15);
-      this.chipLine(chipG, 640, 677, this.party ? '[G] mode  [C] party cup  [2] bot level  [M] table  [R] rounds  [U] power-ups  [H] hazards  [X] twist  [Z] 🎲 random  [1] PLAY' : '[2] bot level  [M] table  [R] rounds  [U] power-ups  [H] hazards  [X] twist  [Z] 🎲 random  [O] online  [1] PLAY', 15);
+      this.chipLine(keyG, 640, 640, '[THROW] join   [◀ ▶] pick kaiju   [DASH] leave   [B] [N] add / remove bot', 15);
+      this.chipLine(keyG, 640, 672, this.party ? '[G] mode  [C] party cup  [2] bot level  [M] table  [R] rounds  [U] power-ups  [H] hazards  [X] twist  [Z] 🎲 random  [1] PLAY' : '[2] bot level  [M] table  [R] rounds  [U] power-ups  [H] hazards  [X] twist  [Z] 🎲 random  [O] online  [1] PLAY', 15);
+    }
+    if (!isTouchDevice) {
+      // everything in the key legend becomes a hidden panel (shown with ⌨ KEYS)
+      const keyObjs = this.children.list.slice(before) as (Phaser.GameObjects.GameObject & { setVisible: (v: boolean) => unknown; setDepth: (d: number) => unknown })[];
+      const panel = this.add.graphics().setDepth(19);
+      panel.fillStyle(0x0d0805, 0.97).fillRoundedRect(8, 474, 1264, 240, 18).lineStyle(3, 0xffb347, 1).strokeRoundedRect(8, 474, 1264, 240, 18);
+      keyObjs.push(panel as never);
+      for (const o of keyObjs) if (o !== (panel as never)) o.setDepth(20);
+      const show = (v: boolean) => { this.keysShown = v; for (const o of keyObjs) o.setVisible(v); this.keysBtn?.setText(v ? '✖ CLOSE KEYS' : '⌨ KEYS'); };
+      // big, clickable setup: settings row + PLAY
+      const W = 130, items: [string, string][] = this.party
+        ? [['mode', 'KeyG'], ['cup', 'KeyC'], ['bots', 'Digit2'], ['table', 'KeyM'], ['rounds', 'KeyR'], ['twist', 'KeyX'], ['power', 'KeyU'], ['haz', 'KeyH'], ['dice', 'KeyZ']]
+        : [['bots', 'Digit2'], ['table', 'KeyM'], ['rounds', 'KeyR'], ['twist', 'KeyX'], ['power', 'KeyU'], ['haz', 'KeyH'], ['dice', 'KeyZ'], ['online', 'KeyO']];
+      const x0 = 640 - ((items.length - 1) * (W + 8)) / 2;
+      this.setBtns = items.map(([id, code], k) => { const b = new Button(this, x0 + k * (W + 8), 512, { w: W, h: 54, label: '', size: 14, onClick: () => { if (!this.keysShown) injectTap(code); } }, 6); (b as Button & { id?: string }).id = id; b.label.setAlign('center').setLineSpacing(-2); return b; });
+      this.playBtn = new Button(this, 640, 596, { w: 320, h: 70, label: '▶ PLAY', size: 32, accent: 0xff9a3c, onClick: () => { if (!this.keysShown) injectTap('Digit1'); } }, 6);
+      this.hintText = this.add.text(640, 652, '', { ...BODY, fontStyle: '800', fontSize: '14px', color: '#cdb9a3', align: 'center' }).setOrigin(0.5).setDepth(2);
+      this.keysBtn = new Button(this, 92, 690, { w: 150, h: 40, label: '⌨ KEYS', size: 16, onClick: () => show(!this.keysShown) }, 21);
+      this.keysToggle = show;
+      show(false);
     }
     setTouchMode('menu');
     playMusic('menu');
@@ -273,6 +301,10 @@ export class MenuScene extends Phaser.Scene {
     for (let i = 0; i < MAX_PLAYERS; i++) this.bump[i] = Math.max(0, this.bump[i] - dt * 5);
     applyPendingUpdate();
     this.backBtn?.update(dt);
+    for (const b of this.setBtns) b.update(dt);
+    this.playBtn?.update(dt);
+    this.keysBtn?.update(dt);
+    if (this.keysShown && consumeTap('Escape')) this.keysToggle?.(false);
     this.pollDevices();
     if (consumeTap('KeyB')) this.addSlot({ kind: 'bot', index: this.slots.length });
     if (consumeTap('KeyN')) {
@@ -413,6 +445,19 @@ export class MenuScene extends Phaser.Scene {
         this.slotFood[i].setText('');
         this.slotSub[i].setText(isTouchDevice ? 'tap to join' : this.slots.some(q => q.kind !== 'bot') ? 'click: add a bot' : 'click or THROW to join');
       }
+    }
+    if (this.setBtns.length) {
+      const tl0 = this.table < 0 ? null : LAYOUTS[this.table];
+      const label: Record<string, string> = {
+        mode: `MODE ▶\n${modeDef(this.mode).name}`, cup: '🏆 PARTY\nCUP', bots: `BOT LEVEL\n${this.difficulty.toUpperCase()}`, table: `TABLE\n${tl0 ? tl0.name.toUpperCase() : 'ALL'}`,
+        rounds: `FIRST TO\n${this.rounds}`, twist: `TWIST\n${this.mutator === 'none' ? 'NONE' : mutatorDef(this.mutator).name}`, power: `POWER-UPS\n${this.powerups ? 'ON' : 'OFF'}`, haz: `HAZARDS\n${this.hazards ? 'ON' : 'OFF'}`, dice: '🎲\nRANDOM', online: '🌐\nONLINE',
+      };
+      for (const b of this.setBtns) { const id = (b as Button & { id?: string }).id ?? ''; b.setText(label[id] ?? ''); b.label.setScale(Math.min(1, 118 / Math.max(1, b.label.width / b.label.scaleX))); }
+      const people = this.slots.filter(q => q.kind !== 'bot').length;
+      this.hintText?.setText(people ? `${this.slots.length} at the table · click empty seats to add bots · press ▶ PLAY` : 'Click a seat (or press THROW on a keyboard / gamepad) to join');
+      if (this.mutator !== 'none' && this.hintText) this.hintText.setText(`⚡ ${mutatorDef(this.mutator).name}: ${mutatorDef(this.mutator).blurb}`);
+      if (this.party && this.hintText) { const g = cupGames(Math.max(3, this.slots.length)); this.hintText.setText(`${this.hintText.text}
+🏆 Party Cup = ${g.length} games: ${g.map(x => modeDef(x.mode).name).join(' → ')} · points 5 / 3 / 2 / 1`); }
     }
     const md = modeDef(this.mode);
     this.modeText.setFontSize(this.party ? 18 : 16).setY(143);

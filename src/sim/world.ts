@@ -382,7 +382,7 @@ export class World {
         x: sx, y: sy, vx: 0, vy: 0, kx: 0, ky: 0, r: P.radius,
         aim: Math.atan2(TABLE.y + TABLE.h / 2 - sy, TABLE.x + TABLE.w / 2 - sx),
         alive: true, holding: null, charging: false, charge: 0, dashT: 0, dashCD: 0, dashBumped: false,
-        swipeT: 0, swipeCD: 0, meter: 0, kaijuT: 0, stepT: 0, invT: 0, lastHitBy: null, lastHitT: 0, moving: false, pts: 0, respawnT: 0, speedT: 0, shieldT: 0, sugarT: 0,
+        swipeT: 0, swipeCD: 0, meter: this.mode === 'practice' ? 0 : RULES.startBelly, kaijuT: 0, stepT: 0, invT: 0, lastHitBy: null, lastHitT: 0, moving: false, pts: 0, respawnT: 0, speedT: 0, shieldT: 0, sugarT: 0,
         prev: { throw: true, swipe: true, dash: true, stomp: true }, // require a fresh press after the countdown
         powerCD: 0, powerT: 0, stunT: 0, pkx: 0, pky: 0,
       });
@@ -896,7 +896,10 @@ export class World {
     }
     p.alive = false;
     const killer = this.player(by);
-    if (killer && killer !== p) killer.kos++;
+    if (killer && killer !== p) {
+      killer.kos++;
+      if (this.mode !== 'practice' && killer.alive && killer.kaijuT <= 0 && killer.meter < 100) { const was = killer.meter; killer.meter = Math.min(100, killer.meter + RULES.koBelly); if (was < 100 && killer.meter >= 100) this.emit({ type: 'meterFull', id: killer.id }); }
+    }
     const c = this.cutleryById(p.holding);
     if (c) this.dropAt(c, clamp(p.x, TABLE.x + 10, TABLE.x + TABLE.w - 10), clamp(p.y, TABLE.y + 10, TABLE.y + TABLE.h - 10));
     p.holding = null;

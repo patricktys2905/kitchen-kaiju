@@ -37,8 +37,10 @@ export const RULES = {
   stuckReturnDelay: 4,
   returnSpeed: 170,
   startCrumbs: 12,
-  maxCrumbs: 22,
-  crumbEvery: 0.5,
+  maxCrumbs: 26,
+  crumbEvery: 0.4,
+  startBelly: 25, // everyone starts each round this full (KAIJU comes sooner)
+  koBelly: 30, // a knockout feeds the winner this much belly
   pickupEvery: 8,
   maxLoosePickups: 2,
   handFirst: 7,
