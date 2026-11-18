@@ -750,3 +750,43 @@ From the 10 Sonnet playtester reports in `playtest-reports/`.
    - The knockout feed is spaced out, and the countdown lines sit below the big number.
    - The mode line hides during instant replays, and the KEYS panel hides the House Rules button.
    - **`npm run audit:text`** (`scripts/text-audit.mjs`) visits about 95 screens and states. It flags text off screen, text wider than its box, and text overlapping other text, saving screenshots to `art-src/.audit/` (`ALL=1` saves every screen).
+
+## 64. Round 6 themes: rewards that matter, a challenge ladder, Cup night, boss phases, Kid Mode, Rule Lab
+
+1. **Progression that means something** (`src/meta.ts`):
+   - **Mastery rewards** for each kaiju (`MASTERY.rewards`):
+     - Lv 2: ✨ dash sparkles
+     - Lv 3: ⭐ star on your HUD card
+     - Lv 4: 🟡 gold name
+     - Lv 5: 🖼 gold Gallery frame
+     - Lv 6: 👑 crown aura
+     
+     The Gallery shows the next reward.
+   - **Chef Rank ladder** with thresholds (`RANKS`): Records and the Pantry show "Next: Line Cook at 14 pts".
+   - **Achievements pay 30 🪙** each (`ACHIEVEMENT_TOKENS`).
+   - **📌 Pin** any locked achievement in Records by clicking it. Its progress then shows on the title (NEXT UP) and on every receipt.
+   - **🏷 Daily deal:** one Pantry item is 30% off each day (`dailyDeal`). There are two cheap colours (Toffee 40, Lilac 70).
+2. **🍽 First Service** (`FIRST_SERVICE`): a 6-step first-hour checklist on the title, paying 135 🪙 in total.
+   - The steps: Practice, a match, KAIJU, Story ch1, a Party Mode, the Pantry.
+   - Practice now ends with a proper **end card**: ▶ FIRST MATCH (vs an easy bot), 📖 STORY or ☰ MENU.
+3. **Challenge ladder:**
+   - The title's **CHALLENGES** card (replacing GAUNTLET) opens a chooser.
+   - **Gauntlet checkpoints:** start a run from any course you've reached (Starters / Mains / Desserts / Seconds).
+   - **🎯 TRIALS** (`src/trials.ts`, `TrialsScene`): 8 fixed hard fights with ★ / ★★ / ★★★.
+     - ★ is a win, ★★ is a win without losing a round, ★★★ adds a knockout goal.
+     - Each new star pays 20 🪙.
+     - They use double twists, bosses and the BRUTAL bot.
+   - **🥋 MOVE LAB** (Gallery, top left): practise any kaiju with a belly that never empties, to learn its KAIJU power. It doesn't count for stats.
+4. **⚡⚡ Double twists** (`MUTATOR_COMBOS` in `src/sim/mutators.ts`):
+   - The TWIST button cycles the singles, then 8 combos (e.g. ICE RINK + TURBO, MINI KAIJU + BOUNCY CASTLE).
+   - The simulation checks twists with `world.tw(id)`.
+   - Combos are saved in House Rules (and its codes) and used in Trials. Local play only.
+5. **🏆 Party Cup night** (`src/cup.ts`):
+   - After each game the screen names that game's winner, then the standings.
+   - The **final is worth ×2 points** (`FINAL_MULTIPLIER`), and the countdown says so.
+   - The final shows the champion and the **🏆 Cup Shelf** (the last 8 winners on this device), with a **↻ NEW CUP** button.
+6. **Story:**
+   - **👑 Boss Phase 2:** once a Story boss has lost a round, it comes back each later round faster and shielded from the first hit, with a "PHASE 2!" roar.
+   - **🧸 KID MODE** (Settings): Story rivals one level easier (`KID_EASE`), one-line chats and bigger receipt text.
+7. **Workshop share codes:** 📋 COPY CODE and 📥 PASTE CODE (`KKT1-…`) to swap tables with friends; then SAVE to keep one.
+8. **Settings** rows shrink to fit, so the action buttons stay on screen. The text audit covers the new screens too (Trials, the Challenges chooser, a Trial result, the Cup final, the Move Lab and the Practice end card).

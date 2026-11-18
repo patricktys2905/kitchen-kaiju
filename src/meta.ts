@@ -10,7 +10,16 @@ export const MASTERY = {
   xp: { play: 10, win: 15, perKo: 3, perKaiju: 5, perRound: 4 },
   levels: [0, 60, 160, 320, 560, 900], // Lv 1 … Lv 6 (max)
   titles: ['Rookie', 'Line Cook', 'Sous Chef', 'Head Chef', 'Master Chef', 'Legend'],
+  /** What each Mastery level unlocks for THAT kaiju (index = level - 1). Shown in the Gallery; drawn in matches. */
+  rewards: ['', '✨ Dash sparkles', '⭐ Star on your HUD card', '🟡 Gold name in matches', '🖼 Gold Gallery frame', '👑 Legend crown aura'],
 };
+/** The mastery level of one kaiju on this device. */
+export const kaijuMastery = (species: number): number => masteryLevel(loadMeta().xp[species] ?? 0);
+
+/** 🎓 Chef Rank ladder: points needed for each title (achievements × 2 + mastery levels gained). */
+export const RANKS: [number, string][] = [[0, 'Dishwasher'], [6, 'Prep Cook'], [14, 'Line Cook'], [24, 'Sous Chef'], [36, 'Head Chef'], [52, 'Executive Chef'], [72, 'Kitchen Kaiju']];
+/** Tokens paid the moment an achievement unlocks. */
+export const ACHIEVEMENT_TOKENS = 30;
 
 export type OrderStat = 'kos' | 'kaiju' | 'crumbs' | 'wins' | 'spoonWins' | 'waves' | 'parries' | 'partyWins' | 'kaijuUsed' | 'storyClears';
 export interface OrderDef { id: string; text: string; stat: OrderStat; goal: number }
@@ -127,15 +136,55 @@ export function recordMatch(s: MatchSummary): Receipt {
 export const shopOwned = (id: string): boolean => loadMeta().owned.includes(id);
 export function buy(id: string): boolean {
   const m = loadMeta(), item = SHOP.find(s => s.id === id);
-  if (!item || m.owned.includes(id) || m.tokens < item.cost) return false;
-  m.tokens -= item.cost; m.owned.push(id); saveMeta(m); return true;
+  const cost = priceOf(id);
+  if (!item || m.owned.includes(id) || m.tokens < cost) return false;
+  m.tokens -= cost; m.owned.push(id); saveMeta(m); return true;
 }
 
 /** 🎓 Chef Rank: one number from achievements + total mastery (shown in Records). */
-export function chefRank(achieved: number): { rank: number; title: string } {
+export function chefRank(achieved: number): { rank: number; title: string; next: string | null; need: number | null } {
   const m = loadMeta(), mastery = Object.values(m.xp).reduce((a, x) => a + masteryLevel(x) - 1, 0);
   const pts = achieved * 2 + mastery;
-  const titles = ['Dishwasher', 'Prep Cook', 'Line Cook', 'Sous Chef', 'Head Chef', 'Executive Chef', 'Kitchen Kaiju'];
-  const rank = Math.min(titles.length - 1, Math.floor(pts / 12));
-  return { rank: pts, title: titles[rank] };
+  let k = 0; RANKS.forEach(([n], i) => { if (pts >= n) k = i; });
+  const nx = RANKS[k + 1];
+  return { rank: pts, title: RANKS[k][1], next: nx ? nx[1] : null, need: nx ? nx[0] : null };
 }
+
+/** Pay tokens (achievements, checklist steps). */
+export function addTokens(n: number): number { const m = loadMeta(); m.tokens += n; m.earned += n; saveMeta(m); return m.tokens; }
+
+/** 📌 Pinned achievement (shown on the title and the receipt). */
+export const pinnedAchievement = (): string | null => { try { return localStorage.getItem('kk-pin'); } catch { return null; } };
+export function pinAchievement(id: string | null): void { try { if (id) localStorage.setItem('kk-pin', id); else localStorage.removeItem('kk-pin'); } catch { /* blocked */ } }
+
+/** 🏷 Today's deal: one Pantry item 30% off, picked by the date. */
+export function dailyDeal(d = new Date()): { id: string; cost: number } | null {
+  const left = SHOP.filter(s => !loadMeta().owned.includes(s.id));
+  if (!left.length) return null;
+  const day = Math.floor(new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime() / 864e5);
+  const it = left[day % left.length];
+  return { id: it.id, cost: Math.round(it.cost * 0.7) };
+}
+export const priceOf = (id: string): number => { const deal = dailyDeal(); const it = SHOP.find(s => s.id === id); return deal?.id === id ? deal.cost : it?.cost ?? 0; };
+
+// ---------------------------------------------------------------- 🍽 First Service: a checklist for your first hour (each step pays tokens once)
+export interface Step { id: string; text: string; reward: number }
+export const FIRST_SERVICE: Step[] = [
+  { id: 'practice', text: 'Finish the 1-minute Practice', reward: 20 },
+  { id: 'match', text: 'Play a Free Play match', reward: 20 },
+  { id: 'kaiju', text: 'Go KAIJU (eat crumbs, then STOMP)', reward: 20 },
+  { id: 'story', text: 'Clear Story chapter 1', reward: 25 },
+  { id: 'party', text: 'Play any Party Mode', reward: 25 },
+  { id: 'pantry', text: 'Visit the 🛒 Pantry', reward: 25 },
+];
+export const stepsDone = (): string[] => { try { return JSON.parse(localStorage.getItem('kk-first-service') ?? '[]') as string[]; } catch { return []; } };
+/** Marks a step done (once) and pays its tokens. Returns the step if it was newly completed. */
+export function completeStep(id: string): Step | null {
+  const done = stepsDone(), st = FIRST_SERVICE.find(s => s.id === id);
+  if (!st || done.includes(id)) return null;
+  done.push(id);
+  try { localStorage.setItem('kk-first-service', JSON.stringify(done)); } catch { /* blocked */ }
+  addTokens(st.reward);
+  return st;
+}
+export const nextStep = (): Step | null => FIRST_SERVICE.find(s => !stepsDone().includes(s.id)) ?? null;

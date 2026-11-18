@@ -8,7 +8,7 @@ import { body, display, popIn, withShadow } from '../render/fonts';
 import { Button } from '../render/ui';
 import { SPECIES } from '../sim/constants';
 import { LAYOUTS } from '../sim/layouts';
-import { chapterRivals, SPICY_BUMP, type Line } from '../story/chapters';
+import { chapterRivals, KID_EASE, SPICY_BUMP, type Line } from '../story/chapters';
 import { CAMPAIGNS, loadCampaign, secondsUnlocked, type Campaign, type CampaignId } from '../story/campaigns';
 import { checkAchievements, loadStats, saveStats } from '../stats';
 import { loadStory, recordResult, recordSpicy, saveStory, totalStars, type StorySave } from '../story/save';
@@ -302,7 +302,7 @@ export class StoryScene extends Phaser.Scene {
     if (this.mode !== 'map' || this.sel >= this.save.unlocked) return;
     sfx.go();
     const ch = this.camp.chapters[this.sel], rivals = chapterRivals(ch, this.save.pick);
-    this.lines = [...ch.intro, { speaker: 'chef', text: 'TIP: ' + ch.tip }];
+    this.lines = getSettings().kidMode ? [ch.intro[0]] : [...ch.intro, { speaker: 'chef', text: 'TIP: ' + ch.tip }]; // 🧸 Kid Mode: one line
     // retries skip the chat: you've heard it already this session
     const key = `${this.camp.id}:${this.sel}`;
     if (StoryScene.talked.has(key)) { this.launch(); return; }
@@ -323,7 +323,7 @@ export class StoryScene extends Phaser.Scene {
     const slots: Slot[] = [{ kind: 'local', index: 0 }, ...rivals.map((): Slot => ({ kind: 'bot', index: 0 }))];
     this.scene.start('game', {
       slots, difficulty: 'normal', species: [this.save.pick, ...rivals.map(r => r.species)], tables: [ch.table], rounds: ch.rounds,
-      botLevels: [null, ...rivals.map(r => (this.spicyOn() ? SPICY_BUMP[r.level] : r.level))],
+      botLevels: [null, ...rivals.map(r => (this.spicyOn() ? SPICY_BUMP[r.level] : getSettings().kidMode ? KID_EASE[r.level] : r.level))],
       story: { chapter: this.sel, bosses: rivals.map((r, k) => (r.boss ? k + 1 : -1)).filter(k => k > 0), spicy: this.spicyOn(), campaign: this.camp.id, mutator: ch.mutator, bossBelly: ch.bossBelly, helping: this.helping },
     });
   }

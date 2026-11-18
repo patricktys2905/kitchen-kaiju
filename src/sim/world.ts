@@ -203,6 +203,7 @@ export interface WorldOptions {
   teams?: number[]; // Team Feast: team per player (default: alternate seats)
   powerups?: boolean; // condiment power-ups (off unless asked for; Free Play default is POWERUPS.enabled)
   mutator?: Mutator; // one wacky rule twist (default none)
+  mutator2?: Mutator; // ⚡⚡ a second twist stacked on top (default none)
   catchUp?: boolean; // comeback help: kaiju behind on rounds start with a fuller belly (RULES.catchUpBelly per round behind)
   calmStart?: number; // extra seconds before each table hazard first fires (gentler first Story chapters)
 }
@@ -252,10 +253,13 @@ export interface Cleaver {
 
 export class World {
   readonly rng: Rng;
-  readonly opts: Required<Omit<WorldOptions, 'layout' | 'starterKind' | 'layouts' | 'mode' | 'teams' | 'powerups' | 'mutator' | 'kaijuPowers' | 'calmStart'>> & Pick<WorldOptions, 'layout' | 'starterKind' | 'layouts'>;
+  readonly opts: Required<Omit<WorldOptions, 'layout' | 'starterKind' | 'layouts' | 'mode' | 'teams' | 'powerups' | 'mutator' | 'mutator2' | 'kaijuPowers' | 'calmStart'>> & Pick<WorldOptions, 'layout' | 'starterKind' | 'layouts'>;
   readonly mode: GameMode;
   readonly powerups: boolean;
   readonly mutator: Mutator;
+  mutator2: Mutator = 'none';
+  /** True when this twist is on (as the first OR the stacked second twist). */
+  tw(id: Mutator): boolean { return this.mutator === id || this.mutator2 === id; }
   items: PowerItem[] = [];
   private itemTimer = 0;
   /** Hot Dumpling: who is carrying it and how long until it pops. */
@@ -321,6 +325,7 @@ export class World {
     };
     this.mode = o.mode ?? 'classic';
     this.mutator = o.mutator ?? 'none';
+    this.mutator2 = o.mutator2 ?? 'none';
     this.powerups = o.powerups ?? false; // opt-in: Free Play turns it on (see GameScene)
     this.rng = new Rng(this.opts.seed);
     const pool = o.layouts?.filter(i => i >= 0 && i < LAYOUTS.length);
@@ -396,15 +401,15 @@ export class World {
       });
       p.swipeHit.clear();
       if (this.opts.catchUp && this.mode !== 'practice') { const top = Math.max(...this.players.map(q => q.score)); p.meter = Math.min(95, p.meter + RULES.catchUpBelly * (top - p.score)); }
-      if (this.mutator === 'tiny') p.r = P.radius * MUTATOR_RULES.tinySize;
-      if (this.mutator === 'fists') continue; // Fists Only: nobody gets cutlery
+      if (this.tw('tiny')) p.r = P.radius * MUTATOR_RULES.tinySize;
+      if (this.tw('fists')) continue; // Fists Only: nobody gets cutlery
       const c = this.newCutlery(this.opts.starterKind ?? this.rng.pick(STARTER_KINDS), sx, sy);
       c.state = 'held';
       c.holder = p.id;
       c.owner = p.id;
       p.holding = c.id;
     }
-    if (this.mutator === 'frenzy') for (const p of this.players) p.meter = 100;
+    if (this.tw('frenzy')) for (const p of this.players) p.meter = 100;
     for (let i = 0; i < RULES.startCrumbs; i++) this.spawnCrumb();
     this.emit({ type: 'roundStart', round: this.round, layout: this.layout.name });
   }
@@ -498,7 +503,7 @@ export class World {
     p.bumpT -= dt;
     if (p.lastHitT <= 0) p.lastHitBy = null;
     const kaiju = p.kaijuT > 0;
-    const targetR = (kaiju ? P.kaijuRadius : P.radius) * (this.mutator === 'tiny' ? MUTATOR_RULES.tinySize : 1);
+    const targetR = (kaiju ? P.kaijuRadius : P.radius) * (this.tw('tiny') ? MUTATOR_RULES.tinySize : 1);
     p.r += (targetR - p.r) * Math.min(1, dt * 10);
 
     let mx = inp.mx, my = inp.my;
@@ -541,7 +546,7 @@ export class World {
     }
 
     // Swipe
-    if (pressed('swipe') && (p.holding !== null || this.mutator === 'fists') && p.swipeCD <= 0 && !kaiju) {
+    if (pressed('swipe') && (p.holding !== null || this.tw('fists')) && p.swipeCD <= 0 && !kaiju) {
       p.swipeT = P.swipeWindup + P.swipeTime;
       p.swipeCD = P.swipeCD;
       p.swipeHit.clear();
@@ -556,7 +561,7 @@ export class World {
     p.prev = { throw: inp.throw, swipe: inp.swipe, dash: inp.dash, stomp: inp.stomp };
 
     // Movement
-    const spd = P.speed * (mods.speed ?? 1) * (p.charging ? P.chargeSlow : 1) * (p.kaijuT > 0 ? P.kaijuSpeed : 1) * (this.onSticky(p.x, p.y) ? RULES.stickySlow : 1) * (this.hot?.id === p.id ? MODE_RULES.hotDumpling.holderSpeed : 1) * (this.spoon?.holder === p.id ? MODE_RULES.goldenSpoon.holderSpeed : 1) * (p.speedT > 0 ? POWERUPS.hotsauceSpeed : 1) * (this.mutator === 'tiny' ? MUTATOR_RULES.tinySpeed : 1);
+    const spd = P.speed * (mods.speed ?? 1) * (p.charging ? P.chargeSlow : 1) * (p.kaijuT > 0 ? P.kaijuSpeed : 1) * (this.onSticky(p.x, p.y) ? RULES.stickySlow : 1) * (this.hot?.id === p.id ? MODE_RULES.hotDumpling.holderSpeed : 1) * (this.spoon?.holder === p.id ? MODE_RULES.goldenSpoon.holderSpeed : 1) * (p.speedT > 0 ? POWERUPS.hotsauceSpeed : 1) * (this.tw('tiny') ? MUTATOR_RULES.tinySpeed : 1);
     if (p.powerT > 0) {
       // charge power: a fast slide; contact squashes like any kaiju
       p.powerT -= dt;
@@ -567,7 +572,7 @@ export class World {
     } else if (p.dashT > 0) {
       p.dashT -= dt;
     } else {
-      const slip = this.onSpill(p.x, p.y) ? RULES.spillGrip : this.layout.slippery || this.mutator === 'ice' ? RULES.iceGrip : 0;
+      const slip = this.onSpill(p.x, p.y) ? RULES.spillGrip : this.layout.slippery || this.tw('ice') ? RULES.iceGrip : 0;
       const k = Math.min(1, dt * (slip ? Math.min(14, slip * (mods.grip ?? 1)) : 14));
       p.vx += (mx * spd - p.vx) * k;
       p.vy += (my * spd - p.vy) * k;
@@ -587,7 +592,7 @@ export class World {
 
     // Table edge: walking can't take you off, knockback can.
     const strong = Math.hypot(p.kx, p.ky) > P.fallSpeed;
-    if (this.mutator === 'bouncy') {
+    if (this.tw('bouncy')) {
       // Bouncy Castle: the edges push you back instead of letting you fall
       const inset = p.r * 0.6, B = MUTATOR_RULES.bounce;
       let hit = false;
@@ -1078,7 +1083,7 @@ export class World {
         return;
       }
       if (!c.boomerang && c.traveled >= c.maxRange) {
-        if (def.returns || this.mutator === 'boomerang') c.boomerang = true;
+        if (def.returns || this.tw('boomerang')) c.boomerang = true;
         else { this.land(c); return; }
       }
     }
@@ -1121,7 +1126,7 @@ export class World {
       // Your own cutlery only hurts you after it ricochets (and never on a boomerang return).
       if (isOwner && (!c.bounced || c.boomerang || c.traveled < 40)) continue;
       if (!isOwner && this.friends(p.id, c.owner)) continue; // Team Feast: passes through teammates
-      if (Math.hypot(p.x - c.x, p.y - c.y) > p.r + def.radius * (this.mutator === 'giant' ? MUTATOR_RULES.giantRadius : 1)) continue;
+      if (Math.hypot(p.x - c.x, p.y - c.y) > p.r + def.radius * (this.tw('giant') ? MUTATOR_RULES.giantRadius : 1)) continue;
       if (p.kaijuT > 0) {
         this.land(c);
         this.emit({ type: 'deflect', x: c.x, y: c.y });
@@ -1239,7 +1244,7 @@ export class World {
         if (this.crumbs.length < (rush ? MODE_RULES.crumbRush.maxCrumbs : RULES.maxCrumbs)) this.spawnCrumb();
       }
     }
-    if (this.opts.pickupSpawns && this.mutator !== 'fists') {
+    if (this.opts.pickupSpawns && !this.tw('fists')) {
       this.pickupTimer -= dt;
       if (this.pickupTimer <= 0) {
         this.pickupTimer = RULES.pickupEvery;
@@ -1263,7 +1268,7 @@ export class World {
       for (const cr of this.crumbs) {
         if (cr.id < 0 || Math.hypot(cr.x - p.x, cr.y - p.y) > p.r + 6) continue;
         const was = p.meter;
-        p.meter = Math.min(100, p.meter + P.crumbValue * (this.mutator === 'snack' ? MUTATOR_RULES.snackMultiplier : 1));
+        p.meter = Math.min(100, p.meter + P.crumbValue * (this.tw('snack') ? MUTATOR_RULES.snackMultiplier : 1));
         if (this.mode === 'crumbRush') p.pts++;
         cr.id = -1;
         this.emit({ type: 'eat', id: p.id, x: cr.x, y: cr.y });
@@ -1656,7 +1661,7 @@ export class World {
         p.respawnT = 0;
         const s = this.freeSpot(60, 90) ?? this.layout.spawns[p.id % this.layout.spawns.length];
         Object.assign(p, { x: s[0], y: s[1], vx: 0, vy: 0, kx: 0, ky: 0, alive: true, invT: this.mode === 'goldenSpoon' ? MODE_RULES.goldenSpoon.respawnShield : MODE_RULES.crumbRush.respawnShield, lastHitBy: null, lastHitT: 0, prev: { throw: true, swipe: true, dash: true, stomp: true } });
-        if (p.holding === null && this.mutator !== 'fists') {
+        if (p.holding === null && !this.tw('fists')) {
           const c = this.newCutlery(this.rng.pick(STARTER_KINDS), p.x, p.y);
           c.state = 'held'; c.holder = p.id; c.owner = p.id; p.holding = c.id;
         }

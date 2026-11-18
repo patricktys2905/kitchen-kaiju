@@ -7,11 +7,16 @@ import { ACHIEVEMENTS, loadStats } from './stats';
 import { CHAPTERS } from './story/chapters';
 import { loadStory, totalStars } from './story/save';
 import { isEarned, UNLOCKS } from './story/unlocks';
+import { FIRST_SERVICE, nextStep, pinnedAchievement, stepsDone } from './meta';
 
 export function nextGoals(): string[] {
   const out: string[] = [];
   try {
     const story = loadStory(), st = loadStats();
+    const step = nextStep(); // 🍽 First Service checklist comes first while it lasts
+    if (step) out.push(`🍽 FIRST SERVICE ${stepsDone().length}/${FIRST_SERVICE.length}: ${step.text} (+${step.reward} 🪙)`);
+    const pin = pinnedAchievement(), pa = pin ? ACHIEVEMENTS.find(a => a.id === pin) : null; // 📌 the achievement you pinned in Records
+    if (pa && !st.achieved.includes(pa.id)) out.push(`📌 ${pa.name}: ${pa.desc}${pa.progress ? ` (${Math.min(pa.progress(st)[0], pa.progress(st)[1])}/${pa.progress(st)[1]})` : ''}`);
     const u = UNLOCKS.filter(x => !isEarned(x, story)).sort((a, b) => ('chapter' in a.need ? a.need.chapter : 99) - ('chapter' in b.need ? b.need.chapter : 99))[0];
     if (u) {
       const prize = u.kind === 'kaiju' ? `🐉 ${SPECIES[u.index].full}` : `🍽 ${LAYOUTS[u.index].name}`;

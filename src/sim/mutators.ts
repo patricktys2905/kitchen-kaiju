@@ -27,4 +27,11 @@ export const MUTATOR_RULES = {
 };
 
 export const enabledMutators = () => MUTATORS.filter(m => m.enabled);
+
+/** ⚡⚡ Double twists: pairs you can pick from the TWIST button after the single twists. EASY TO CUSTOMISE. */
+export const MUTATOR_COMBOS: [Mutator, Mutator][] = [['ice', 'turbo'], ['tiny', 'bouncy'], ['boomerang', 'giant'], ['frenzy', 'snack'], ['fists', 'ice'], ['mirror', 'turbo'], ['tiny', 'frenzy'], ['bouncy', 'boomerang']];
+/** Every twist choice in order: none, singles, then combos. Each is [first, second]. */
+export const twistChoices = (): [Mutator, Mutator][] => [...enabledMutators().map((m): [Mutator, Mutator] => [m.id, 'none']), ...MUTATOR_COMBOS];
+export const twistName = (a: Mutator, b: Mutator = 'none'): string => (b === 'none' ? mutatorDef(a).name : `${mutatorDef(a).name} + ${mutatorDef(b).name}`);
+export const twistBlurb = (a: Mutator, b: Mutator = 'none'): string => (b === 'none' ? mutatorDef(a).blurb : `${mutatorDef(a).blurb}. ${mutatorDef(b).blurb}`);
 export const mutatorDef = (id: Mutator) => MUTATORS.find(m => m.id === id) ?? MUTATORS[0];

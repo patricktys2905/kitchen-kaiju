@@ -5,7 +5,7 @@ import { initInput, injectTap } from './input';
 import { applyKeybinds } from './keybinds';
 import { applyCustomTables } from './custom';
 import { BootScene } from './render/art';
-import { ControlsScene, GalleryScene, HelpScene, PantryScene, RecordsScene, SettingsScene } from './scenes/ExtrasScenes';
+import { ControlsScene, GalleryScene, HelpScene, PantryScene, RecordsScene, SettingsScene, TrialsScene } from './scenes/ExtrasScenes';
 import { GameScene } from './scenes/GameScene';
 import { LobbyScene } from './scenes/LobbyScene';
 import { MenuScene } from './scenes/MenuScene';
@@ -33,7 +33,7 @@ const game = new Phaser.Game({
     height: VIEW.h,
   },
   render: { antialias: true },
-  scene: [BootScene, TitleScene, MenuScene, GameScene, LobbyScene, StoryScene, SettingsScene, HelpScene, GalleryScene, RecordsScene, ControlsScene, WorkshopScene, PantryScene],
+  scene: [BootScene, TitleScene, MenuScene, GameScene, LobbyScene, StoryScene, SettingsScene, HelpScene, GalleryScene, RecordsScene, ControlsScene, WorkshopScene, PantryScene, TrialsScene],
 });
 
 // Handy for debugging / automated smoke tests.

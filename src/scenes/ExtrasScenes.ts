@@ -24,7 +24,8 @@ import { currentHat, HAT_FIT, HAT_SCALE, hatArtKey, hatUnlocked, HATS, HATS_ENAB
 import { colourUnlocked, COLOURS, currentColour, setColour } from '../colours';
 import { GameScene } from './GameScene';
 import { exportSave, importSave } from '../backup';
-import { buy, chefRank, loadMeta, masteryInfo, masteryStars, SHOP, weeklyOrders, type OrderStat } from '../meta';
+import { totalTrialStars, TRIAL_TOKENS, TRIALS, trialStars } from '../trials';
+import { buy, chefRank, completeStep, dailyDeal, loadMeta, MASTERY, masteryInfo, masteryStars, pinAchievement, pinnedAchievement, priceOf, SHOP, weeklyOrders, type OrderStat } from '../meta';
 import { ACTIONS, bind, keyFor, keyHint, keyLabel, RESERVED, resetKeybinds, type Action } from '../keybinds';
 
 /** Shared backdrop, title, BACK button and keyboard/pad focus handling. */
@@ -75,13 +76,15 @@ export class SettingsScene extends PanelScene {
   constructor() { super('settings'); }
 
   protected build(): void {
+    // rows shrink to fit however many settings there are (the action buttons + footer always stay on screen)
+    const rows = Math.ceil(SETTINGS_ROWS.length / 2), step = Math.min(82, 540 / rows), top = 100;
     SETTINGS_ROWS.forEach((row, i) => {
-      const b = new Button(this, 340 + (i % 2) * 600, 132 + Math.floor(i / 2) * 82, { w: 560, h: 72, label: '', sub: row.help, size: 26, onClick: () => { this.cycle(row.key, row.kind); b.setText(this.label(row.key, row.kind, row.label)); } }, 6);
+      const b = new Button(this, 340 + (i % 2) * 600, top + step / 2 + Math.floor(i / 2) * step, { w: 560, h: step - 8, label: '', sub: row.help, size: 26, onClick: () => { this.cycle(row.key, row.kind); b.setText(this.label(row.key, row.kind, row.label)); } }, 6);
       b.setText(this.label(row.key, row.kind, row.label));
       this.buttons.push(b);
     });
-    this.buttons.push(new Button(this, 440, 132 + Math.ceil(SETTINGS_ROWS.length / 2) * 82 - 6, { w: 360, h: 52, label: '⌨ KEYBOARD CONTROLS', size: 20, accent: 0x4fd1ff, onClick: () => { sfx.go(); this.scene.start('controls'); } }, 6));
-    this.buttons.push(new Button(this, 840, 132 + Math.ceil(SETTINGS_ROWS.length / 2) * 82 - 6, { w: 360, h: 52, label: '💾 BACK UP / MOVE SAVE', size: 20, accent: 0x8dff6a, onClick: () => this.backupPanel() }, 6));
+    this.buttons.push(new Button(this, 440, top + rows * step + 26, { w: 360, h: 48, label: '⌨ KEYBOARD CONTROLS', size: 20, accent: 0x4fd1ff, onClick: () => { sfx.go(); this.scene.start('controls'); } }, 6));
+    this.buttons.push(new Button(this, 840, top + rows * step + 26, { w: 360, h: 48, label: '💾 BACK UP / MOVE SAVE', size: 20, accent: 0x8dff6a, onClick: () => this.backupPanel() }, 6));
     this.add.text(640, 706, 'Saved on this device · ENTER / tap to change', body(15, '#cdb9a3', 800)).setOrigin(0.5).setDepth(5);
   }
 
@@ -316,7 +319,7 @@ export class GalleryScene extends PanelScene {
     this.add.text(1240, 50, `Collection ${pct}%\n🐉 ${own.length}/${SPECIES.length} · 🍽 ${tOwn}/${tAll} · 🎨 ${cOwn}/${COLOURS.length}`, body(14, '#ffd24a', 900, { align: 'right' })).setOrigin(1, 0.5).setDepth(6);
     SPECIES.forEach((sp, i) => {
       const x = 104 + (i % 10) * 119, y = 160 + Math.floor(i / 10) * 132;
-      const b = new Button(this, x, y, { w: 108, h: 118, label: '', size: 12, accent: sp.color, onClick: () => { this.nav.index = i; this.showDetail(i, true); } }, 6);
+      const b = new Button(this, x, y, { w: 108, h: 118, label: '', size: 12, accent: (loadMeta().xp[i] ?? 0) >= MASTERY.levels[4] ? 0xffd24a : sp.color, /* 🖼 gold frame at Mastery Lv 5 */ onClick: () => { this.nav.index = i; this.showDetail(i, true); } }, 6);
       this.buttons.push(b);
       if (hasArt(`kaiju-${i}`)) {
         const img = fitInside(this.add.image(x, y - 6, `kaiju-${i}`), 86, 80).setDepth(8);
@@ -324,7 +327,7 @@ export class GalleryScene extends PanelScene {
       }
       this.add.text(x, y + 44, own.includes(i) ? sp.name : '???', body(11, own.includes(i) ? sp.css : '#a89680', 900)).setOrigin(0.5).setDepth(8);
     });
-    if (!HATS_ENABLED) { this.buildColours(); return; }
+    if (!HATS_ENABLED) { this.buildColours(); this.addLabBtn(); return; }
     // hat picker (cosmetic rewards from achievements)
     this.add.text(60, 398, 'YOUR HAT', display(18, '#ffd24a', { strokeThickness: 3 })).setOrigin(0, 0.5).setDepth(6);
     this.hatLabel = this.add.text(1240, 364, '', body(14, '#e9dccb', 800)).setOrigin(1, 0.5).setDepth(6);
@@ -375,6 +378,15 @@ export class GalleryScene extends PanelScene {
         this.hatPreview.setTexture(hatArtKey(cur)).setVisible(true).setScale((fw * HAT_SCALE * (this.previewH / 3.1) * hs) / this.hatPreview.width).setPosition(280 + (hd[0] - 0.5) * this.previewW, this.previewTop + hd[1] * this.previewH + dy * (this.previewH / 3.1) * hs + (cur.id === 'halo' ? Math.sin(this.t * 3) * 3 : 0));
       } else cur.draw(g, 280, 494, 46, this.t);
     }
+  }
+
+  /** 🥋 MOVE LAB: try the shown kaiju's KAIJU power with a belly that never empties. */
+  private addLabBtn(): void {
+    this.buttons.push(new Button(this, 300, 46, { w: 210, h: 46, label: '🥋 MOVE LAB', sub: 'try its KAIJU power', size: 17, accent: 0x8dd8ff, onClick: () => {
+      const sp = this.shown < 0 ? 0 : this.shown;
+      if (!owned().kaiju.includes(sp)) { sfx.thwock(); return; }
+      sfx.go(); this.scene.start('game', GameScene.labData(sp));
+    } }, 6));
   }
 
   // ---------------------------------------------------------------- 🎨 colour styles (replaced hats)
@@ -448,7 +460,7 @@ export class GalleryScene extends PanelScene {
     this.detail.push(withShadow(this.add.text(600, 470, got ? sp.full.toUpperCase() : '??? (LOCKED)', display(36, got ? sp.css : '#a89680', { strokeThickness: 6 })).setDepth(6), 3));
     const u = UNLOCKS.find(q => q.kind === 'kaiju' && q.index === i);
     const lines = got
-      ? [`A ${sp.food}.`, `🌟 KAIJU power: ${KITS[i].power} — ${KITS[i].blurb}`, `Trait: ${KITS[i].trait}`, `Matches: ${st.kaijuPlays[i] ?? 0}  ·  Wins: ${st.kaijuWins[i] ?? 0}${u ? '  ·  🎁 Story reward' : ''}`, (() => { const mi = masteryInfo(loadMeta().xp[i] ?? 0); return `Mastery ${masteryStars(mi.level)} Lv ${mi.level} ${mi.title}${mi.need ? ` (${mi.into}/${mi.need} XP)` : ' MAX'}`; })()]
+      ? [`A ${sp.food}.`, `🌟 KAIJU power: ${KITS[i].power} — ${KITS[i].blurb}`, `Trait: ${KITS[i].trait}`, `Matches: ${st.kaijuPlays[i] ?? 0}  ·  Wins: ${st.kaijuWins[i] ?? 0}${u ? '  ·  🎁 Story reward' : ''}`, (() => { const mi = masteryInfo(loadMeta().xp[i] ?? 0); const nextR = MASTERY.rewards[mi.level]; return `Mastery ${masteryStars(mi.level)} Lv ${mi.level} ${mi.title}${mi.need ? ` (${mi.into}/${mi.need} XP)` : ' MAX'}${nextR ? `  ·  next: ${nextR}` : ''}`; })()]
       : [u ? `Unlock: ${needText(u)}` : 'Locked', '', 'Left: normal look · right: KAIJU MODE'];
     // fit inside the panel (x 600..1115, y 518..680): wrap to the width, then shrink the font until it fits
     const W = 510, H = 160;
@@ -487,12 +499,13 @@ export class RecordsScene extends PanelScene {
       ['Favourite kaiju', fav ? SPECIES[Number(fav[0])].full : '–'],
       ['Story stars', `★ ${totalStars(story)}`],
       ['Chef Rank', chefRank(s.achieved.length).title],
+      ['Next rank', (() => { const r = chefRank(s.achieved.length); return r.next ? `${r.next} at ${r.need} pts (${r.rank})` : 'MAX'; })()],
       ['Chef Tokens', `🪙 ${loadMeta().tokens}`],
     ];
     withShadow(this.add.text(70, 120, 'YOUR STATS', display(24, '#ffd24a', { strokeThickness: 4 })).setDepth(5), 2);
     rows.forEach(([k, v], i) => {
-      this.add.text(70, 158 + i * 35, k, body(17, '#e9dccb', 800)).setDepth(5);
-      this.add.text(430, 158 + i * 35, String(v), display(20, '#ffe9c7', { strokeThickness: 3 })).setOrigin(1, 0).setDepth(5);
+      this.add.text(70, 156 + i * 33, k, body(16, '#e9dccb', 800)).setDepth(5);
+      this.add.text(430, 156 + i * 33, String(v), display(20, '#ffe9c7', { strokeThickness: 3 })).setOrigin(1, 0).setDepth(5);
     });
     this.add.text(250, 670, 'Counts people on this device (not bots).', body(13, '#a89680', 800)).setOrigin(0.5, 1).setDepth(5);
 
@@ -514,13 +527,14 @@ export class RecordsScene extends PanelScene {
     // the closest unearned achievement you're working towards
     const next = ACHIEVEMENTS.filter(a => !s.achieved.includes(a.id) && a.progress).map(a => ({ a, k: a.progress!(s)[0] / a.progress!(s)[1] })).sort((p, q) => q.k - p.k)[0];
     this.nextText?.destroy();
-    this.nextText = next ? this.add.text(500, 642, `👉 Next up: ${next.a.name} (${Math.round(next.k * 100)}%) — ${next.a.desc}`, body(13, '#ffcf8a', 900, { wordWrap: { width: 740 } })).setOrigin(0, 0).setDepth(5) : null;
+    this.nextText = next ? this.add.text(500, 642, `👉 Next up: ${next.a.name} (${Math.round(next.k * 100)}%) — ${next.a.desc}   ·   Click any locked one to 📌 pin it (shown on the title + after matches). Each achievement pays 30 🪙.`, body(13, '#ffcf8a', 900, { wordWrap: { width: 740 } })).setOrigin(0, 0).setDepth(5) : null;
     ACHIEVEMENTS.slice(page * PER_PAGE, (page + 1) * PER_PAGE).forEach((a, i) => {
       const col = i % 2, row = Math.floor(i / 2), x = 500 + col * 380, y = 146 + row * 54;
-      const got = s.achieved.includes(a.id);
-      g.fillStyle(got ? 0x3a2412 : 0x1c1714, 0.95); g.fillRoundedRect(x, y, 365, 48, 12);
-      g.lineStyle(2, got ? 0xffd24a : 0x4a3e34, 1); g.strokeRoundedRect(x, y, 365, 48, 12);
-      add(this.add.text(x + 12, y + 24, got ? a.icon : '🔒', body(22, '#ffffff', 800)).setOrigin(0, 0.5).setDepth(5).setAlpha(got ? 1 : 0.6));
+      const got = s.achieved.includes(a.id), pinned = pinnedAchievement() === a.id;
+      g.fillStyle(got ? 0x3a2412 : pinned ? 0x2a2a12 : 0x1c1714, 0.95); g.fillRoundedRect(x, y, 365, 48, 12);
+      g.lineStyle(pinned ? 3 : 2, pinned ? 0x8dd8ff : got ? 0xffd24a : 0x4a3e34, 1); g.strokeRoundedRect(x, y, 365, 48, 12);
+      if (!got) { const z = add(this.add.zone(x + 182, y + 24, 365, 48).setInteractive({ useHandCursor: true }).setDepth(6)); z.on('pointerup', () => { pinAchievement(pinned ? null : a.id); sfx.pickup(); this.drawAch(s, page); }); }
+      add(this.add.text(x + 12, y + 24, got ? a.icon : pinned ? '📌' : '🔒', body(22, '#ffffff', 800)).setOrigin(0, 0.5).setDepth(5).setAlpha(got ? 1 : 0.6));
       const pr = !got && a.progress ? a.progress(s) : null;
       const name = add(this.add.text(x + 56, y + 5, a.name, display(15, got ? '#ffe9c7' : '#a89680', { strokeThickness: 3 })).setDepth(5));
       const nameRoom = pr ? 176 : 296; // leave room for the progress bar on the title row
@@ -549,6 +563,8 @@ export class PantryScene extends PanelScene {
   private objs: Phaser.GameObjects.GameObject[] = [];
 
   protected build(): void {
+    const step = completeStep('pantry');
+    if (step) this.time.delayedCall(300, () => { sfx.meterFull(); this.drawShop(); });
     const m = loadMeta();
     const g = this.add.graphics().setDepth(4);
     g.fillStyle(0x2a1408, 0.92).fillRoundedRect(40, 100, 470, 590, 22).lineStyle(3, 0xffb347, 1).strokeRoundedRect(40, 100, 470, 590, 22);
@@ -563,7 +579,7 @@ export class PantryScene extends PanelScene {
       this.add.text(400, y + 50, `${have}/${o.goal}`, body(16, '#ffcf8a', 900)).setDepth(5);
     });
     this.add.text(70, 520, 'Earn 🪙 Chef Tokens from every match: playing, winning, knockouts, going KAIJU, Gauntlet waves, Daily medals, orders and kaiju Mastery levels.', body(14, '#e9dccb', 800, { wordWrap: { width: 420 }, lineSpacing: 4 })).setDepth(5);
-    this.add.text(70, 640, `Chef Rank: ${chefRank(loadStats().achieved.length).title}`, display(18, '#ffcf8a', { strokeThickness: 3 })).setDepth(5);
+    { const r = chefRank(loadStats().achieved.length); this.add.text(70, 628, `Chef Rank: ${r.title}${r.next ? `\nNext: ${r.next} at ${r.need} pts (you have ${r.rank})` : ''}`, display(16, '#ffcf8a', { strokeThickness: 3, lineSpacing: 2 })).setDepth(5); }
     this.drawShop();
   }
 
@@ -575,8 +591,8 @@ export class PantryScene extends PanelScene {
     const m = loadMeta();
     this.objs.push(withShadow(this.add.text(560, 118, `SHOP · you have 🪙 ${m.tokens}`, display(24, '#ffd24a', { strokeThickness: 4 })).setDepth(5), 2));
     SHOP.forEach((it, k) => {
-      const x = 720 + (k % 2) * 360, y = 206 + Math.floor(k / 2) * 112, own = m.owned.includes(it.id), afford = m.tokens >= it.cost;
-      const b = new Button(this, x, y, { w: 340, h: 100, label: `${it.name}`, sub: own ? '✔ OWNED' : `${it.desc}\n🪙 ${it.cost}${afford ? '' : '  (not enough yet)'}`, size: 18, accent: own ? 0x8dff6a : afford ? 0xffd24a : 0x6a5a4a, onClick: () => {
+      const x = 720 + (k % 2) * 360, y = 206 + Math.floor(k / 2) * 112, own = m.owned.includes(it.id), cost = priceOf(it.id), deal = dailyDeal()?.id === it.id, afford = m.tokens >= cost;
+      const b = new Button(this, x, y, { w: 340, h: 100, label: `${it.name}`, sub: own ? '✔ OWNED' : `${it.desc}\n🪙 ${cost}${deal ? `  🏷 TODAY 30% OFF (was ${it.cost})` : ''}${afford ? '' : '  (not enough yet)'}`, size: 18, accent: own ? 0x8dff6a : deal ? 0x8dd8ff : afford ? 0xffd24a : 0x6a5a4a, onClick: () => {
         if (own) { sfx.thwock(); return; }
         if (buy(it.id)) { sfx.matchWin(); this.drawShop(); } else sfx.thwock();
       } }, 6);
@@ -584,5 +600,21 @@ export class PantryScene extends PanelScene {
     });
     this.objs.push(this.add.text(900, 650, 'Colours you buy appear in the 📖 KAIJU Gallery. Gauntlet items work on every new run.', body(13, '#a89680', 800, { align: 'center', wordWrap: { width: 700 } })).setOrigin(0.5).setDepth(5));
     if (this.nav) this.nav = new FocusNav([...this.buttons], 2);
+  }
+}
+
+// ------------------------------------------------------------------ 🎯 Trials: fixed hard scenarios with 3 stars each
+export class TrialsScene extends PanelScene {
+  protected title = '🎯 TRIALS';
+  protected cols = 2;
+  constructor() { super('trials'); }
+  protected build(): void {
+    const stars = trialStars();
+    this.add.text(640, 92, `★ win  ·  ★★ win without losing a round  ·  ★★★ also hit the knockout goal  ·  ${TRIAL_TOKENS} 🪙 per new star  ·  total ★ ${totalTrialStars()}/${TRIALS.length * 3}`, body(15, '#cdb9a3', 800)).setOrigin(0.5).setDepth(5);
+    TRIALS.forEach((t, k) => {
+      const x = 340 + (k % 2) * 600, y = 168 + Math.floor(k / 2) * 128, s = stars[t.id] ?? 0;
+      const rivals = t.rivals.map(r => `${SPECIES[r.species].name}${r.boss ? ' 👑' : ''} (${r.level})`).join(', ');
+      this.buttons.push(new Button(this, x, y, { w: 570, h: 112, label: `${t.name}   ${'★'.repeat(s)}${'☆'.repeat(Math.max(0, 3 - s))}`, sub: `${t.desc}\nYou: ${SPECIES[t.you].name} vs ${rivals} · ★★★: ${t.kos}+ KOs`, size: 22, accent: s === 3 ? 0xffd24a : s ? 0x8dff6a : 0xffb347, onClick: () => { sfx.go(); this.scene.start('game', GameScene.trialData(t.id)); } }, 6));
+    });
   }
 }

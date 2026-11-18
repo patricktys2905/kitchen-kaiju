@@ -62,7 +62,7 @@ const start = async (key, data = {}, ms = 1500) => { await pg.evaluate(([k, d]) 
 const scene = k => `window.__game.scene.getScene('${k}')`;
 
 await start('title', {}, 2500); await audit('title');
-for (const s of ['settings', 'help', 'controls', 'records', 'pantry', 'workshop', 'lobby']) { await start(s); await audit(s); }
+for (const s of ['settings', 'help', 'controls', 'records', 'pantry', 'workshop', 'lobby', 'trials']) { await start(s); await audit(s); }
 // records page 2
 await start('records'); await pg.evaluate(() => { const r = window.__game.scene.getScene('records'); r.buttons[0]?.press(); }); await audit('records page 2');
 // help pages (press every button that looks like a page/tab)
@@ -96,6 +96,15 @@ for (const mode of ['classic', 'teams', 'crumbRush', 'hotDumpling', 'goldenSpoon
 }
 await start('game', { ...six, mode: 'classic', cup: { game: 0, points: [0, 0, 0, 0, 0, 0] } }, 3000);
 await pg.evaluate(() => { const w = window.__game.scene.getScene('game').world; w.players[1].score = w.opts.target - 1; w.endRound([w.players[1]]); }); await wait(4000); await audit('cup game result');
+// challenges chooser on the title
+await start('title', {}, 1500); await pg.evaluate(() => { const t = window.__game.scene.getScene('title'); t.challenges(0); }); await audit('challenges chooser');
+// trial result + move lab + cup final
+await pg.evaluate(() => { const g = window.__game; for (const s of g.scene.getScenes(true)) s.scene.stop(); const GS = g.scene.getScene('game').constructor; g.scene.start('game', GS.trialData('crowd')); }); await wait(3500); await audit('trial countdown');
+await pg.evaluate(() => { const w = window.__game.scene.getScene('game').world; w.players[0].score = w.opts.target - 1; w.endRound([w.players[0]]); }); await wait(4000); await audit('trial result');
+await pg.evaluate(six => { const g = window.__game; g.scene.getScene('game').scene.restart({ ...six, mode: 'classic', party: true, cup: { game: 5, points: [10, 8, 6, 4, 2, 0] } }); }, six); await wait(3500);
+await pg.evaluate(() => { const w = window.__game.scene.getScene('game').world; w.players[2].score = w.opts.target - 1; w.endRound([w.players[2]]); }); await wait(4000); await audit('cup final');
+await pg.evaluate(() => { const g = window.__game; const GS = g.scene.getScene('game').constructor; g.scene.getScene('game').scene.restart(GS.labData(3)); }); await wait(3500); await audit('move lab');
+await pg.evaluate(() => { const g = window.__game; const GS = g.scene.getScene('game').constructor; g.scene.getScene('game').scene.restart({ ...GS.practiceData(0), from: 'title' }); }); await wait(2500); await pg.evaluate(() => { const gs = window.__game.scene.getScene('game'); gs.practice.done = gs.practice.done.map(() => true); gs.practiceDone(); }); await wait(1500); await audit('practice complete card');
 // gauntlet / daily / pause
 await pg.evaluate(() => { const g = window.__game; for (const s of g.scene.getScenes(true)) s.scene.stop(); const GS = g.scene.getScene('game').constructor; g.scene.start('game', GS.gauntletWave(5, 0, { kind: 'kb', index: 0 })); }); await wait(700); await audit('gauntlet countdown');
 await wait(2500); await audit('gauntlet HUD');

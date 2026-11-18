@@ -1,7 +1,7 @@
 // The start screen: cover art + mode selection. New modes = one more card in MODES.
 import * as Phaser from 'phaser';
 import { sfx } from '../audio';
-import { clearTaps } from '../input';
+import { clearTaps, consumeTap } from '../input';
 import { applyPendingUpdate } from '../pwa';
 import { hasArt } from '../render/art';
 import { drawFloor } from '../render/draw';
@@ -12,7 +12,8 @@ import { CHAPTERS } from '../story/chapters';
 import { secondsUnlocked } from '../story/campaigns';
 import { setTouchMode } from '../touch';
 import { playMusic } from '../music';
-import { gauntletBest } from '../gauntlet';
+import { GAUNTLET, gauntletBest } from '../gauntlet';
+import { totalTrialStars, TRIALS } from '../trials';
 import { dailySetup, loadDaily, todayKey } from '../daily';
 import { modeDef } from '../sim/modes';
 import { GameScene } from './GameScene';
@@ -42,6 +43,7 @@ export class TitleScene extends Phaser.Scene {
 
   create(): void {
     this.extraBtns = [];
+    this.challengeUi = [];
     this.idle = 0;
     const wake = () => { this.idle = 0; };
     this.input.on('pointerdown', wake);
@@ -65,14 +67,14 @@ export class TitleScene extends Phaser.Scene {
 
     const save = loadStory();
     const storySub = secondsUnlocked() ? `Ch ${Math.min(save.unlocked, CHAPTERS.length)}/${CHAPTERS.length} · 🍽 Seconds open!` : save.stars.some(s => s) ? `Ch ${Math.min(save.unlocked, CHAPTERS.length)}/${CHAPTERS.length} · ★ ${totalStars(save)}` : `${CHAPTERS.length} chapters`;
-    const go = (key: string, data: object = {}) => { sfx.go(); this.time.delayedCall(80, () => this.scene.start(key, data)); };
+    const go = (key: string, data: object = {}) => { if (key === 'challenges') { this.challenges(save.pick); return; } sfx.go(); this.time.delayedCall(80, () => this.scene.start(key, data)); };
     const MODES: { label: string; sub: string; accent: number; scene?: string; disabled?: boolean; data?: object }[] = [
       { label: 'STORY', sub: storySub, accent: 0xff9a3c, scene: 'story' },
       { label: 'FREE PLAY', sub: 'Up to 6 · bots', accent: 0x4fd1ff, scene: 'menu' },
       { label: 'ONLINE', sub: 'Play with friends', accent: 0x8dff6a, scene: 'lobby' },
       { label: 'PARTY MODES', sub: 'Teams · Rush · Dumpling', accent: 0xffd24a, scene: 'menu', data: { mode: 'teams', party: true } },
       { label: 'DAILY', sub: dailySub(), accent: 0x8dff6a, scene: 'game', data: GameScene.dailyData() },
-      { label: 'GAUNTLET', sub: gauntletBest() ? `Best wave ${gauntletBest()}` : 'Solo survival', accent: 0xff5a7a, scene: 'game', data: GameScene.gauntletWave(1, save.pick, { kind: 'local', index: 0 }) },
+      { label: 'CHALLENGES', sub: `Gauntlet${gauntletBest() ? ` (best ${gauntletBest()})` : ''} · 🎯 Trials ${totalTrialStars()}★`, accent: 0xff5a7a, scene: 'challenges' },
     ];
     const n = MODES.length, cw = Math.min(290, (1240 - (n - 1) * 14) / n);
     const buttons = MODES.map((m, i) => new Button(this, 20 + cw / 2 + i * (cw + 14), 640, {
@@ -99,6 +101,26 @@ export class TitleScene extends Phaser.Scene {
     if (Number(new URLSearchParams(location.search).get('demo') ?? 0) >= 2 && !this.registry.get('demoStarted')) this.scene.start('menu');
   }
 
+  /** 🏁 CHALLENGES: start the Gauntlet (from any course you've reached = checkpoints) or open the Trials. */
+  private challengeUi: (Button | Phaser.GameObjects.GameObject)[] = [];
+  private challenges(pick: number): void {
+    if (this.challengeUi.length) { for (const u of this.challengeUi) { if (u instanceof Button) { u.g.destroy(); u.label.destroy(); u.sub?.destroy(); u.zone.destroy(); } else u.destroy(); } this.challengeUi = []; this.extraBtns = this.extraBtns.filter(b => b.zone.active); return; }
+    sfx.pickup();
+    const g = this.add.graphics().setDepth(30);
+    g.fillStyle(0x000000, 0.6).fillRect(0, 0, 1280, 720).fillStyle(0x140b05, 1).fillRoundedRect(190, 150, 900, 430, 22).lineStyle(3, 0xff5a7a, 1).strokeRoundedRect(190, 150, 900, 430, 22);
+    const t = withShadow(this.add.text(640, 186, '🏁 CHALLENGES', display(34, '#ffcf8a', { strokeThickness: 6 })).setOrigin(0.5).setDepth(31), 3);
+    const info = this.add.text(640, 548, `Checkpoints: reach a course's boss wave to start later runs from that course.   Best wave: ${gauntletBest()}   ·   Esc closes`, body(14, '#cdb9a3', 800)).setOrigin(0.5).setDepth(31);
+    this.challengeUi.push(g, t, info);
+    this.challengeUi.push(this.add.text(640, 236, 'GAUNTLET: pick where your run starts', body(16, '#ffd9a0', 900)).setOrigin(0.5).setDepth(31));
+    const best = gauntletBest(), starts = GAUNTLET.courses.map((c, k) => ({ c, wave: 1 + k * GAUNTLET.bossEvery, open: k === 0 || best >= k * GAUNTLET.bossEvery }));
+    starts.forEach((s, k) => {
+      const b = new Button(this, 640 + (k - (starts.length - 1) / 2) * 205, 312, { w: 190, h: 100, label: s.c, sub: !s.open ? `🔒 clear wave ${s.wave - 1}` : s.wave === 1 ? 'from wave 1' : `start at wave ${s.wave}`, size: 17, accent: 0xff5a7a, disabled: !s.open, onClick: () => { sfx.go(); this.scene.start('game', GameScene.gauntletWave(s.wave, pick, { kind: 'local', index: 0 }, true)); } }, 31);
+      this.challengeUi.push(b); this.extraBtns.push(b);
+    });
+    const tr = new Button(this, 640, 440, { w: 520, h: 96, label: '🎯 TRIALS', sub: `${TRIALS.length} fixed hard fights · 3 stars each · you have ${totalTrialStars()}★`, size: 26, accent: 0x8dd8ff, onClick: () => { sfx.go(); this.scene.start('trials'); } }, 31);
+    this.challengeUi.push(tr); this.extraBtns.push(tr);
+  }
+
   /** A bot-only demo match on a random table; any input returns to the title (see GameScene attract). */
   private startAttract(): void {
     const own = owned();
@@ -114,6 +136,7 @@ export class TitleScene extends Phaser.Scene {
     this.t += dt;
     applyPendingUpdate();
     this.art?.setScale(this.art.scaleX * 0 + (1300 / this.art.width) * (1 + Math.sin(this.t * 0.25) * 0.008)); // slow breathing zoom
+    if (this.challengeUi.length) { for (const b of this.extraBtns) b.update(dt); if (consumeTap('Escape')) this.challenges(0); clearTaps(); return; }
     this.nav.update(dt);
     for (const b of this.extraBtns) b.update(dt);
     this.idle += dt;

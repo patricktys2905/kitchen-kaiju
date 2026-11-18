@@ -181,6 +181,8 @@ export function chapterRivals(ch: Pick<Chapter, 'rivals'>, playerSpecies: number
 
 /** 🌶️ Spicy: every rival one level tougher. EASY TO CUSTOMISE: change the bump table. */
 export const SPICY_BUMP: Record<string, 'easy' | 'normal' | 'hard'> = { easy: 'normal', normal: 'hard', hard: 'hard' };
+/** 🧸 Kid Mode: every Story rival one level easier. */
+export const KID_EASE: Record<string, 'easy' | 'normal' | 'hard'> = { easy: 'easy', normal: 'easy', hard: 'normal' };
 
 /** Stars for a win: 3 = never lost a round, 2 = lost one, 1 = otherwise. */
 export function starsFor(roundsLost: number): number {

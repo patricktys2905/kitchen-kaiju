@@ -27,6 +27,14 @@ export const cupGames = (players: number, len: CupLength = cupLength()) => {
 };
 
 /** Points for each player from a finished match: ranked by round wins, then KOs; ties share the better place. */
+/** The last game of a Cup is worth this many times the points. EASY TO CHANGE. */
+export const FINAL_MULTIPLIER = 2;
+
+/** 🏆 Cup Shelf: the last few Cup winners on this device. */
+export interface ShelfEntry { date: string; name: string; species: number; pts: number }
+export function cupShelf(): ShelfEntry[] { try { return JSON.parse(localStorage.getItem('kk-cup-shelf') ?? '[]') as ShelfEntry[]; } catch { return []; } }
+export function addToShelf(e: ShelfEntry): void { const s = [e, ...cupShelf()].slice(0, 8); try { localStorage.setItem('kk-cup-shelf', JSON.stringify(s)); } catch { /* blocked */ } }
+
 /** Cup points by finishing place. In Team Feast (teams = true) every teammate gets their TEAM's place. */
 export function placePoints(players: { score: number; kos: number; team?: number }[], teams = false): number[] {
   if (teams) {

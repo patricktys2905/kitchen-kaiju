@@ -65,6 +65,25 @@ export class WorkshopScene extends Phaser.Scene {
     btn(310, 604, 180, '📂 NEXT SLOT', () => { this.slot = (this.slot + 1) % MAX_CUSTOM; sfx.pickup(); this.redraw(); });
     btn(110, 660, 180, '💾 SAVE', () => this.save(), 0x8dff6a);
     btn(310, 660, 180, '▶ PLAY IT', () => this.playIt(), 0xffd24a);
+    // 📋 share codes: copy this table as a code, or load a friend's (then SAVE to keep it)
+    btn(1000, 40, 170, '📋 COPY CODE', () => {
+      const code = 'KKT1-' + btoa(JSON.stringify(this.cur()));
+      try { void navigator.clipboard?.writeText(code); } catch { /* blocked */ }
+      this.note.setText('Table code copied: send it to a friend!\n' + (code.length > 70 ? code.slice(0, 70) + '…' : code)); sfx.pickup();
+    }, 0x8dd8ff);
+    btn(1182, 40, 170, '📥 PASTE CODE', () => {
+      const c = window.prompt('Paste a table code (KKT1-…)');
+      if (!c) return;
+      try {
+        const t = JSON.parse(atob(c.trim().replace(/^KKT1-/, ''))) as CustomTable;
+        if (!t || !Array.isArray(t.props) || typeof t.surface !== 'number') throw new Error('bad');
+        t.props = t.props.filter(q => PROPS.some(([st]) => st === q.style)).slice(0, MAX_PROPS);
+        t.name = String(t.name ?? 'Shared table').slice(0, 24);
+        if (!this.surfaces.includes(t.surface)) t.surface = this.surfaces[0] ?? 0;
+        this.list[this.slot] = t; sfx.matchWin(); this.redraw();
+        this.note.setText('Loaded a shared table! Press 💾 SAVE to keep it.');
+      } catch { sfx.thwock(); this.note.setText("That code didn't work. Check it and try again."); }
+    }, 0x8dd8ff);
     this.redraw();
   }
 

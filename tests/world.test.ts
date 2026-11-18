@@ -1249,7 +1249,7 @@ describe('progression (meta)', () => {
     const { colourUnlocked, COLOURS } = await import('../src/colours');
     expect(colourUnlocked(COLOURS.find(c => c.id === 'peach')!)).toBe(true);
     const { rulesCode, parseCode } = await import('../src/houseRules');
-    const hr = { party: true, mode: 'goldenSpoon', rounds: 3, mutator: 'ice', powerups: false, hazards: true, table: 4, difficulty: 'hard' };
+    const hr = { party: true, mode: 'goldenSpoon', rounds: 3, mutator: 'ice', powerups: false, hazards: true, table: 4, difficulty: 'hard', mutator2: 'turbo' };
     expect(parseCode(rulesCode(hr))).toEqual(hr);
     expect(parseCode('nonsense')).toBeNull();
     delete (globalThis as Record<string, unknown>).localStorage;
@@ -1262,5 +1262,36 @@ describe('progression (meta)', () => {
     w.endRound([w.players[0]]);
     for (let i = 0; i < 2000 && (w.phase as string) !== 'countdown'; i++) w.step(DT, []);
     expect(w.players[1].meter).toBeGreaterThan(w.players[0].meter);
+  });
+});
+
+describe('double twists', () => {
+  it('a stacked second twist works like the first (tiny + bouncy)', () => {
+    const w = new World({ players: [0, 1].map(i => ({ name: 'P' + i })), seed: 3, hazards: false, layout: 0, mutator: 'tiny', mutator2: 'bouncy' });
+    expect(w.tw('tiny')).toBe(true);
+    expect(w.tw('bouncy')).toBe(true);
+    expect(w.tw('ice')).toBe(false);
+  });
+});
+
+describe('trials, checklist, deals and ranks', () => {
+  it('trial stars only go up and pay for new stars; first-service steps pay once; the deal is cheaper; ranks climb', async () => {
+    const store: Record<string, string> = {};
+    (globalThis as Record<string, unknown>).localStorage = { getItem: (k: string) => store[k] ?? null, setItem: (k: string, v: string) => { store[k] = v; }, removeItem: (k: string) => { delete store[k]; } };
+    const { recordTrial, trialStars, TRIALS } = await import('../src/trials');
+    expect(new Set(TRIALS.map(t => t.id)).size).toBe(TRIALS.length);
+    expect(recordTrial('duel', 2)).toBe(2);
+    expect(recordTrial('duel', 1)).toBe(0);
+    expect(recordTrial('duel', 3)).toBe(1);
+    expect(trialStars().duel).toBe(3);
+    const { completeStep, loadMeta, dailyDeal, priceOf, SHOP, chefRank, RANKS } = await import('../src/meta');
+    expect(completeStep('match')?.reward).toBeGreaterThan(0);
+    expect(completeStep('match')).toBeNull();
+    expect(loadMeta().tokens).toBeGreaterThan(0);
+    const deal = dailyDeal()!;
+    expect(priceOf(deal.id)).toBeLessThan(SHOP.find(s => s.id === deal.id)!.cost);
+    expect(chefRank(0).title).toBe(RANKS[0][1]);
+    expect(chefRank(20).title).not.toBe(RANKS[0][1]);
+    delete (globalThis as Record<string, unknown>).localStorage;
   });
 });

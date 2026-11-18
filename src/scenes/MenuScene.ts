@@ -18,7 +18,7 @@ import { cupGames, cupLength, setCupLength } from '../cup';
 import { loadStats } from '../stats';
 import { loadRules, parseCode, rulesCode, rulesSummary, saveRules, SLOTS, type HouseRules } from '../houseRules';
 import { getSettings, setSetting } from '../settings';
-import { enabledMutators, mutatorDef, type Mutator } from '../sim/mutators';
+import { mutatorDef, twistBlurb, twistChoices, twistName, type Mutator } from '../sim/mutators';
 import { enabledModes, MODE_RULES, modeDef, type GameMode } from '../sim/modes';
 import { KITS } from '../sim/powers';
 import { currentColour, seatColours } from '../colours';
@@ -44,6 +44,7 @@ export interface MenuData {
   powerups?: boolean;
   hazards?: boolean;
   mutator?: Mutator;
+  mutator2?: Mutator;
 }
 
 export class MenuScene extends Phaser.Scene {
@@ -57,6 +58,7 @@ export class MenuScene extends Phaser.Scene {
   private powerups = POWERUPS.enabled;
   private hazards = true;
   private mutator: Mutator = 'none';
+  private mutator2: Mutator = 'none'; // ⚡⚡ stacked second twist (from the combos in the TWIST cycle)
   private modeText!: Phaser.GameObjects.Text;
   private g!: Phaser.GameObjects.Graphics;
   private slotTexts: Phaser.GameObjects.Text[] = [];
@@ -103,7 +105,7 @@ export class MenuScene extends Phaser.Scene {
     else if (this.mode === 'classic') this.mode = enabledModes().find(m => m.id !== 'classic')?.id ?? 'classic';
     if (data.powerups !== undefined) this.powerups = data.powerups;
     if (data.hazards !== undefined) this.hazards = data.hazards;
-    if (data.mutator) this.mutator = data.mutator;
+    if (data.mutator) { this.mutator = data.mutator; this.mutator2 = data.mutator2 ?? 'none'; }
     if (data.tables !== undefined) this.table = data.tables && data.tables.length === 1 ? data.tables[0] : -1;
     this.devPrev.clear();
     this.fixPicks();
@@ -151,7 +153,7 @@ export class MenuScene extends Phaser.Scene {
     const pick = <T,>(a: T[]): T => a[Math.floor(Math.random() * a.length)];
     if (this.party) this.mode = pick(enabledModes().map(m => m.id).filter(m => m !== 'classic'));
     this.table = pick(this.own.tables);
-    this.mutator = Math.random() < 0.5 ? 'none' : pick(enabledMutators().map(m => m.id));
+    [this.mutator, this.mutator2] = Math.random() < 0.5 ? ['none', 'none'] : pick(twistChoices());
     for (let i = 0; i < MAX_PLAYERS; i++) this.bump[i] = 1;
     sfx.meterFull();
   }
@@ -291,11 +293,11 @@ export class MenuScene extends Phaser.Scene {
   /** 💾 House Rules panel: 3 save slots + share codes (src/houseRules.ts). */
   private toggleRules(): void {
     if (this.rulesUi.length) { for (const u of this.rulesUi) { if (u instanceof Button) { u.g.destroy(); u.label.destroy(); u.sub?.destroy(); u.zone.destroy(); } else u.destroy(); } this.rulesUi = []; return; }
-    const cur = (): HouseRules => ({ party: this.party, mode: this.mode, rounds: this.rounds, mutator: this.mutator, powerups: this.powerups, hazards: this.hazards, table: this.table, difficulty: this.difficulty, catchUp: getSettings().catchUp });
+    const cur = (): HouseRules => ({ party: this.party, mode: this.mode, rounds: this.rounds, mutator: this.mutator, mutator2: this.mutator2, powerups: this.powerups, hazards: this.hazards, table: this.table, difficulty: this.difficulty, catchUp: getSettings().catchUp });
     const apply = (r: HouseRules) => {
       if (r.catchUp !== undefined) setSetting('catchUp', r.catchUp);
       sfx.go();
-      this.scene.restart({ slots: this.slots, species: this.picks, difficulty: r.difficulty as Difficulty, party: r.party, mode: r.mode as GameMode, rounds: r.rounds, mutator: r.mutator as Mutator, powerups: r.powerups, hazards: r.hazards, tables: r.table >= 0 && r.table < LAYOUTS.length ? [r.table] : null });
+      this.scene.restart({ slots: this.slots, species: this.picks, difficulty: r.difficulty as Difficulty, party: r.party, mode: r.mode as GameMode, rounds: r.rounds, mutator: r.mutator as Mutator, mutator2: (r.mutator2 ?? 'none') as Mutator, powerups: r.powerups, hazards: r.hazards, tables: r.table >= 0 && r.table < LAYOUTS.length ? [r.table] : null });
     };
     const g = this.add.graphics().setDepth(30);
     g.fillStyle(0x000000, 0.6).fillRect(0, 0, 1280, 720); // dim everything behind the panel
@@ -323,7 +325,7 @@ export class MenuScene extends Phaser.Scene {
     const g = cupGames(this.slots.length)[0];
     this.scene.start('game', {
       slots: this.slots.slice(), difficulty: this.difficulty, species: this.picks.slice(), botLevels: this.slots.map((s, i) => (s.kind === 'bot' ? this.botLevels[i] ?? null : null)),
-      tables: this.table < 0 ? this.own.tables.slice() : [this.table], rounds: g.rounds, mode: g.mode, powerups: this.powerups, hazards: this.hazards, mutator: this.mutator, party: true, cup: { game: 0, points: [] },
+      tables: this.table < 0 ? this.own.tables.slice() : [this.table], rounds: g.rounds, mode: g.mode, powerups: this.powerups, hazards: this.hazards, mutator: this.mutator, mutator2: this.mutator2, party: true, cup: { game: 0, points: [] },
     });
   }
 
@@ -333,7 +335,7 @@ export class MenuScene extends Phaser.Scene {
     if (this.mode === 'teams' && this.slots.length % 2 === 1 && this.slots.length < MAX_PLAYERS) this.addSlot({ kind: 'bot', index: this.slots.length }); // even teams
     this.fixPicks();
     this.scene.start('game', {
-      slots: this.slots.slice(), difficulty: this.difficulty, species: this.picks.slice(), botLevels: this.slots.map((s, i) => (s.kind === 'bot' ? this.botLevels[i] ?? null : null)), tables: this.table < 0 ? this.own.tables.slice() : [this.table], rounds: this.rounds, mode: this.mode, powerups: this.powerups, hazards: this.hazards, mutator: this.mutator, party: this.party,
+      slots: this.slots.slice(), difficulty: this.difficulty, species: this.picks.slice(), botLevels: this.slots.map((s, i) => (s.kind === 'bot' ? this.botLevels[i] ?? null : null)), tables: this.table < 0 ? this.own.tables.slice() : [this.table], rounds: this.rounds, mode: this.mode, powerups: this.powerups, hazards: this.hazards, mutator: this.mutator, mutator2: this.mutator2, party: this.party,
     });
   }
 
@@ -365,7 +367,7 @@ export class MenuScene extends Phaser.Scene {
     if (consumeTap('KeyG') || consumeTap('TouchMode')) this.cycleMode();
     if (consumeTap('KeyU') || consumeTap('TouchPowerups')) { this.powerups = !this.powerups; sfx.pickup(); }
     if (consumeTap('KeyH') || consumeTap('TouchHazards')) { this.hazards = !this.hazards; sfx.pickup(); }
-    if (consumeTap('KeyX') || consumeTap('TouchMutator')) { const l = enabledMutators().map(m => m.id); this.mutator = l[(l.indexOf(this.mutator) + 1) % l.length] ?? 'none'; sfx.pickup(); }
+    if (consumeTap('KeyX') || consumeTap('TouchMutator')) { const l = twistChoices(), k = l.findIndex(([a, b]) => a === this.mutator && b === this.mutator2); [this.mutator, this.mutator2] = l[(k + 1) % l.length] ?? ['none', 'none']; sfx.pickup(); }
     if (consumeTap('KeyO') || consumeTap('TouchOnline')) { this.scene.start('lobby', { difficulty: this.difficulty, rounds: this.rounds }); return; }
     if (consumeTap('TouchJoin')) {
       const j = this.slots.findIndex(s => s.kind === 'touch');
@@ -496,12 +498,12 @@ export class MenuScene extends Phaser.Scene {
       const tl0 = this.table < 0 ? null : LAYOUTS[this.table];
       const label: Record<string, string> = {
         mode: `MODE ▶\n${modeDef(this.mode).name}`, cup: '🏆 PARTY\nCUP', cuplen: `CUP LENGTH\n${cupGames(Math.max(3, this.slots.length)).length} GAMES`, bots: `BOT LEVEL\n${this.difficulty.toUpperCase()}`, table: `TABLE\n${tl0 ? tl0.name.toUpperCase() : 'ALL'}`,
-        rounds: `FIRST TO\n${this.rounds}`, twist: `TWIST\n${this.mutator === 'none' ? 'NONE' : mutatorDef(this.mutator).name}`, power: `POWER-UPS\n${this.powerups ? 'ON' : 'OFF'}`, haz: `HAZARDS\n${this.hazards ? 'ON' : 'OFF'}`, dice: '🎲\nRANDOM', online: '🌐\nONLINE',
+        rounds: `FIRST TO\n${this.rounds}`, twist: `TWIST${this.mutator2 !== 'none' ? ' ⚡⚡' : ''}\n${this.mutator === 'none' ? 'NONE' : twistName(this.mutator, this.mutator2)}`, power: `POWER-UPS\n${this.powerups ? 'ON' : 'OFF'}`, haz: `HAZARDS\n${this.hazards ? 'ON' : 'OFF'}`, dice: '🎲\nRANDOM', online: '🌐\nONLINE',
       };
       for (const b of this.setBtns) { const id = (b as Button & { id?: string }).id ?? ''; b.setText(label[id] ?? ''); b.label.setScale(Math.min(1, (this.party ? 106 : 118) / Math.max(1, b.label.width / b.label.scaleX))); }
       const people = this.slots.filter(q => q.kind !== 'bot').length;
       this.hintText?.setText(people ? `${this.slots.length} at the table · click empty seats to add bots · press ▶ PLAY` : 'Click a seat (or press THROW on a keyboard / gamepad) to join');
-      if (this.mutator !== 'none' && this.hintText) this.hintText.setText(`⚡ ${mutatorDef(this.mutator).name}: ${mutatorDef(this.mutator).blurb}`);
+      if (this.mutator !== 'none' && this.hintText) this.hintText.setText(`⚡ ${twistName(this.mutator, this.mutator2)}: ${twistBlurb(this.mutator, this.mutator2)}`);
       if (this.party && this.hintText) { const g = cupGames(Math.max(3, this.slots.length)); this.hintText.setText(`${this.hintText.text}
 🏆 Party Cup = ${g.length} games: ${g.map(x => modeDef(x.mode).name).join(' → ')} · points 5 / 3 / 2 / 1`); }
     }
@@ -509,7 +511,7 @@ export class MenuScene extends Phaser.Scene {
     this.modeText.setFontSize(this.party ? 18 : 16).setY(143);
     const seats = this.slots.map((_, i) => i % 2), red = seats.filter(t => t === 0).length, blue = seats.length - red;
     this.tagline.setText(this.mode === 'teams' ? `${md.blurb}   ·   RED ${red}  vs  BLUE ${blue}${red !== blue ? '  (add a player or bot to even it up)' : ''}` : this.party ? md.blurb : 'Tiny monsters. Giant dinner.');
-    this.modeText.setText(`${this.party ? `◀ ${md.name} ▶` : 'CLASSIC'}   ·   POWER-UPS: ${this.powerups ? 'ON' : 'OFF'}   ·   HAZARDS: ${this.hazards ? 'ON' : 'OFF'}${this.mutator !== 'none' ? `   ·   ⚡ ${mutatorDef(this.mutator).name}` : ''}`);
+    this.modeText.setText(`${this.party ? `◀ ${md.name} ▶` : 'CLASSIC'}   ·   POWER-UPS: ${this.powerups ? 'ON' : 'OFF'}   ·   HAZARDS: ${this.hazards ? 'ON' : 'OFF'}${this.mutator !== 'none' ? `   ·   ⚡ ${twistName(this.mutator, this.mutator2)}` : ''}`);
     this.infoText.setText(`Bot difficulty: ${this.difficulty.toUpperCase()}   ·   Up to ${MAX_PLAYERS} players   ·   First to ${this.rounds} round${this.rounds === 1 ? '' : 's'}   ·   ${this.own.kaiju.length < SPECIES.length ? `${this.own.kaiju.length}/${SPECIES.length} kaiju (unlock more in Story)` : `${SPECIES.length} kaiju`}`);
     const tl = this.table < 0 ? null : LAYOUTS[this.table];
     this.tableText.setText(tl ? `TABLE: ${tl.name.toUpperCase()}  —  ${tl.blurb}` : `TABLE: ALL ${this.own.tables.length} (a different one every round)${this.own.tables.length < LAYOUTS.length ? ` · ${LAYOUTS.length - this.own.tables.length} more to unlock in Story` : ''}`);
