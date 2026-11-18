@@ -27,10 +27,10 @@ export function isEarned(u: Unlock, s: StorySave): boolean {
   return 'chapter' in u.need ? (s.stars[u.need.chapter] ?? 0) > 0 : totalStars(s) >= u.need.stars;
 }
 
-export function needText(u: Unlock): string {
-  if ('stars' in u.need) return `Collect ${u.need.stars} stars in Story mode`;
-  const ch = u.need.chapter;
-  return `Beat Story chapter ${ch + 1}: ${CHAPTERS[ch].title}`;
+export function needText(u: Unlock, s: StorySave = loadStory()): string {
+  if ('stars' in u.need) return `Collect ${u.need.stars} Story stars (you have ${Math.min(totalStars(s), u.need.stars)}/${u.need.stars})`;
+  const ch = u.need.chapter, done = s.stars.filter(x => (x ?? 0) > 0).length;
+  return `Beat Story chapter ${ch + 1}: ${CHAPTERS[ch].title} (${Math.min(done, ch + 1)}/${ch + 1} cleared)`;
 }
 
 export function unlockName(u: Unlock): string {

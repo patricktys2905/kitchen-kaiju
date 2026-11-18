@@ -28,7 +28,8 @@ export const P = {
   stompEvery: 0.6,
   stompRadius: 150,
   stompForce: 560,
-  shrinkInvuln: 0.6,
+  shrinkInvuln: 0, // no safety after KAIJU ends…
+  shrinkDizzy: 0.75, // …instead the shrunk kaiju is dizzy for a moment: rivals' chance to punish
 };
 
 export const RULES = {

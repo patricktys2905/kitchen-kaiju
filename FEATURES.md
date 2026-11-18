@@ -675,3 +675,32 @@ From the 10 Sonnet playtester reports in `playtest-reports/`.
   - The NEW KAIJU celebration is opaque and takes all keys until closed.
   - The twist explanation sits in the countdown text, and the Ice Rink sheen is much stronger.
   - The Second Helpings intro is reworded.
+
+## 62. The five big asks from the round 4 playtest
+
+1. **Teaching STOMP / KAIJU:**
+   - A bouncing **"BELLY FULL! PRESS E → KAIJU"** prompt (the key matches your controls: E, ".", Y on a pad, or "tap STOMP") follows any human whose belly is full.
+   - It always shows in Story chapters 1–2, and elsewhere until you have gone KAIJU 5 times (`STOMP_COACH_UNTIL` in GameScene).
+   - It stays on screen and flips below your kaiju near the top edge.
+2. **Collecting:**
+   - Every locked Gallery item shows progress, e.g. "Collect 30 Story stars (you have 12/30)", "Beat chapter 8 (3/8 cleared)", and colour achievements as "(4/10)".
+   - **3 new early colours:** 🍋 Lemon (win a Golden Spoon match: new **Spoon Fed** achievement), Sky (win Hot Dumpling), Lava (go KAIJU 10 times).
+   - The swatch row now squeezes to fit any number of colours (`colStep`).
+   - Ghost Pepper and Second Helpings achievements show progress bars.
+3. **Fighting a rival KAIJU:**
+   - **Stomp telegraph:** a ring the size of the stomp fills in before every KAIJU stomp, so you can step out. A flashing ring warns when a KAIJU is about to shrink.
+   - **Dizzy punish:** when KAIJU ends, the kaiju is dizzy for 0.75 s with no safety shield (`P.shrinkDizzy`, `P.shrinkInvuln = 0`). That is your moment to hit back.
+   - Story balance is unchanged within noise: 100-run checks with and without dizzy.
+4. **Gauntlet runs:**
+   - **3 lives ❤❤❤** per run (`GAUNTLET.lives`, max 5). Losing a wave costs a life and retries the same wave, keeping your perks. GAUNTLET OVER only comes when the last life is gone.
+   - Hearts show in the HUD and on the results screen.
+   - **New perks:** 👻 Ghost Start (untouchable for the first 3 s of each wave) and ❤ Extra Life (+1 life, offered only below the max).
+5. **Party:**
+   - **🥄 GOLDEN SPOON**, a new party mode. Touch the spoon to grab it, and every second you hold it scores. The holder is 10% slower; knocking them out drops it, with a short no-grab moment.
+   - The spoon always sits on open table, never inside a centre obstacle.
+   - The first to 15 s held wins the round; after 60 s the longest holder wins. Knocked-out kaiju come back after 2.2 s.
+   - Bots chase the spoon, and the holder runs. Works online (snapshot field `gs`).
+   - Tuning lives in `MODE_RULES.goldenSpoon`. In bot tests, rounds last about 29 s with lots of steals.
+   - **Party Cup length:** a new **CUP LENGTH** button (L) switches between the full Cup (6 games, now including Golden Spoon) and a short 3-game Cup (Classic → Golden Spoon → Classic final). It is saved on the device (`cupLength()` in `src/cup.ts`).
+- Second Helpings chapter 5 (Sugar High) eased: Bloblin is now easy (30% → 41% for the reference bot).
+- **Playtest reports** now focus on big structural feedback: `scripts/playtest/sheet-template.md` asks for the single biggest structural problem and 2–3 detailed redesign proposals (rules, flow, numbers, example moment, rewards, risks, size, score impact), with small nits capped at 5 one-liners.

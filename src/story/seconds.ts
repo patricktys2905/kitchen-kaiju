@@ -49,7 +49,7 @@ export const SECONDS_CHAPTERS: Chapter[] = [
   },
   {
     title: 'Sugar High', table: 13, rounds: 3, mutator: 'snack',
-    rivals: [{ species: 9, level: 'normal' }, { species: 3, level: 'normal' }, { species: 18, level: 'normal' }],
+    rivals: [{ species: 9, level: 'normal' }, { species: 3, level: 'easy' }, { species: 18, level: 'normal' }],
     intro: [
       { speaker: 0, text: 'Gumdrops! Bumpers! BUBBLES!' },
       { speaker: 2, text: 'So you\'re the champ everyone\'s talking about. Hop to it.' },

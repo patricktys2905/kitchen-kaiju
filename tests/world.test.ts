@@ -680,6 +680,36 @@ describe('party modes', () => {
   });
 });
 
+describe('golden spoon', () => {
+  it('touch to grab, holding scores, a KO drops it, and holding long enough wins the round', () => {
+    const w = makeWorld(3, 'fork', { mode: 'goldenSpoon', hazards: false });
+    run(w, 0.05);
+    expect(w.spoon).not.toBeNull();
+    const sp = w.spoon!;
+    sp.cd = 0;
+    place(w, 0, sp.x, sp.y); place(w, 1, TABLE.x + 60, TABLE.y + 60); place(w, 2, TABLE.x + TABLE.w - 60, TABLE.y + TABLE.h - 60);
+    run(w, 0.05);
+    expect(sp.holder).toBe(0);
+    run(w, 1);
+    expect(w.players[0].pts).toBeGreaterThan(0.9);
+    w.ko(w.players[0], 1, 'cutlery');
+    expect(sp.holder).toBeNull();
+    expect(w.players[0].respawnT).toBeGreaterThan(0);
+    sp.cd = 0; place(w, 1, sp.x, sp.y);
+    w.players[1].pts = 14.9;
+    run(w, 0.3);
+    expect(w.phase).not.toBe('play');
+    expect(w.winner).toBe(1);
+  });
+
+  it('a short Party Cup is 3 games with Golden Spoon in the middle', async () => {
+    const { cupGames } = await import('../src/cup');
+    const g = cupGames(4, 'short');
+    expect(g.map(x => x.mode)).toEqual(['classic', 'goldenSpoon', 'classic']);
+    expect(cupGames(4, 'full').length).toBeGreaterThan(3);
+  });
+});
+
 describe('stats, achievements and settings', () => {
   it('achievements unlock once from stats', async () => {
     const { ACHIEVEMENTS, checkAchievements } = await import('../src/stats');

@@ -1,7 +1,7 @@
 // Party modes. EASY TO CUSTOMISE: change names, blurbs and numbers here; set `enabled: false` to hide a mode.
 // The simulation (world.ts) reads MODE_RULES; menus read MODES.
 
-export type GameMode = 'classic' | 'teams' | 'crumbRush' | 'hotDumpling' | 'practice';
+export type GameMode = 'classic' | 'teams' | 'crumbRush' | 'hotDumpling' | 'goldenSpoon' | 'practice';
 
 export interface ModeDef {
   id: GameMode;
@@ -31,6 +31,10 @@ export const MODES: ModeDef[] = [
     howTo: 'One kaiju carries a HOT DUMPLING. Touch a rival to pass it on. When the fuse runs out, it POPS. Last one standing wins.', minPlayers: 3, enabled: true,
   },
   {
+    id: 'goldenSpoon', name: 'GOLDEN SPOON', blurb: 'Grab the Golden Spoon and hold on',
+    howTo: 'Touch the Golden Spoon to grab it. Every second you hold it scores. Knock out the holder to make them drop it. First to the target wins the round; knocked-out kaiju come back.', minPlayers: 2, enabled: true,
+  },
+  {
     id: 'practice', name: 'PRACTICE', blurb: 'Learn the moves on a harmless dummy',
     howTo: 'A training dummy that never fights back. Follow the checklist. Knocked-out kaiju come straight back.', minPlayers: 2, enabled: true, hidden: true,
   },
@@ -57,6 +61,14 @@ export const MODE_RULES = {
     crumbEvery: 0.55, // a new crumb this often (classic: RULES.crumbEvery)
     maxCrumbs: 28,
     dropShare: 0.5, // share of your crumbs you drop when knocked out
+  },
+  goldenSpoon: {
+    holdToWin: 15, // seconds of holding to win the round
+    roundTime: 60, // after this, whoever held it longest wins
+    holderSpeed: 0.9, // the holder is a little slower
+    respawnDelay: 2.2,
+    respawnShield: 1.5,
+    grabCooldown: 0.6, // after a drop, nobody can grab it for this long
   },
   hotDumpling: {
     fuse: [7, 12] as [number, number], // seconds until it pops (random in range)

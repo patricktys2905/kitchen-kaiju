@@ -32,6 +32,7 @@ export interface Snapshot {
   sp?: number[] | null; // spatula [state 0 warn / 1 flip, x, y, t]
   pz?: number[][]; // kaiju power puddles [x, y, r, t, 0 sticky / 1 slick, owner, species]
   ps?: number[][]; // kaiju power shots/mines [x, y, vx, vy, r, owner, species, mine, t]
+  gs?: number[] | null; // golden spoon [x, y, holder (-1 = on table), cd]
 }
 
 export function makeSnapshot(w: World): Snapshot {
@@ -59,6 +60,7 @@ export function makeSnapshot(w: World): Snapshot {
     sp: w.spatula ? [w.spatula.state === 'warn' ? 0 : 1, r1(w.spatula.x), r1(w.spatula.y), r3(w.spatula.t)] : null,
     pu: w.puddles.map(z => [r1(z.x), r1(z.y), r1(z.r), r1(z.t)]),
     pz: w.powerZones.map(z => [r1(z.x), r1(z.y), r1(z.r), r1(z.t), z.zone === 'slick' ? 1 : 0, z.owner, z.species]),
+    gs: w.spoon ? [r1(w.spoon.x), r1(w.spoon.y), w.spoon.holder ?? -1, r3(w.spoon.cd)] : null,
     ps: w.powerShots.map(q => [r1(q.x), r1(q.y), r1(q.vx), r1(q.vy), r1(q.r), q.owner, q.species, q.mine ? 1 : 0, r1(q.t)]),
     bl: w.blender ? [w.blender.state === 'warn' ? 0 : 1, r3(w.blender.t), r3(w.bladeAngle)] : null,
   };
@@ -107,6 +109,7 @@ export function applySnapshot(w: World, s: Snapshot): boolean {
   w.spatula = s.sp ? { state: s.sp[0] ? 'flip' : 'warn', x: s.sp[1], y: s.sp[2], t: s.sp[3] } : null;
   w.puddles = (s.pu ?? []).map(a => ({ x: a[0], y: a[1], r: a[2], t: a[3] }));
   w.powerZones = (s.pz ?? []).map(a => ({ x: a[0], y: a[1], r: a[2], t: a[3], zone: a[4] ? 'slick' : 'sticky', owner: a[5], species: a[6] }));
+  w.spoon = s.gs ? { x: s.gs[0], y: s.gs[1], holder: s.gs[2] < 0 ? null : s.gs[2], cd: s.gs[3] } : null;
   w.powerShots = (s.ps ?? []).map(a => ({ x: a[0], y: a[1], vx: a[2], vy: a[3], r: a[4], owner: a[5], species: a[6], mine: a[7] === 1, t: a[8], force: 0, stun: 0, range: 0, traveled: 0, back: false, returning: false, dead: false }));
   return tableChanged;
 }

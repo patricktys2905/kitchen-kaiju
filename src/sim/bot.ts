@@ -80,6 +80,11 @@ export class BotBrain {
       if (this.rng.next() < 0.5) this.strafe *= -1;
     }
 
+    if (w.mode === 'goldenSpoon' && w.spoon) {
+      const s = w.spoon;
+      if (s.holder === p.id) add(-ux, -uy, 1.4); // keep away from rivals
+      else { const dx = s.x - p.x, dy = s.y - p.y, d = Math.hypot(dx, dy) || 1; add(dx / d, dy / d, s.holder === null ? 2.2 : 1.2); }
+    }
     if (p.kaijuT > 0) {
       add(ux, uy, 1.6); // stomp them
       // 🌟 fire the KAIJU power when a rival is in reach (a fresh SWIPE press)

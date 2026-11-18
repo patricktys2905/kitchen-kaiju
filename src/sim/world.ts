@@ -41,6 +41,8 @@ export type GameEvent =
   | { type: 'eat'; id: number; x: number; y: number }
   | { type: 'meterFull'; id: number }
   | { type: 'frenzy' }
+  | { type: 'spoonGrab'; id: number; x: number; y: number }
+  | { type: 'spoonDrop'; id: number; x: number; y: number }
   | { type: 'parry'; id: number; from: number | null; x: number; y: number }
   | { type: 'kaiju'; id: number; x: number; y: number }
   | { type: 'stomp'; id: number; x: number; y: number; r: number }
@@ -257,6 +259,8 @@ export class World {
   private itemTimer = 0;
   /** Hot Dumpling: who is carrying it and how long until it pops. */
   hot: { id: number; fuse: number; cd: number } | null = null;
+  /** Golden Spoon mode: where the spoon is, who holds it (null = on the table), grab cooldown. */
+  spoon: { x: number; y: number; holder: number | null; cd: number } | null = null;
   players: Player[] = [];
   cutlery: Cutlery[] = [];
   crumbs: Crumb[] = [];
@@ -364,6 +368,7 @@ export class World {
     this.powerZones = [];
     this.powerShots = [];
     this.frenzy = false;
+    this.spoon = null;
     this.spatula = null;
     this.spatulaTimer = RULES.spatulaFirst + this.calm;
     this.cheeseTimer = RULES.cheeseFirst + this.calm;
@@ -548,7 +553,7 @@ export class World {
     p.prev = { throw: inp.throw, swipe: inp.swipe, dash: inp.dash, stomp: inp.stomp };
 
     // Movement
-    const spd = P.speed * (mods.speed ?? 1) * (p.charging ? P.chargeSlow : 1) * (p.kaijuT > 0 ? P.kaijuSpeed : 1) * (this.onSticky(p.x, p.y) ? RULES.stickySlow : 1) * (this.hot?.id === p.id ? MODE_RULES.hotDumpling.holderSpeed : 1) * (p.speedT > 0 ? POWERUPS.hotsauceSpeed : 1) * (this.mutator === 'tiny' ? MUTATOR_RULES.tinySpeed : 1);
+    const spd = P.speed * (mods.speed ?? 1) * (p.charging ? P.chargeSlow : 1) * (p.kaijuT > 0 ? P.kaijuSpeed : 1) * (this.onSticky(p.x, p.y) ? RULES.stickySlow : 1) * (this.hot?.id === p.id ? MODE_RULES.hotDumpling.holderSpeed : 1) * (this.spoon?.holder === p.id ? MODE_RULES.goldenSpoon.holderSpeed : 1) * (p.speedT > 0 ? POWERUPS.hotsauceSpeed : 1) * (this.mutator === 'tiny' ? MUTATOR_RULES.tinySpeed : 1);
     if (p.powerT > 0) {
       // charge power: a fast slide; contact squashes like any kaiju
       p.powerT -= dt;
@@ -613,6 +618,7 @@ export class World {
         p.kaijuT = 0;
         p.powerT = 0;
         p.invT = P.shrinkInvuln;
+        if (P.shrinkDizzy > 0 && p.alive) { p.stunT = Math.max(p.stunT, P.shrinkDizzy); p.charging = false; p.charge = 0; }
         this.emit({ type: 'shrink', id: p.id });
       }
     }
@@ -919,6 +925,10 @@ export class World {
     }
     p.meter = 0;
     p.kaijuT = 0;
+    if (this.mode === 'goldenSpoon') {
+      if (this.spoon?.holder === p.id) { this.spoon.holder = null; this.spoon.cd = MODE_RULES.goldenSpoon.grabCooldown; [this.spoon.x, this.spoon.y] = cause === 'fall' || cause === 'blend' ? this.spoonSpot() : this.spoonSpot(p.x, p.y); this.emit({ type: 'spoonDrop', id: p.id, x: this.spoon.x, y: this.spoon.y }); }
+      p.respawnT = MODE_RULES.goldenSpoon.respawnDelay;
+    }
     if (this.mode === 'crumbRush') {
       const lost = Math.floor(p.pts * MODE_RULES.crumbRush.dropShare);
       p.pts -= lost;
@@ -1139,6 +1149,22 @@ export class World {
   // ---------------------------------------------------------------- crumbs & pickups
   private addCrumb(x: number, y: number): void {
     this.crumbs.push({ id: this.nextId++, x, y, variant: this.rng.int(3) });
+  }
+
+  private blockedAt(x: number, y: number, r = 14): boolean {
+    return this.layout.obstacles.some(o => o.shape === 'circle' ? Math.hypot(x - o.x, y - o.y) < o.r + r : circRect(x, y, r, o.x, o.y, o.w, o.h) !== null);
+  }
+
+  /** Where the Golden Spoon sits: (x, y) if that is open table, else the centre, else any free spot. */
+  private spoonSpot(x = TABLE.x + TABLE.w / 2, y = TABLE.y + TABLE.h / 2): [number, number] {
+    x = clamp(x, TABLE.x + 40, TABLE.x + TABLE.w - 40); y = clamp(y, TABLE.y + 40, TABLE.y + TABLE.h - 40);
+    if (!this.blockedAt(x, y, 24)) return [x, y];
+    const cx = TABLE.x + TABLE.w / 2, cy = TABLE.y + TABLE.h / 2;
+    for (let k = 1; k <= 8; k++) for (let a = 0; a < 8; a++) {
+      const px = cx + Math.cos(a * Math.PI / 4) * k * 30, py = cy + Math.sin(a * Math.PI / 4) * k * 30;
+      if (!this.blockedAt(px, py, 24)) return [px, py];
+    }
+    return this.freeSpot(60, 0) ?? [cx, cy];
   }
 
   private freeSpot(margin: number, playerGap: number): [number, number] | null {
@@ -1593,6 +1619,7 @@ export class World {
 
   /** Seconds left in a timed round (Crumb Rush), else null. */
   timeLeft(): number | null {
+    if (this.mode === 'goldenSpoon') return Math.max(0, MODE_RULES.goldenSpoon.roundTime - this.roundT);
     return this.mode === 'crumbRush' ? Math.max(0, MODE_RULES.crumbRush.roundTime - this.roundT) : null;
   }
 
@@ -1602,14 +1629,30 @@ export class World {
       if (!this.frenzy) { this.frenzy = true; this.emit({ type: 'frenzy' }); }
       for (const p of this.players) if (p.alive && p.kaijuT <= 0 && p.meter < 100) { const was = p.meter; p.meter = Math.min(100, p.meter + RULES.frenzyFill * dt); if (was < 100 && p.meter >= 100) this.emit({ type: 'meterFull', id: p.id }); }
     }
-    if (this.mode === 'crumbRush' || this.mode === 'practice') {
+    if (this.mode === 'goldenSpoon') {
+      if (!this.spoon) { const [x, y] = this.spoonSpot(); this.spoon = { x, y, holder: null, cd: 1 }; }
+      const sp = this.spoon;
+      sp.cd -= dt;
+      const h = sp.holder !== null ? this.players[sp.holder] : null;
+      if (h && !h.alive) sp.holder = null;
+      if (sp.holder !== null && h) { sp.x = h.x; sp.y = h.y; h.pts += dt; }
+      else if (sp.cd <= 0) {
+        for (const q of this.players) {
+          if (!q.alive || Math.hypot(q.x - sp.x, q.y - sp.y) > q.r + 22) continue;
+          sp.holder = q.id;
+          this.emit({ type: 'spoonGrab', id: q.id, x: sp.x, y: sp.y });
+          break;
+        }
+      }
+    }
+    if (this.mode === 'crumbRush' || this.mode === 'practice' || this.mode === 'goldenSpoon') {
       for (const p of this.players) {
         if (p.alive || p.respawnT <= 0) continue;
         p.respawnT -= dt;
         if (p.respawnT > 0) continue;
         p.respawnT = 0;
         const s = this.freeSpot(60, 90) ?? this.layout.spawns[p.id % this.layout.spawns.length];
-        Object.assign(p, { x: s[0], y: s[1], vx: 0, vy: 0, kx: 0, ky: 0, alive: true, invT: MODE_RULES.crumbRush.respawnShield, lastHitBy: null, lastHitT: 0, prev: { throw: true, swipe: true, dash: true, stomp: true } });
+        Object.assign(p, { x: s[0], y: s[1], vx: 0, vy: 0, kx: 0, ky: 0, alive: true, invT: this.mode === 'goldenSpoon' ? MODE_RULES.goldenSpoon.respawnShield : MODE_RULES.crumbRush.respawnShield, lastHitBy: null, lastHitT: 0, prev: { throw: true, swipe: true, dash: true, stomp: true } });
         if (p.holding === null && this.mutator !== 'fists') {
           const c = this.newCutlery(this.rng.pick(STARTER_KINDS), p.x, p.y);
           c.state = 'held'; c.holder = p.id; c.owner = p.id; p.holding = c.id;
@@ -1666,6 +1709,12 @@ export class World {
         const best = Math.max(...this.players.map(p => p.pts));
         const top = this.players.filter(p => p.pts === best);
         this.endRound(best > 0 ? top : []); // tied leaders all score (no endless tie rounds)
+      }
+    } else if (this.phase === 'play' && this.players.length > 1 && this.mode === 'goldenSpoon') {
+      const G = MODE_RULES.goldenSpoon, best = Math.max(...this.players.map(p => p.pts));
+      if (best >= G.holdToWin || this.roundT >= G.roundTime) {
+        const top = this.players.filter(p => p.pts === best);
+        this.endRound(best > 0 ? top.slice(0, 1) : []);
       }
     } else if (this.phase === 'play' && this.players.length > 1 && this.mode === 'teams') {
       const alive = this.alivePlayers();

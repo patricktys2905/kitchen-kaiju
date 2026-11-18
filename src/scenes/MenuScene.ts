@@ -14,7 +14,7 @@ import { owned, type Owned } from '../story/unlocks';
 import { playMusic } from '../music';
 import { keyFor, keyLabel } from '../keybinds';
 import { POWERUPS } from '../sim/powerups';
-import { cupGames } from '../cup';
+import { cupGames, cupLength, setCupLength } from '../cup';
 import { enabledMutators, mutatorDef, type Mutator } from '../sim/mutators';
 import { enabledModes, MODE_RULES, modeDef, type GameMode } from '../sim/modes';
 import { KITS } from '../sim/powers';
@@ -245,8 +245,8 @@ export class MenuScene extends Phaser.Scene {
       for (const o of keyObjs) if (o !== (panel as never)) o.setDepth(20);
       const show = (v: boolean) => { this.keysShown = v; for (const o of keyObjs) o.setVisible(v); this.keysBtn?.setText(v ? '✖ CLOSE KEYS' : '⌨ KEYS'); };
       // big, clickable setup: settings row + PLAY
-      const W = 130, items: [string, string][] = this.party
-        ? [['mode', 'KeyG'], ['cup', 'KeyC'], ['bots', 'Digit2'], ['table', 'KeyM'], ['rounds', 'KeyR'], ['twist', 'KeyX'], ['power', 'KeyU'], ['haz', 'KeyH'], ['dice', 'KeyZ']]
+      const W = this.party ? 118 : 130, items: [string, string][] = this.party
+        ? [['mode', 'KeyG'], ['cup', 'KeyC'], ['cuplen', 'KeyL'], ['bots', 'Digit2'], ['table', 'KeyM'], ['rounds', 'KeyR'], ['twist', 'KeyX'], ['power', 'KeyU'], ['haz', 'KeyH'], ['dice', 'KeyZ']]
         : [['bots', 'Digit2'], ['table', 'KeyM'], ['rounds', 'KeyR'], ['twist', 'KeyX'], ['power', 'KeyU'], ['haz', 'KeyH'], ['dice', 'KeyZ'], ['online', 'KeyO']];
       const x0 = 640 - ((items.length - 1) * (W + 8)) / 2;
       this.setBtns = items.map(([id, code], k) => { const b = new Button(this, x0 + k * (W + 8), 512, { w: W, h: 54, label: '', size: 14, onClick: () => { if (!this.keysShown) injectTap(code); } }, 6); (b as Button & { id?: string }).id = id; b.label.setAlign('center').setLineSpacing(-2); return b; });
@@ -339,6 +339,7 @@ export class MenuScene extends Phaser.Scene {
     }
     if (consumeTap('Digit1')) { this.startGame(); return; }
     if (this.party && (consumeTap('KeyC') || consumeTap('TouchCup'))) { this.startCup(); return; }
+    if (this.party && consumeTap('KeyL')) setCupLength(cupLength() === 'short' ? 'full' : 'short');
     if (consumeTap('KeyZ') || consumeTap('TouchShuffle')) this.shuffle();
     if (consumeTap('Escape')) { this.scene.start('title'); return; }
     clearTaps();
@@ -455,10 +456,10 @@ export class MenuScene extends Phaser.Scene {
     if (this.setBtns.length) {
       const tl0 = this.table < 0 ? null : LAYOUTS[this.table];
       const label: Record<string, string> = {
-        mode: `MODE ▶\n${modeDef(this.mode).name}`, cup: '🏆 PARTY\nCUP', bots: `BOT LEVEL\n${this.difficulty.toUpperCase()}`, table: `TABLE\n${tl0 ? tl0.name.toUpperCase() : 'ALL'}`,
+        mode: `MODE ▶\n${modeDef(this.mode).name}`, cup: '🏆 PARTY\nCUP', cuplen: `CUP LENGTH\n${cupGames(Math.max(3, this.slots.length)).length} GAMES`, bots: `BOT LEVEL\n${this.difficulty.toUpperCase()}`, table: `TABLE\n${tl0 ? tl0.name.toUpperCase() : 'ALL'}`,
         rounds: `FIRST TO\n${this.rounds}`, twist: `TWIST\n${this.mutator === 'none' ? 'NONE' : mutatorDef(this.mutator).name}`, power: `POWER-UPS\n${this.powerups ? 'ON' : 'OFF'}`, haz: `HAZARDS\n${this.hazards ? 'ON' : 'OFF'}`, dice: '🎲\nRANDOM', online: '🌐\nONLINE',
       };
-      for (const b of this.setBtns) { const id = (b as Button & { id?: string }).id ?? ''; b.setText(label[id] ?? ''); b.label.setScale(Math.min(1, 118 / Math.max(1, b.label.width / b.label.scaleX))); }
+      for (const b of this.setBtns) { const id = (b as Button & { id?: string }).id ?? ''; b.setText(label[id] ?? ''); b.label.setScale(Math.min(1, (this.party ? 106 : 118) / Math.max(1, b.label.width / b.label.scaleX))); }
       const people = this.slots.filter(q => q.kind !== 'bot').length;
       this.hintText?.setText(people ? `${this.slots.length} at the table · click empty seats to add bots · press ▶ PLAY` : 'Click a seat (or press THROW on a keyboard / gamepad) to join');
       if (this.mutator !== 'none' && this.hintText) this.hintText.setText(`⚡ ${mutatorDef(this.mutator).name}: ${mutatorDef(this.mutator).blurb}`);

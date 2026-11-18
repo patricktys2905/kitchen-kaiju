@@ -17,6 +17,9 @@ export const COLOURS: Colour[] = [
   { id: 'toasty', name: 'Toasty', unlock: 'story-3', recipe: { hue: 26, sat: 0.75, light: 0.82 } },
   { id: 'cherry', name: 'Cherry', unlock: 'flawless', recipe: { hue: 352, sat: 1.25, light: 0.92 } },
   { id: 'mint', name: 'Mint', unlock: 'daily-3', recipe: { hue: 150, sat: 0.8, light: 1.12 } },
+  { id: 'lemon', name: 'Lemon', unlock: 'spoon', recipe: { hue: 56, sat: 1.15, light: 1.1 } },
+  { id: 'sky', name: 'Sky', unlock: 'hot', recipe: { hue: 192, sat: 0.8, light: 1.15 } },
+  { id: 'lava', name: 'Lava', unlock: 'kaiju-10', recipe: { hue: 14, sat: 1.3, light: 0.85 } },
 ];
 
 /** Kaiju whose main body colour isn't picked up automatically (e.g. a bright belly wins): their body hue in degrees. */

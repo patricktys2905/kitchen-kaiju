@@ -1,12 +1,15 @@
-// Gauntlet: solo survival. One life; each wave is a single round against more (and tougher) bots.
+// Gauntlet: solo survival. A few lives (❤); each wave is a single round against more (and tougher) bots. Lose a wave = lose a life and retry it.
 // EASY TO CUSTOMISE: change waveSetup() or the numbers in GAUNTLET.
 import type { Difficulty } from './sim/bot';
+import { RULES } from './sim/constants';
 import { LAYOUTS } from './sim/layouts';
 
 export const GAUNTLET = {
   powerups: true, // condiments on the table
   mode: 'classic' as const,
   bossEvery: 5, // every 5th wave one rival starts each round able to go KAIJU (crowned)
+  lives: 3, // ❤ per run: losing a wave costs one and retries the same wave
+  maxLives: 5,
 };
 
 export interface WaveSetup {
@@ -26,12 +29,14 @@ export function waveSetup(wave: number): WaveSetup {
 }
 
 /** 🎁 Perks you pick between Gauntlet waves; they stack and last the whole run. EASY TO CUSTOMISE. */
-export interface Perk { id: string; name: string; desc: string; apply: (p: { meter: number; shieldT: number; speedT: number; sugarT: number }) => void }
+export interface Perk { id: string; name: string; desc: string; apply: (p: { meter: number; shieldT: number; speedT: number; sugarT: number; invT: number }) => void; once?: boolean /* picked again? no: one-off perks like an extra life */ }
 export const GAUNTLET_PERKS: Perk[] = [
   { id: 'belly', name: '🍪 Full Belly', desc: 'Start each wave 40% nearer KAIJU', apply: p => { p.meter = Math.min(100, p.meter + 40); } },
   { id: 'shield', name: '🟡 Mustard Coat', desc: 'A shield that blocks one hit', apply: p => { p.shieldT = 60; } },
   { id: 'speed', name: '🌶️ Hot Feet', desc: 'Move faster every wave', apply: p => { p.speedT = 60; } },
   { id: 'sugar', name: '🍬 Sugar Rush', desc: 'Dash and swipe recharge fast', apply: p => { p.sugarT = 60; } },
+  { id: 'ghost', name: '👻 Ghost Start', desc: 'Untouchable for the first 3 s of each wave', apply: p => { p.invT = Math.max(p.invT, RULES.countdown + 3); } }, // applied at the countdown, so add its length
+  { id: 'heart', name: '❤ Extra Life', desc: 'One more life for this run', apply: () => { /* counted in the run, see GameScene */ }, once: true },
 ];
 
 /** Which tables a wave can use (any you own). */

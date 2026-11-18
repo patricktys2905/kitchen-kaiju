@@ -373,7 +373,9 @@ export class GalleryScene extends PanelScene {
   private colLabel!: Phaser.GameObjects.Text;
   private colG!: Phaser.GameObjects.Graphics;
   private colFor = -1; // which kaiju the swatches currently show
-  private colX = (k: number) => 214 + k * 70;
+  /** Swatch spacing shrinks as more colours are added so the row never runs into the label. */
+  private colStep = Math.min(70, 760 / Math.max(1, COLOURS.length - 1));
+  private colX = (k: number) => 214 + k * this.colStep;
 
   private buildColours(): void {
     this.add.text(60, 398, 'YOUR COLOUR', display(18, '#ffd24a', { strokeThickness: 3 })).setOrigin(0, 0.5).setDepth(6);
@@ -381,12 +383,12 @@ export class GalleryScene extends PanelScene {
     this.colG = this.add.graphics().setDepth(8);
     this.colFor = -1; // new images on every visit: draw the swatches again
     this.colIcons = COLOURS.map((_, k) => this.add.image(this.colX(k), 398, '__MISSING').setDepth(8).setVisible(false));
-    this.colLocks = COLOURS.map((_, k) => this.add.text(this.colX(k), 398, '🔒', body(22, '#ffffff', 900)).setOrigin(0.5).setDepth(9).setVisible(false));
+    this.colLocks = COLOURS.map((_, k) => this.add.text(this.colX(k), 398, '🔒', body(this.colStep < 64 ? 18 : 22, '#ffffff', 900)).setOrigin(0.5).setDepth(9).setVisible(false));
     COLOURS.forEach((c, k) => {
-      const zone = this.add.zone(this.colX(k), 398, 64, 58).setInteractive().setDepth(10);
+      const zone = this.add.zone(this.colX(k), 398, this.colStep - 6, 58).setInteractive().setDepth(10);
       zone.on('pointerover', () => { this.nav.index = SPECIES.length + k; });
       zone.on('pointerup', () => { this.nav.index = SPECIES.length + k; if (!colourUnlocked(c)) { sfx.thwock(); return; } setColour(c.id); sfx.pickup(); this.showDetail(this.shown < 0 ? 0 : this.shown, false); });
-      this.buttons.push(new Button(this, this.colX(k), 398, { w: 64, h: 58, label: '', size: 12, accent: 0xffd24a, onClick: () => {
+      this.buttons.push(new Button(this, this.colX(k), 398, { w: this.colStep - 6, h: 58, label: '', size: 12, accent: 0xffd24a, onClick: () => {
         this.nav.index = SPECIES.length + k;
         if (!colourUnlocked(c)) { sfx.thwock(); return; }
         setColour(c.id); sfx.pickup(); this.showDetail(this.shown < 0 ? 0 : this.shown, false);
@@ -398,19 +400,20 @@ export class GalleryScene extends PanelScene {
     const cur = currentColour(), sp = this.shown < 0 ? 0 : this.shown;
     if (this.colFor !== sp) {
       this.colFor = sp;
-      COLOURS.forEach((c, k) => { if (hasArt(`kaiju-${sp}`)) fitInside(this.colIcons[k].setTexture(kaijuKey(this, sp, c.id)).setVisible(true), 50, 44); });
+      COLOURS.forEach((c, k) => { if (hasArt(`kaiju-${sp}`)) fitInside(this.colIcons[k].setTexture(kaijuKey(this, sp, c.id)).setVisible(true), Math.min(50, this.colStep - 14), 44); });
     }
     const g = this.colG;
     g.clear();
     COLOURS.forEach((c, k) => {
       const got = colourUnlocked(c);
       this.colIcons[k].setTint(got ? 0xffffff : 0x2a2420);
-      if (c.id === cur.id) { g.lineStyle(3, 0x8dff6a, 1); g.strokeRoundedRect(this.colX(k) - 34, 366, 68, 64, 14); }
+      if (c.id === cur.id) { g.lineStyle(3, 0x8dff6a, 1); g.strokeRoundedRect(this.colX(k) - this.colStep / 2 + 1, 366, this.colStep - 2, 64, 12); }
       this.colLocks[k]?.setVisible(!got);
     });
     const ck = i - SPECIES.length, focus = ck >= 0 && ck < COLOURS.length ? COLOURS[ck] : cur;
     const u = focus.unlock ? ACHIEVEMENTS.find(a => a.id === focus.unlock) : null;
-    this.colLabel.setText(colourUnlocked(focus) ? `${focus.name}${focus.id === cur.id ? ' (wearing)' : ''} · works on every kaiju` : `🔒 ${focus.name}: unlock with "${u?.name}" (${u?.desc})`);
+    const prog = u?.progress ? u.progress(loadStats()) : null;
+    this.colLabel.setText(colourUnlocked(focus) ? `${focus.name}${focus.id === cur.id ? ' (wearing)' : ''} · works on every kaiju` : `🔒 ${focus.name}: "${u?.name}": ${u?.desc}${prog ? ` (${Math.min(prog[0], prog[1])}/${prog[1]})` : ''}`);
   }
 
   private showDetail(i: number, click: boolean): void {

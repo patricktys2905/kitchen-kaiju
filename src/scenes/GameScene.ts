@@ -39,6 +39,8 @@ import { isTouchDevice, setTouchHud, setTouchMode } from '../touch';
 const STEP = 1 / 120;
 /** ⏩ When every human is knocked out for the rest of the round, the bots finish it this many times faster. EASY TO CHANGE (1 = off). */
 export const FAST_FORWARD = 3;
+/** Keep showing the STOMP coach until a player has gone KAIJU this many times (always in Story chapters 1–2). */
+const STOMP_COACH_UNTIL = 5;
 /** Story chapters 1–2: hazards wait this many extra seconds (learn the basics first). EASY TO CHANGE. */
 export const STORY_CALM = 12;
 /** 🌶️ Spicy replays: rivals start every round with this much belly (100 = ready to go KAIJU). EASY TO CHANGE. */
@@ -62,7 +64,7 @@ export interface GameData {
   hazards?: boolean; // table hazards (hand, wind, cleaver…); default on
   mutator?: Mutator; // Free Play / Online rule twist
   hats?: string[]; // online: each seat's hat id ('' = none)
-  gauntlet?: { wave: number; bosses: number[]; perks?: string[] }; // Gauntlet: seat 0 is you, one round per wave; perks picked between waves
+  gauntlet?: { wave: number; bosses: number[]; perks?: string[]; lives?: number }; // Gauntlet: seat 0 is you, one round per wave; perks picked between waves
   from?: string; // scene to go back to (practice: 'help' or 'gallery')
   daily?: { date: string }; // Daily Challenge: seat 0 is you
   party?: boolean; // started from the PARTY MODES setup (go back there afterwards)
@@ -203,6 +205,8 @@ export class GameScene extends Phaser.Scene {
     this.resultBtns = []; // Phaser reuses this scene object: forget buttons from the last match
     this.perkUi = [];
     this.rampage = {};
+    this.stompCoach = [];
+    this.coachStomp = (this.story?.chapter ?? 99) <= 2 || loadStats().kaijuForms < STOMP_COACH_UNTIL;
     clearTaps();
     this.baseG = this.add.graphics().setDepth(-2.5);
     this.tableG = this.add.graphics().setDepth(-1);
@@ -365,6 +369,10 @@ export class GameScene extends Phaser.Scene {
     const gw = this.initData.gauntlet;
     this.updateResultButtons(dt);
     if (this.perkUi.length) { consumeTap('Escape'); for (const b of this.perkUi) b.update(dt); this.perkKeys?.(); return; }
+    if (gw && this.world.phase === 'matchEnd' && this.world.winner !== 0 && (gw.lives ?? GAUNTLET.lives) > 1 && (this.world.phaseT > 2.4 || consumeTap('Space') || consumeTap('Enter'))) {
+      this.retryGauntletWave(gw);
+      return;
+    }
     if (gw && this.world.phase === 'matchEnd' && this.world.winner === 0 && (this.world.phaseT > 1.6 || consumeTap('Space') || consumeTap('Enter'))) {
       if (!this.perkUi.length) this.offerPerks(gw);
       return;
@@ -424,13 +432,14 @@ export class GameScene extends Phaser.Scene {
 
   /** Gauntlet: after a cleared wave, pick 1 of 3 perks that last the rest of the run. */
   private offerPerks(gw: NonNullable<GameData['gauntlet']>): void {
-    const pool = GAUNTLET_PERKS.slice().sort(() => Math.random() - 0.5).slice(0, 3);
+    const lives = gw.lives ?? GAUNTLET.lives;
+    const pool = GAUNTLET_PERKS.filter(pk => pk.id !== 'heart' || lives < GAUNTLET.maxLives).sort(() => Math.random() - 0.5).slice(0, 3);
     const go = (id: string) => {
       for (const b of this.perkUi) { b.g.destroy(); b.label.destroy(); b.sub?.destroy(); b.zone.destroy(); }
       this.perkUi = [];
       sfx.go();
       const next = GameScene.gauntletWave(gw.wave + 1, this.species[0], this.slots[0]);
-      next.gauntlet = { ...next.gauntlet!, perks: [...(gw.perks ?? []), id] };
+      next.gauntlet = { ...next.gauntlet!, perks: id === 'heart' ? gw.perks ?? [] : [...(gw.perks ?? []), id], lives: id === 'heart' ? lives + 1 : lives };
       this.scene.restart(next);
     };
     this.perkUi = pool.map((pk, k) => new Button(this, VIEW.w / 2 + (k - 1) * 340, VIEW.h - 150, { w: 320, h: 96, label: pk.name, sub: pk.desc, size: 22, accent: 0x8dff6a, onClick: () => go(pk.id) }, 14));
@@ -462,12 +471,42 @@ export class GameScene extends Phaser.Scene {
       }
     }
   }
+  /** Lost a wave but still have a life: same wave again, perks kept. */
+  private retryGauntletWave(gw: NonNullable<GameData['gauntlet']>): void {
+    sfx.go();
+    const again = GameScene.gauntletWave(gw.wave, this.species[0], this.slots[0]);
+    again.gauntlet = { ...again.gauntlet!, perks: gw.perks ?? [], lives: (gw.lives ?? GAUNTLET.lives) - 1 };
+    this.scene.restart(again);
+  }
   private newGauntletRun(): void { sfx.go(); this.scene.restart(GameScene.gauntletWave(1, this.species[0], this.slots[0])); }
   private resultBtns: Button[] = [];
+  /** 🦖 STOMP coach: a sticky "BELLY FULL! Press STOMP" over humans until they learn it. */
+  private stompCoach: Phaser.GameObjects.Text[] = [];
+  private coachStomp = false;
+  private stompKeyName(i: number): string {
+    const s = this.slots[i];
+    if (!s || s.kind === 'touch') return 'tap STOMP';
+    if (s.kind === 'pad') return 'press Y';
+    if (s.kind === 'kb') return s.index === 1 ? 'press .' : 'press E';
+    return 'press STOMP';
+  }
+  private renderStompCoach(): void {
+    const w = this.world;
+    w.players.forEach((p, i) => {
+      const show = this.coachStomp && this.isHuman(i) && p.alive && p.meter >= 100 && p.kaijuT <= 0 && w.phase === 'play';
+      let tx = this.stompCoach[i];
+      if (!show) { tx?.setVisible(false); return; }
+      if (!tx) tx = this.stompCoach[i] = withShadow(this.add.text(0, 0, '', display(20, '#ffd24a', { strokeThickness: 5 })).setOrigin(0.5, 1).setDepth(7), 3);
+      tx.setText(`BELLY FULL! ${this.stompKeyName(i).toUpperCase()} → KAIJU`);
+      const bob = Math.abs(Math.sin(this.t * 5)) * 6, above = p.y - p.r - 34 - bob, half = tx.width / 2 + 12;
+      // keep it on screen and clear of the top HUD: flip below the kaiju near the top edge
+      tx.setPosition(Math.max(half, Math.min(VIEW.w - half, p.x)), above - tx.height < 96 ? p.y + p.r + 44 + tx.height - bob : above).setVisible(true);
+    });
+  }
 
   /** Results screens: clickable REMATCH / CONTINUE and MENU (keys still work). */
   private updateResultButtons(dt: number): void {
-    const gLost = !!this.initData.gauntlet && this.world.winner !== 0;
+    const gLost = !!this.initData.gauntlet && this.world.winner !== 0 && (this.initData.gauntlet.lives ?? GAUNTLET.lives) <= 1;
     const show = this.world.phase === 'matchEnd' && !this.replay && !this.story && (!this.initData.gauntlet || gLost) && !this.initData.dessert && !this.initData.attract && this.net?.role !== 'guest' && this.world.phaseT > 1;
     if (show && !this.resultBtns.length) {
       const cupNext = !!this.initData.cup;
@@ -658,6 +697,8 @@ export class GameScene extends Phaser.Scene {
           break;
         }
         case 'parry': sfx.clink(); this.shake(0.004, 100); this.popup(e.x, e.y - 30, '⚔ PARRY!', this.css[e.id], 24); this.rings.push({ x: e.x, y: e.y, r: 0, t: 0, max: 50, color: 0xffffff }); break;
+        case 'spoonGrab': sfx.pickup(); this.popup(e.x, e.y - 40, '🥄 GOT IT!', this.css[e.id], 22); this.rings.push({ x: e.x, y: e.y, r: 0, t: 0, max: 60, color: 0xffd24a }); break;
+        case 'spoonDrop': this.popup(e.x, e.y - 30, '🥄 DROPPED!', '#ffd24a', 22); break;
         case 'frenzy': sfx.meterFull(); this.popup(VIEW.w / 2, 150, '🍽 FEEDING FRENZY! Bellies are filling up…', '#ffd24a', 26); break;
         case 'minePop': sfx.bump(); this.shake(0.005, 120); this.burst(e.x, e.y, 0x4a6aff, 16, 240, 0.45); this.rings.push({ x: e.x, y: e.y, r: 0, t: 0, max: 70, color: 0x4a6aff }); break;
         case 'stunned': break;
@@ -988,7 +1029,7 @@ export class GameScene extends Phaser.Scene {
     if (e.type === 'roundStart' && this.initData.dessert && e.round === 1) { const q = COURSES[this.initData.dessert.course].quip; this.time.delayedCall(200, () => this.popup(VIEW.w / 2, 150, q, '#ffd9a0', 18)); }
     if (e.type === 'matchEnd' && this.initData.gauntlet) {
       const reached = this.initData.gauntlet.wave - (e.winner === 0 ? 0 : 1);
-      if (saveGauntletBest(reached) && e.winner !== 0 && reached > 0) this.time.delayedCall(600, () => { sfx.matchWin(); this.popup(VIEW.w / 2, 140, '🏅 NEW BEST!', '#ffd24a', 30); });
+      if (saveGauntletBest(reached) && e.winner !== 0 && reached > 0 && (this.initData.gauntlet.lives ?? GAUNTLET.lives) <= 1) this.time.delayedCall(600, () => { sfx.matchWin(); this.popup(VIEW.w / 2, 140, '🏅 NEW BEST!', '#ffd24a', 30); });
     }
     if (this.net?.role === 'guest' || !this.slots.some((_, i) => this.isHuman(i))) return;
     const st = (this.stats ??= loadStats()), w = this.world;
@@ -1203,6 +1244,30 @@ export class GameScene extends Phaser.Scene {
     if (w.mode === 'crumbRush') {
       for (const p of w.players) if (p.alive && p.invT > 0) { o.lineStyle(3, 0xffffff, 0.4 + 0.4 * Math.sin(t * 20)); o.strokeCircle(p.x, p.y, p.r + 8); }
     }
+    // 🦖 stomp telegraph: a ring fills in before each KAIJU stomp so rivals can step out
+    for (const p of w.players) {
+      if (!p.alive || p.kaijuT <= 0) continue;
+      const k = 1 - Math.max(0, Math.min(1, p.stepT / P.stompEvery));
+      o.lineStyle(3, this.colors[p.id], 0.25 + 0.45 * k); o.strokeCircle(p.x, p.y, P.stompRadius);
+      o.fillStyle(this.colors[p.id], 0.05 + 0.12 * k); o.fillCircle(p.x, p.y, P.stompRadius * (0.3 + 0.7 * k));
+      if (p.kaijuT < 1.2) { o.lineStyle(2, 0xffffff, 0.5 + 0.4 * Math.sin(t * 18)); o.strokeCircle(p.x, p.y, p.r + 12); } // about to shrink
+    }
+    if (w.mode === 'goldenSpoon' && w.spoon && w.phase === 'play') {
+      // 🥄 the Golden Spoon: lies on the table (glowing) or floats over its holder
+      const sp = w.spoon, h = sp.holder !== null ? w.players[sp.holder] : null;
+      const x = h ? h.x : sp.x, y = h ? h.y - h.r - 30 + Math.sin(t * 5) * 3 : sp.y, pulse = 0.5 + 0.5 * Math.sin(t * 6);
+      o.fillStyle(0xffd24a, h ? 0.18 : 0.22 + 0.2 * pulse); o.fillCircle(x, y, (h ? 20 : 30) + pulse * 6);
+      if (!h) { o.lineStyle(3, 0xffd24a, 0.5 + 0.4 * pulse); o.strokeCircle(x, y, 38 + pulse * 8); }
+      const a = h ? -0.5 : t * 0.8, ca = Math.cos(a), sa = Math.sin(a);
+      o.lineStyle(7, 0xb8860b, 1); o.lineBetween(x - ca * 18, y - sa * 18, x + ca * 10, y + sa * 10);
+      o.lineStyle(4, 0xffe27a, 1); o.lineBetween(x - ca * 18, y - sa * 18, x + ca * 10, y + sa * 10);
+      o.fillStyle(0xffd24a, 1); o.fillEllipse(x + ca * 18, y + sa * 18, 20, 14);
+      o.fillStyle(0xfff4c2, 0.9); o.fillEllipse(x + ca * 16 - 2, y + sa * 16 - 2, 7, 5);
+      if (h) { o.lineStyle(3, 0xffd24a, 0.6 + 0.3 * pulse); o.strokeCircle(h.x, h.y, h.r + 10); }
+    }
+    if (w.mode === 'goldenSpoon') {
+      for (const p of w.players) if (p.alive && p.invT > 0) { o.lineStyle(3, 0xffffff, 0.4 + 0.4 * Math.sin(t * 20)); o.strokeCircle(p.x, p.y, p.r + 8); }
+    }
     if (w.mode === 'hotDumpling' && w.hot && w.phase === 'play') {
       const h = w.players[w.hot.id];
       if (h?.alive) {
@@ -1220,6 +1285,7 @@ export class GameScene extends Phaser.Scene {
 
   private renderHud(): void {
     const w = this.world, g = this.hudG, t = this.t;
+    this.renderStompCoach();
     g.clear();
     g.fillStyle(0x0d0805, 0.85);
     g.fillRect(0, 0, VIEW.w, 80);
@@ -1267,18 +1333,20 @@ export class GameScene extends Phaser.Scene {
       let info = `${status} · KOs ${p.kos}`;
       if (w.mode === 'crumbRush') info = !p.alive && p.respawnT > 0 ? `BACK IN ${Math.ceil(p.respawnT)} · 🍪 ${p.pts}` : `🍪 ${p.pts} crumbs · KOs ${p.kos}`;
       if (w.mode === 'teams') info = `${MODE_RULES.teams.names[p.team] ?? ''} · ${status}`;
+      if (w.mode === 'goldenSpoon') info = !p.alive && p.respawnT > 0 ? `BACK IN ${Math.ceil(p.respawnT)} · 🥄 ${Math.floor(p.pts)}/${MODE_RULES.goldenSpoon.holdToWin}` : `${w.spoon?.holder === p.id ? '🥄 HOLDING! ' : '🥄 '}${Math.floor(p.pts)}/${MODE_RULES.goldenSpoon.holdToWin}s · KOs ${p.kos}`;
       if (w.mode === 'hotDumpling' && w.hot?.id === p.id && p.alive && w.phase === 'play') info = '🥟 HOT! PASS IT!';
       const buffs = (p.speedT > 0 ? POWER_DEFS.hotsauce.short : '') + (p.shieldT > 0 ? POWER_DEFS.mustard.short : '') + (p.sugarT > 0 ? POWER_DEFS.sugar.short : '');
       if (buffs && p.alive) info = `${buffs} ${info}`;
       this.infoTexts[i].setText(info);
       if (w.mode === 'teams') { g.fillStyle(MODE_RULES.teams.colors[p.team] ?? 0xffffff, 0.9); g.fillRoundedRect(x - 4, 70, pw, 4, 2); }
     });
-    this.roundText.setText(this.initData.gauntlet ? `GAUNTLET\nWAVE ${this.initData.gauntlet.wave} · ${w.layout.name.toUpperCase()}` : `${w.mode !== 'classic' ? modeDef(w.mode).name + '\n' : ''}ROUND ${w.round} · ${w.layout.name.toUpperCase()}`);
+    this.roundText.setText(this.initData.gauntlet ? `GAUNTLET ${'❤'.repeat(this.initData.gauntlet.lives ?? GAUNTLET.lives)}\nWAVE ${this.initData.gauntlet.wave} · ${w.layout.name.toUpperCase()}` : `${w.mode !== 'classic' ? modeDef(w.mode).name + '\n' : ''}ROUND ${w.round} · ${w.layout.name.toUpperCase()}`);
     if (this.slots.length <= 4) { const room = VIEW.w - 16 - (this.hudX(this.slots.length - 1) + this.hudW) - 8; this.roundText.setScale(Math.min(1, room / Math.max(1, this.roundText.width / this.roundText.scaleX))); }
     const left = w.timeLeft();
     let mt = '';
     if (left !== null && (w.phase === 'play' || w.phase === 'countdown')) mt = `⏱ ${Math.ceil(left)}`;
     if (w.mode === 'hotDumpling' && w.hot && w.phase === 'play') mt = `🥟 ${w.players[w.hot.id].name} HAS THE HOT DUMPLING`;
+    if (w.mode === 'goldenSpoon' && w.spoon && w.phase === 'play') mt = w.spoon.holder !== null ? `⏱ ${Math.ceil(left ?? 0)} · 🥄 ${w.players[w.spoon.holder].name} HAS THE GOLDEN SPOON` : `⏱ ${Math.ceil(left ?? 0)} · 🥄 GRAB THE GOLDEN SPOON!`;
     this.modeText.setText(mt).setColor(left !== null && left < 10 ? '#ff8a7a' : '#ffe9c7');
     const over = w.phase === 'matchEnd';
     this.roundText.setVisible(!over);
@@ -1314,9 +1382,10 @@ export class GameScene extends Phaser.Scene {
       main = 'DIG IN!';
     } else if (w.phase === 'roundEnd') {
       if (w.winner !== null && w.mode === 'teams') { const tm = w.players[w.winner].team; main = `TEAM ${MODE_RULES.teams.names[tm]} WINS THE ROUND`; color = MODE_RULES.teams.css[tm]; }
+      else if (w.winner !== null && w.mode === 'goldenSpoon') { main = `${w.players[w.winner].name} KEPT THE GOLDEN SPOON!`; color = this.css[w.winner]; }
       else if (w.winner !== null && w.mode === 'crumbRush') { main = `${w.players[w.winner].name} ATE THE MOST!`; color = this.css[w.winner]; }
       else if (w.winner !== null) { main = `${w.players[w.winner].name} WINS THE ROUND`; color = this.css[w.winner]; }
-      else { main = w.mode === 'crumbRush' ? 'A TIE! NO POINT' : 'NOBODY SURVIVED DINNER'; }
+      else { main = w.mode === 'crumbRush' || w.mode === 'goldenSpoon' ? 'A TIE! NO POINT' : 'NOBODY SURVIVED DINNER'; }
       // scores: at most 3 kaiju per line so 6 players still fit on screen
       const scores = w.players.map(p => (w.opts.target > 5 ? `${p.name} ★ ${p.score}/${w.opts.target}` : `${p.name} ${'★'.repeat(p.score)}${'☆'.repeat(w.opts.target - p.score)}`));
       sub = chunk(scores, 3).map(r => r.join('      ')).join('\n');
@@ -1339,7 +1408,9 @@ export class GameScene extends Phaser.Scene {
       else { main = 'TOO MUCH DESSERT'; color = '#ff8a7a'; sub = `Beaten on course ${n + 1}. Your progress is saved: carry on from the Story map.`; }
     } else if (w.phase === 'matchEnd' && this.initData.gauntlet) {
       const wave = this.initData.gauntlet.wave;
-      if (w.winner === 0) { main = `WAVE ${wave} CLEARED!`; color = '#8dff6a'; sub = `Next: wave ${wave + 1}`; }
+      const lives = this.initData.gauntlet.lives ?? GAUNTLET.lives;
+      if (w.winner === 0) { main = `WAVE ${wave} CLEARED!`; color = '#8dff6a'; sub = `Next: wave ${wave + 1} · ${'❤'.repeat(lives)}`; }
+      else if (lives > 1) { main = 'LIFE LOST!'; color = '#ffb347'; sub = `${'❤'.repeat(lives - 1)} left · trying wave ${wave} again with your perks…`; }
       else {
         const reached = wave - 1, best = Math.max(gauntletBest(), reached);
         main = 'GAUNTLET OVER'; color = '#ff8a7a';
