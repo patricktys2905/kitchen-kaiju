@@ -30,6 +30,8 @@ export interface StoryResult {
   myRounds?: number; // rounds you won (for the defeat card)
   myKos?: number; // your knockouts this match (for the Head Chef's comment)
   myKaiju?: number; // times you went KAIJU
+  myOut?: string; // what knocked you out most (KO cause, or 'kaiju')
+  receipt?: string[]; // 🪙 tokens + mastery lines from the match
 }
 
 const CARD_W = 178, CARD_H = 112;
@@ -175,6 +177,7 @@ export class StoryScene extends Phaser.Scene {
   private camp: Campaign = CAMPAIGNS.main;
   /** Chapters whose intro chat you have already seen this session (retries go straight in). */
   static talked = new Set<string>();
+  private overlayAt = 0; // when the result/ending overlay appeared (stray keys right after are ignored)
   /** Defeats per chapter this session (2+ offers the 🍀 HELPING HAND retry). */
   static losses = new Map<string, number>();
   private helping = false;
@@ -282,7 +285,7 @@ export class StoryScene extends Phaser.Scene {
     add(this.add.text(1070, 392, '“' + ch.tip + '”', body(14, '#ffe9c7', 700, { align: 'center', wordWrap: { width: 320 }, fontStyle: 'italic 700' })).setOrigin(0.5, 0).setDepth(5));
     const best = this.save.stars[this.sel] ?? 0;
     const hot = this.save.spicy?.[this.sel] ?? 0;
-    add(this.add.text(1000, 552, best ? `Best: ${'★'.repeat(best)}${'☆'.repeat(3 - best)}${hot ? `  🌶️${hot}` : ''}` : 'Not cleared yet', body(16, '#ffd24a', 900)).setOrigin(0.5).setDepth(5));
+    add(this.add.text(1000, 552, best ? `Best: ${'★'.repeat(Math.max(0, best))}${'☆'.repeat(Math.max(0, 3 - best))}${hot ? `  🌶️${hot}` : ''}` : 'Not cleared yet', body(16, '#ffd24a', 900)).setOrigin(0.5).setDepth(5));
     add(this.add.text(1000, 592, '★★★ no rounds lost · ★★ lost one · ★ any win', body(11, '#cdb9a3', 800)).setOrigin(0.5).setDepth(5));
     this.spicyBtn?.setText(best ? `🌶️ SPICY: ${this.spicy ? 'ON (tougher rivals)' : 'OFF'}` : '🌶️ SPICY: clear it first');
     if (this.spicyBtn) this.spicyBtn.disabled = !best;
@@ -404,7 +407,7 @@ export class StoryScene extends Phaser.Scene {
     this.rewardsBtn?.setText(`🎁 REWARDS ${UNLOCKS.filter(u => isEarned(u, this.save)).length}/${UNLOCKS.length}`);
     this.drawMap();
     this.drawPanel();
-    this.mode = 'result';
+    this.mode = 'result'; this.overlayAt = this.time.now;
     this.clearOverlay();
     const g = this.add.graphics().setDepth(30);
     g.fillStyle(0x0d0805, 0.7); g.fillRect(0, 0, 1280, 720);
@@ -426,7 +429,8 @@ export class StoryScene extends Phaser.Scene {
       }
       const rivals = chapterRivals(ch, this.save.pick);
       const sp = rivals[ch.win.speaker as number]?.species ?? 0;
-      const quote = this.add.text(460, y, `${SPECIES[sp].full}: “${ch.win.text}”`, body(19, '#ffe9c7', 800, { wordWrap: { width: 500 }, lineSpacing: 4 })).setDepth(31);
+      const react = r.stars === 3 ? ' …Not even ONE round for me?!' : r.stars === 1 ? ' …That was close, though. Next time!' : '';
+      const quote = this.add.text(460, y, `${SPECIES[sp].full}: “${ch.win.text}${react}”`, body(19, '#ffe9c7', 800, { wordWrap: { width: 500 }, lineSpacing: 4 })).setDepth(31);
       const qh = Math.max(120, quote.height);
       quote.setY(y + (qh - quote.height) / 2);
       this.overlay.push(quote);
@@ -456,12 +460,15 @@ export class StoryScene extends Phaser.Scene {
 Next course: ${nextCh.title}. ${nextRival} is already sharpening the cutlery…` : ''}`, body(15, '#ffd9a0', 800, { align: 'center', wordWrap: { width: 640 } })).setOrigin(0.5, 0).setDepth(31);
       this.overlay.push(chef);
       y += chef.height + 10;
+      if (r.receipt?.length) { const rc = this.add.text(640, y, r.receipt.join('   ·   '), body(14, '#cdb9a3', 800)).setOrigin(0.5, 0).setDepth(31); this.overlay.push(rc); y += rc.height + 6; }
       if (unlockedNew && !last) { this.overlay.push(this.add.text(640, y, `Chapter ${r.chapter + 2} unlocked!`, body(18, '#8dff6a', 900)).setOrigin(0.5, 0).setDepth(31)); y += 26 + GAP; }
     } else {
       const lostKey = `${this.camp.id}:${r.chapter}`;
       StoryScene.losses.set(lostKey, (StoryScene.losses.get(lostKey) ?? 0) + 1);
       const head = (r.myRounds ?? 0) > 0 ? 'So close! You took a round off them.' : 'Tough one! Every rival can be beaten.';
-      this.overlay.push(this.add.text(640, (CARD.y + 150 + BTN_Y - 40) / 2, head + '\n\n“' + ch.tip + '”', body(23, '#ffe9c7', 800, { align: 'center', wordWrap: { width: 620 }, lineSpacing: 6 })).setOrigin(0.5).setDepth(31));
+      const BEAT: Record<string, string> = { fall: 'You kept falling off the table. Stay near the middle and DASH back from the edge.', cutlery: 'Thrown cutlery got you. DASH sideways from a charge line, or SWIPE to parry it.', swipe: 'You were swiped up close. Keep your distance, or swipe first.', kaiju: 'A KAIJU flattened you. Step out of the ring before each stomp, then punish the dizzy shrink.', squash: 'A KAIJU flattened you. Step out of the ring before each stomp, then punish the dizzy shrink.', hand: 'The Giant Hand got you. It grabs the fullest belly, so STOMP before it arrives.' };
+      const beat = r.myOut ? BEAT[r.myOut] ?? 'Watch the table hazard: its warning shows before it strikes.' : '';
+      this.overlay.push(this.add.text(640, (CARD.y + 150 + BTN_Y - 40) / 2, head + (beat ? '\n\n🔎 What beat you: ' + beat : '') + '\n\n“' + ch.tip + '”', body(23, '#ffe9c7', 800, { align: 'center', wordWrap: { width: 620 }, lineSpacing: 6 })).setOrigin(0.5).setDepth(31));
     }
     const btns: { label: string; act: () => void; accent?: number }[] = [];
     if (gotAch.length) this.overlay.push(this.add.text(640, Math.min(y, BTN_Y - 66), `🏆 ${gotAch.map(a => a.name).join(', ')}!`, body(18, '#ffd24a', 900)).setOrigin(0.5, 0).setDepth(31));
@@ -509,7 +516,7 @@ Next course: ${nextCh.title}. ${nextRival} is already sharpening the cutlery…`
   private showRewards(): void {
     if (this.mode !== 'map') return;
     sfx.pickup();
-    this.mode = 'result'; // reuse the overlay input handling
+    this.mode = 'result'; this.overlayAt = this.time.now; // reuse the overlay input handling
     this.clearOverlay();
     const g = this.add.graphics().setDepth(30);
     g.fillStyle(0x0d0805, 0.75); g.fillRect(0, 0, 1280, 720);
@@ -551,7 +558,7 @@ Next course: ${nextCh.title}. ${nextRival} is already sharpening the cutlery…`
     sfx.matchWin();
     this.lines = this.camp.ending;
     this.startDialogue([], () => {
-      this.mode = 'ending';
+      this.mode = 'ending'; this.overlayAt = this.time.now;
       const g = this.add.graphics().setDepth(30);
       g.fillStyle(0x0d0805, 0.85); g.fillRect(0, 0, 1280, 720);
       this.overlay.push(g);
@@ -684,7 +691,7 @@ Next course: ${nextCh.title}. ${nextRival} is already sharpening the cutlery…`
     } else if (this.mode === 'result' || this.mode === 'ending') {
       if (dx && this.overlayButtons.length) this.overlayFocus = (this.overlayFocus + dx + this.overlayButtons.length) % this.overlayButtons.length;
       this.overlayButtons.forEach((b, i) => { b.focused = i === this.overlayFocus; b.update(dt); });
-      if (go) this.overlayButtons[this.overlayFocus]?.press();
+      if (go && this.time.now - this.overlayAt > 1200) this.overlayButtons[this.overlayFocus]?.press(); // a stray key from the match/ending can't press it
       if (back) { this.clearOverlay(); this.mode = 'map'; }
     } else {
       if (dx || dy) {

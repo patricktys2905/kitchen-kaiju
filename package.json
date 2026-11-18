@@ -20,7 +20,8 @@
     "banner-check": "node scripts/banner-check.mjs",
     "smoke:online-backup": "node scripts/smoke-online.mjs backup",
     "story-balance": "vite-node scripts/story-balance.ts",
-    "smoke:story": "node scripts/smoke-story.mjs"
+    "smoke:story": "node scripts/smoke-story.mjs",
+    "audit:text": "node scripts/text-audit.mjs"
   },
   "dependencies": {
     "mqtt": "^5.16.1",

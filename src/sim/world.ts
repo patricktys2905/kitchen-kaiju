@@ -203,6 +203,7 @@ export interface WorldOptions {
   teams?: number[]; // Team Feast: team per player (default: alternate seats)
   powerups?: boolean; // condiment power-ups (off unless asked for; Free Play default is POWERUPS.enabled)
   mutator?: Mutator; // one wacky rule twist (default none)
+  catchUp?: boolean; // comeback help: kaiju behind on rounds start with a fuller belly (RULES.catchUpBelly per round behind)
   calmStart?: number; // extra seconds before each table hazard first fires (gentler first Story chapters)
 }
 
@@ -312,6 +313,7 @@ export class World {
       hazards: o.hazards ?? true,
       crumbSpawns: o.crumbSpawns ?? true,
       pickupSpawns: o.pickupSpawns ?? true,
+      catchUp: o.catchUp ?? false,
       players: o.players,
       layout: o.layout,
       layouts: o.layouts,
@@ -393,6 +395,7 @@ export class World {
         powerCD: 0, powerT: 0, stunT: 0, pkx: 0, pky: 0,
       });
       p.swipeHit.clear();
+      if (this.opts.catchUp && this.mode !== 'practice') { const top = Math.max(...this.players.map(q => q.score)); p.meter = Math.min(95, p.meter + RULES.catchUpBelly * (top - p.score)); }
       if (this.mutator === 'tiny') p.r = P.radius * MUTATOR_RULES.tinySize;
       if (this.mutator === 'fists') continue; // Fists Only: nobody gets cutlery
       const c = this.newCutlery(this.opts.starterKind ?? this.rng.pick(STARTER_KINDS), sx, sy);

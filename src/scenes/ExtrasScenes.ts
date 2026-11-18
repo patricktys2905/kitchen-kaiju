@@ -24,6 +24,7 @@ import { currentHat, HAT_FIT, HAT_SCALE, hatArtKey, hatUnlocked, HATS, HATS_ENAB
 import { colourUnlocked, COLOURS, currentColour, setColour } from '../colours';
 import { GameScene } from './GameScene';
 import { exportSave, importSave } from '../backup';
+import { buy, chefRank, loadMeta, masteryInfo, masteryStars, SHOP, weeklyOrders, type OrderStat } from '../meta';
 import { ACTIONS, bind, keyFor, keyHint, keyLabel, RESERVED, resetKeybinds, type Action } from '../keybinds';
 
 /** Shared backdrop, title, BACK button and keyboard/pad focus handling. */
@@ -126,7 +127,7 @@ export class SettingsScene extends PanelScene {
     if (kind === 'toggle') return `${name}:  ${v ? 'ON' : 'OFF'}`;
     let lvl = 0;
     LEVELS.forEach((l, k) => { if (Math.abs(l - (v as number)) < Math.abs(LEVELS[lvl] - (v as number))) lvl = k; });
-    return `${name}:  ${'■'.repeat(lvl)}${'□'.repeat(LEVELS.length - 1 - lvl)}${lvl === 0 ? '  OFF' : ''}`;
+    return `${name}:  ${'■'.repeat(Math.max(0, lvl))}${'□'.repeat(Math.max(0, LEVELS.length - 1 - lvl))}${lvl === 0 ? '  OFF' : ''}`;
   }
 
   private cycle(key: keyof Settings, kind: 'level' | 'toggle'): void {
@@ -265,16 +266,25 @@ export class HelpScene extends PanelScene {
         this.content.push(this.add.text(x + 76, y + 2, `${locked ? '🔒 ' : ''}${l.name}`, display(17, locked ? '#a89680' : '#ffe9c7', { strokeThickness: 3 })).setDepth(5));
         const u = UNLOCKS.find(q => q.kind === 'table' && q.index === i);
         txt(x + 76, y + 26, locked && u ? needText(u) : l.blurb, 13, locked ? '#a89680' : '#e9dccb', 315);
+        { const d = this.content[this.content.length - 1] as Phaser.GameObjects.Text; for (let f = 13; d.height > 50 && f > 10;) d.setFontSize(--f); } // max 2 lines per table
       });
     } else {
-      enabledModes().forEach((m, i) => {
-        const y = 160 + i * 92;
-        head(90, y, m.name);
-        txt(90, y + 34, `${m.blurb}. ${m.howTo}${m.minPlayers > 2 ? ` (${m.minPlayers}+ players; bots fill in.)` : ''}`, 17);
-      });
-      head(90, 540, 'TWISTS (Free Play / Party Modes [X] · online lobby)');
-      txt(90, 572, enabledMutators().filter(m => m.id !== 'none').map(m => `${m.name}: ${m.blurb}`).join(' · '), 13, '#e9dccb');
-      txt(90, 694, 'Play these from the PARTY MODES card on the title screen ([G] or tap the mode to change).', 13, '#cdb9a3');
+      // flows top to bottom; if it would run off the screen, everything is laid out again a size smaller
+      for (let size = 17; size >= 11; size--) {
+        for (const o of this.content) o.destroy();
+        this.content = [];
+        let y = 160;
+        const flow = (o: Phaser.GameObjects.Text, gap: number) => { o.setY(y); y += o.height + gap; };
+        for (const m of enabledModes()) {
+          const h = withShadow(this.add.text(90, y, m.name, display(size + 3, '#ffd24a', { strokeThickness: 4 })).setDepth(5), 2); this.content.push(h); flow(h, 2);
+          const t = this.add.text(90, y, `${m.blurb}. ${m.howTo}${m.minPlayers > 2 ? ` (${m.minPlayers}+ players; bots fill in.)` : ''}`, body(size, '#f1e4d2', 800, { wordWrap: { width: 1100 }, lineSpacing: 3 })).setDepth(5); this.content.push(t); flow(t, 8);
+        }
+        y += 4;
+        const th = withShadow(this.add.text(90, y, 'TWISTS (Free Play / Party Modes [X] · online lobby)', display(size + 3, '#ffd24a', { strokeThickness: 4 })).setDepth(5), 2); this.content.push(th); flow(th, 2);
+        const tw = this.add.text(90, y, enabledMutators().filter(m => m.id !== 'none').map(m => `${m.name}: ${m.blurb}`).join(' · '), body(size - 3, '#e9dccb', 800, { wordWrap: { width: 1100 }, lineSpacing: 3 })).setDepth(5); this.content.push(tw); flow(tw, 6);
+        const ft = this.add.text(90, y, 'Play these from the PARTY MODES card on the title screen ([G] or tap the mode to change).', body(Math.max(11, size - 4), '#cdb9a3', 800)).setDepth(5); this.content.push(ft); flow(ft, 0);
+        if (y <= 708) break;
+      }
     }
   }
 }
@@ -413,6 +423,8 @@ export class GalleryScene extends PanelScene {
     const ck = i - SPECIES.length, focus = ck >= 0 && ck < COLOURS.length ? COLOURS[ck] : cur;
     const u = focus.unlock ? ACHIEVEMENTS.find(a => a.id === focus.unlock) : null;
     const prog = u?.progress ? u.progress(loadStats()) : null;
+    const shop = focus.unlock?.startsWith('shop:') ? SHOP.find(it => it.id === focus.unlock!.slice(5)) : null;
+    if (shop && !colourUnlocked(focus)) { this.colLabel.setText(`🔒 ${focus.name}: buy it in the 🛒 PANTRY for ${shop.cost} 🪙`); return; }
     this.colLabel.setText(colourUnlocked(focus) ? `${focus.name}${focus.id === cur.id ? ' (wearing)' : ''} · works on every kaiju` : `🔒 ${focus.name}: "${u?.name}": ${u?.desc}${prog ? ` (${Math.min(prog[0], prog[1])}/${prog[1]})` : ''}`);
   }
 
@@ -436,7 +448,7 @@ export class GalleryScene extends PanelScene {
     this.detail.push(withShadow(this.add.text(600, 470, got ? sp.full.toUpperCase() : '??? (LOCKED)', display(36, got ? sp.css : '#a89680', { strokeThickness: 6 })).setDepth(6), 3));
     const u = UNLOCKS.find(q => q.kind === 'kaiju' && q.index === i);
     const lines = got
-      ? [`A ${sp.food}.`, `🌟 KAIJU power: ${KITS[i].power} — ${KITS[i].blurb}`, `Trait: ${KITS[i].trait}`, `Matches: ${st.kaijuPlays[i] ?? 0}  ·  Wins: ${st.kaijuWins[i] ?? 0}${u ? '  ·  🎁 Story reward' : ''}`]
+      ? [`A ${sp.food}.`, `🌟 KAIJU power: ${KITS[i].power} — ${KITS[i].blurb}`, `Trait: ${KITS[i].trait}`, `Matches: ${st.kaijuPlays[i] ?? 0}  ·  Wins: ${st.kaijuWins[i] ?? 0}${u ? '  ·  🎁 Story reward' : ''}`, (() => { const mi = masteryInfo(loadMeta().xp[i] ?? 0); return `Mastery ${masteryStars(mi.level)} Lv ${mi.level} ${mi.title}${mi.need ? ` (${mi.into}/${mi.need} XP)` : ' MAX'}`; })()]
       : [u ? `Unlock: ${needText(u)}` : 'Locked', '', 'Left: normal look · right: KAIJU MODE'];
     // fit inside the panel (x 600..1115, y 518..680): wrap to the width, then shrink the font until it fits
     const W = 510, H = 160;
@@ -447,8 +459,6 @@ export class GalleryScene extends PanelScene {
   }
 }
 
-/** True when an achievement shows a progress bar (so its text needs to wrap shorter). */
-const pr0 = (a: (typeof ACHIEVEMENTS)[number], s: ReturnType<typeof loadStats>) => !s.achieved.includes(a.id) && !!a.progress && a.progress(s)[0] > 0;
 
 // ------------------------------------------------------------------ Records + achievements
 const PER_PAGE = 18; // achievements per page (2 columns)
@@ -476,11 +486,13 @@ export class RecordsScene extends PanelScene {
       ['Tables visited', `${s.tables.filter(i => !LAYOUTS[i]?.custom).length}/${LAYOUTS.filter(l => !l.custom).length}`],
       ['Favourite kaiju', fav ? SPECIES[Number(fav[0])].full : '–'],
       ['Story stars', `★ ${totalStars(story)}`],
+      ['Chef Rank', chefRank(s.achieved.length).title],
+      ['Chef Tokens', `🪙 ${loadMeta().tokens}`],
     ];
     withShadow(this.add.text(70, 120, 'YOUR STATS', display(24, '#ffd24a', { strokeThickness: 4 })).setDepth(5), 2);
     rows.forEach(([k, v], i) => {
-      this.add.text(70, 160 + i * 41, k, body(18, '#e9dccb', 800)).setDepth(5);
-      this.add.text(430, 160 + i * 41, String(v), display(20, '#ffe9c7', { strokeThickness: 3 })).setOrigin(1, 0).setDepth(5);
+      this.add.text(70, 158 + i * 35, k, body(17, '#e9dccb', 800)).setDepth(5);
+      this.add.text(430, 158 + i * 35, String(v), display(20, '#ffe9c7', { strokeThickness: 3 })).setOrigin(1, 0).setDepth(5);
     });
     this.add.text(250, 670, 'Counts people on this device (not bots).', body(13, '#a89680', 800)).setOrigin(0.5, 1).setDepth(5);
 
@@ -509,16 +521,68 @@ export class RecordsScene extends PanelScene {
       g.fillStyle(got ? 0x3a2412 : 0x1c1714, 0.95); g.fillRoundedRect(x, y, 365, 48, 12);
       g.lineStyle(2, got ? 0xffd24a : 0x4a3e34, 1); g.strokeRoundedRect(x, y, 365, 48, 12);
       add(this.add.text(x + 12, y + 24, got ? a.icon : '🔒', body(22, '#ffffff', 800)).setOrigin(0, 0.5).setDepth(5).setAlpha(got ? 1 : 0.6));
-      add(this.add.text(x + 56, y + 5, a.name, display(15, got ? '#ffe9c7' : '#a89680', { strokeThickness: 3 })).setDepth(5));
-      const reward = COLOURS.find(c => c.unlock === a.id);
-      add(this.add.text(x + 56, y + 27, `${a.desc}${reward ? `  ·  🎨 ${reward.name}` : ''}`, body(12, got ? '#8dff6a' : '#a89680', 800, { wordWrap: { width: pr0(a, s) ? 185 : 300 } })).setDepth(5));
       const pr = !got && a.progress ? a.progress(s) : null;
-      if (pr && pr[0] > 0) {
+      const name = add(this.add.text(x + 56, y + 5, a.name, display(15, got ? '#ffe9c7' : '#a89680', { strokeThickness: 3 })).setDepth(5));
+      const nameRoom = pr ? 176 : 296; // leave room for the progress bar on the title row
+      if (name.width > nameRoom) name.setScale(nameRoom / name.width);
+      const reward = COLOURS.find(c => c.unlock === a.id);
+      // the description always fits inside the card: one line that shrinks, or 2 small lines as a last resort
+      const desc = add(this.add.text(x + 56, y + 26, `${a.desc}${reward ? `  ·  🎨 ${reward.name}` : ''}`, body(12, got ? '#8dff6a' : '#a89680', 800)).setDepth(5));
+      for (let fsz = 12; desc.width > 298 && fsz > 9;) desc.setFontSize(--fsz);
+      if (desc.width > 298) desc.setWordWrapWidth(298).setY(y + 21).setLineSpacing(-3);
+      if (pr) { // progress: a small bar + count on the title row, right side
         const k = Math.min(1, pr[0] / pr[1]);
-        g.fillStyle(0x000000, 0.5); g.fillRoundedRect(x + 250, y + 30, 100, 8, 4);
-        g.fillStyle(0xffb347, 1); g.fillRoundedRect(x + 250, y + 30, Math.max(8, 100 * k), 8, 4);
-        add(this.add.text(x + 300, y + 8, `${Math.min(pr[0], pr[1])}/${pr[1]}`, body(12, '#ffcf8a', 900)).setOrigin(0.5, 0).setDepth(5));
+        g.fillStyle(0x000000, 0.5); g.fillRoundedRect(x + 238, y + 12, 70, 7, 3);
+        g.fillStyle(0xffb347, 1); g.fillRoundedRect(x + 238, y + 12, Math.max(7, 70 * k), 7, 3);
+        const ct = add(this.add.text(x + 356, y + 6, `${Math.min(pr[0], pr[1])}/${pr[1]}`, body(11, '#ffcf8a', 900)).setOrigin(1, 0).setDepth(5));
+        if (ct.width > 44) ct.setScale(44 / ct.width);
       }
     });
+  }
+}
+
+// ------------------------------------------------------------------ 🛒 Pantry: Chef Tokens, Weekly Orders and the shop
+export class PantryScene extends PanelScene {
+  protected title = '🛒 THE PANTRY';
+  protected cols = 2;
+  constructor() { super('pantry'); }
+  private objs: Phaser.GameObjects.GameObject[] = [];
+
+  protected build(): void {
+    const m = loadMeta();
+    const g = this.add.graphics().setDepth(4);
+    g.fillStyle(0x2a1408, 0.92).fillRoundedRect(40, 100, 470, 590, 22).lineStyle(3, 0xffb347, 1).strokeRoundedRect(40, 100, 470, 590, 22);
+    withShadow(this.add.text(70, 118, '📋 WEEKLY ORDERS', display(24, '#ffd24a', { strokeThickness: 4 })).setDepth(5), 2);
+    this.add.text(70, 156, 'New orders every Monday. Each one pays 40 🪙.', body(14, '#cdb9a3', 800)).setDepth(5);
+    const thisWeek = m.week === undefined ? {} : m.orders;
+    weeklyOrders().forEach((o, k) => {
+      const y = 196 + k * 100, have = Math.min(o.goal, (thisWeek as Record<OrderStat, number>)[o.stat] ?? 0), done = m.done.includes(o.id);
+      g.fillStyle(done ? 0x2f4a1a : 0x1c1714, 0.95).fillRoundedRect(64, y, 422, 84, 14).lineStyle(2, done ? 0x8dff6a : 0x4a3e34, 1).strokeRoundedRect(64, y, 422, 84, 14);
+      this.add.text(84, y + 12, (done ? '✔ ' : '') + o.text, body(18, done ? '#8dff6a' : '#ffe9c7', 900, { wordWrap: { width: 380 } })).setDepth(5);
+      g.fillStyle(0x000000, 0.5).fillRoundedRect(84, y + 56, 300, 12, 6).fillStyle(done ? 0x8dff6a : 0xffb347, 1).fillRoundedRect(84, y + 56, Math.max(10, 300 * have / o.goal), 12, 6);
+      this.add.text(400, y + 50, `${have}/${o.goal}`, body(16, '#ffcf8a', 900)).setDepth(5);
+    });
+    this.add.text(70, 520, 'Earn 🪙 Chef Tokens from every match: playing, winning, knockouts, going KAIJU, Gauntlet waves, Daily medals, orders and kaiju Mastery levels.', body(14, '#e9dccb', 800, { wordWrap: { width: 420 }, lineSpacing: 4 })).setDepth(5);
+    this.add.text(70, 640, `Chef Rank: ${chefRank(loadStats().achieved.length).title}`, display(18, '#ffcf8a', { strokeThickness: 3 })).setDepth(5);
+    this.drawShop();
+  }
+
+  private drawShop(): void {
+    for (const o of this.objs) o.destroy();
+    this.objs = [];
+    for (const b of this.buttons) { b.g.destroy(); b.label.destroy(); b.sub?.destroy(); b.zone.destroy(); }
+    this.buttons.length = 0;
+    const m = loadMeta();
+    this.objs.push(withShadow(this.add.text(560, 118, `SHOP · you have 🪙 ${m.tokens}`, display(24, '#ffd24a', { strokeThickness: 4 })).setDepth(5), 2));
+    SHOP.forEach((it, k) => {
+      const x = 720 + (k % 2) * 360, y = 220 + Math.floor(k / 2) * 140, own = m.owned.includes(it.id), afford = m.tokens >= it.cost;
+      const b = new Button(this, x, y, { w: 340, h: 120, label: `${it.name}`, sub: own ? '✔ OWNED' : `${it.desc}\n🪙 ${it.cost}${afford ? '' : '  (not enough yet)'}`, size: 18, accent: own ? 0x8dff6a : afford ? 0xffd24a : 0x6a5a4a, onClick: () => {
+        if (own) { sfx.thwock(); return; }
+        if (buy(it.id)) { sfx.matchWin(); this.drawShop(); } else sfx.thwock();
+      } }, 6);
+      this.buttons.push(b);
+    });
+    this.objs.push(this.add.text(900, 650, 'Colours you buy appear in the 📖 KAIJU Gallery. Gauntlet items work on every new run.', body(13, '#a89680', 800, { align: 'center', wordWrap: { width: 700 } })).setOrigin(0.5).setDepth(5));
+    if (this.nav) this.nav = new FocusNav([...this.buttons], 2);
   }
 }

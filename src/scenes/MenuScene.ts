@@ -5,7 +5,7 @@ import { applyPendingUpdate } from '../pwa';
 import { Button } from '../render/ui';
 import { CUTLERY_LEN, fitInside, hasArt, kaijuKey } from '../render/art';
 import { drawCutleryShape, drawFloor, drawKaiju } from '../render/draw';
-import { BODY as BODY_FONT, DISPLAY, INK, popIn, withGradient, withShadow } from '../render/fonts';
+import { BODY as BODY_FONT, body, DISPLAY, INK, popIn, withGradient, withShadow } from '../render/fonts';
 import { DIFFICULTIES, type Difficulty } from '../sim/bot';
 import { DEFAULT_ROUNDS, MAX_PLAYERS, ROUND_CHOICES, SPECIES } from '../sim/constants';
 import { LAYOUTS } from '../sim/layouts';
@@ -15,16 +15,20 @@ import { playMusic } from '../music';
 import { keyFor, keyLabel } from '../keybinds';
 import { POWERUPS } from '../sim/powerups';
 import { cupGames, cupLength, setCupLength } from '../cup';
+import { loadStats } from '../stats';
+import { loadRules, parseCode, rulesCode, rulesSummary, saveRules, SLOTS, type HouseRules } from '../houseRules';
+import { getSettings, setSetting } from '../settings';
 import { enabledMutators, mutatorDef, type Mutator } from '../sim/mutators';
 import { enabledModes, MODE_RULES, modeDef, type GameMode } from '../sim/modes';
 import { KITS } from '../sim/powers';
-import { getSettings } from '../settings';
 import { currentColour, seatColours } from '../colours';
 
 const TITLE = { fontFamily: DISPLAY, color: '#ffe9c7', stroke: INK, strokeThickness: 10 };
 const BODY = { fontFamily: BODY_FONT, fontStyle: '800', color: '#e9dccb' };
 /** Party Modes start at first-to-this (Free Play uses DEFAULT_ROUNDS). EASY TO CHANGE. */
 const PARTY_ROUNDS = 3;
+/** New players get first-to-3 matches until they have played this many. */
+const FIRST_MATCHES = 3;
 const CARD_X = (i: number) => 112 + i * 211; // 6 seats across
 const CARD_W = 198;
 
@@ -63,6 +67,8 @@ export class MenuScene extends Phaser.Scene {
   private setBtns: Button[] = [];
   private playBtn: Button | null = null;
   private keysBtn: Button | null = null;
+  private rulesBtn: Button | null = null;
+  private rulesUi: (Button | Phaser.GameObjects.GameObject)[] = [];
   private keysShown = false;
   static lastParty: boolean | null = null;
   private keysToggle: ((v: boolean) => void) | null = null;
@@ -91,7 +97,7 @@ export class MenuScene extends Phaser.Scene {
     // Free Play and Party Modes keep their own twist/power-up choices (they used to leak into each other)
     if (data.mutator === undefined && MenuScene.lastParty !== null && MenuScene.lastParty !== this.party) { this.mutator = 'none'; this.powerups = POWERUPS.enabled; this.hazards = true; this.table = -1; }
     MenuScene.lastParty = this.party;
-    this.rounds = data.rounds ?? (this.party ? PARTY_ROUNDS : DEFAULT_ROUNDS); // party nights: shorter matches
+    this.rounds = data.rounds ?? (this.party || loadStats().matches < FIRST_MATCHES ? PARTY_ROUNDS : DEFAULT_ROUNDS); // party nights and your first few matches: shorter
     if (data.mode) this.mode = data.mode;
     if (!this.party) this.mode = 'classic';
     else if (this.mode === 'classic') this.mode = enabledModes().find(m => m.id !== 'classic')?.id ?? 'classic';
@@ -243,7 +249,7 @@ export class MenuScene extends Phaser.Scene {
       panel.fillStyle(0x0d0805, 0.97).fillRoundedRect(8, 474, 1264, 240, 18).lineStyle(3, 0xffb347, 1).strokeRoundedRect(8, 474, 1264, 240, 18);
       keyObjs.push(panel as never);
       for (const o of keyObjs) if (o !== (panel as never)) o.setDepth(20);
-      const show = (v: boolean) => { this.keysShown = v; for (const o of keyObjs) o.setVisible(v); this.keysBtn?.setText(v ? '✖ CLOSE KEYS' : '⌨ KEYS'); };
+      const show = (v: boolean) => { this.keysShown = v; this.rulesBtn?.setVisible(!v); for (const o of keyObjs) o.setVisible(v); this.keysBtn?.setText(v ? '✖ CLOSE KEYS' : '⌨ KEYS'); };
       // big, clickable setup: settings row + PLAY
       const W = this.party ? 118 : 130, items: [string, string][] = this.party
         ? [['mode', 'KeyG'], ['cup', 'KeyC'], ['cuplen', 'KeyL'], ['bots', 'Digit2'], ['table', 'KeyM'], ['rounds', 'KeyR'], ['twist', 'KeyX'], ['power', 'KeyU'], ['haz', 'KeyH'], ['dice', 'KeyZ']]
@@ -253,6 +259,7 @@ export class MenuScene extends Phaser.Scene {
       this.playBtn = new Button(this, 640, 596, { w: 320, h: 70, label: '▶ PLAY', size: 32, accent: 0xff9a3c, onClick: () => { if (!this.keysShown) injectTap('Digit1'); } }, 6);
       this.hintText = this.add.text(640, 652, '', { ...BODY, fontStyle: '800', fontSize: '14px', color: '#cdb9a3', align: 'center' }).setOrigin(0.5).setDepth(2);
       this.keysBtn = new Button(this, 92, 690, { w: 150, h: 40, label: '⌨ KEYS', size: 16, onClick: () => show(!this.keysShown) }, 21);
+      this.rulesBtn = new Button(this, 262, 690, { w: 170, h: 40, label: '💾 HOUSE RULES', size: 15, onClick: () => this.toggleRules() }, 21);
       this.keysToggle = show;
       show(false);
     }
@@ -281,6 +288,34 @@ export class MenuScene extends Phaser.Scene {
   }
 
   /** 🏆 Party Cup with the current seats (bots fill to 3 so every mode works). */
+  /** 💾 House Rules panel: 3 save slots + share codes (src/houseRules.ts). */
+  private toggleRules(): void {
+    if (this.rulesUi.length) { for (const u of this.rulesUi) { if (u instanceof Button) { u.g.destroy(); u.label.destroy(); u.sub?.destroy(); u.zone.destroy(); } else u.destroy(); } this.rulesUi = []; return; }
+    const cur = (): HouseRules => ({ party: this.party, mode: this.mode, rounds: this.rounds, mutator: this.mutator, powerups: this.powerups, hazards: this.hazards, table: this.table, difficulty: this.difficulty, catchUp: getSettings().catchUp });
+    const apply = (r: HouseRules) => {
+      if (r.catchUp !== undefined) setSetting('catchUp', r.catchUp);
+      sfx.go();
+      this.scene.restart({ slots: this.slots, species: this.picks, difficulty: r.difficulty as Difficulty, party: r.party, mode: r.mode as GameMode, rounds: r.rounds, mutator: r.mutator as Mutator, powerups: r.powerups, hazards: r.hazards, tables: r.table >= 0 && r.table < LAYOUTS.length ? [r.table] : null });
+    };
+    const g = this.add.graphics().setDepth(30);
+    g.fillStyle(0x0d0805, 0.97).fillRoundedRect(140, 150, 1000, 470, 20).lineStyle(3, 0xffb347, 1).strokeRoundedRect(140, 150, 1000, 470, 20);
+    this.rulesUi.push(g);
+    const t = this.add.text(640, 186, '💾 HOUSE RULES: save this setup, load one, or share it as a code', body(20, '#ffd24a', 900)).setOrigin(0.5).setDepth(31);
+    this.rulesUi.push(t);
+    const rules = loadRules();
+    for (let k = 0; k < SLOTS; k++) {
+      const r = rules[k], y = 250 + k * 90;
+      const load = new Button(this, 520, y, { w: 680, h: 70, label: r ? `SLOT ${k + 1}: ${r.party ? 'PARTY · ' : ''}${rulesSummary(r)}` : `SLOT ${k + 1}: (empty)`, size: 16, accent: r ? 0x8dff6a : 0x6a5a4a, onClick: () => { if (r) apply(r); else sfx.thwock(); } }, 31);
+      const save = new Button(this, 990, y, { w: 200, h: 70, label: '💾 SAVE HERE', size: 16, accent: 0xffd24a, onClick: () => { saveRules(k, cur()); sfx.pickup(); this.toggleRules(); this.toggleRules(); } }, 31);
+      this.rulesUi.push(load, save);
+    }
+    const code = rulesCode(cur());
+    const share = new Button(this, 420, 545, { w: 380, h: 56, label: '📋 COPY THIS SETUP AS A CODE', size: 16, onClick: () => { try { void navigator.clipboard?.writeText(code); } catch { /* blocked */ } info.setText(`Code: ${code}  (copied)`); sfx.pickup(); } }, 31);
+    const paste = new Button(this, 860, 545, { w: 380, h: 56, label: '📥 ENTER A FRIEND\'S CODE', size: 16, onClick: () => { const c = window.prompt('Paste a House Rules code (KK1-…)'); const r = c ? parseCode(c) : null; if (r) apply(r); else if (c) { info.setText('That code didn\'t work. Check it and try again.'); sfx.thwock(); } } }, 31);
+    const info = this.add.text(640, 596, 'Esc closes', body(13, '#cdb9a3', 800)).setOrigin(0.5).setDepth(31);
+    this.rulesUi.push(share, paste, info);
+  }
+
   private startCup(): void {
     while (this.slots.length < 3) this.addSlot({ kind: 'bot', index: this.slots.length });
     this.fixPicks();
@@ -310,6 +345,9 @@ export class MenuScene extends Phaser.Scene {
     for (const b of this.setBtns) b.update(dt);
     this.playBtn?.update(dt);
     this.keysBtn?.update(dt);
+    this.rulesBtn?.update(dt);
+    for (const u of this.rulesUi) if (u instanceof Button) u.update(dt);
+    if (this.rulesUi.length && consumeTap('Escape')) { this.toggleRules(); clearTaps(); return; }
     if (this.keysShown && consumeTap('Escape')) this.keysToggle?.(false);
     this.pollDevices();
     if (consumeTap('KeyB')) this.addSlot({ kind: 'bot', index: this.slots.length });

@@ -24,6 +24,9 @@ export class Button {
   hover = false;
   disabled: boolean;
   private pop = 0;
+  /** Auto-fit: label/sub shrink so they always stay inside the button (see fit()). */
+  private fitL = 1;
+  private fitS = 1;
 
   constructor(scene: Phaser.Scene, public x: number, public y: number, private o: ButtonOpts, depth = 20) {
     this.disabled = !!o.disabled;
@@ -34,6 +37,7 @@ export class Button {
     this.zone.on('pointerover', () => { this.hover = true; });
     this.zone.on('pointerout', () => { this.hover = false; });
     this.zone.on('pointerup', () => this.press());
+    this.fit();
     this.draw();
   }
 
@@ -46,6 +50,7 @@ export class Button {
   setText(label: string, sub?: string): this {
     this.label.setText(label);
     if (sub !== undefined) this.sub?.setText(sub);
+    this.fit();
     return this;
   }
 
@@ -60,6 +65,21 @@ export class Button {
     this.draw();
   }
 
+  /** Shrinks the label and sub text to fit inside the button (with padding) and stacks them centred. */
+  fit(): void {
+    const { w, h } = this.o, L = this.label, S = this.sub;
+    L.setScale(1); S?.setScale(1);
+    const maxW = w - 20, maxH = h - 10;
+    let fl = Math.min(1, maxW / Math.max(1, L.width)), fs = S && S.text ? Math.min(1, maxW / Math.max(1, S.width)) : 1;
+    const gap = S && S.text ? 3 : 0;
+    const total = () => L.height * fl + (S && S.text ? gap + S.height * fs : 0);
+    if (total() > maxH) { const k = maxH / total(); fl *= k; fs *= k; }
+    this.fitL = fl; this.fitS = fs;
+    const top = this.y - total() / 2;
+    L.setY(top + (L.height * fl) / 2);
+    if (S) S.setY(top + L.height * fl + gap + (S.height * fs) / 2);
+  }
+
   private draw(): void {
     const { w, h } = this.o, accent = this.o.accent ?? 0xffb347, g = this.g;
     const lit = (this.focused || this.hover) && !this.disabled;
@@ -70,8 +90,8 @@ export class Button {
     g.fillStyle(this.disabled ? 0x2a2420 : lit ? 0x4a2812 : 0x2a1408, 0.95); g.fillRoundedRect(x, y, W, H, 18);
     g.lineStyle(lit ? 5 : 3, this.disabled ? 0x5a4a3e : accent, 1); g.strokeRoundedRect(x, y, W, H, 18);
     if (lit) { g.lineStyle(2, 0xffffff, 0.35); g.strokeRoundedRect(x + 6, y + 6, W - 12, H - 12, 13); }
-    this.label.setScale(s).setAlpha(this.disabled ? 0.45 : 1);
-    this.sub?.setScale(s).setAlpha(this.disabled ? 0.45 : 1);
+    this.label.setScale(s * this.fitL).setAlpha(this.disabled ? 0.45 : 1);
+    this.sub?.setScale(s * this.fitS).setAlpha(this.disabled ? 0.45 : 1);
   }
 }
 

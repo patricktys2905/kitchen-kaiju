@@ -797,14 +797,15 @@ describe('condiment power-ups', () => {
 });
 
 describe('gauntlet', () => {
-  it('waves get harder: more rivals, then tougher ones, with a boss every 5th', async () => {
+  it('waves get harder: more rivals, then tougher ones, with a boss every 4th', async () => {
     const { waveSetup } = await import('../src/gauntlet');
-    const w1 = waveSetup(1), w5 = waveSetup(5), w20 = waveSetup(20);
+    const w1 = waveSetup(1), w5 = waveSetup(4), w20 = waveSetup(20);
     expect(w1).toEqual({ rivals: 1, levels: ['easy'], boss: false });
     expect(w5.boss).toBe(true);
     expect(w5.rivals).toBeGreaterThan(w1.rivals);
     expect(w20.rivals).toBe(5);
-    expect(w20.levels[0]).toBe('hard');
+    expect(w20.levels[0]).toBe('brutal');
+    expect(waveSetup(8).levels[0]).toBe('hard');
     for (let n = 1; n < 30; n++) expect(waveSetup(n + 1).rivals).toBeGreaterThanOrEqual(waveSetup(n).rivals);
   });
 });
@@ -1227,5 +1228,39 @@ describe('parry and spawn safety', () => {
     const w = new World({ players: [{ name: 'A' }, { name: 'B' }], seed: 3, hazards: false, layout: 0 });
     while (w.phase !== 'play') w.step(DT, []);
     expect(w.players.every(p => p.invT > 0.5)).toBe(true);
+  });
+});
+
+describe('progression (meta)', () => {
+  it('a match pays tokens and mastery XP, orders complete, the Pantry sells, and House Rules codes round-trip', async () => {
+    const store: Record<string, string> = {};
+    (globalThis as Record<string, unknown>).localStorage = { getItem: (k: string) => store[k] ?? null, setItem: (k: string, v: string) => { store[k] = v; }, removeItem: (k: string) => { delete store[k]; } };
+    const { recordMatch, loadMeta, weeklyOrders, masteryInfo, buy, MASTERY } = await import('../src/meta');
+    const r = recordMatch({ species: 2, won: true, kos: 4, kaijus: 1, crumbs: 20, roundsWon: 3, parries: 0, mode: 'classic', party: false });
+    expect(r.tokens).toBeGreaterThan(15);
+    expect(loadMeta().xp[2]).toBe(r.xp);
+    expect(masteryInfo(MASTERY.levels[2]).level).toBe(3);
+    const orders = weeklyOrders();
+    expect(new Set(orders.map(o => o.id)).size).toBe(3);
+    expect(weeklyOrders()).toEqual(orders); // same all week
+    const m = loadMeta(); m.tokens = 1000; localStorage.setItem('kk-meta-v1', JSON.stringify(m));
+    expect(buy('peach')).toBe(true);
+    expect(buy('peach')).toBe(false); // only once
+    const { colourUnlocked, COLOURS } = await import('../src/colours');
+    expect(colourUnlocked(COLOURS.find(c => c.id === 'peach')!)).toBe(true);
+    const { rulesCode, parseCode } = await import('../src/houseRules');
+    const hr = { party: true, mode: 'goldenSpoon', rounds: 3, mutator: 'ice', powerups: false, hazards: true, table: 4, difficulty: 'hard' };
+    expect(parseCode(rulesCode(hr))).toEqual(hr);
+    expect(parseCode('nonsense')).toBeNull();
+    delete (globalThis as Record<string, unknown>).localStorage;
+  });
+
+  it('comeback help gives a trailing kaiju a fuller belly next round', () => {
+    const w = new World({ players: [0, 1].map(i => ({ name: 'P' + i })), seed: 3, hazards: false, layout: 0, catchUp: true, target: 5 });
+    while (w.phase !== 'play') w.step(DT, []);
+    w.players[0].score = 2;
+    w.endRound([w.players[0]]);
+    for (let i = 0; i < 2000 && (w.phase as string) !== 'countdown'; i++) w.step(DT, []);
+    expect(w.players[1].meter).toBeGreaterThan(w.players[0].meter);
   });
 });

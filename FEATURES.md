@@ -704,3 +704,49 @@ From the 10 Sonnet playtester reports in `playtest-reports/`.
    - **Party Cup length:** a new **CUP LENGTH** button (L) switches between the full Cup (6 games, now including Golden Spoon) and a short 3-game Cup (Classic → Golden Spoon → Classic final). It is saved on the device (`cupLength()` in `src/cup.ts`).
 - Second Helpings chapter 5 (Sugar High) eased: Bloblin is now easy (30% → 41% for the reference bot).
 - **Playtest reports** now focus on big structural feedback: `scripts/playtest/sheet-template.md` asks for the single biggest structural problem and 2–3 detailed redesign proposals (rules, flow, numbers, example moment, rewards, risks, size, score impact), with small nits capped at 5 one-liners.
+
+## 63. Round 5 themes: progression, challenge runs, party night, story, onboarding, house rules
+
+1. **Long-term progression** (`src/meta.ts`, saved as `kk-meta-v1`; every number is in `META`, `MASTERY`, `ORDERS` and `SHOP`):
+   - 🪙 **Chef Tokens** come from every match: playing, winning, KOs, going KAIJU, Gauntlet waves, Daily medals, orders and mastery levels.
+   - **Kaiju Mastery:** XP per kaiju and 6 levels (Rookie → Legend). It shows in each kaiju's Gallery card, and each level pays tokens.
+   - 📋 **Weekly Orders:** 3 goals a week from a pool of 10, the same for everyone, paying 40 🪙 each.
+   - 🛒 **THE PANTRY** (a new title button, `PantryScene`): the orders with progress bars, plus a shop.
+     - 4 colours: Peach, Blueberry, Matcha, Silverware.
+     - 🍱 Lunchbox: Gauntlet runs start with a free perk.
+     - ❤ Lifeline: Gauntlet runs start with +1 life.
+   - 🧾 **Match receipt:** a card on every results screen showing tokens, mastery, orders done, the Daily medal and how you were knocked out, with a tip.
+   - Records shows the **Chef Rank** and Chef Tokens, and progress bars on every counter achievement.
+   - Story results show the token and mastery lines.
+2. **Challenge runs:**
+   - The **Gauntlet has courses** (🥗 Starters, 🍖 Mains, 🍰 Desserts, 🍽 Seconds), with a course boss every 4th wave.
+   - Odd waves from wave 5 on get a random twist.
+   - Bots ramp faster (normal from wave 2, hard from 5, the new **BRUTAL** level in Seconds).
+   - Runs end with a score, a **grade** (S–D) and knockouts counted across the whole run.
+   - **Daily medals:** 🥉 for playing, 🥈 for winning, 🥇 for winning without dropping a round. Each pays tokens once a day.
+   - A new **BRUTAL** bot level (above HARD) appears in BOT LEVEL.
+3. **Party and mercy:**
+   - **COMEBACK HELP** (Settings, on by default): in Free Play and Party, a kaiju behind on rounds starts the next round with +20 belly per round behind (`RULES.catchUpBelly`).
+   - A mercy tip appears after 2 lost matches in a row against bots.
+4. **Story:**
+   - Defeat cards say **"What beat you"** with a matching tip.
+   - Rivals' clear lines react to a 3-star or 1-star win.
+   - Dumplord, the final boss, is foreshadowed in chapters 4 and 8.
+   - Losing a Dessert course now offers **↻ RETRY** (1 / Enter / click) or the map.
+   - Stray keys can't press result or ending buttons for 1.2 s.
+5. **Onboarding:**
+   - Your first 3 matches default to first-to-3.
+   - The first Giant Hand warning aimed at you explains it ("it grabs the fullest belly").
+   - KAIJU stomp rings turn **red** when a person is inside, and a shrinking KAIJU shows "💫 DIZZY! HIT IT NOW!".
+6. **💾 House Rules** (Free Play and Party setup, `src/houseRules.ts`):
+   - 3 save slots for a whole setup (mode, rounds, twist, power-ups, hazards, table, bots, comeback help).
+   - **Share codes** (`KK1-…`) to copy, plus an "enter a friend's code" option.
+7. **Text always fits** (after reports of overrunning text):
+   - Every button shrinks and stacks its label and sub line to fit inside itself (`Button.fit()` in `src/render/ui.ts`).
+   - How to Play → MODES flows and shrinks to fit the screen.
+   - Locked table hints are capped at 2 lines.
+   - Records achievement cards put the progress bar on the title row, and the description shrinks to one line.
+   - Pop-ups never cover each other and stay on screen.
+   - The knockout feed is spaced out, and the countdown lines sit below the big number.
+   - The mode line hides during instant replays, and the KEYS panel hides the House Rules button.
+   - **`npm run audit:text`** (`scripts/text-audit.mjs`) visits about 95 screens and states. It flags text off screen, text wider than its box, and text overlapping other text, saving screenshots to `art-src/.audit/` (`ALL=1` saves every screen).

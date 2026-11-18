@@ -20,6 +20,11 @@ export const COLOURS: Colour[] = [
   { id: 'lemon', name: 'Lemon', unlock: 'spoon', recipe: { hue: 56, sat: 1.15, light: 1.1 } },
   { id: 'sky', name: 'Sky', unlock: 'hot', recipe: { hue: 192, sat: 0.8, light: 1.15 } },
   { id: 'lava', name: 'Lava', unlock: 'kaiju-10', recipe: { hue: 14, sat: 1.3, light: 0.85 } },
+  // 🛒 bought in the Pantry with Chef Tokens (unlock 'shop:<item id>', see SHOP in src/meta.ts)
+  { id: 'peach', name: 'Peach', unlock: 'shop:peach', recipe: { hue: 18, sat: 0.7, light: 1.18 } },
+  { id: 'berry', name: 'Blueberry', unlock: 'shop:berry', recipe: { hue: 245, sat: 1.1, light: 0.85 } },
+  { id: 'matcha', name: 'Matcha', unlock: 'shop:matcha', recipe: { hue: 80, sat: 0.55, light: 1.0 } },
+  { id: 'chrome', name: 'Silverware', unlock: 'shop:chrome', recipe: { sat: 0.05, light: 1.05, glow: 0.4 } },
 ];
 
 /** Kaiju whose main body colour isn't picked up automatically (e.g. a bright belly wins): their body hue in degrees. */
@@ -28,8 +33,9 @@ export const colourById = (id: string | undefined): Colour => COLOURS.find(c => 
 
 // ---------------------------------------------------------------- your chosen colour (saved on this device)
 import { loadStats } from './stats';
+import { shopOwned } from './meta';
 const KEY = 'kk-colour';
-export const colourUnlocked = (c: Colour): boolean => !c.unlock || loadStats().achieved.includes(c.unlock);
+export const colourUnlocked = (c: Colour): boolean => !c.unlock || (c.unlock.startsWith('shop:') ? shopOwned(c.unlock.slice(5)) : loadStats().achieved.includes(c.unlock));
 export function currentColour(): Colour {
   let id: string | null = null;
   try { id = localStorage.getItem(KEY); } catch { /* blocked */ }

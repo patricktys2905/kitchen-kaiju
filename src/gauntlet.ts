@@ -7,7 +7,10 @@ import { LAYOUTS } from './sim/layouts';
 export const GAUNTLET = {
   powerups: true, // condiments on the table
   mode: 'classic' as const,
-  bossEvery: 5, // every 5th wave one rival starts each round able to go KAIJU (crowned)
+  bossEvery: 4, // every 4th wave (the end of each course) one rival starts each round able to go KAIJU (crowned)
+  twistFrom: 5, // from the Mains on, odd waves get a random twist
+  courses: ['🥗 STARTERS', '🍖 MAINS', '🍰 DESSERTS', '🍽 SECONDS'], // 4 waves each; Seconds goes on forever
+  grades: [[1500, 'S'], [1000, 'A'], [650, 'B'], [350, 'C'], [0, 'D']] as [number, string][], // run score → grade
   lives: 3, // ❤ per run: losing a wave costs one and retries the same wave
   maxLives: 5,
 };
@@ -23,7 +26,7 @@ export function waveSetup(wave: number): WaveSetup {
   const rivals = Math.min(5, 1 + Math.floor(wave / 2)); // 1, 2, 2, 3, 3, 4 …
   const levels: Difficulty[] = Array.from({ length: rivals }, (_, i) => {
     const heat = wave - 1 - i * 2; // later seats lag behind the first one
-    return heat >= 6 ? 'hard' : heat >= 2 ? 'normal' : 'easy'; // normal from wave 3, hard from wave 7
+    return heat >= 11 ? 'brutal' : heat >= 4 ? 'hard' : heat >= 1 ? 'normal' : 'easy'; // normal from wave 2, hard from wave 5, BRUTAL in Seconds (wave 12+)
   });
   return { rivals, levels, boss: wave % GAUNTLET.bossEvery === 0 };
 }
@@ -38,6 +41,12 @@ export const GAUNTLET_PERKS: Perk[] = [
   { id: 'ghost', name: '👻 Ghost Start', desc: 'Untouchable for the first 3 s of each wave', apply: p => { p.invT = Math.max(p.invT, RULES.countdown + 3); } }, // applied at the countdown, so add its length
   { id: 'heart', name: '❤ Extra Life', desc: 'One more life for this run', apply: () => { /* counted in the run, see GameScene */ }, once: true },
 ];
+
+/** Which course a wave is in (4 waves per course). */
+export const waveCourse = (wave: number): string => GAUNTLET.courses[Math.min(GAUNTLET.courses.length - 1, Math.floor((wave - 1) / GAUNTLET.bossEvery))];
+/** Run score: 100 per cleared wave + 10 per knockout. */
+export const runScore = (cleared: number, kos: number): number => cleared * 100 + kos * 10;
+export const runGrade = (score: number): string => GAUNTLET.grades.find(([min]) => score >= min)?.[1] ?? 'D';
 
 /** Which tables a wave can use (any you own). */
 export const gauntletTables = (owned: number[]): number[] => { const base = owned.filter(i => !LAYOUTS[i]?.custom); return base.length ? base : LAYOUTS.map((_, i) => i).filter(i => !LAYOUTS[i].custom); }; // Workshop tables stay out of runs

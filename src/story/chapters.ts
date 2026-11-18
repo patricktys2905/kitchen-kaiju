@@ -69,6 +69,7 @@ export const CHAPTERS: Chapter[] = [
     intro: [
       { speaker: 1, text: 'Bow before the boss of the belt!' },
       { speaker: 0, text: 'I am NORIGON. Every roll on this bar answers to me. Kneel, or get carried away.' },
+      { speaker: 0, text: '…Even I answer to someone. A quiet one, in the steamer. You’ll meet them, if you get that far.' },
     ],
     tip: 'BOSS: Norigon starts every round ready to go KAIJU. Keep moving, and use the conveyor to escape!',
     win: { speaker: 0, text: '…Impossible. Take your win. The feast is only getting hotter.' },
@@ -110,6 +111,7 @@ export const CHAPTERS: Chapter[] = [
     intro: [
       { speaker: 0, text: 'You laughed at my wobble. Now… you\'ll SLIDE.' },
       { speaker: 1, text: 'Bloblin has been eating nothing but sundaes. Run.' },
+      { speaker: 'chef', text: 'Somewhere behind the bamboo steamer, a lid rattles. Something has been watching every table you clear.' },
     ],
     tip: 'BOSS: Bloblin starts every round ready to go KAIJU. Melted puddles are slippery: stay off them!',
     win: { speaker: 0, text: '…I\'m just going to sit in the freezer for a while.' },

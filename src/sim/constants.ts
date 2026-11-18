@@ -54,7 +54,8 @@ export const RULES = {
   spawnShield: 1.0, // seconds everyone is safe when a round starts
   parrySpeed: 1.15, // a parried throw flies back this much faster
   maxRoundsPer: 2.4, // a match ends after target × this many rounds (leader wins), so 6-player matches don't drag on
-  frenzyFill: 7, // after suddenDeathAt (Classic + Team Feast): everyone's belly fills this much per second, so stand-offs end in KAIJU fights
+  frenzyFill: 7,
+  catchUpBelly: 20, // COMEBACK HELP: extra starting belly per round you are behind the leader (capped below full) // after suddenDeathAt (Classic + Team Feast): everyone's belly fills this much per second, so stand-offs end in KAIJU fights
   suddenDeathInterval: [3.5, 5] as [number, number],
   // Birthday Bash: gusts of wind
   windFirst: 6,

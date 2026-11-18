@@ -1,0 +1,114 @@
+// 🔎 Text-fit audit: visits every screen/state of the built game and flags text that runs off screen,
+// spills out of its button, or overlaps other text. Usage: npm run build && node scripts/text-audit.mjs
+// Screenshots of flagged screens go to art-src/.audit/. EASY TO EXTEND: add states to STATES below.
+import { spawn } from 'node:child_process';
+import fs from 'node:fs';
+import { chromium } from 'playwright-core';
+
+const wait = ms => new Promise(r => setTimeout(r, ms));
+const OUT = 'art-src/.audit';
+fs.mkdirSync(OUT, { recursive: true });
+const pv = spawn(process.execPath, ['node_modules/vite/bin/vite.js', 'preview', '--port', '7340', '--strictPort'], { stdio: 'ignore' });
+await wait(2500);
+const exe = ['C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe', 'C:/Program Files/Microsoft/Edge/Application/msedge.exe', '/opt/pw-browsers/chromium'].find(p => fs.existsSync(p));
+const browser = await chromium.launch({ executablePath: exe, headless: true });
+const pg = await (await browser.newContext({ viewport: { width: 1280, height: 720 } })).newPage();
+const errs = []; pg.on('pageerror', e => errs.push(e.message));
+await pg.goto('http://localhost:7340/'); await wait(6000);
+
+// a lived-in save so locked/unlocked/progress texts all show up
+await pg.evaluate(() => {
+  localStorage.setItem('kk-meta-v1', JSON.stringify({ tokens: 1260, earned: 2000, xp: { 0: 200, 3: 950 }, week: '', orders: {}, done: [], kaijuWonThisWeek: [], owned: ['peach'], dailyMedal: { date: '', medal: 0 } }));
+  localStorage.setItem('kk-stats-v1', JSON.stringify({ matches: 12, wins: 5, roundsWon: 20, kos: 33, crumbs: 400, kaijuForms: 6, pops: 2, streak: 1, bestStreak: 3, gauntlet: 4, cups: 0, blends: 1, twistWins: 0, flawless: 0, bestRampage: 1, modeWins: { teams: 1 }, kaijuWins: { 0: 3 }, kaijuPlays: { 0: 8, 1: 4 }, tables: [0, 1, 2], achieved: ['first-win', 'teams'] }));
+});
+
+const issues = [];
+let shotN = 0;
+async function audit(name) {
+  await wait(250);
+  const found = await pg.evaluate(() => {
+    const g = window.__game, out = [];
+    const texts = [];
+    for (const s of g.scene.getScenes(true)) for (const o of s.children.list) {
+      if (o.type !== 'Text' || !o.visible || o.alpha < 0.25 || !o.text?.trim()) continue;
+      const b = o.getBounds();
+      if (b.width < 2) continue;
+      const ww = o.style?.wordWrapWidth;
+      if (ww && b.width > ww * o.scaleX + 6) out.push(`TOO WIDE FOR ITS BOX "${o.text.replace(/s+/g, " ").slice(0, 50)}" (${Math.round(b.width)} > ${Math.round(ww * o.scaleX)})`);
+      texts.push({ t: o.text.replace(/\s+/g, ' ').slice(0, 60), x: b.x, y: b.y, w: b.width, h: b.height, d: o.depth, sc: s.scene.key });
+    }
+    for (const a of texts) {
+      if (a.x < -2 || a.y < -2 || a.x + a.w > 1282 || a.y + a.h > 722) out.push(`OFF-SCREEN "${a.t}" [${Math.round(a.x)},${Math.round(a.y)} ${Math.round(a.w)}x${Math.round(a.h)}]`);
+    }
+    for (let i = 0; i < texts.length; i++) for (let j = i + 1; j < texts.length; j++) {
+      const a = texts[i], b = texts[j];
+      if (Math.abs(a.d - b.d) > 3) continue; // different layers (e.g. a panel over the screen) are fine
+      const ix = Math.min(a.x + a.w, b.x + b.w) - Math.max(a.x, b.x), iy = Math.min(a.y + a.h, b.y + b.h) - Math.max(a.y, b.y);
+      if (ix <= 2 || iy <= 2) continue;
+      const k = (ix * iy) / Math.min(a.w * a.h, b.w * b.h);
+      if (k > 0.12) out.push(`OVERLAP "${a.t}" × "${b.t}" (${Math.round(k * 100)}%)`);
+    }
+    return out;
+  });
+  if (process.env.ALL) await pg.screenshot({ path: `${OUT}/all-${String(++shotN).padStart(3, '0')}-${name.replace(/[^a-z0-9]+/gi, '-')}.png` });
+  if (found.length) {
+    const file = `${OUT}/${name.replace(/[^a-z0-9]+/gi, '-')}.png`;
+    await pg.screenshot({ path: file });
+    issues.push({ name, file, found });
+  }
+  console.log(`${found.length ? '✗' : '✓'} ${name}${found.length ? '  (' + found.length + ')' : ''}`);
+}
+const start = async (key, data = {}, ms = 1500) => { await pg.evaluate(([k, d]) => { const g = window.__game; for (const s of g.scene.getScenes(true)) s.scene.stop(); g.scene.start(k, d); }, [key, data]); await wait(ms); };
+const scene = k => `window.__game.scene.getScene('${k}')`;
+
+await start('title', {}, 2500); await audit('title');
+for (const s of ['settings', 'help', 'controls', 'records', 'pantry', 'workshop', 'lobby']) { await start(s); await audit(s); }
+// records page 2
+await start('records'); await pg.evaluate(() => { const r = window.__game.scene.getScene('records'); r.buttons[0]?.press(); }); await audit('records page 2');
+// help pages (press every button that looks like a page/tab)
+await start('help'); for (let k = 0; k < 6; k++) { const n = await pg.evaluate(k => { const h = window.__game.scene.getScene('help'); const b = h.buttons[k]; if (!b) return null; b.press(); return b.label.text; }, k); if (n === null) break; await audit(`help tab ${n}`); }
+// gallery: every kaiju + colour hover
+await start('gallery');
+for (let i = 0; i < 20; i++) { await pg.evaluate(i => { const s = window.__game.scene.getScene('gallery'); s.nav.index = i; s.showDetail(i, false); }, i); await audit(`gallery kaiju ${i}`); }
+for (let k = 0; k < 19; k++) { const ok = await pg.evaluate(k => { const s = window.__game.scene.getScene('gallery'); if (!s.colIcons?.[k]) return false; s.nav.index = 20 + k; return true; }, k); if (!ok) break; await wait(80); await audit(`gallery colour ${k}`); }
+// setup screens
+await start('menu', {}, 1800); await audit('free play setup');
+await start('menu', { party: true, mode: 'teams' }, 1800); await audit('party setup');
+for (const m of ['crumbRush', 'hotDumpling', 'goldenSpoon']) { await start('menu', { party: true, mode: m }, 1500); await audit(`party setup ${m}`); }
+await start('menu', { party: true, mode: 'teams', slots: [0, 1, 2, 3, 4, 5].map(i => ({ kind: 'bot', index: i })), species: [0, 1, 2, 3, 4, 5] }, 1800); await audit('party setup 6 seats');
+await pg.mouse.click(262, 690); await wait(500); await audit('house rules panel');
+await start('menu', {}, 1500); await pg.mouse.click(92, 690); await wait(400); await audit('keys panel');
+// story
+await start('story', {}, 2500); await audit('story map');
+await start('story', { campaign: 'seconds' }, 2500); await audit('story map seconds');
+// story dialogue + result cards
+await start('story', {}, 2500); await pg.evaluate(() => { const s = window.__game.scene.getScene('story'); s.sel = 3; const ch = s.camp.chapters[3]; s.lines = [...ch.intro, { speaker: 'chef', text: 'TIP: ' + ch.tip }]; s.startDialogue(ch.rivals.map(r => r.species), () => {}); s.lineShown = 999; }); await wait(1500); await audit('story dialogue');
+await start('story', { result: { chapter: 0, won: true, stars: 2, campaign: 'main', myRounds: 2, myKos: 3, myKaiju: 1, receipt: ['🪙 +32 Chef Tokens (1292)', '⬆ Mastery Lv 3 Sous Chef · 40/160 XP'] } }, 3000); await pg.keyboard.press('Escape'); await wait(800); await audit('story result win');
+await start('story', { result: { chapter: 3, won: false, stars: 0, campaign: 'main', myRounds: 1, myKos: 1, myKaiju: 0, myOut: 'kaiju' } }, 3000); await audit('story result defeat');
+await start('story', { result: { chapter: 1, won: false, stars: 0, campaign: 'seconds', myRounds: 0, myKos: 0, myKaiju: 0, myOut: 'fall' } }, 3000); await audit('seconds result defeat');
+// matches
+const six = { slots: [{ kind: 'kb', index: 0 }, ...[1, 2, 3, 4, 5].map(i => ({ kind: 'bot', index: i }))], difficulty: 'easy', species: [0, 1, 2, 3, 4, 5], rounds: 3 };
+for (const mode of ['classic', 'teams', 'crumbRush', 'hotDumpling', 'goldenSpoon']) {
+  await start('game', { ...six, mode, party: mode !== 'classic' }, 700); await audit(`${mode} countdown`);
+  await wait(2500); await audit(`${mode} play HUD`);
+  await pg.evaluate(() => { const w = window.__game.scene.getScene('game').world; w.endRound([w.players[1]]); }); await wait(600); await audit(`${mode} round end`);
+  await pg.evaluate(() => { const w = window.__game.scene.getScene('game').world; w.players[1].score = w.opts.target - 1; w.endRound([w.players[1]]); }); await wait(4000); await audit(`${mode} match end`);
+}
+await start('game', { ...six, mode: 'classic', cup: { game: 0, points: [0, 0, 0, 0, 0, 0] } }, 3000);
+await pg.evaluate(() => { const w = window.__game.scene.getScene('game').world; w.players[1].score = w.opts.target - 1; w.endRound([w.players[1]]); }); await wait(4000); await audit('cup game result');
+// gauntlet / daily / pause
+await pg.evaluate(() => { const g = window.__game; for (const s of g.scene.getScenes(true)) s.scene.stop(); const GS = g.scene.getScene('game').constructor; g.scene.start('game', GS.gauntletWave(5, 0, { kind: 'kb', index: 0 })); }); await wait(700); await audit('gauntlet countdown');
+await wait(2500); await audit('gauntlet HUD');
+await pg.evaluate(() => { const w = window.__game.scene.getScene('game').world; w.players[1].score = w.opts.target - 1; w.endRound([w.players[1]]); }); await wait(3500); await audit('gauntlet life lost');
+await pg.evaluate(() => { const g = window.__game; for (const s of g.scene.getScenes(true)) s.scene.stop(); const GS = g.scene.getScene('game').constructor; const d = GS.gauntletWave(7, 0, { kind: 'kb', index: 0 }); d.gauntlet.lives = 1; d.gauntlet.perks = ['belly', 'shield', 'ghost']; g.scene.start('game', d); }); await wait(3500);
+await pg.evaluate(() => { const w = window.__game.scene.getScene('game').world; w.players[1].score = w.opts.target - 1; w.endRound([w.players[1]]); }); await wait(4000); await audit('gauntlet over');
+await pg.evaluate(() => { const g = window.__game; for (const s of g.scene.getScenes(true)) s.scene.stop(); const GS = g.scene.getScene('game').constructor; g.scene.start('game', GS.dailyData()); }); await wait(700); await audit('daily countdown');
+await wait(2500); await pg.keyboard.press('Escape'); await wait(500); await audit('pause menu');
+await pg.keyboard.press('Escape'); await wait(300);
+await pg.evaluate(() => { const w = window.__game.scene.getScene('game').world; w.players[1].score = w.opts.target - 1; w.endRound([w.players[1]]); }); await wait(4000); await audit('daily result');
+await pg.evaluate(() => { const g = window.__game; for (const s of g.scene.getScenes(true)) s.scene.stop(); const GS = g.scene.getScene('game').constructor; g.scene.start('game', { ...GS.practiceData(0), from: 'title' }); }); await wait(3000); await audit('practice');
+
+fs.writeFileSync(`${OUT}/report.json`, JSON.stringify(issues, null, 1));
+console.log(`\n${issues.length} screen(s) with problems · JS errors: ${errs.length ? errs.join(' | ') : 'none'}`);
+for (const i of issues) { console.log(`\n## ${i.name}  (${i.file})`); for (const f of i.found.slice(0, 12)) console.log('  - ' + f); }
+await browser.close(); pv.kill();
