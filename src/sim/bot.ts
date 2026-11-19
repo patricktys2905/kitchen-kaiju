@@ -7,6 +7,14 @@ import { Rng } from './rng';
 import { NO_INPUT, type Player, type PlayerInput, type World } from './world';
 
 export type Difficulty = 'easy' | 'normal' | 'tough' | 'hard' | 'brutal';
+/** What each bot level is like (shown in setup). EASY TO CUSTOMISE. */
+export const BOT_INFO: Record<Difficulty, string> = {
+  easy: 'EASY: slow, misses a lot, rarely dodges',
+  normal: 'NORMAL: fair aim, dodges sometimes',
+  tough: 'TOUGH: good aim, shoves you near edges',
+  hard: 'HARD: leads its throws, dodges and parries',
+  brutal: 'BRUTAL: everything HARD does, faster',
+};
 export const DIFFICULTIES: Difficulty[] = ['easy', 'normal', 'tough', 'hard', 'brutal']; // brutal = for players who have mastered HARD
 
 interface Tuning {
@@ -312,6 +320,7 @@ export class BotBrain {
       out.throw = true;
     }
     if (this.parryAim) { out.aimX = this.parryAim.x; out.aimY = this.parryAim.y; this.parryAim = null; }
+    if (w.roundT < RULES.botGrace) { out.throw = false; out.swipe = false; out.dash = false; out.stomp = false; } // a fair start
     return out;
   }
 }

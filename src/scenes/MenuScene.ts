@@ -6,7 +6,7 @@ import { Button } from '../render/ui';
 import { CUTLERY_LEN, fitInside, hasArt, kaijuKey } from '../render/art';
 import { drawCutleryShape, drawFloor, drawKaiju } from '../render/draw';
 import { BODY as BODY_FONT, body, DISPLAY, INK, popIn, withGradient, withShadow } from '../render/fonts';
-import { DIFFICULTIES, type Difficulty } from '../sim/bot';
+import { BOT_INFO, DIFFICULTIES, type Difficulty } from '../sim/bot';
 import { DEFAULT_ROUNDS, MAX_PLAYERS, ROUND_CHOICES, SPECIES } from '../sim/constants';
 import { LAYOUTS } from '../sim/layouts';
 import { isTouchDevice, setTouchHud, setTouchMode } from '../touch';
@@ -265,7 +265,7 @@ export class MenuScene extends Phaser.Scene {
       const x0 = 640 - ((items.length - 1) * (W + 8)) / 2;
       this.setBtns = items.map(([id, code], k) => { const b = new Button(this, x0 + k * (W + 8), 512, { w: W, h: 54, label: '', size: 14, onClick: () => { if (this.keysShown) return; if (id === 'twist') this.toggleTwists(); else injectTap(code); } }, 6); (b as Button & { id?: string }).id = id; b.label.setAlign('center').setLineSpacing(-2); return b; });
       this.playBtn = new Button(this, 640, 596, { w: 320, h: 70, label: '▶ PLAY', size: 32, accent: 0xff9a3c, onClick: () => { if (!this.keysShown) injectTap('Digit1'); } }, 6);
-      this.hintText = this.add.text(640, 652, '', { ...BODY, fontStyle: '800', fontSize: '14px', color: '#cdb9a3', align: 'center' }).setOrigin(0.5).setDepth(2);
+      this.hintText = this.add.text(640, 646, '', { ...BODY, fontStyle: '800', fontSize: '13px', color: '#cdb9a3', align: 'center', wordWrap: { width: 1180 } }).setOrigin(0.5).setDepth(2);
       this.keysBtn = new Button(this, 92, 690, { w: 150, h: 40, label: '⌨ KEYS', size: 16, onClick: () => show(!this.keysShown) }, 21);
       this.rulesBtn = new Button(this, 262, 690, { w: 170, h: 40, label: '💾 HOUSE RULES', size: 15, onClick: () => this.toggleRules() }, 21);
       this.keysToggle = show;
@@ -536,9 +536,10 @@ export class MenuScene extends Phaser.Scene {
       for (const b of this.setBtns) { const id = (b as Button & { id?: string }).id ?? ''; b.setText(label[id] ?? ''); b.label.setScale(Math.min(1, (this.party ? 106 : 118) / Math.max(1, b.label.width / b.label.scaleX))); }
       const people = this.slots.filter(q => q.kind !== 'bot').length;
       this.hintText?.setText(people ? `${this.slots.length} at the table · click empty seats to add bots · press ▶ PLAY` : 'Click a seat (or press THROW on a keyboard / gamepad) to join');
+      if (this.hintText && !this.party && this.mutator === 'none') this.hintText.setText(`${this.hintText.text}\n🤖 ${BOT_INFO[this.difficulty]}`);
       if (this.mutator !== 'none' && this.hintText) this.hintText.setText(`⚡ ${twistName(this.mutator, this.mutator2)}: ${twistBlurb(this.mutator, this.mutator2)}`);
       if (this.party && this.hintText) { const g = cupGames(Math.max(3, this.slots.length)); this.hintText.setText(`${this.hintText.text}
-🏆 Party Cup = ${g.length} games: ${g.map(x => modeDef(x.mode).name).join(' → ')} · places score 5/3/2/1 · final ×2 · switch it ON, then PLAY`); }
+🏆 Party Cup = ${g.length} games: ${g.map(x => modeDef(x.mode).name).join(' → ')} · final ×2 · ${MenuScene.cupOn ? 'ON: PLAY starts the Cup' : 'switch it ON, then PLAY'} · 📱 phones as controllers: ONLINE → HOST`); }
     }
     const md = modeDef(this.mode);
     this.modeText.setFontSize(this.party ? 18 : 16).setY(143);

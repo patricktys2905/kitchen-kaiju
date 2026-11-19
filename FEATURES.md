@@ -894,3 +894,22 @@ From the 10 Sonnet playtester reports in `playtest-reports/`.
   - The Rewards close button is at the top.
   - Help placeholders are fixed.
   - The trial-loss wording depends on the score.
+
+## 69. Round 8 "do all" polish
+- **Fair starts:** bots don't throw, swipe, dash or stomp for the first 1.4 s of each round (`RULES.botGrace`).
+- **"Why you lost":** the round-end banner says how and when you went out (e.g. "💥 You went out at 4s: thrown cutlery (BLOBLIN)").
+- **🏆 Achievement toasts:** shown top-right after a match, one at a time, and the receipt still lists them. Pantry orders show their 40 🪙 payout.
+- **Bot levels explained:** Free Play setup shows what the current BOT LEVEL is like (`BOT_INFO`). The Daily countdown says how many rivals and their levels.
+- **Gallery:**
+  - Each power shows its reach and cooldown.
+  - The full Mastery reward ladder shows ✔/🔒 for every reward plus Shiny.
+- **Records:** Party Cups won, a shorter next-rank value, and tighter rows.
+- **Party:** Team Feast results are grouped by team. The Cup hint shows the ON state and points to phones-as-controllers (ONLINE → HOST).
+- **Story:**
+  - Boss Phase 2 gets a big centre banner.
+  - Kid Mode gives calm starts (hazards wait) in every Story chapter.
+- **Readability:**
+  - Trials cards are 2 short lines.
+  - The Help twist list is at least 13 px.
+  - Title links are 13 px.
+  - The setup hint wraps inside the screen.
