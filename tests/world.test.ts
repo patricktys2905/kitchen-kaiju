@@ -1353,3 +1353,38 @@ describe('fresh saves and comics', () => {
     }
   });
 });
+
+describe('round 10 fairness + clarity', () => {
+  it('a fresh KAIJU is still growing: touching it shoves instead of squashing, then it squashes', () => {
+    const w = makeWorld(2);
+    place(w, 0, 640, 380);
+    place(w, 1, 640, 380 + P.kaijuRadius + 4);
+    w.players[0].meter = 100;
+    run(w, 1 / 60, () => [{ ...NO_INPUT, stomp: true }]);
+    expect(w.players[0].kaijuT).toBeGreaterThan(0);
+    expect(w.players[0].growT).toBeGreaterThan(0);
+    run(w, 0.2, () => [NO_INPUT, { ...NO_INPUT, my: -1 }]);
+    expect(w.players[1].alive).toBe(true); // too early: just a shove
+    place(w, 1, w.players[0].x, w.players[0].y + P.kaijuRadius + 10);
+    run(w, 0.6, () => [NO_INPUT, { ...NO_INPUT, my: -1 }]);
+    expect(w.players[1].alive).toBe(false);
+  });
+
+  it('Cup places use the mode points (crumbs held) before knockouts', async () => {
+    const { placePoints } = await import('../src/cup');
+    const pts = placePoints([{ score: 1, kos: 0, pts: 3 }, { score: 0, kos: 5, pts: 2 }, { score: 0, kos: 0, pts: 30 }]);
+    expect(pts).toEqual([5, 2, 3]); // the round winner, then 30 crumbs held beats 5 KOs
+  });
+
+  it('the Gauntlet ramps gently through the opening waves', async () => {
+    const { waveSetup, wavePreview } = await import('../src/gauntlet');
+    const order = ['easy', 'normal', 'tough', 'hard', 'brutal'];
+    for (let n = 1; n < 8; n++) {
+      const a = waveSetup(n), b = waveSetup(n + 1);
+      expect(b.rivals - a.rivals).toBeLessThanOrEqual(1);
+      expect(order.indexOf(b.levels[0]) - order.indexOf(a.levels[0])).toBeLessThanOrEqual(1);
+    }
+    expect(waveSetup(4).boss).toBe(true);
+    expect(wavePreview(4)).toContain('BOSS');
+  });
+});

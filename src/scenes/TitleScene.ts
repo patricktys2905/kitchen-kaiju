@@ -14,6 +14,7 @@ import { isTouchDevice, setTouchMode } from '../touch';
 import { playMusic } from '../music';
 import { GAUNTLET, gauntletBest } from '../gauntlet';
 import { totalTrialStars, TRIALS } from '../trials';
+import { chefsPass, chefsPassText } from '../challengePass';
 import { stepsDone } from '../meta';
 import { dailySetup, loadDaily, todayKey } from '../daily';
 import { modeDef } from '../sim/modes';
@@ -109,10 +110,11 @@ export class TitleScene extends Phaser.Scene {
     if (this.challengeUi.length) { for (const u of this.challengeUi) { if (u instanceof Button) { u.g.destroy(); u.label.destroy(); u.sub?.destroy(); u.zone.destroy(); } else u.destroy(); } this.challengeUi = []; this.extraBtns = this.extraBtns.filter(b => b.zone.active); return; }
     sfx.pickup();
     const g = this.add.graphics().setDepth(30);
-    g.fillStyle(0x000000, 0.6).fillRect(0, 0, 1280, 720).fillStyle(0x140b05, 1).fillRoundedRect(190, 150, 900, 430, 22).lineStyle(3, 0xff5a7a, 1).strokeRoundedRect(190, 150, 900, 430, 22);
+    g.fillStyle(0x000000, 0.6).fillRect(0, 0, 1280, 720).fillStyle(0x140b05, 1).fillRoundedRect(190, 150, 900, 480, 22).lineStyle(3, 0xff5a7a, 1).strokeRoundedRect(190, 150, 900, 480, 22);
     const t = withShadow(this.add.text(640, 186, '🏁 CHALLENGES', display(34, '#ffcf8a', { strokeThickness: 6 })).setOrigin(0.5).setDepth(31), 3);
     const info = this.add.text(640, 548, `Checkpoints: clear a course's boss wave once, and later runs can start at the next course.   Best wave: ${gauntletBest()}`, body(14, '#cdb9a3', 800)).setOrigin(0.5).setDepth(31);
-    this.challengeUi.push(g, t, info);
+    const pass = this.add.text(640, 594, chefsPassText(), body(14, chefsPass() ? '#8dff6a' : '#ffcf8a', 900, { align: 'center', wordWrap: { width: 840 } })).setOrigin(0.5).setDepth(31);
+    this.challengeUi.push(g, t, info, pass);
     this.challengeUi.push(this.add.zone(640, 360, 1280, 720).setInteractive().setDepth(30)); // swallows clicks between the buttons
     const close = new Button(this, 1050, 186, { w: 60, h: 44, label: '✖', size: 20, onClick: () => this.challenges(pick) }, 31);
     this.challengeUi.push(close); this.extraBtns.push(close);

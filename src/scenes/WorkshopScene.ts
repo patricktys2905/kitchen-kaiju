@@ -1,7 +1,7 @@
 // 🛠 Table Workshop: build up to 3 custom tables (surface + hazard + props) for local play.
 import * as Phaser from 'phaser';
 import { sfx } from '../audio';
-import { BASE_COUNT, HAZARD_CHOICES, HAZARD_NAMES, loadCustom, MAX_CUSTOM, MAX_PROPS, PROPS, saveCustom, SPAWNS, type CustomTable } from '../custom';
+import { BASE_COUNT, HAZARD_CHOICES, HAZARD_INFO, HAZARD_NAMES, propInfo, loadCustom, MAX_CUSTOM, MAX_PROPS, PROPS, saveCustom, SPAWNS, type CustomTable } from '../custom';
 import { clearTaps, consumeTap } from '../input';
 import { playMusic } from '../music';
 import { fitInside, hasArt } from '../render/art';
@@ -43,7 +43,7 @@ export class WorkshopScene extends Phaser.Scene {
     else drawFloor(this.add.graphics().setDepth(-3));
     this.add.graphics().setDepth(-2).fillStyle(0x0d0805, 0.75).fillRect(0, 0, 1280, 720);
     withShadow(this.add.text(640, 40, '🛠 TABLE WORKSHOP', display(40, '#ffcf8a', { strokeThickness: 7 })).setOrigin(0.5).setDepth(5), 4);
-    this.note = this.add.text(PX + TABLE.w * PS / 2, 588, '', body(15, '#e9dccb', 800, { align: 'center' })).setOrigin(0.5, 0).setDepth(5);
+    this.note = this.add.text(PX + TABLE.w * PS / 2, 588, '', body(15, '#e9dccb', 800, { align: 'center', wordWrap: { width: TABLE.w * PS + 40 } })).setOrigin(0.5, 0).setDepth(5);
     const btn = (x: number, y: number, w: number, label: string, fn: () => void, accent?: number) => {
       const b = new Button(this, x, y, { w, h: 46, label, size: 17, accent, onClick: fn }, 6);
       this.buttons.push(b);
@@ -55,7 +55,7 @@ export class WorkshopScene extends Phaser.Scene {
     PROPS.forEach(([style], i) => {
       const x = 70 + (i % 4) * 96, y = 150 + Math.floor(i / 4) * 92;
       const z = this.add.zone(x, y, 88, 84).setInteractive({ useHandCursor: true }).setDepth(7);
-      z.on('pointerup', () => { this.pick = i; sfx.pickup(); this.redraw(); });
+      z.on('pointerup', () => { this.pick = i; sfx.pickup(); this.redraw(`👉 ${propInfo(PROPS[i][0], PROPS[i][1])}`); });
     });
     const tableZone = this.add.zone(PX + (TABLE.w * PS) / 2, PY + (TABLE.h * PS) / 2, TABLE.w * PS, TABLE.h * PS).setInteractive({ useHandCursor: true }).setDepth(7);
     tableZone.on('pointerup', (p: Phaser.Input.Pointer) => this.tapTable(p.x, p.y));
@@ -104,7 +104,7 @@ export class WorkshopScene extends Phaser.Scene {
     const c = this.cur();
     c.hazard = HAZARD_CHOICES[(HAZARD_CHOICES.indexOf(c.hazard) + 1) % HAZARD_CHOICES.length];
     sfx.pickup();
-    this.redraw();
+    this.redraw(`⚠ ${HAZARD_INFO[c.hazard] ?? ''}`);
   }
 
   private tapTable(sx: number, sy: number): void {
@@ -152,7 +152,7 @@ export class WorkshopScene extends Phaser.Scene {
       g.fillStyle(i === this.pick ? 0x4a2812 : 0x1c1714, 1).fillRoundedRect(x - 44, y - 42, 88, 84, 12);
       g.lineStyle(3, i === this.pick ? 0xffd24a : 0x4a3e34, 1).strokeRoundedRect(x - 44, y - 42, 88, 84, 12);
       if (hasArt(`ob-${style}`)) add(fitInside(this.add.image(x, y - 6, `ob-${style}`), 60, 56).setDepth(5));
-      add(this.add.text(x, y + 30, style === 'gumdrop' ? 'BUMPER' : style.toUpperCase(), body(10, '#cdb9a3', 900)).setOrigin(0.5).setDepth(5));
+      { const t = add(this.add.text(x, y + 30, style === 'gumdrop' ? 'BUMPER' : style.toUpperCase(), body(10, '#cdb9a3', 900)).setOrigin(0.5).setDepth(5)); if (t.width > 80) t.setScale(80 / t.width); }
     });
     // table preview
     const W = TABLE.w * PS, H = TABLE.h * PS, key = LAYOUTS[c.surface]?.table;
@@ -170,7 +170,7 @@ export class WorkshopScene extends Phaser.Scene {
       else g2.fillStyle(0xffffff, 0.8).fillCircle(p.x, p.y, pr.r * PS);
     }
     add(this.add.text(PX, PY - 46, `SLOT ${this.slot + 1}/${MAX_CUSTOM}: ${c.name}  ·  ${LAYOUTS[c.surface]?.name ?? ''} surface  ·  ${HAZARD_NAMES[c.hazard]}  ·  ${c.props.length}/${MAX_PROPS} props`, body(15, '#ffe9c7', 900)).setDepth(5));
-    this.note.setText(msg || 'Tap the table to place the selected prop · tap a prop to remove it · white circles = start spots');
+    this.note.setText(msg || `👉 ${propInfo(PROPS[this.pick][0], PROPS[this.pick][1])} · tap the table to place it · tap a prop to remove it · white circles = start spots`);
   }
 
   update(_t: number, delta: number): void {

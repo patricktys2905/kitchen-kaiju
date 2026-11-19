@@ -200,3 +200,12 @@ export function completeStep(id: string): Step | null {
   return st;
 }
 export const nextStep = (): Step | null => FIRST_SERVICE.find(s => !stepsDone().includes(s.id)) ?? null;
+
+/** 📅 Daily medals: what you have today and what's still open (with its 🪙). */
+export const MEDALS = ['', '🥉', '🥈', '🥇'];
+export function dailyMedalLine(date: string): string {
+  const m = loadMeta(), have = m.dailyMedal.date === date ? m.dailyMedal.medal : 0, T = META.tokens;
+  const goals = [['🥉 play', T.dailyBronze], ['🥈 win', T.dailySilver], ['🥇 win without losing a round', T.dailyGold]] as const;
+  const open = goals.slice(have).map(([g, t]) => `${g} +${t} 🪙`).join(' · ');
+  return have >= 3 ? "🥇 Today's gold is yours! Come back tomorrow for a new Daily" : `${have ? `Today's medal: ${MEDALS[have]}  ·  still open: ` : 'Medals: '}${open}`;
+}

@@ -25,6 +25,9 @@ export const KEYMAPS: { name: string; up: string; down: string; left: string; ri
 ];
 
 const keys: Record<string, boolean> = {};
+const downAt: Record<string, number> = {};
+const KEY_LATCH = 90; // ms: a quick tap is never lost between frames
+const held = (k: string): boolean => !!keys[k] || performance.now() - (downAt[k] ?? -1e9) < KEY_LATCH;
 const tapped = new Set<string>();
 const BLOCK = new Set(['Space', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Enter', 'Slash', 'Tab']);
 
@@ -32,12 +35,12 @@ export function initInput(onFirstGesture: () => void): void {
   window.addEventListener('keydown', e => {
     onFirstGesture();
     keys[e.code] = true;
-    if (!e.repeat) tapped.add(e.code);
+    if (!e.repeat) { tapped.add(e.code); downAt[e.code] = performance.now(); }
     if (BLOCK.has(e.code)) e.preventDefault();
   });
   window.addEventListener('keyup', e => { keys[e.code] = false; });
   window.addEventListener('pointerdown', onFirstGesture);
-  window.addEventListener('blur', () => { for (const k in keys) keys[k] = false; });
+  window.addEventListener('blur', () => { for (const k in keys) keys[k] = false; for (const k in downAt) delete downAt[k]; });
 }
 
 /** Lets on-screen buttons trigger the same one-shot actions as keyboard shortcuts. */
@@ -76,10 +79,10 @@ export function readSlot(s: Slot): DeviceInput {
     const m = KEYMAPS[s.index];
     out.mx = (keys[m.right] ? 1 : 0) - (keys[m.left] ? 1 : 0);
     out.my = (keys[m.down] ? 1 : 0) - (keys[m.up] ? 1 : 0);
-    out.throw = m.throw.some(k => keys[k]);
-    out.swipe = m.swipe.some(k => keys[k]);
-    out.dash = m.dash.some(k => keys[k]);
-    out.stomp = m.stomp.some(k => keys[k]);
+    out.throw = m.throw.some(held);
+    out.swipe = m.swipe.some(held);
+    out.dash = m.dash.some(held);
+    out.stomp = m.stomp.some(held);
   } else if (s.kind === 'pad') {
     const gp = pads()[s.index];
     if (!gp) return out;

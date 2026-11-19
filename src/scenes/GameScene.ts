@@ -3,7 +3,7 @@ import { sfx } from '../audio';
 import { playMusic } from '../music';
 import { getSettings, setSetting } from '../settings';
 import { ACHIEVEMENTS, checkAchievements, loadStats, saveStats, type Stats } from '../stats';
-import { ACHIEVEMENT_TOKENS, addTokens, completeStep, isShiny, kaijuMastery, pinnedAchievement, recordMatch, type Receipt } from '../meta';
+import { ACHIEVEMENT_TOKENS, addTokens, completeStep, isShiny, kaijuMastery, pinnedAchievement, recordMatch, type Receipt, dailyMedalLine } from '../meta';
 import { clearTaps, consumeTap, injectTap, listDevices, readSlot, slotLabel, type Slot } from '../input';
 import { CUTLERY_LEN, fitInside, hasArt, kaijuKey } from '../render/art';
 import { ArtRenderer } from '../render/artRender';
@@ -11,7 +11,7 @@ import { drawCutleryShape, drawKaiju, drawTableLive } from '../render/draw';
 import { body, display, popIn, withShadow } from '../render/fonts';
 import { Button, FocusNav } from '../render/ui';
 import { BotBrain, type Difficulty } from '../sim/bot';
-import { P, SPECIES, TABLE, VIEW } from '../sim/constants';
+import { P, RULES, SPECIES, TABLE, VIEW } from '../sim/constants';
 import { CUTLERY } from '../sim/cutlery';
 import { angleDiff } from '../sim/math';
 import { MODE_RULES, modeDef, type GameMode } from '../sim/modes';
@@ -20,8 +20,8 @@ import { MUTATOR_RULES, twistBlurb, twistName, type Mutator } from '../sim/mutat
 import { NO_INPUT, World, type GameEvent, type PlayerInput } from '../sim/world';
 import { chapterRivals, starsFor } from '../story/chapters';
 import { COURSES, saveDessert } from '../story/dessert';
-import { addToShelf, cupShelf, FINAL_MULTIPLIER, cupGames, placePoints } from '../cup';
-import { GAUNTLET, GAUNTLET_PERKS, gauntletBest, gauntletTables, runGrade, runScore, saveGauntletBest, waveCourse, waveSetup } from '../gauntlet';
+import { addToShelf, cupRules, cupShelf, FINAL_MULTIPLIER, cupGames, placePoints, RANKED_BY } from '../cup';
+import { GAUNTLET, GAUNTLET_PERKS, gauntletBest, gauntletTables, runGrade, runScore, saveGauntletBest, waveCourse, wavePreview, waveSetup } from '../gauntlet';
 import { shopOwned } from '../meta';
 import { recordTrial, TRIAL_TOKENS, TRIALS } from '../trials';
 import { enabledMutators } from '../sim/mutators';
@@ -78,7 +78,7 @@ export interface GameData {
   party?: boolean; // started from the PARTY MODES setup (go back there afterwards)
   attract?: boolean; // title-screen demo: any input goes back to the title
   dessert?: { course: number; bosses: number[] }; // 🍰 Dessert Course (index into COURSES)
-  cup?: { game: number; points: number[] }; // 🏆 Party Cup: which game of the cup, points so far
+  cup?: { game: number; points: number[]; hist?: number[][] }; // 🏆 Party Cup: which game of the cup, points so far, points per game
   story?: { chapter: number; bosses: number[]; spicy?: boolean; campaign?: 'main' | 'seconds'; mutator?: Mutator; bossBelly?: number; helping?: boolean }; // story chapter: seat 0 is you; bosses start rounds with a full belly
   net?: { role: 'host'; host: NetHost } | { role: 'guest'; guest: NetGuest; seat: number };
   seed?: number;
@@ -302,7 +302,7 @@ export class GameScene extends Phaser.Scene {
       withShadow(this.add.text(VIEW.w / 2, VIEW.h - 30, `🥋 MOVE LAB: ${SPECIES[this.species[0]].full}: STOMP to go KAIJU, then THROW / SWIPE for ${KITS[this.species[0]]?.power ?? 'your power'} · ${isTouchDevice ? 'MENU' : 'Esc'} to leave`, body(16, '#8dd8ff', 900, { stroke: '#140b05', strokeThickness: 4 })).setOrigin(0.5, 0).setDepth(8), 2);
     } else if (this.mode === 'practice') {
       const g = this.add.graphics().setDepth(9);
-      const text = this.add.text(18, VIEW.h - 5, '', body(13, '#f1e4d2', 800, { lineSpacing: 1, wordWrap: { width: 420 } })).setOrigin(0, 1).setDepth(10);
+      const text = this.add.text(18, VIEW.h - 5, '', body(13, '#f1e4d2', 800, { lineSpacing: 1, wordWrap: { width: 560 } })).setOrigin(0, 1).setDepth(10);
       const p0 = this.world.players[0];
       this.practice = { done: PRACTICE_STEPS.map(() => false), moved: 0, lx: p0.x, ly: p0.y, text, g };
     }
@@ -414,7 +414,7 @@ export class GameScene extends Phaser.Scene {
       const games = cupGames(this.slots.length), pts = this.cupTotals();
       if (cup.game + 1 < games.length) {
         const g = games[cup.game + 1];
-        const next = { game: cup.game + 1, points: pts };
+        const next = { game: cup.game + 1, points: pts, hist: [...(cup.hist ?? []), this.cupAdd()] };
         const net = this.net;
         if (net?.role === 'host') {
           const names = this.world.players.map(p => p.name);
@@ -865,7 +865,7 @@ export class GameScene extends Phaser.Scene {
     const low = (a: number[]) => { const m = Math.min(...a); return a.filter(v => v === m).length === 1 ? a.indexOf(m) : -1; };
     const list: [string, number, string][] = [
       ['🍴 Most KOs', top(w.players.map(p => p.kos)), ''],
-      ['🍪 Crumb Monster', top(T.crumbs, 5), ' crumbs'],
+      ['🍪 Crumb Monster', top(T.crumbs, 5), ' crumbs eaten'],
       ['🦖 Kaiju Lover', top(T.kaiju, 2), '× KAIJU'],
       ['🧈 Butterfingers', top(T.falls, 2), ' falls'],
       ['🛡️ Survivor', w.players.length > 2 ? low(T.deaths) : -1, ''],
@@ -1111,10 +1111,11 @@ export class GameScene extends Phaser.Scene {
     if (next >= 0) { if (this.practiceStuck.i !== next) this.practiceStuck = { i: next, t: 0 }; this.practiceStuck.t += this.game.loop.delta / 1000; if (this.practiceStuck.t > 30) { this.popup(VIEW.w / 2, 200, 'Skipped this step: try it in a real match!', '#cdb9a3', 18); this.tick(next); next = P0.done.indexOf(false); } }
     const all = next < 0, doneN = P0.done.filter(Boolean).length;
     // two short lines in the strip below the table (TABLE ends at y 670), so it never covers the action
-    P0.text.setText(all ? `PRACTICE ${doneN}/${PRACTICE_STEPS.length}  🎉 All done!\nEsc → pause → QUIT` : `PRACTICE ${doneN}/${PRACTICE_STEPS.length}  👉 ${PRACTICE_STEPS[next].text}\n${PRACTICE_STEPS[next].keys}`);
+    const later = all ? -1 : P0.done.indexOf(false, next + 1), left = PRACTICE_STEPS.length - doneN;
+    P0.text.setText(all ? `PRACTICE ${doneN}/${PRACTICE_STEPS.length}  🎉 All done!\nEsc → pause → QUIT` : `PRACTICE ${doneN}/${PRACTICE_STEPS.length}  👉 ${PRACTICE_STEPS[next].text}: ${PRACTICE_STEPS[next].keys}\n${left > 1 && later >= 0 ? `then: ${PRACTICE_STEPS[later].text}${left > 2 ? ` (+${left - 2} more)` : ''}` : 'last one!'}`);
     // phones: the strip at the bottom-left is where your thumb and the joystick hint are, so it goes top-left instead
     if (isTouchDevice) P0.text.setOrigin(0, 0).setPosition(18, 90);
-    const bx = 10, by = isTouchDevice ? 85 : TABLE.y + TABLE.h + 3, bw = Math.min(440, P0.text.width + 16), bh = isTouchDevice ? P0.text.height + 10 : VIEW.h - by - 3;
+    const bx = 10, by = isTouchDevice ? 85 : TABLE.y + TABLE.h + 3, bw = Math.min(580, P0.text.width + 16), bh = isTouchDevice ? P0.text.height + 10 : VIEW.h - by - 3;
     P0.g.clear(); P0.g.fillStyle(0x0d0805, 0.78); P0.g.fillRoundedRect(bx, by, bw, bh, 10);
     P0.g.lineStyle(2, all ? 0x8dff6a : 0xffb347, 1); P0.g.strokeRoundedRect(bx, by, bw, bh, 10);
   }
@@ -1283,7 +1284,7 @@ export class GameScene extends Phaser.Scene {
     if (outs.length && !this.humanWon(w.winner)) lines.push('Knocked out by: ' + outs.map(([k, n]) => (OUT[k] ?? k) + (n > 1 ? ' x' + n : '')).join(', '));
     if (outs.length && !this.humanWon(w.winner)) {
       const top = outs[0][0];
-      const tip: Record<string, string> = { fall: 'Stay away from the edges, and DASH back to the middle.', cutlery: 'DASH sideways when you see a charge line, or SWIPE to parry it back.', kaiju: 'Step out of the ring before each stomp, then hit them while they are dizzy.', squash: 'Step out of the ring before each stomp, then hit them while they are dizzy.', hand: 'The Giant Hand goes for the fullest belly: STOMP first, or DASH as it reaches you.' };
+      const tip: Record<string, string> = { fall: 'Stay away from the edges, and DASH back to the middle.', cutlery: 'DASH sideways when you see a charge line, or SWIPE to parry it back.', kaiju: 'Step out of the ring before each stomp, then hit them while they are dizzy.', squash: 'A red ring means a KAIJU is growing: get clear before the ring fills, then hit them while they are dizzy after.', hand: 'The Giant Hand goes for the fullest belly: STOMP first, or DASH as it reaches you.' };
       if (tip[top]) lines.push('💡 ' + tip[top]);
     }
     if (GameScene.lossRun >= 2 && !this.humanWon(w.winner) && !this.initData.cup && !this.initData.gauntlet && !this.initData.trial && !this.initData.daily && !this.story) lines.push('💡 Tough bots? Set BOT LEVEL to EASY, or switch on COMEBACK HELP in Settings.');
@@ -1415,6 +1416,13 @@ export class GameScene extends Phaser.Scene {
     for (const r of this.rings) {
       fx.lineStyle(5, r.color, Math.max(0, 1 - r.t / 0.5));
       fx.strokeCircle(r.x, r.y, r.r);
+    }
+    // 🦖 a KAIJU still growing: a pulsing red danger ring where its body will reach (squash starts when it fills)
+    for (const p of this.world.players) if (p.alive && p.kaijuT > 0 && p.growT > 0) {
+      const k = 1 - p.growT / RULES.kaijuGrow, R = P.kaijuRadius + 14;
+      fx.fillStyle(0xff3b2f, 0.12 + 0.18 * k); fx.fillCircle(p.x, p.y, R);
+      fx.lineStyle(4, 0xff3b2f, 0.6 + 0.4 * Math.abs(Math.sin(this.t * 30))); fx.strokeCircle(p.x, p.y, R);
+      fx.lineStyle(3, 0xffe9c7, 0.9); fx.beginPath(); fx.arc(p.x, p.y, R + 6, -Math.PI / 2, -Math.PI / 2 + k * Math.PI * 2); fx.strokePath();
     }
     this.renderHud();
     this.renderBanner();
@@ -1599,7 +1607,7 @@ export class GameScene extends Phaser.Scene {
       if (w.mode === 'hotDumpling' && w.hot?.id === p.id && p.alive && w.phase === 'play') info = '🥟 HOT! PASS IT!';
       const buffs = (p.speedT > 0 ? POWER_DEFS.hotsauce.short : '') + (p.shieldT > 0 ? POWER_DEFS.mustard.short : '') + (p.sugarT > 0 ? POWER_DEFS.sugar.short : '');
       if (buffs && p.alive) info = `${buffs} ${info}`;
-      this.infoTexts[i].setText(info);
+      this.infoTexts[i].setText(info).setScale(1); { const room = this.hudW - this.hudText - 14; if (this.infoTexts[i].width > room) this.infoTexts[i].setScale(room / this.infoTexts[i].width); } // stays inside its card (Kid Mode text is bigger)
       if (w.mode === 'teams') { g.fillStyle(MODE_RULES.teams.colors[p.team] ?? 0xffffff, 0.9); g.fillRoundedRect(x - 4, 70, pw, 4, 2); }
     });
     this.roundText.setText(this.initData.gauntlet ? `GAUNTLET ${'❤'.repeat(Math.max(0, this.initData.gauntlet.lives ?? GAUNTLET.lives))}\nWAVE ${this.initData.gauntlet.wave} · ${w.layout.name.toUpperCase()}` : `${w.mode !== 'classic' ? modeDef(w.mode).name + '\n' : ''}ROUND ${w.round} · ${w.layout.name.toUpperCase()}`);
@@ -1636,7 +1644,7 @@ export class GameScene extends Phaser.Scene {
       sub = `${w.mode !== 'classic' ? modeDef(w.mode).name + ' · ' : ''}${w.mutator !== 'none' ? '⚡ ' + twistName(w.mutator, w.mutator2) + ' · ' : ''}Round ${w.round} · ${w.layout.name}`;
       if (this.initData.cup) { const n = cupGames(w.players.length).length, fin = this.initData.cup.game + 1 >= n; sub = `🏆 PARTY CUP · GAME ${this.initData.cup.game + 1}/${n}${fin ? ` · FINAL: ×${FINAL_MULTIPLIER} POINTS` : ''} · ${modeDef(w.mode).name} · ${w.layout.name}`; }
       if (this.initData.dessert) { const c = COURSES[this.initData.dessert.course]; sub = `🍰 DESSERT COURSE ${this.initData.dessert.course + 1}/${COURSES.length} · ${c.title.toUpperCase()} · ${w.layout.name}`; }
-      if (this.initData.daily) sub = `📅 DAILY · ${w.players.length - 1} rivals (${(this.initData.botLevels ?? []).filter(Boolean).join(', ')}) · win to keep your 🔥 streak · ${w.layout.name}`;
+      if (this.initData.daily) sub = `📅 DAILY · ${w.players.length - 1} rivals (${(this.initData.botLevels ?? []).filter(Boolean).join(', ')}) · win to keep your 🔥 streak · ${w.layout.name}\n${dailyMedalLine(this.initData.daily.date)}`;
       if (this.initData.gauntlet) sub = `GAUNTLET · ${waveCourse(this.initData.gauntlet.wave)} · WAVE ${this.initData.gauntlet.wave}${this.initData.gauntlet.wave % GAUNTLET.bossEvery === 0 ? ' (COURSE BOSS)' : ''} · ❤ ${this.initData.gauntlet.lives ?? GAUNTLET.lives} · ${w.players.length - 1} rival${w.players.length > 2 ? 's' : ''}${this.bossSeats().length ? ' + 👑 BOSS' : ''} · ${w.layout.name}`;
       if (w.mutator !== 'none') sub += `\n⚡ TWIST: ${twistName(w.mutator, w.mutator2)} — ${twistBlurb(w.mutator, w.mutator2)}`;
       if (this.tip) sub += `\n\n💡 ${this.tip}`;
@@ -1659,9 +1667,11 @@ export class GameScene extends Phaser.Scene {
       const gw = w.winner !== null ? (w.mode === 'teams' ? `TEAM ${MODE_RULES.teams.names[w.players[w.winner].team]}` : w.players[w.winner].name) : 'NOBODY';
       main = last ? `🏆 ${w.players[lead].name}\nWINS THE PARTY CUP!` : `GAME ${cup.game + 1}/${games.length}: ${gw} WINS!`;
       color = last ? this.css[lead] : w.winner !== null ? this.css[w.winner] : '#ffd24a';
-      const rows = order.map((i, k) => `${k === 0 ? '🏆' : k === 1 ? '🥈' : k === 2 ? '🥉' : `${k + 1}.`} ${w.players[i].name}  ${tot[i]} pt${tot[i] === 1 ? '' : 's'}${add[i] ? `  (+${add[i]})` : ''}`);
+      const hist = [...(cup.hist ?? []), add];
+      const rows = order.map((i, k) => `${k === 0 ? '🏆' : k === 1 ? '🥈' : k === 2 ? '🥉' : `${k + 1}.`} ${w.players[i].name}  ${tot[i]} pt${tot[i] === 1 ? '' : 's'}   (${hist.map((h, g) => `G${g + 1} +${h[i] ?? 0}`).join(', ')})`);
       const shelf = last ? cupShelf().slice(0, 4).map(s => `${s.name} on ${s.date}`).join(' · ') : '';
-      const table = (last ? '' : 'STANDINGS\n') + rows.join('\n') + (shelf ? `\n\n🏆 Past champions: ${shelf}` : '');
+      const why = RANKED_BY[w.mode];
+      const table = (last ? '' : 'STANDINGS\n') + rows.join('\n') + `\n${cupRules()}${why ? `\n${why}` : ''}` + (shelf ? `\n🏆 Past champions: ${shelf}` : '');
       const nextName = last ? '' : modeDef(games[cup.game + 1].mode).name;
       sub = table + (this.net?.role === 'guest'
         ? (last ? '\n\nEsc to leave' : `\n\nNext: ${nextName} · waiting for the host…`)
@@ -1673,7 +1683,7 @@ export class GameScene extends Phaser.Scene {
     } else if (w.phase === 'matchEnd' && this.initData.gauntlet) {
       const wave = this.initData.gauntlet.wave;
       const lives = this.initData.gauntlet.lives ?? GAUNTLET.lives;
-      if (w.winner === 0) { main = `WAVE ${wave} CLEARED!`; color = '#8dff6a'; sub = `Next: wave ${wave + 1} · ${'❤'.repeat(Math.max(0, lives))}`; }
+      if (w.winner === 0) { main = `WAVE ${wave} CLEARED!`; color = '#8dff6a'; sub = `${wavePreview(wave + 1)} · ${'❤'.repeat(Math.max(0, lives))}`; }
       else if (lives > 1) { main = 'LIFE LOST!'; color = '#ffb347'; sub = `${'❤'.repeat(Math.max(0, lives - 1))} left · trying wave ${wave} again with your perks…`; }
       else {
         const reached = wave - 1, prev = this.initData.gauntlet.startBest ?? 0, best = Math.max(prev, reached);
@@ -1704,9 +1714,9 @@ export class GameScene extends Phaser.Scene {
         const d = loadDaily(), won = this.humanWon(w.winner);
         main = won ? 'DAILY CHALLENGE\nCOMPLETE!' : 'DAILY CHALLENGE\nFAILED';
         color = won ? '#8dff6a' : '#ff8a7a';
-        table = `📅 Today: ${d.won ? 'won ✔' : 'not won yet'} · best ${d.best} round${d.best === 1 ? '' : 's'} · tries ${d.tries} · win streak ${d.streak} day${d.streak === 1 ? '' : 's'}\n\n${table}`;
+        table = `📅 Today: ${d.won ? 'won ✔' : 'not won yet'} · best ${d.best} round${d.best === 1 ? '' : 's'} · tries ${d.tries} · win streak ${d.streak} day${d.streak === 1 ? '' : 's'}\n${dailyMedalLine(this.initData.daily.date)}\n${table}`;
       }
-      sub = table + (this.net?.role === 'guest' ? '\n\nWaiting for the host to start a rematch… · Esc to leave' : '\n\n1 / START rematch · Esc menu');
+      sub = table + (this.net?.role === 'guest' ? '\n\nWaiting for the host to start a rematch… · Esc to leave' : this.initData.daily ? '\n1 / START rematch · Esc menu' : '\n\n1 / START rematch · Esc menu');
     }
     if (main !== this.lastBanner) { this.lastBanner = main; if (main) popIn(this, this.banner, 1.5, 380); }
     this.banner.setText(main).setColor(color).setFontSize(main.length > 14 ? 58 : 90);

@@ -964,3 +964,40 @@ From the 10 Sonnet playtester reports in `playtest-reports/`.
 - **Gallery:** mastery rewards are listed in words: "Rewards (Lv 2-6): ✔ sparkles · 🔒 HUD star · … · 🔒 Shiny".
 - **Couch lobby:** a smaller QR code (150 px) and a compact panel.
 - **Text audit:** now includes the Story Rewards panel.
+
+## 72. Round 9 "gaps to 9" (build all)
+- **🦖 KAIJU warning:** a fresh KAIJU spends 0.5 s growing (`RULES.kaijuGrow`).
+  - While growing, a pulsing red ring with a filling timer shows where its body will reach.
+  - It shoves but can't squash until the ring fills.
+  - The "knocked out by squash" tip explains the ring.
+- **Fair starts:** bots wait 1.8 s before attacking (`RULES.botGrace`, was 1.4).
+- **🏁 Gauntlet ramp:** the first 8 waves are hand-tuned in `OPENING_WAVES` (`src/gauntlet.ts`).
+  - Each wave adds at most one bot or one bot level.
+  - Boss waves keep the count down.
+  - Twists start at wave 7 (was 5).
+  - Wave 9+ ramps by formula, including the TOUGH level.
+  - A cleared wave previews the next one: rivals, levels, boss and twist.
+- **🎟 Chef's Pass** (`src/challengePass.ts`): 12 Trial ★ OR reaching Gauntlet wave 8 gives you:
+  - 🌶️ Spicy on any chapter you've reached.
+  - The 🍰 Dessert Course before the ending.
+  - Progress shows on the Trials screen and in the CHALLENGES chooser.
+- **🏆 Party Cup:**
+  - Placing is now rounds won, then the mode's own points (crumbs HELD in Crumb Rush, spoon seconds), then KOs.
+  - Standings show every player's points per game (G1 +5 · G2 +3 …), a rules line (points table, final ×2, teams) and what the mode places you by.
+  - With the Cup ON, Party setup greys out MODE / FIRST TO ("CUP PICKS" / "CUP SETS IT") and the header shows the Cup.
+  - The awards say "crumbs eaten".
+- **🧸 Kid Mode bigger text:** body text under 16 px grows to at least 16 px (`KID_MIN` in `src/render/fonts.ts`).
+  - The text audit has a `KID=1` pass.
+- **📖 Gallery:**
+  - 🪙 balance in the header.
+  - Buying a Shiny shows a big banner and a sparkle burst, and ✨ marks the kaiju's tile.
+  - Tapping a locked colour makes its "how to earn it" line jump.
+- **🏅 Records:** the footer follows your 📌 pinned achievement.
+- **🎓 First-timer fixes:**
+  - Your own seat says "👤 YOU" when you're the only human; bot seats say "🤖 Bot".
+  - Practice shows the current step with its keys, plus the step after it.
+  - Table counts come from one place (`tableCount()`): Help shows "You own N/M tables", and Free Play and the Gallery match.
+- **⌨ Quick taps:** a key pressed and released between two frames still counts (`KEY_LATCH` 90 ms in `src/input.ts`).
+- **⚡ Twist TRY IT:** in the twist picker, switch on 🧪 TRY IT and tap a twist for 1 quick round against an EASY bot.
+- **🛠 Workshop:** picking a prop says what it does (size and cover, or bumper kick), and cycling the hazard explains it (`HAZARD_INFO`, `propInfo` in `src/custom.ts`).
+- **📅 Daily:** the countdown and result show the medals still open today, with their 🪙 (🥉 play · 🥈 win · 🥇 win without losing a round).

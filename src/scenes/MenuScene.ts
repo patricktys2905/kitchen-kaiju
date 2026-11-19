@@ -10,7 +10,7 @@ import { BOT_INFO, DIFFICULTIES, type Difficulty } from '../sim/bot';
 import { DEFAULT_ROUNDS, MAX_PLAYERS, ROUND_CHOICES, SPECIES } from '../sim/constants';
 import { LAYOUTS } from '../sim/layouts';
 import { isTouchDevice, setTouchHud, setTouchMode } from '../touch';
-import { owned, type Owned } from '../story/unlocks';
+import { owned, type Owned, tableCount } from '../story/unlocks';
 import { playMusic } from '../music';
 import { keyFor, keyLabel } from '../keybinds';
 import { POWERUPS } from '../sim/powerups';
@@ -305,11 +305,21 @@ export class MenuScene extends Phaser.Scene {
     const g = this.add.graphics().setDepth(30);
     g.fillStyle(0x000000, 0.6).fillRect(0, 0, 1280, 720).fillStyle(0x0d0805, 1).fillRoundedRect(60, 90, 1160, 560, 20).lineStyle(3, 0x8dd8ff, 1).strokeRoundedRect(60, 90, 1160, 560, 20);
     this.twistUi.push(this.add.zone(640, 360, 1280, 720).setInteractive().setDepth(30)); // swallows clicks between the buttons
-    this.twistUi.push(g, this.add.text(640, 122, '⚡ PICK A TWIST (singles, then ⚡⚡ doubles)', body(20, '#8dd8ff', 900)).setOrigin(0.5).setDepth(31));
+    const title = this.add.text(560, 122, '⚡ PICK A TWIST (singles, then ⚡⚡ doubles)', body(20, '#8dd8ff', 900)).setOrigin(0.5).setDepth(31);
+    this.twistUi.push(g, title);
+    // 🧪 TRY IT mode: tapping a twist starts a quick 1-round warm-up vs one EASY bot instead of picking it
+    let trying = false;
+    const tryBtn = new Button(this, 1000, 122, { w: 230, h: 44, label: '🧪 TRY IT: OFF', size: 15, accent: 0xffd24a, onClick: () => { trying = !trying; sfx.pickup(); tryBtn.setText(trying ? '🧪 TRY IT: ON' : '🧪 TRY IT: OFF'); title.setText(trying ? '🧪 TAP A TWIST: 1 quick round vs an EASY bot' : '⚡ PICK A TWIST (singles, then ⚡⚡ doubles)'); } }, 31);
+    this.twistUi.push(tryBtn);
+    const tryTwist = (a: Mutator, b: Mutator) => {
+      const you = this.picks[0] ?? this.own.kaiju[0] ?? 0, rival = this.own.kaiju.find(k => k !== you) ?? (you + 1) % SPECIES.length;
+      sfx.go();
+      this.scene.start('game', { slots: [{ kind: 'local', index: 0 }, { kind: 'bot', index: 0 }], difficulty: 'easy', botLevels: [null, 'easy'], species: [you, rival], tables: [this.own.tables[0] ?? 0], rounds: 1, mode: 'classic', powerups: true, hazards: true, mutator: a, mutator2: b });
+    };
     const all = twistChoices();
     all.forEach(([a, b], k) => {
       const col = k % 4, row = Math.floor(k / 4), on = a === this.mutator && b === this.mutator2;
-      const btn = new Button(this, 205 + col * 290, 186 + row * 80, { w: 274, h: 72, label: (b !== 'none' ? '⚡⚡ ' : '') + twistShort(a, b), sub: a === 'none' ? 'normal rules' : b === 'none' ? twistBlurb(a, b) : `${mutatorDef(a).name} + ${mutatorDef(b).name}`, size: 15, accent: on ? 0x8dff6a : b !== 'none' ? 0xff7ad9 : 0x8dd8ff, onClick: () => { this.mutator = a; this.mutator2 = b; sfx.go(); close(); } }, 31);
+      const btn = new Button(this, 205 + col * 290, 186 + row * 80, { w: 274, h: 72, label: (b !== 'none' ? '⚡⚡ ' : '') + twistShort(a, b), sub: a === 'none' ? 'normal rules' : b === 'none' ? twistBlurb(a, b) : `${mutatorDef(a).name} + ${mutatorDef(b).name}`, size: 15, accent: on ? 0x8dff6a : b !== 'none' ? 0xff7ad9 : 0x8dd8ff, onClick: () => { if (trying && a !== 'none') { close(); tryTwist(a, b); return; } this.mutator = a; this.mutator2 = b; sfx.go(); close(); } }, 31);
       this.twistUi.push(btn);
     });
     const x = new Button(this, 1180, 122, { w: 56, h: 44, label: '✖', size: 20, onClick: () => close() }, 31);
@@ -517,9 +527,10 @@ export class MenuScene extends Phaser.Scene {
         }
         this.slotTexts[i].setText(SPECIES[sp].full.toUpperCase()).setColor(SPECIES[sp].css);
         this.slotFood[i].setText(getSettings().kaijuPowers ? `🌟 ${KITS[sp].power}` : SPECIES[sp].food);
-        const how = s.kind === 'kb' ? (s.index === 0 ? 'Keys left · A / D' : 'Keys right · ← / →')
+        const you = this.slots.filter(q => q.kind !== 'bot').length === 1 && s.kind !== 'bot' ? '👤 YOU · ' : ''; // one human: their own seat is obvious
+        const how = you + (s.kind === 'kb' ? (s.index === 0 ? 'Keys left · A / D' : 'Keys right · ← / →')
           : s.kind === 'pad' ? `${slotLabel(s)} · ◀ ▶`
-          : s.kind === 'touch' ? 'Touch · KAIJU ▶' : `Bot: ${(this.botLevels[i] ?? this.difficulty).toUpperCase()}${this.botLevels[i] ? ' ✎' : ''} (tap)`;
+          : s.kind === 'touch' ? 'Touch · KAIJU ▶' : `🤖 Bot: ${(this.botLevels[i] ?? this.difficulty).toUpperCase()}${this.botLevels[i] ? ' ✎' : ''} (tap)`);
         this.slotSub[i].setText(how);
       } else {
         img.setVisible(false);
@@ -533,10 +544,10 @@ export class MenuScene extends Phaser.Scene {
     if (this.setBtns.length) {
       const tl0 = this.table < 0 ? null : LAYOUTS[this.table];
       const label: Record<string, string> = {
-        mode: `MODE ▶\n${modeDef(this.mode).name}`, cup: `🏆 PARTY CUP\n${MenuScene.cupOn ? 'ON' : 'OFF'}`, cuplen: `CUP LENGTH\n${cupGames(Math.max(3, this.slots.length)).length} GAMES`, bots: `BOT LEVEL\n${getSettings().kidMode ? 'EASY 🧸' : this.difficulty.toUpperCase()}`, table: `TABLE\n${tl0 ? tl0.name.toUpperCase() : 'ALL'}`,
-        rounds: `FIRST TO\n${this.rounds}`, twist: `TWIST${this.mutator !== 'none' && this.mutator2 && this.mutator2 !== 'none' ? ' ⚡⚡' : ''}\n${this.mutator === 'none' ? 'NONE' : twistShort(this.mutator, this.mutator2)}`, power: `POWER-UPS\n${this.powerups ? 'ON' : 'OFF'}`, haz: `HAZARDS\n${this.hazards ? 'ON' : 'OFF'}`, dice: '🎲\nRANDOM', phones: '📱 PHONES\nAS PADS', online: '🌐\nONLINE',
+        mode: this.party && MenuScene.cupOn ? 'MODE\nCUP PICKS' : `MODE ▶\n${modeDef(this.mode).name}`, cup: `🏆 PARTY CUP\n${MenuScene.cupOn ? 'ON' : 'OFF'}`, cuplen: `CUP LENGTH\n${cupGames(Math.max(3, this.slots.length)).length} GAMES`, bots: `BOT LEVEL\n${getSettings().kidMode ? 'EASY 🧸' : this.difficulty.toUpperCase()}`, table: `TABLE\n${tl0 ? tl0.name.toUpperCase() : 'ALL'}`,
+        rounds: this.party && MenuScene.cupOn ? 'FIRST TO\nCUP SETS IT' : `FIRST TO\n${this.rounds}`, twist: `TWIST${this.mutator !== 'none' && this.mutator2 && this.mutator2 !== 'none' ? ' ⚡⚡' : ''}\n${this.mutator === 'none' ? 'NONE' : twistShort(this.mutator, this.mutator2)}`, power: `POWER-UPS\n${this.powerups ? 'ON' : 'OFF'}`, haz: `HAZARDS\n${this.hazards ? 'ON' : 'OFF'}`, dice: '🎲\nRANDOM', phones: '📱 PHONES\nAS PADS', online: '🌐\nONLINE',
       };
-      for (const b of this.setBtns) { const id = (b as Button & { id?: string }).id ?? ''; b.setText(label[id] ?? ''); b.label.setScale(Math.min(1, (this.party ? 94 : 118) / Math.max(1, b.label.width / b.label.scaleX))); }
+      for (const b of this.setBtns) { const id = (b as Button & { id?: string }).id ?? ''; b.setText(label[id] ?? ''); b.label.setAlpha(this.party && MenuScene.cupOn && (id === 'mode' || id === 'rounds') ? 0.45 : 1); /* the Cup decides these */ b.label.setScale(Math.min(1, (this.party ? 94 : 118) / Math.max(1, b.label.width / b.label.scaleX))); }
       const people = this.slots.filter(q => q.kind !== 'bot').length;
       this.hintText?.setText(people ? `${this.slots.length} at the table · click empty seats to add bots · press ▶ PLAY` : 'Click a seat (or press THROW on a keyboard / gamepad) to join');
       if (this.hintText && !this.party && this.mutator === 'none') this.hintText.setText(`${this.hintText.text}\n🤖 ${BOT_INFO[this.difficulty]}`);
@@ -548,10 +559,10 @@ export class MenuScene extends Phaser.Scene {
     this.modeText.setFontSize(this.party ? 18 : 16).setY(143);
     const seats = this.slots.map((_, i) => i % 2), red = seats.filter(t => t === 0).length, blue = seats.length - red;
     this.tagline.setText(this.mode === 'teams' ? `${md.blurb}   ·   RED ${red}  vs  BLUE ${blue}${red !== blue ? '  (add a player or bot to even it up)' : ''}` : this.party ? md.blurb : 'Tiny monsters. Giant dinner.');
-    this.modeText.setText(`${this.party ? `◀ ${md.name} ▶` : 'CLASSIC'}   ·   POWER-UPS: ${this.powerups ? 'ON' : 'OFF'}   ·   HAZARDS: ${this.hazards ? 'ON' : 'OFF'}${this.mutator !== 'none' ? `   ·   ⚡ ${twistName(this.mutator, this.mutator2)}` : ''}`);
+    this.modeText.setText(`${this.party ? (MenuScene.cupOn ? `🏆 PARTY CUP: ${cupGames(Math.max(3, this.slots.length)).length} GAMES` : `◀ ${md.name} ▶`) : 'CLASSIC'}   ·   POWER-UPS: ${this.powerups ? 'ON' : 'OFF'}   ·   HAZARDS: ${this.hazards ? 'ON' : 'OFF'}${this.mutator !== 'none' ? `   ·   ⚡ ${twistName(this.mutator, this.mutator2)}` : ''}`);
     this.infoText.setText(`${isTouchDevice ? `🤖 ${BOT_INFO[this.difficulty]}   ·   ` : ''}Bot difficulty: ${this.difficulty.toUpperCase()}   ·   Up to ${MAX_PLAYERS} players   ·   First to ${this.rounds} round${this.rounds === 1 ? '' : 's'}   ·   ${this.own.kaiju.length < SPECIES.length ? `${this.own.kaiju.length}/${SPECIES.length} kaiju (play & Story unlock more)` : `${SPECIES.length} kaiju`}`);
     const tl = this.table < 0 ? null : LAYOUTS[this.table];
-    this.tableText.setText(tl ? `TABLE: ${tl.name.toUpperCase()}  —  ${tl.blurb}` : `TABLE: ALL ${this.own.tables.length} (a different one every round)${this.own.tables.length < LAYOUTS.length ? ` · ${LAYOUTS.length - this.own.tables.length} more to unlock` : ''}`);
+    this.tableText.setText(tl ? `TABLE: ${tl.name.toUpperCase()}  —  ${tl.blurb}` : `TABLE: ALL ${this.own.tables.length} (a different one every round)${tableCount().own < tableCount().all ? ` · tables owned ${tableCount().own}/${tableCount().all}` : ''}`);
     // small preview of the chosen table surface
     const key = tl ? tl.table : null;
     if (key && hasArt(key)) {

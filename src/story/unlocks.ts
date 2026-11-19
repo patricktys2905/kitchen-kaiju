@@ -79,6 +79,11 @@ export function owned(s: StorySave = loadStory()): Owned {
   };
 }
 
+/** Built-in tables you own / that exist (Workshop tables are extra and not counted). Used by every screen that shows a count. */
+export function tableCount(s: StorySave = loadStory()): { own: number; all: number } {
+  return { own: owned(s).tables.filter(i => !LAYOUTS[i]?.custom).length, all: LAYOUTS.filter(l => !l.custom).length };
+}
+
 /** Rewards earned between two save states (for the "UNLOCKED!" celebration). */
 export function newlyEarned(before: StorySave, after: StorySave): Unlock[] {
   return UNLOCKS.filter(u => !isEarned(u, before) && isEarned(u, after));

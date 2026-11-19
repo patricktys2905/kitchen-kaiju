@@ -8,21 +8,25 @@ import { chromium } from 'playwright-core';
 const wait = ms => new Promise(r => setTimeout(r, ms));
 // TOUCH=1 audits the phone layout (?touch, phone-shaped screen, on-screen controls) into art-src/.audit-touch
 const TOUCH = !!process.env.TOUCH;
-const OUT = TOUCH ? 'art-src/.audit-touch' : 'art-src/.audit';
+// KID=1 audits with Kid Mode on (bigger text) into art-src/.audit-kid
+const KID = !!process.env.KID;
+const OUT = KID ? 'art-src/.audit-kid' : TOUCH ? 'art-src/.audit-touch' : 'art-src/.audit';
 fs.mkdirSync(OUT, { recursive: true });
-const pv = spawn(process.execPath, ['node_modules/vite/bin/vite.js', 'preview', '--port', TOUCH ? '7343' : '7340', '--strictPort'], { stdio: 'ignore' });
+const pv = spawn(process.execPath, ['node_modules/vite/bin/vite.js', 'preview', '--port', KID ? '7346' : TOUCH ? '7343' : '7340', '--strictPort'], { stdio: 'ignore' });
 await wait(2500);
 const exe = ['C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe', 'C:/Program Files/Microsoft/Edge/Application/msedge.exe', '/opt/pw-browsers/chromium'].find(p => fs.existsSync(p));
 const browser = await chromium.launch({ executablePath: exe, headless: true });
 const pg = await (await browser.newContext(TOUCH ? { viewport: { width: 1000, height: 462 }, deviceScaleFactor: 1, hasTouch: true, isMobile: true } : { viewport: { width: 1280, height: 720 } })).newPage();
 const errs = []; pg.on('pageerror', e => errs.push(e.message));
-await pg.goto(`http://localhost:${TOUCH ? 7343 : 7340}/` + (TOUCH ? '?touch' : '')); await wait(6000);
+await pg.goto(`http://localhost:${KID ? 7346 : TOUCH ? 7343 : 7340}/` + (TOUCH ? '?touch' : '')); await wait(6000);
 
 // a lived-in save so locked/unlocked/progress texts all show up
-await pg.evaluate(() => {
+await pg.evaluate((KIDMODE) => {
   localStorage.setItem('kk-meta-v1', JSON.stringify({ tokens: 1260, earned: 2000, xp: { 0: 200, 3: 950 }, week: '', orders: {}, done: [], kaijuWonThisWeek: [], owned: ['peach'], dailyMedal: { date: '', medal: 0 } }));
+  if (KIDMODE) localStorage.setItem('kk-settings-v1', JSON.stringify({ kidMode: true }));
   localStorage.setItem('kk-stats-v1', JSON.stringify({ matches: 12, wins: 5, roundsWon: 20, kos: 33, crumbs: 400, kaijuForms: 6, pops: 2, streak: 1, bestStreak: 3, gauntlet: 4, cups: 0, blends: 1, twistWins: 0, flawless: 0, bestRampage: 1, modeWins: { teams: 1 }, kaijuWins: { 0: 3 }, kaijuPlays: { 0: 8, 1: 4 }, tables: [0, 1, 2], achieved: ['first-win', 'teams'] }));
-});
+}, KID);
+await pg.reload(); await wait(6000); // the game reads the save and settings at boot
 
 const issues = [];
 let shotN = 0;
@@ -123,6 +127,8 @@ await start('menu', { party: true, mode: 'teams', slots: [0, 1, 2, 3, 4, 5].map(
 await pg.mouse.click(262, 690); await wait(500); await audit('house rules panel');
 await start('menu', {}, 1500); await pg.mouse.click(92, 690); await wait(400); await audit('keys panel');
 await start('menu', { party: true, mode: 'teams' }, 1500); await pg.evaluate(() => window.__game.scene.getScene('menu').toggleTwists()); await wait(400); await audit('twist picker');
+await pg.evaluate(() => { const m = window.__game.scene.getScene('menu'); const b = m.twistUi.find(u => u.label && /TRY IT/.test(u.label.text)); b?.press(); }); await wait(300); await audit('twist picker try it');
+await start('menu', { party: true, mode: 'teams' }, 1500); await pg.evaluate(() => { const M = window.__game.scene.getScene('menu').constructor; M.cupOn = true; }); await wait(500); await audit('party setup cup on'); await pg.evaluate(() => { const M = window.__game.scene.getScene('menu').constructor; M.cupOn = false; });
 await start('story', {}, 2000); await pg.evaluate(() => window.__game.scene.getScene('story').showLog()); await wait(400); await audit('story log');
 await start('story', {}, 2000); await pg.evaluate(() => window.__game.scene.getScene('story').showRewards()); await wait(400); await audit('story rewards');
 // story
@@ -143,6 +149,8 @@ for (const mode of ['classic', 'teams', 'crumbRush', 'hotDumpling', 'goldenSpoon
 }
 await start('game', { ...six, mode: 'classic', cup: { game: 0, points: [0, 0, 0, 0, 0, 0] } }, 3000);
 await pg.evaluate(() => { const w = window.__game.scene.getScene('game').world; w.players[1].score = w.opts.target - 1; w.endRound([w.players[1]]); }); await wait(4000); await audit('cup game result');
+await start('game', { ...six, mode: 'crumbRush', rounds: 1, cup: { game: 2, points: [5, 3, 2, 1, 0, 0], hist: [[5, 0, 0, 1, 0, 0], [0, 3, 2, 0, 0, 0]] } }, 3000);
+await pg.evaluate(() => { const w = window.__game.scene.getScene('game').world; w.players.forEach((p, i) => { p.pts = 10 - i; }); w.players[1].score = w.opts.target - 1; w.endRound([w.players[1]]); }); await wait(4000); await audit('cup crumb rush history');
 // challenges chooser on the title
 await start('title', {}, 1500); await pg.evaluate(() => { const t = window.__game.scene.getScene('title'); t.challenges(0); }); await audit('challenges chooser');
 // trial result + move lab + cup final
@@ -156,6 +164,9 @@ await pg.evaluate(() => { const g = window.__game; const GS = g.scene.getScene('
 await pg.evaluate(() => { const g = window.__game; for (const s of g.scene.getScenes(true)) s.scene.stop(); const GS = g.scene.getScene('game').constructor; g.scene.start('game', GS.gauntletWave(5, 0, { kind: 'kb', index: 0 })); }); await wait(700); await audit('gauntlet countdown');
 await wait(2500); await audit('gauntlet HUD');
 await pg.evaluate(() => { const w = window.__game.scene.getScene('game').world; w.players[1].score = w.opts.target - 1; w.endRound([w.players[1]]); }); await wait(3500); await audit('gauntlet life lost');
+await pg.evaluate(() => { const g = window.__game; for (const s of g.scene.getScenes(true)) s.scene.stop(); const GS = g.scene.getScene('game').constructor; g.scene.start('game', GS.gauntletWave(4, 0, { kind: 'kb', index: 0 })); }); await wait(3000);
+await pg.evaluate(() => { const w = window.__game.scene.getScene('game').world; w.players[0].score = w.opts.target - 1; w.endRound([w.players[0]]); }); await wait(3500); await audit('gauntlet wave cleared');
+await pg.evaluate(() => { const w = window.__game.scene.getScene('game').world; }); 
 await pg.evaluate(() => { const g = window.__game; for (const s of g.scene.getScenes(true)) s.scene.stop(); const GS = g.scene.getScene('game').constructor; const d = GS.gauntletWave(7, 0, { kind: 'kb', index: 0 }); d.gauntlet.lives = 1; d.gauntlet.perks = ['belly', 'shield', 'ghost']; g.scene.start('game', d); }); await wait(3500);
 await pg.evaluate(() => { const w = window.__game.scene.getScene('game').world; w.players[1].score = w.opts.target - 1; w.endRound([w.players[1]]); }); await wait(4000); await audit('gauntlet over');
 await pg.evaluate(() => { const g = window.__game; for (const s of g.scene.getScenes(true)) s.scene.stop(); const GS = g.scene.getScene('game').constructor; g.scene.start('game', GS.dailyData()); }); await wait(700); await audit('daily countdown');
@@ -163,6 +174,9 @@ await wait(2500); await pg.keyboard.press('Escape'); await wait(500); await audi
 await pg.keyboard.press('Escape'); await wait(300);
 await pg.evaluate(() => { const w = window.__game.scene.getScene('game').world; w.players[1].score = w.opts.target - 1; w.endRound([w.players[1]]); }); await wait(4000); await audit('daily result');
 await pg.evaluate(() => { const g = window.__game; for (const s of g.scene.getScenes(true)) s.scene.stop(); const GS = g.scene.getScene('game').constructor; g.scene.start('game', { ...GS.practiceData(0), from: 'title' }); }); await wait(3000); await audit('practice');
+await pg.evaluate(() => { const g = window.__game; for (const s of g.scene.getScenes(true)) s.scene.stop(); g.scene.start('game', { slots: [{ kind: 'kb', index: 0 }, { kind: 'bot', index: 0 }, { kind: 'bot', index: 0 }], difficulty: 'easy', species: [0, 1, 2], tables: [0], rounds: 3 }); }); await wait(4500);
+await pg.evaluate(() => { const w = window.__game.scene.getScene('game').world; const p = w.players[1]; p.meter = 100; w.becomeKaiju(p); }); await wait(120); await audit('kaiju growing ring');
+await start('workshop', {}, 1500); await pg.evaluate(() => { const ws = window.__game.scene.getScene('workshop'); ws.cycleHazard(); ws.cycleHazard(); ws.cycleHazard(); ws.cycleHazard(); }); await wait(300); await audit('workshop hazard info');
 
 fs.writeFileSync(`${OUT}/report.json`, JSON.stringify(issues, null, 1));
 console.log(`\n${issues.length} screen(s) with problems · JS errors: ${errs.length ? errs.join(' | ') : 'none'}`);

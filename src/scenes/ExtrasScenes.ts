@@ -6,7 +6,7 @@ import { clearTaps } from '../input';
 import { playMusic } from '../music';
 import { fitInside, hasArt, kaijuKey } from '../render/art';
 import { drawFloor } from '../render/draw';
-import { body, display, withShadow } from '../render/fonts';
+import { body, display, popIn, withShadow } from '../render/fonts';
 import { Button, FocusNav } from '../render/ui';
 import { KITS, powerCooldown, powerReach } from '../sim/powers';
 import HEADS from '../render/heads.json';
@@ -18,13 +18,14 @@ import { enabledModes } from '../sim/modes';
 import { enabledMutators } from '../sim/mutators';
 import { ACHIEVEMENTS, loadStats } from '../stats';
 import { loadStory, totalStars } from '../story/save';
-import { needText, owned, UNLOCKS } from '../story/unlocks';
+import { needText, owned, UNLOCKS, tableCount } from '../story/unlocks';
 import { isTouchDevice, setTouchMode } from '../touch';
 import { currentHat, HAT_FIT, HAT_SCALE, hatArtKey, hatUnlocked, HATS, HATS_ENABLED, setHat } from '../hats';
 import { colourUnlocked, COLOURS, currentColour, setColour } from '../colours';
 import { GameScene } from './GameScene';
 import { exportSave, importSave } from '../backup';
 import { totalTrialStars, TRIAL_TOKENS, TRIALS, trialStars } from '../trials';
+import { chefsPass, chefsPassText } from '../challengePass';
 import { buy, buyShiny, isShiny, SHINY, chefRank, completeStep, dailyDeal, loadMeta, MASTERY, masteryInfo, pinAchievement, pinnedAchievement, priceOf, SHOP, weeklyOrders, type OrderStat } from '../meta';
 import { ACTIONS, bind, keyFor, keyHint, keyLabel, RESERVED, resetKeybinds, type Action } from '../keybinds';
 
@@ -259,7 +260,8 @@ export class HelpScene extends PanelScene {
         txt(x + 110, y + 44, traits, 16, '#e9dccb', 400);
       });
     } else if (p === 'tables') {
-      const own = owned().tables;
+      const own = owned().tables, tc = tableCount();
+      this.content.push(this.add.text(40, 690, `🍽 You own ${tc.own}/${tc.all} tables (Workshop tables are extra)`, body(15, '#ffd24a', 900)).setOrigin(0, 0.5).setDepth(5));
       LAYOUTS.forEach((l, i) => {
         const per = Math.ceil(LAYOUTS.length / 3), col = Math.floor(i / per), row = i % per, x = 40 + col * 410, y = 168 + row * 84;
         const locked = !own.includes(i);
@@ -309,6 +311,7 @@ export class GalleryScene extends PanelScene {
   private slotHat(k: number) { return HATS[this.hatPage * HAT_SLOTS + k]; }
   private hatPreview: Phaser.GameObjects.Image | null = null;
   private previewTop = 470;
+  private balText: Phaser.GameObjects.Text | null = null; // 🪙 balance in the header (Shiny costs tokens)
   private previewW = 180;
   private previewH = 200;
   constructor() { super('gallery'); }
@@ -316,9 +319,9 @@ export class GalleryScene extends PanelScene {
   protected build(): void {
     const own = owned().kaiju;
     // collection progress: kaiju, tables and colour styles
-    const tAll = LAYOUTS.filter(l => !l.custom).length, tOwn = owned().tables.filter(i => !LAYOUTS[i]?.custom).length, cOwn = COLOURS.filter(colourUnlocked).length;
+    const { all: tAll, own: tOwn } = tableCount(), cOwn = COLOURS.filter(colourUnlocked).length;
     const pct = Math.round(100 * (own.length + tOwn + cOwn) / (SPECIES.length + tAll + COLOURS.length));
-    this.add.text(1250, 52, `Collection ${pct}%\n🐉 ${own.length}/${SPECIES.length} · 🍽 ${tOwn}/${tAll} · 🎨 ${cOwn}/${COLOURS.length}`, body(17, '#ffd24a', 900, { align: 'right' })).setOrigin(1, 0.5).setDepth(6);
+    this.balText = this.add.text(1250, 52, `Collection ${pct}% · 🪙 ${loadMeta().tokens}\n🐉 ${own.length}/${SPECIES.length} · 🍽 ${tOwn}/${tAll} · 🎨 ${cOwn}/${COLOURS.length}`, body(17, '#ffd24a', 900, { align: 'right' })).setOrigin(1, 0.5).setDepth(6);
     SPECIES.forEach((sp, i) => {
       const x = 104 + (i % 10) * 119, y = 160 + Math.floor(i / 10) * 132;
       const b = new Button(this, x, y, { w: 108, h: 118, label: '', size: 12, accent: (loadMeta().xp[i] ?? 0) >= MASTERY.levels[4] ? 0xffd24a : sp.color, /* 🖼 gold frame at Mastery Lv 5 */ onClick: () => { this.nav.index = i; this.showDetail(i, true); } }, 6);
@@ -327,7 +330,7 @@ export class GalleryScene extends PanelScene {
         const img = fitInside(this.add.image(x, y - 6, `kaiju-${i}`), 86, 80).setDepth(8);
         if (!own.includes(i)) img.setTint(0x1a1410);
       }
-      this.add.text(x, y + 44, own.includes(i) ? sp.name : '???', body(11, own.includes(i) ? sp.css : '#a89680', 900)).setOrigin(0.5).setDepth(8);
+      this.add.text(x, y + 44, own.includes(i) ? `${isShiny(i) ? '✨' : ''}${sp.name}` : '???', body(11, own.includes(i) ? sp.css : '#a89680', 900)).setOrigin(0.5).setDepth(8);
     });
     if (!HATS_ENABLED) { this.buildColours(); this.addLabBtn(); return; }
     // hat picker (cosmetic rewards from achievements)
@@ -399,10 +402,22 @@ export class GalleryScene extends PanelScene {
       if (this.shinyArm !== sp) { this.shinyArm = sp; sfx.pickup(); this.shinyBtn?.setText('✨ BUY SHINY?', `tap again: ${SHINY.cost} 🪙`); return; } // a second tap confirms
       this.shinyArm = -1;
       const r = buyShiny(sp);
-      if (r === 'ok') { sfx.matchWin(); this.showDetail(sp, false); return; }
+      if (r === 'ok') { sfx.matchWin(); this.showDetail(sp, false); this.celebrateShiny(sp); return; }
       sfx.thwock();
       this.shinyBtn?.setText('✨ SHINY', r === 'level' ? `needs Mastery Lv ${SHINY.level}` : r === 'tokens' ? `need ${SHINY.cost} 🪙` : 'yours!');
     } }, 6));
+  }
+
+  /** ✨ a visible payoff for buying a Shiny: banner, sparkle burst, fresh balance. */
+  private celebrateShiny(sp: number): void {
+    this.balText?.setText(this.balText.text.replace(/🪙 \d+/, `🪙 ${loadMeta().tokens}`));
+    const t = withShadow(this.add.text(640, 300, `✨ SHINY ${SPECIES[sp].name.toUpperCase()}! ✨\nIt sparkles in every match now`, display(34, '#ffe27a', { align: 'center', strokeThickness: 6 })).setOrigin(0.5).setDepth(30), 4);
+    popIn(this, t, 1.8, 420);
+    this.tweens.add({ targets: t, alpha: 0, delay: 2200, duration: 500, onComplete: () => t.destroy() });
+    for (let k = 0; k < 26; k++) {
+      const a = (k / 26) * Math.PI * 2, s = this.add.text(280, 560, '✦', display(14 + (k % 3) * 6, k % 2 ? '#ffe27a' : '#ffffff', { strokeThickness: 2 })).setOrigin(0.5).setDepth(29);
+      this.tweens.add({ targets: s, x: 280 + Math.cos(a) * (120 + (k % 4) * 30), y: 560 + Math.sin(a) * (90 + (k % 4) * 22), alpha: 0, duration: 900 + (k % 5) * 120, ease: 'Cubic.easeOut', onComplete: () => s.destroy() });
+    }
   }
 
   // ---------------------------------------------------------------- 🎨 colour styles (replaced hats)
@@ -425,13 +440,20 @@ export class GalleryScene extends PanelScene {
     COLOURS.forEach((c, k) => {
       const zone = this.add.zone(this.colX(k), 398, this.colStep - 6, 58).setInteractive().setDepth(10);
       zone.on('pointerover', () => { this.nav.index = SPECIES.length + k; });
-      zone.on('pointerup', () => { this.nav.index = SPECIES.length + k; if (!colourUnlocked(c)) { sfx.thwock(); return; } setColour(c.id); sfx.pickup(); this.showDetail(this.shown < 0 ? 0 : this.shown, false); });
+      zone.on('pointerup', () => { this.nav.index = SPECIES.length + k; if (!colourUnlocked(c)) { sfx.thwock(); this.flashColLabel(); return; } setColour(c.id); sfx.pickup(); this.showDetail(this.shown < 0 ? 0 : this.shown, false); });
       this.buttons.push(new Button(this, this.colX(k), 398, { w: this.colStep - 6, h: 58, label: '', size: 12, accent: 0xffd24a, onClick: () => {
         this.nav.index = SPECIES.length + k;
-        if (!colourUnlocked(c)) { sfx.thwock(); return; }
+        if (!colourUnlocked(c)) { sfx.thwock(); this.flashColLabel(); return; }
         setColour(c.id); sfx.pickup(); this.showDetail(this.shown < 0 ? 0 : this.shown, false);
       } }, 6));
     });
+  }
+
+  /** A locked swatch was tapped: make the 'how to earn it' line jump so it's noticed. */
+  private flashColLabel(): void {
+    this.tweens.killTweensOf(this.colLabel);
+    this.colLabel.setScale(1.12).setColor('#ffcf8a');
+    this.tweens.add({ targets: this.colLabel, scale: 1, duration: 380, ease: 'Back.easeOut', onComplete: () => this.colLabel.setColor('#e9dccb') });
   }
 
   private tickColours(i: number): void {
@@ -543,9 +565,10 @@ export class RecordsScene extends PanelScene {
     this.achObjs.push(g);
     const add = <T extends Phaser.GameObjects.GameObject>(o: T): T => { this.achObjs.push(o); return o; };
     // the closest unearned achievement you're working towards
-    const next = ACHIEVEMENTS.filter(a => !s.achieved.includes(a.id) && a.progress).map(a => ({ a, k: a.progress!(s)[0] / a.progress!(s)[1] })).sort((p, q) => q.k - p.k)[0];
+    const pin = ACHIEVEMENTS.find(a => a.id === pinnedAchievement() && !s.achieved.includes(a.id));
+    const next = pin ? { a: pin, k: pin.progress ? Math.min(1, pin.progress(s)[0] / pin.progress(s)[1]) : 0 } : ACHIEVEMENTS.filter(a => !s.achieved.includes(a.id) && a.progress).map(a => ({ a, k: a.progress!(s)[0] / a.progress!(s)[1] })).sort((p, q) => q.k - p.k)[0];
     this.nextText?.destroy();
-    this.nextText = next ? this.add.text(500, 642, `👉 Next up: ${next.a.name} (${Math.round(next.k * 100)}%) — ${next.a.desc}   ·   ${isTouchDevice ? "Tap" : "Click"} any locked one to 📌 pin it (shown on the title + after matches). Each achievement pays 30 🪙.`, body(13, '#ffcf8a', 900, { wordWrap: { width: 740 } })).setOrigin(0, 0).setDepth(5) : null;
+    this.nextText = next ? this.add.text(500, 642, `${pin ? '📌 Pinned' : '👉 Next up'}: ${next.a.name} (${Math.round(next.k * 100)}%) — ${next.a.desc}   ·   ${isTouchDevice ? "Tap" : "Click"} any locked one to 📌 pin it (shown on the title + after matches). Each achievement pays 30 🪙.`, body(13, '#ffcf8a', 900, { wordWrap: { width: 740 } })).setOrigin(0, 0).setDepth(5) : null;
     ACHIEVEMENTS.slice(page * PER_PAGE, (page + 1) * PER_PAGE).forEach((a, i) => {
       const col = i % 2, row = Math.floor(i / 2), x = 500 + col * 380, y = 146 + row * 54;
       const got = s.achieved.includes(a.id), pinned = pinnedAchievement() === a.id;
@@ -634,9 +657,10 @@ export class TrialsScene extends PanelScene {
   protected build(): void {
     const stars = trialStars();
     this.add.text(640, 92, `★ win  ·  ★★ win without losing a round  ·  ★★★ also hit the knockout goal  ·  ${TRIAL_TOKENS} 🪙 per new star  ·  total ★ ${totalTrialStars()}/${TRIALS.length * 3}`, body(15, '#cdb9a3', 800)).setOrigin(0.5).setDepth(5);
+    this.add.text(640, 120, chefsPassText(), body(14, chefsPass() ? '#8dff6a' : '#ffcf8a', 900, { align: 'center', wordWrap: { width: 1100 } })).setOrigin(0.5).setDepth(5);
     TRIALS.forEach((t, k) => {
-      const x = 340 + (k % 2) * 600, y = 168 + Math.floor(k / 2) * 128, s = stars[t.id] ?? 0;
-      this.buttons.push(new Button(this, x, y, { w: 570, h: 112, label: `${t.name}   ${'★'.repeat(s)}${'☆'.repeat(Math.max(0, 3 - s))}`, sub: `${t.desc}\n★★★ = win without losing a round + ${t.kos} KOs`, size: 22, accent: s === 3 ? 0xffd24a : s ? 0x8dff6a : 0xffb347, onClick: () => { sfx.go(); this.scene.start('game', GameScene.trialData(t.id)); } }, 6));
+      const x = 340 + (k % 2) * 600, y = 196 + Math.floor(k / 2) * 118, s = stars[t.id] ?? 0;
+      this.buttons.push(new Button(this, x, y, { w: 570, h: 104, label: `${t.name}   ${'★'.repeat(s)}${'☆'.repeat(Math.max(0, 3 - s))}`, sub: `${t.desc}\n★★★ = win without losing a round + ${t.kos} KOs`, size: 22, accent: s === 3 ? 0xffd24a : s ? 0x8dff6a : 0xffb347, onClick: () => { sfx.go(); this.scene.start('game', GameScene.trialData(t.id)); } }, 6));
     });
   }
 }

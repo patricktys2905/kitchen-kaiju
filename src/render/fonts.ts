@@ -1,6 +1,11 @@
 // Typography: one chunky cartoon display face + one rounded body face, both bundled in public/fonts
 // (so they work offline). Every text in the game should use these helpers.
 import type * as Phaser from 'phaser';
+import { getSettings } from '../settings';
+
+/** 🧸 Kid Mode: small body text grows (EASY TO CUSTOMISE: KID_MIN is the smallest body size in Kid Mode). */
+export const KID_MIN = 16;
+const kidSize = (size: number): number => (size < KID_MIN && getSettings().kidMode ? Math.min(KID_MIN, size + 3) : size);
 
 export const DISPLAY = '"Luckiest Guy", "Arial Black", Impact, sans-serif';
 export const BODY = 'Nunito, "Segoe UI", Arial, sans-serif';
@@ -15,7 +20,7 @@ export function display(size: number, color = '#ffe9c7', extra: Style = {}): Sty
 
 /** Readable body text. weight: 600 regular, 700 semi-bold, 800 bold, 900 black. */
 export function body(size: number, color = '#f1e4d2', weight: 600 | 700 | 800 | 900 = 800, extra: Style = {}): Style {
-  return { fontFamily: BODY, fontStyle: String(weight), fontSize: `${size}px`, color, ...extra };
+  return { fontFamily: BODY, fontStyle: String(weight), fontSize: `${kidSize(size)}px`, color, ...extra };
 }
 
 /** Soft drop shadow under any text. */

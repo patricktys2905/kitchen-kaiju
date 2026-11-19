@@ -101,6 +101,7 @@ export interface Player {
   dashT: number;
   dashCD: number;
   dodgeT: number; // after a dash, the Giant Hand passes over you for this long
+  growT: number; // a fresh KAIJU is still growing (can't squash yet)
   dashBumped: boolean;
   swipeT: number;
   swipeCD: number;
@@ -342,7 +343,7 @@ export class World {
   private makePlayer(id: number, name: string): Player {
     return {
       id, name, x: 0, y: 0, vx: 0, vy: 0, kx: 0, ky: 0, r: P.radius, aim: 0, alive: true,
-      holding: null, charging: false, charge: 0, dashT: 0, dashCD: 0, dodgeT: 0, dashBumped: false,
+      holding: null, charging: false, charge: 0, dashT: 0, dashCD: 0, dodgeT: 0, growT: 0, dashBumped: false,
       swipeT: 0, swipeCD: 0, swipeHit: new Set(), meter: 0, kaijuT: 0, stepT: 0, invT: 0,
       lastHitBy: null, lastHitT: 0, bumpT: 0, team: id, pts: 0, respawnT: 0, speedT: 0, shieldT: 0, sugarT: 0, moving: false, score: 0, kos: 0,
       prev: { throw: false, swipe: false, dash: false, stomp: false },
@@ -395,7 +396,7 @@ export class World {
       Object.assign(p, {
         x: sx, y: sy, vx: 0, vy: 0, kx: 0, ky: 0, r: P.radius,
         aim: Math.atan2(TABLE.y + TABLE.h / 2 - sy, TABLE.x + TABLE.w / 2 - sx),
-        alive: true, holding: null, charging: false, charge: 0, dashT: 0, dashCD: 0, dodgeT: 0, dashBumped: false,
+        alive: true, holding: null, charging: false, charge: 0, dashT: 0, dashCD: 0, dodgeT: 0, growT: 0, dashBumped: false,
         swipeT: 0, swipeCD: 0, meter: this.mode === 'practice' ? 0 : RULES.startBelly, kaijuT: 0, stepT: 0, invT: 0, lastHitBy: null, lastHitT: 0, moving: false, pts: 0, respawnT: 0, speedT: 0, shieldT: 0, sugarT: 0,
         prev: { throw: true, swipe: true, dash: true, stomp: true }, // require a fresh press after the countdown
         powerCD: 0, powerT: 0, stunT: 0, pkx: 0, pky: 0,
@@ -497,6 +498,7 @@ export class World {
     p.invT -= dt;
     p.dashCD -= dt;
     if (p.dodgeT > 0) p.dodgeT -= dt;
+    if (p.growT > 0) p.growT -= dt;
     p.swipeCD -= dt;
     if (p.speedT > 0) p.speedT -= dt;
     if (p.shieldT > 0) p.shieldT -= dt;
@@ -718,6 +720,7 @@ export class World {
     p.charge = 0;
     p.meter = 0;
     p.kaijuT = P.kaijuTime;
+    p.growT = RULES.kaijuGrow;
     p.stepT = 0.3;
     this.emit({ type: 'kaiju', id: p.id, x: p.x, y: p.y });
   }
@@ -886,7 +889,7 @@ export class World {
         if (!a.alive || !b.alive) continue;
         const dx = b.x - a.x, dy = b.y - a.y, d = Math.hypot(dx, dy) || 0.001;
         if (d >= a.r + b.r) continue;
-        const ak = a.kaijuT > 0, bk = b.kaijuT > 0;
+        const ak = a.kaijuT > 0 && a.growT <= 0, bk = b.kaijuT > 0 && b.growT <= 0; // still growing: just a shove
         if ((ak || bk) && this.friends(a.id, b.id)) { /* teammates don't squash each other */ } else
         if (ak && !bk && b.invT <= 0 && this.phase === 'play') { this.ko(b, a.id, 'squash'); continue; }
         if (bk && !ak && a.invT <= 0 && this.phase === 'play') { this.ko(a, b.id, 'squash'); continue; }

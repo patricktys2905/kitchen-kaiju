@@ -8,7 +8,7 @@ export const GAUNTLET = {
   powerups: true, // condiments on the table
   mode: 'classic' as const,
   bossEvery: 4, // every 4th wave (the end of each course) one rival starts each round able to go KAIJU (crowned)
-  twistFrom: 5, // from the Mains on, odd waves get a random twist
+  twistFrom: 7, // from wave 7 on, odd waves get a random twist
   courses: ['🥗 STARTERS', '🍖 MAINS', '🍰 DESSERTS', '🍽 SECONDS'], // 4 waves each; Seconds goes on forever
   grades: [[1500, 'S'], [1000, 'A'], [650, 'B'], [350, 'C'], [0, 'D']] as [number, string][], // run score → grade
   lives: 3, // ❤ per run: losing a wave costs one and retries the same wave
@@ -21,14 +21,33 @@ export interface WaveSetup {
   boss: boolean;
 }
 
-/** Wave 1: one easy bot (warm-up) … then quickly more and tougher bots (max 5 rivals). */
+/** The first 8 waves, hand-tuned so each step is a small one (EASY TO CUSTOMISE). Boss waves (4, 8) keep the count down. */
+export const OPENING_WAVES: Difficulty[][] = [
+  ['easy'], // 1: warm-up
+  ['normal'], // 2: a fair duel
+  ['normal', 'easy'], // 3: first two-on-one
+  ['tough', 'easy'], // 4: 👑 boss (end of Starters)
+  ['tough', 'normal'], // 5
+  ['tough', 'normal', 'easy'], // 6
+  ['hard', 'tough', 'normal'], // 7: first twist
+  ['hard', 'tough', 'normal'], // 8: 👑 boss (end of Mains)
+];
+
+/** Wave 1: one easy bot (warm-up) … a gentle ramp through OPENING_WAVES, then more and tougher bots (max 5 rivals). */
 export function waveSetup(wave: number): WaveSetup {
-  const rivals = Math.min(5, 1 + Math.floor(wave / 2)); // 1, 2, 2, 3, 3, 4 …
-  const levels: Difficulty[] = Array.from({ length: rivals }, (_, i) => {
+  const open = OPENING_WAVES[wave - 1];
+  const rivals = open ? open.length : Math.min(5, 3 + Math.floor((wave - 7) / 3)); // 3, 4 (wave 10), 5 (wave 13)
+  const levels: Difficulty[] = open ? [...open] : Array.from({ length: rivals }, (_, i) => {
     const heat = wave - 1 - i * 2; // later seats lag behind the first one
-    return heat >= 11 ? 'brutal' : heat >= 4 ? 'hard' : heat >= 1 ? 'normal' : 'easy'; // normal from wave 2, hard from wave 5, BRUTAL in Seconds (wave 12+)
+    return heat >= 11 ? 'brutal' : heat >= 6 ? 'hard' : heat >= 3 ? 'tough' : heat >= 1 ? 'normal' : 'easy'; // BRUTAL in Seconds (wave 12+)
   });
   return { rivals, levels, boss: wave % GAUNTLET.bossEvery === 0 };
+}
+
+/** One line previewing a wave (shown after you clear the one before). */
+export function wavePreview(wave: number): string {
+  const ws = waveSetup(wave);
+  return `Next: wave ${wave} · ${ws.rivals} rival${ws.rivals === 1 ? '' : 's'} (${ws.levels.map(l => l.toUpperCase()).join(', ')})${ws.boss ? ' · 👑 BOSS wave' : ''}${wave >= GAUNTLET.twistFrom && wave % 2 === 1 ? ' · ⚡ twist wave' : ''}`;
 }
 
 /** 🎁 Perks you pick between Gauntlet waves; they stack and last the whole run. EASY TO CUSTOMISE. */

@@ -17,6 +17,7 @@ import { playMusic } from '../music';
 import { KITS } from '../sim/powers';
 import { getSettings } from '../settings';
 import { COURSES, dessertBest } from '../story/dessert';
+import { chefsPass } from '../challengePass';
 import { GameScene } from './GameScene';
 import { seenId, type Cutscene, COMICS } from '../story/cutscenes';
 import { isEarned, needText, newlyEarned, owned, unlockName, UNLOCKS } from '../story/unlocks';
@@ -144,9 +145,9 @@ export class StoryScene extends Phaser.Scene {
     // campaign switch: The Grand Feast ⇄ Second Helpings
     if (this.main && secondsUnlocked()) this.buttons.push(new Button(this, 1135, 50, { w: 260, h: 44, label: '🍽 SECOND HELPINGS ▶', size: 16, accent: 0x8dff6a, onClick: () => { if (this.mode === 'map') { sfx.go(); this.scene.restart({ campaign: 'seconds' }); } } }, 6));
     if (this.main && !secondsUnlocked()) { const sh = new Button(this, 1135, 50, { w: 260, h: 44, label: '🔒 SECOND HELPINGS', sub: 'clear chapter 6 to open', size: 15, accent: 0x6a5a4a, onClick: () => { if (secondsUnlocked() && this.mode === 'map') { sfx.go(); this.scene.restart({ campaign: 'seconds' }); } else sfx.thwock(); } }, 6); this.buttons.push(sh); this.time.addEvent({ delay: 500, loop: true, callback: () => { if (secondsUnlocked()) sh.setText('🍽 SECOND HELPINGS ▶', 'now open!'); } }); }
-    if (this.main && !this.save.endingSeen) this.buttons.push(new Button(this, 910, 50, { w: 165, h: 44, label: '🔒 DESSERT', sub: 'finish the Grand Feast', size: 15, accent: 0x6a5a4a, disabled: true, onClick: () => {} }, 6));
+    if (this.main && !this.save.endingSeen && !chefsPass()) this.buttons.push(new Button(this, 910, 50, { w: 165, h: 44, label: '🔒 DESSERT', sub: "finish the Feast or 🎟 Chef's Pass", size: 15, accent: 0x6a5a4a, disabled: true, onClick: () => {} }, 6));
     if (!this.main) this.buttons.push(new Button(this, 1135, 50, { w: 260, h: 44, label: '◀ THE GRAND FEAST', size: 16, accent: 0xffcf8a, onClick: () => { if (this.mode === 'map') { sfx.go(); this.scene.restart({ campaign: 'main' }); } } }, 6));
-    if (this.main && this.save.endingSeen) {
+    if (this.main && (this.save.endingSeen || chefsPass())) { // 🎟 the Chef's Pass opens it early
       const done = dessertBest(), next = done >= COURSES.length ? 0 : done;
       this.buttons.push(new Button(this, 910, 50, { w: 165, h: 44, label: `🍰 DESSERT ${done}/${COURSES.length}`, size: 17, accent: 0xff7ad9, onClick: () => {
         if (this.mode !== 'map') return;
@@ -230,6 +231,7 @@ export class StoryScene extends Phaser.Scene {
     this.pickText.setText(sp.full.toUpperCase()).setColor(sp.css).setScale(1);
     if (this.pickText.width > 220) this.pickText.setScale(220 / this.pickText.width); // long names shrink instead of hitting the arrow
     this.pickFood.setText(getSettings().kaijuPowers ? `${sp.food} · 🌟 ${KITS[this.save.pick].power}` : sp.food);
+    { const t = this.pickFood; t.setScale(1); if (t.width > 222) t.setScale(222 / t.width); }
   }
 
   private drawMap(): void {
@@ -262,6 +264,7 @@ export class StoryScene extends Phaser.Scene {
         g.lineStyle(4, 0xcdb9a3, 1); g.beginPath(); g.arc(x, y - 18, 8, Math.PI, 0); g.strokePath();
       }
       this.cardTexts[i].setText(`${i + 1}. ${ch.title}${ch.boss ? '  👑' : ''}${(this.save.spicy?.[i] ?? 0) > 0 ? ' 🌶️' : ''}`).setAlpha(open ? 1 : 0.45);
+      { const t = this.cardTexts[i]; t.setScale(1); if (t.width > 172) t.setScale(172 / t.width); } // long titles (and Kid Mode's bigger text) stay inside the card
     });
   }
 
@@ -296,8 +299,9 @@ export class StoryScene extends Phaser.Scene {
     add(this.add.text(1000, 552, best ? `Best: ${'★'.repeat(Math.max(0, best))}${'☆'.repeat(Math.max(0, 3 - best))}${hot ? `  🌶️${hot}` : ''}` : 'Not cleared yet', body(16, '#ffd24a', 900)).setOrigin(0, 0.5).setDepth(5)).setX(918).setY(560).setFontSize(14);
     const legend = add(this.add.text(1070, 588, '★★★ no rounds lost · ★★ lost one · ★ any win', body(11, '#cdb9a3', 800)).setOrigin(0.5).setDepth(5));
     if (legend.width > 300) legend.setScale(300 / legend.width); // stays inside the panel, above PLAY
-    this.spicyBtn?.setText(best ? `🌶️ SPICY: ${this.spicy ? 'ON (tougher rivals)' : 'OFF'}` : '🌶️ SPICY: clear it first');
-    if (this.spicyBtn) this.spicyBtn.disabled = !best;
+    const canSpicy = best > 0 || (chefsPass() && this.sel < this.save.unlocked); // 🎟 Chef's Pass: any reached chapter
+    this.spicyBtn?.setText(canSpicy ? `🌶️ SPICY: ${this.spicy ? 'ON (tougher rivals)' : 'OFF'}` : "🌶️ SPICY: clear it (or 🎟 Chef's Pass)");
+    if (this.spicyBtn) this.spicyBtn.disabled = !canSpicy;
   }
 
   // ---------------------------------------------------------------- flow
@@ -323,7 +327,7 @@ export class StoryScene extends Phaser.Scene {
 
   /** Spicy only applies to chapters you have already cleared. */
   private spicyOn(): boolean {
-    return this.spicy && (this.save.stars[this.sel] ?? 0) > 0;
+    return this.spicy && ((this.save.stars[this.sel] ?? 0) > 0 || chefsPass());
   }
 
   private launch(): void {

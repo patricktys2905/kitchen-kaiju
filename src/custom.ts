@@ -12,6 +12,21 @@ export const PROPS: [ObstacleStyle, number][] = [
 ];
 export const HAZARD_CHOICES: (HazardKind | 'none')[] = ['none', 'hand', 'wind', 'cleaver', 'cheese', 'spatula'];
 export const HAZARD_NAMES: Record<string, string> = { none: 'No hazard', hand: 'Giant hand', wind: 'Wind gusts', cleaver: 'Cleaver', cheese: 'Hot cheese', spatula: 'Spatula' };
+/** 💬 What each hazard does (shown in the Workshop). EASY TO CUSTOMISE. */
+export const HAZARD_INFO: Record<string, string> = {
+  none: 'No hazard: a pure fight.',
+  hand: 'Giant hand: sweeps a row of the table and flicks off whoever has the fullest belly (DASH as it arrives to dodge).',
+  wind: 'Wind gusts: every few seconds the whole table gets blown one way. Stay off the downwind edge.',
+  cleaver: 'Cleaver: a red line warns, then a cleaver chops down across it.',
+  cheese: 'Hot cheese: blobs drop near kaiju; a growing shadow shows where. Anyone under it is knocked out, and it leaves a sticky puddle.',
+  spatula: 'Spatula: a marked square gets flipped, launching anyone standing on it.',
+};
+/** 💬 What a prop does when you pick it. Every prop is a solid block; size changes how much cover it gives. */
+export function propInfo(style: string, r: number): string {
+  if (style === 'gumdrop') return 'BUMPER: kicks any kaiju that touches it away hard (great near edges)';
+  return `${style.toUpperCase()}: a solid ${r <= 28 ? 'small' : r <= 36 ? 'medium' : 'big'} block. Cutlery and kaiju bounce off it, so it's cover from throws`;
+}
+
 /** Same six spawn points for every custom table (props can't be placed on them). */
 export const SPAWNS: [number, number][] = [[170, 150], [1110, 615], [1110, 150], [170, 615], [160, 382], [1120, 382]];
 
