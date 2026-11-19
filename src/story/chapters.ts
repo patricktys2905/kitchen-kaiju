@@ -55,7 +55,7 @@ export const CHAPTERS: Chapter[] = [
   },
   {
     title: 'Leftovers', table: 2, rounds: 3,
-    rivals: [{ species: 5, level: 'easy' }, { species: 4, level: 'normal' }],
+    rivals: [{ species: 5, level: 'easy' }, { species: 4, level: 'easy' }],
     intro: [
       { speaker: 0, text: 'Yawn… you woke me up. Bad idea.' },
       { speaker: 1, text: 'The bread walls are ours. Hide behind them all you like!' },

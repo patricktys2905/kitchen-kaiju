@@ -1,196 +1,201 @@
-# Playtest evaluation — The Party Host
+# Playtest evaluation: The Party Host (profile 6, port 7106)
 
-**Fun score: 7.0 / 10** (the Party Cup is a genuine game-night centrepiece and the modes are readable and varied, but the Cup has no quit/resume safety, the cross-game flow is long and opaque, and the screens between games sit on top of live action and hide key rules/scoring)
+**Fun score: 7.0 / 10.** The party setup is quick and the Party Cup is a real "game night" structure with a good final. What holds it back is that the game never answers "who wins the night?" with team grouping, crumb counts or a saved Cup record. A 6-person couch also has no controller story: there are no phone controllers, and a keyboard seats two players.
 
-> Screenshots live in `C:\Users\Pat\kitchen-kaiju\art-src\.playtest\r7-7106\` (shot-N.png). Referred to below as `shot-N`.
+> Screenshot paths are relative to `C:\Users\Pat\kitchen-kaiju\art-src\.playtest\r8-7106\` (files `shot-N.png`).
 
 ## What I did
-- About 100 harness commands, one session (~1 full Party Cup of 6 games + extras). Profile id `host`, port 7106.
-- Title (shot-1) → PARTY MODES setup (shot-2, shot-3) with 6 seats of Team Feast → clicked 🏆 PARTY CUP, which launched immediately.
-- **Played one full 6-game Party Cup with /act (no autoplay):** G1 Classic (Dinner for Four), G2 Crumb Rush, G3 Hot Dumpling (5 rounds), G4 Team Feast, G5 Golden Spoon, G6 Final Classic (9 rounds, first to 3). I looked at every between-game screen (shot-6, 8, 12, 15, 16) and the Cup final (shot-21). Result: PIZZARAPTOR won the Cup, I (GOBZILLA) finished 5th with 11 pts.
-- NEW CUP button, Pause menu mid-Cup (shot-23), QUIT mid-Cup back to setup.
-- Setup extras: CUP LENGTH (6 → 3 games), MODE cycling through all five modes (subtitles checked), remove-bot key (N) down to 2 players to test Team Feast imbalance messages, 🎲 RANDOM present, ⌨ KEYS overlay (shot-27), 💾 HOUSE RULES (shot-25, 26) with a save to Slot 1, cycled the TWIST button through all 18 states (singles + 8 ⚡⚡ doubles) to see the order.
-- Online lobby: Host a Game (room code + QR, shot-30), toggled Party Cup ON and TV mode ON (shot-31), Close Room.
-- Daily Challenge (Hot Dumpling) played to completion with /act, shot-35 results.
-- Challenges card (shot-36), Records pages 1 and 2 (shot-37, 38), Settings (shot-39), Free Play setup (shot-41).
-- Played a Golden Spoon match with Player Numbers + Name Tags turned on, plus TURBO twist (shot-40).
-- /errors checked at start, middle, end: **none** all session.
-- Matches played: 7 (Cup = 6 games + 1 Daily, + 1 extra Golden Spoon). Won: 2 (Team Feast in the Cup, Daily).
+- About 100 harness commands, roughly 70 minutes of game time (Golden Spoon first-to-3 alone was around 4 minutes).
+- Screens visited:
+  - Title.
+  - Party Modes setup (seats, MODE, PARTY CUP, CUP LENGTH, BOT LEVEL, TABLE, FIRST TO, TWIST picker, POWER-UPS, HAZARDS, RANDOM, KEYS panel, HOUSE RULES with save and code).
+  - In-match pause menu and the Cup double-quit.
+  - Online (Host a Game lobby with room code, QR, mode, Party Cup, TV mode, then Close Room).
+  - Daily Challenge.
+  - Settings (Kid Mode).
+  - Records.
+  - Pantry.
+- Modes played:
+  - Party Cup: 3-game Cup (CLASSIC, GOLDEN SPOON, CLASSIC final x2) with 6 seats, played to the end.
+  - Crumb Rush: full match.
+  - Hot Dumpling: full match.
+  - Golden Spoon: full match, 4 players, first to 3.
+  - Team Feast: full match, 3v3, Hard bots.
+  - Daily (Hot Dumpling): 1 match.
+- Matches: 7 or more full matches, plus an aborted Cup (I quit it to test the double-quit). I won the Team Feast (my team, Red) and the other results went to bots.
+- Because /act with `auto:` and `attack` is a bot driving my seat, I judged feel mostly from the between-game screens and HUD. I did play a few rounds by hand (Hot Dumpling "flee" got me knocked out in 3 seconds; Golden Spoon "shove").
+- `/errors` was `none` at start, middle and end.
 
 ## What worked for me
-- **The Party Cup concept is exactly what game night needs.** Six different games, running standings after each, "GAME 2/6: PIZZARAPTOR WINS!" banners with a coloured headline per game, and a trophy finale. The final being worth ×2 (+10 for the winner) gave a real comeback moment: AVOCADRAKE led the whole Cup until the Final.
-- Between-game card tells you **what is next** ("Next: CRUMB RUSH · 1 / START to continue") and the in-match intro always shows "PARTY CUP · GAME 3/6 · HOT DUMPLING · Ice Cream Parlour" plus a one-line tip. Excellent orientation.
-- Team Feast in the Cup keeps teams visible: HUD underlines "RED/BLUE · Spoon" and the tip "In Team Feast your cutlery passes straight through teammates."
-- Setup screen is clear: coloured team pills, "RED 2 vs BLUE 1 (add a player or bot to even it up)" warning, "3 at the table · click empty seats to add bots · press ▶ PLAY" helper text, and every pill reads like a setting. Mode subtitle text is great ("Pass the steaming dumpling before it pops").
-- HOUSE RULES (3 slots + code copy/paste) is a real host feature; KEYS overlay lists keyboard, gamepad and *hotkeys for every setup option* (G mode, C party cup, 2 bot level...). Great for a host with a keyboard.
-- Online lobby has a giant room code, a QR code, TV mode ("You just watch" for a host on a big screen), bot fill. This is the right design for a party host.
-- The fast-forward "only bots left" and instant replay keep a 6-player knockout round from dragging when you are out.
-- Records/receipts: tokens, mastery XP, achievements named in the receipt feel good.
-- No JavaScript errors anywhere.
+- **Setup is fast.** One tap per seat joins a kaiju (or adds a bot), and PLAY works with a partial table. Six seats are filled in 6 taps. Seat cards are big and readable (shot-3).
+- **The Party Cup is a good idea.** The ON/OFF switch plus a "CUP = 6 games: CLASSIC → CRUMB RUSH → ..., places score 5/3/2/1, final x2" line at the bottom explains the whole format on the setup screen. CUP LENGTH 3/6 is a very useful option (3 games fits a lunch break).
+- **Between-game screens are good.**
+  - A STANDINGS plate shows points and deltas, e.g. "BUBBLEGUMBO 5 pts (+5)".
+  - "Next: GOLDEN SPOON · 1 / START to continue" tells the room what is coming. The final is announced as "Next: CLASSIC (FINAL · x2 POINTS)" (shot-7).
+  - The Cup end screen has a big winner banner and "Past champions: NORIGON on 19 Nov" (shot-9).
+  - The trophy and giant kaiju art make it a ceremony.
+- **The Cup double-quit works.** The pause menu says "QUIT (ends the Cup / run)" and then "Tap QUIT again to really end it" (shot-11). Nobody loses a 30-minute Cup to a mis-tap.
+- **Twist picker is clear.** It has singles and double twists in color-coded tiles (shot-21).
+- **HOUSE RULES slots and a share code** are exactly what a host wants (shot-22/23).
+- **Team Feast shows teams well.** The HUD has a red/blue underline plus "RED · Fork", the table has team rings, and there is a "▼ YOU" marker (shot-42).
+- **Hot Dumpling's instant replay and fast-forward** ("FAST FORWARD x3 · ONLY BOTS LEFT") keeps eliminated friends engaged (shot-19). The "Giant Hand" tips and the post-match receipt tips are useful.
+- **Online has a QR code and a TV mode** ("you just watch"), which is the right answer for a host who also runs the screen (shot-28).
+- **The Pantry is fine.** Weekly orders and the −30% daily sale are good (shot-41).
 
 ## 🧾 Exactly what would make this a 9/10 for me
-1. **Make PARTY CUP a proper setup step with a confirmation + rules card, not a one-click launcher.**
-   - **Where:** Party Modes setup, the `🏆 PARTY CUP` pill (199,512).
-   - **How it should behave:** The pill is currently an *action*, not a setting: clicking it instantly starts game 1 (I never pressed PLAY, with Team Feast still selected as the "mode"). It should toggle `CUP: ON/OFF` like every other pill, grey out/ignore MODE and FIRST TO while ON (replace with "CUP: 6 GAMES ▸ show list"), and only start on ▶ PLAY. Add a one-line "who is playing" + the 6-game list with icons. A 4-second "THE PARTY CUP: 6 games · points 5/3/2/1 · FINAL ×2 · best total wins" card before game 1.
-   - **Score impact:** +0.5
-2. **Quit/Restart protection and resumable Cup.**
-   - **Where:** Pause menu (shot-23) and the Cup flow.
-   - **How:** QUIT from the pause menu mid-Cup dumped me straight back to setup with *zero confirmation and the whole standings lost* (I was on game 1 of a new Cup, but the same would apply to game 5). Add "QUIT THE CUP? Standings are lost." Yes/No, plus a "RESUME CUP (game 3/6)" button on the setup screen for 1 hour/session. A host who bumps Esc during game 5 would ruin the night.
-   - **Score impact:** +0.5
-3. **Between-game card must not sit on the live game; make it a clean scoreboard.**
-   - **Where:** "GAME n/6: X WINS!" screens (shot-6, 8, 12, 15, 16).
-   - **How:** The standings text is drawn straight over the replay table with a loud tiled/checked background (picnic gingham, red table), plus a giant kaiju sprite on the right, so the white outlined text competes with busy art. Put the standings on a dark panel (80% opaque) in the middle, with the six kaiju's portraits and a points bar, the "(+5)" deltas in a clearly separate column, and "Next: CRUMB RUSH" in a button-like strip. Stop the background action while the card shows or dim it by 60%.
-   - **Score impact:** +0.4
-4. **Make the Cup shorter or tunable at the *game* level, and be consistent about first-to.**
-   - **Where:** Cup flow. Game 1/5/others are first-to-2 but the Final is first-to-3 (9 rounds with 6 players ran long; the Hot Dumpling game alone was 5 rounds). A whole Cup took ~45 harness calls of play.
-   - **How:** Give the Cup a **target time** option: "QUICK (~12 min): 4 games, first-to-1 · STANDARD (~25 min): 6 games · EPIC". Show the estimate on the setup pill. Make the Final "first to 2" by default (still ×2 points) and cap the Hot Dumpling game at 3 rounds. Announce the round target in the game intro ("FIRST TO 2").
-   - **Score impact:** +0.4
-5. **Cup scoring needs to be understandable at a glance.**
-   - **Where:** Standings lines (shot-8, 12, 15, 16, 21).
-   - **How:** Team Feast gave +5 to *every* red player and +3 to blue ones (shot-15) — not explained and not the "5/3/2/1 per placement" the setup says. Ties are ordered arbitrarily (AVOCADRAKE 13 vs SLOBA 13 vs PIZZARAPTOR 13 in shot-15; two 10s in shot-12) with no tiebreak label. "1 pts" / "0 pt" grammar. Show a mini legend ("Game win +5 · 2nd +3 · 3rd +2 · rest +1"), state the tiebreak ("tie → more game wins"), and fix plural.
-   - **Score impact:** +0.3
-6. **Turn on Player Numbers + Name Tags by default in 3+ human/Party games (or when 5+ kaiju are on the table).**
-   - **Where:** Settings (both OFF by default, shot-39); in a 6-kaiju match (shot-4) nothing marks which one is "me", and the top HUD says GOBZILLA while the setup said "GOBZILLA JR.". With P1–P6 badges and names (shot-40) the table is instantly readable, which a host with a room full of people absolutely needs.
-   - **How:** Auto-enable for Party/Cup, or ask once on first Party entry.
-   - **Score impact:** +0.3
-7. **Explain each mode's rules on its intro, not just a cutlery tip.**
-   - **Where:** Pre-game countdown overlay. Hot Dumpling's intro (shot-9) says "Spoons and Pizza Cutters bounce off walls: aim at the edges." — nothing about passing the dumpling. In Crumb Rush the countdown tip was a cutlery tip too. A friend who has never played would not know the goal.
-   - **How:** Each mode gets a 2-line rule card, first time per session: "HOT DUMPLING: Don't be holding it when it pops. Touch a rival to pass it." The tip line stays.
-   - **Score impact:** +0.3
-8. **Records & Cup Shelf integration.**
-   - **Where:** Records (shot-37, 38) and the Cup final (shot-21).
-   - **How:** The final says "Cup Shelf: PIZZARAPTOR (19/11)" — what do 19 and 11 mean? (wins/…?) Unexplained. Records has no Party Cup stats at all (cups played, cups won, best cup score), and "Cup Champion" is just a 30-token achievement. Add a Cup Shelf page: kaiju portraits with trophy counts, plus "your cups: played / won", and a plain label "19 cups won / 11 ...".
-   - **Score impact:** +0.2
-9. **Fix naming consistency (GOBZILLA JR. vs GOBZILLA).**
-   - **Where:** setup/seat cards say "GOBZILLA JR.", in-game HUD, standings, banners say "GOBZILLA". Pick one.
-   - **Score impact:** +0.1
-10. **Hide or merge the stacked "FAST FORWARD ×3" and "⏪ INSTANT REPLAY" banners.**
-    - **Where:** top-centre of the match (shot-18): the two banners sit 8px apart and say opposite things at once (fast forward + replay).
-    - **Score impact:** +0.1
-11. **Online lobby: show the Cup list and the host's player count; fix wording.**
-    - **Where:** Online "Your Room" (shot-30, 31): turning Party Cup ON leaves "FIRST TO 5 ROUNDS" and a still-live "Mode: TEAM FEAST" pill that no longer means anything; "YOU (HOST) (YOU)" says "you" twice; "Up to 5 friends" while the title says up to 6; no "copy code / share link" button, only a QR; no list of connected friends until someone joins. Add COPY CODE + COPY LINK, a roster with ping dots, and make the mode/first-to pills read "CUP: ..." when the Cup is on.
-    - **Score impact:** +0.3
-12. **Mid-Cup standings visible without finishing a game.**
-    - **Where:** In-match HUD and pause. Add a compact CUP TABLE on the pause menu (shot-23 shows only Resume/Restart/Music/Sound/Quit) so players can check who needs what for the Final.
-    - **Score impact:** +0.2
-
-(Doing 1–5 plus 6 and 7 is, for me, the 9. The rest are polish on top.)
+1. **Phone controllers for the couch (+0.8).**
+   - What: let friends join a local game by scanning a QR code on the Party Modes screen. The phone becomes a gamepad (THROW/SWIPE/DASH/STOMP, joystick), the same way the Online lobby does. No "Online" matchmaking, only the local-network or same-room code.
+   - Where: Party Modes seat row. Add a "📱 JOIN WITH PHONE" tile with a QR code and room code on empty seats.
+   - Behavior: scan, enter a name, pick a kaiju on the phone, and the seat card shows "Sam 📱".
+   - Why: keyboard shows only 2 key sets (shot-24) and gamepads are the only other way to reach 4-6 humans. Today a 6-human party is not really possible without buying controllers.
+2. **Team Feast results grouped by team (+0.5).**
+   - What: the results plate should show "RED TEAM 3 rounds" and "BLUE TEAM 1 round", then members under each team in team colors.
+   - Where: Team Feast match-end screen (shot-43). Currently it lists 6 individuals ranked by rounds ("1. TOASTBAT 3 rounds · 6 KOs, 2. GOBZILLA (YOU) 3 rounds, 3. PIZZARAPTOR 3 rounds, ...") with no team colors, and a single-player row looks like a team result.
+   - Fix: color-code each row, add a team subtotal, and put the winning team's color border on the plate. Also in the Party Cup standings, if a Cup contains Team Feast, show team points.
+3. **Crumb Rush and Hot Dumpling results must show the mode's own score (+0.5).**
+   - What: Crumb Rush's setup line says "Eat the most crumbs before time runs out", but the result plate ranks by "rounds · KOs" (shot-17). The "Crumb Monster: GOBZILLA (84 crumbs)" footer shows I had the most crumbs yet ranked 6th. A group will argue about what counts.
+   - Fix: Crumb Rush results show crumbs per round and total. Hot Dumpling shows "dumplings survived/popped on". Golden Spoon shows "seconds held". Drop or de-emphasize KOs in modes where KOs are not the point. Add one line under the mode name on the setup screen: "Winner = most rounds; round winner = most crumbs".
+4. **Persist the Party Cup (+0.4).**
+   - What: a Cup progress tracker and a long-term Cup record.
+   - Where: Records screen has no Party/Cup stats at all (shot-40). Add "Cups played / won", "Best Cup score", and a "Party Cup hall of fame" listing last 5 winners with player names (today the end screen shows "NORIGON on 19 Nov", a kaiju name, not a person).
+   - Also add a cup progress strip during matches: "Cup 2/3 · you 5th · 8 pts".
+5. **Make Kid Mode and bot level honest on the setup screen (+0.3).**
+   - What: with Kid Mode ON the Party setup still reads "BOT LEVEL TOUGH" and "Bot difficulty: TOUGH" (shot-39), while the brief says Kid Mode forces easy bots. Hosts will think the bots are Tough.
+   - Fix: show "BOT LEVEL KID-EASY (Kid Mode)" in orange. Update Settings text, which still says "Story: easier rivals, 1-line chats, bigger result text" and omits Party, Free Play and Daily (shot-37).
+6. **Shorter default for a 6-player game night (+0.3).**
+   - What: Golden Spoon first-to-3 took roughly 4 minutes of real time for 4 players. Team Feast first-to-3 across rounds plus the replays was the same. The Cup's third-game "first to 2" is good.
+   - Fix: add a per-Cup "party length" button (Quick 25 min, Standard 45 min, Long) that picks CUP LENGTH and FIRST TO together with an estimated minutes label. Show "est. 12 min" beside PLAY.
+7. **Mid-Cup seat and team handling (+0.3).**
+   - What: allow one-tap "swap kaiju / drop out / add player" between games. Today the only seat controls are on the setup screen, which the Cup skips.
+   - Where: the CONTINUE screen between games. Add "+ JOIN" and "✖ DROP" for latecomers and bathroom breaks.
+8. **Standings plate readability (+0.2).**
+   - What: the standings plate is translucent over a busy table. Cheese blobs and berries bleed through it (shot-7), and the ant trail in the Daily plate crosses text (shot-36). Make the plate more opaque (about 85%) and add a thin border.
+9. **Online lobby: seat cards and Cup length (+0.2).**
+   - What: the lobby is missing a CUP LENGTH button and kaiju picks for friends, and it shows "YOU (HOST) (YOU)" (double YOU) (shot-27).
+   - Fix: remove the duplicate, add CUP LENGTH when Party Cup is ON, and explain "First to 5 rounds" versus Cup rules.
+10. **Fix the unreadable HOUSE RULES slot names and codes (+0.1).**
+    - What: slot text shows raw ids "HOTDUMPLING · FIRST TO 2 · ⚡ FRENZY" (shot-23). The code is a long base64 string that is hard to read aloud.
+    - Fix: friendly names ("Hot Dumpling · first to 2 · Kaiju Frenzy"), and include Party Cup / Cup length in the saved setup (today it does not). Add a short 6-character code.
 
 ## 🔍 Every issue I saw (exhaustive)
-Severity: **blocker / major / minor / polish**.
-
 | # | Severity | Screen | What's wrong (exact text/element) | Screenshot | Suggested fix |
 |---|---|---|---|---|---|
-| 1 | major | Party Modes setup | The `🏆 PARTY CUP` pill is an action, not a toggle: one click starts Cup game 1 immediately (with Team Feast listed as the mode and the room not yet confirmed). Every other pill on that row is a setting; this one launches. | shot-2/3, shot-4 | Make it `CUP: ON/OFF` toggle; start only with ▶ PLAY. |
-| 2 | major | Pause menu in Cup | QUIT goes straight to the setup, Cup standings gone forever, no confirmation, no resume. A single stray Esc+click ends game night. | shot-23, shot-24 | Confirm dialog + "RESUME CUP" on the setup screen. |
-| 3 | major | Between-game card | The standings sit on top of live gameplay art with a busy gingham/red/checker background; letters have only a thin outline; small kaiju/cutlery props cross the text lines (e.g. dumpling and pizza cutter behind "SLOBA 3 pts" in shot-8). Harder to read than it should be for a room across a couch. | shot-6, 8, 12, 15, 16 | Dark panel, portraits, bigger rows, dim the background. |
-| 4 | major | Cup scoring | Points do not follow the "5/3/2/1" the setup promises: Team Feast gave Red players +5 each and Blue players +3, ties between kaiju (13/13/13, 10/10) have no tiebreak shown, and the delta in brackets sometimes does not match placement (shot-8: PIZZARAPTOR +5 as game winner is listed 2nd overall, fine, but SLOBA "+1" 4th and SALMONSTER "+3" 5th with equal 3 pts look inverted). | shot-8, 12, 15 | Show legend, tiebreak and sort order rule. |
-| 5 | major | Cup length | Final game is "first to 3" (9 rounds, ~7 harness calls of pure play at 6 players) while earlier games are first-to-2; the stated "First to 3 rounds" on the setup became "First to 2" silently after Cup start. Hot Dumpling ran 5 rounds. A full 6-game cup is too long for a casual night with no time estimate. | shot-20, shot-24 | Length presets with minutes; Final first-to-2. |
-| 6 | major | Settings defaults | PLAYER NUMBERS and NAME TAGS are OFF by default; in a 6-kaiju brawl you can't tell which kaiju is you or who is on which team (teams only show as thin underlines in the HUD). With them ON (shot-40) the table is perfectly readable. | shot-4, shot-39, shot-40 | Default ON for Party/Cup/6 kaiju, or prompt once. |
-| 7 | minor | Mode intro | Hot Dumpling countdown tip doesn't mention the dumpling: "Spoons and Pizza Cutters bounce off walls: aim at the edges." Crumb Rush intro the same. New friends won't know the rules. | shot-9 | Per-mode rule card on first play. |
-| 8 | minor | Naming | Seat card says "GOBZILLA JR." everywhere on setup; match HUD, standings and receipts say "GOBZILLA". | shot-3 vs shot-4/6 | Pick one name. |
-| 9 | minor | Cup final | "Cup Shelf: PIZZARAPTOR (19/11)" — no explanation of 19/11. | shot-21 | Label "(19 cups won of 11 ...)" or use icons; link to a Cup Shelf screen. |
-| 10 | minor | Records | No Party Cup stats (cups played/won), Cup Shelf is not visible on the Records pages; "Cup Champion — Win a Party Cup" is the only link. | shot-37, 38 | Add Cup section. |
-| 11 | minor | Standings text | Grammar: "DUMPLORD 1 pts (+1)", "6. SALMONSTER 3 pt"; the first entry has trophy 🏆 icon but 4th+ use "4." and different indentation, so rows do not align. | shot-8, 12 | Plural helper, align rows. |
-| 12 | minor | Match banners | "⏩ FAST FORWARD ×3 · only bots left" and "⏪ INSTANT REPLAY" are stacked ~8px apart at the top centre, saying opposite things at once. | shot-18 | Show one at a time. |
-| 13 | minor | Online lobby | "YOU (HOST) (YOU)" duplicates "(you)"; "Up to 5 friends" but only 4 bots/6 total unclear; no COPY CODE / COPY LINK button (just a QR); Party Cup ON leaves "FIRST TO 5 ROUNDS" + "Mode: TEAM FEAST" on-screen even though the Cup overrides them. | shot-30, 31 | Copy buttons, clean text, cup-aware pills. |
-| 14 | minor | Online lobby layout | The room panel fills the whole height with ~14px margins at top and bottom; if a few friends join (roster rows) it must scroll or overflow. | shot-30 | Test with 5 friends; allow scroll. |
-| 15 | minor | Team Feast with Cup | Team Feast inside a 6-player Cup: individual standings use team results (+5 to all of Red), so a bad player is rewarded for their team; not stated anywhere. | shot-15 | Explain or use team points. |
-| 16 | minor | Party Modes setup | The RED/BLUE team pills overlap the top of every kaiju sprite (ears, bat wings, sloth pole) once a kaiju is picked. | shot-3, 27 | Move sprite 14px down or the pill up. |
-| 17 | minor | TWIST button | One-direction only: cycling to a given ⚡⚡ combo from NONE takes up to 19 clicks (8 singles, 8 doubles, NONE); no back, no list, no way to see what a combo does. For a host choosing a twist for the group this is slow. | (clicks only) | Right-click / hold for back, or a picker grid with descriptions. |
-| 18 | minor | HOUSE RULES slot | Saved slot reads "SLOT 1: PARTY · TEAMS · FIRST TO 2 · NORMAL BOTS" — doesn't include the Party Cup on/off, cup length, twist, seats/kaiju. | shot-26 | Include cup + twist + player count in the label. |
-| 19 | minor | /look readability | The Online lobby, House Rules and Keys overlays return no text in /look (empty `texts`, shot-29/30) — they are DOM overlays, so screen readers and text-extraction see nothing. | shot-29 | Expose DOM text/ARIA. |
-| 20 | minor | Daily result | Small kaiju sprite sits on top of the "Today: won ✓ · best 3 rounds..." line's left edge (calendar icon + salmon fish overlapping at ~x=380,y=260). | shot-35 | Move the sprite or the text. |
-| 21 | minor | Daily replay | After winning the daily the button reads "↻ REMATCH" and the daily tile on the title is "Done today ✔" but there is no explanation of what REMATCH is (a free play rematch?). | shot-35 | Label "PRACTICE AGAIN (no daily credit)". |
-| 22 | minor | Receipt box | THIS MATCH box overlaps the table's bottom-left corner and the achievement lines wrap mid-phrase ("Bubblegum / colour!"); box hugs the CONTINUE button (≈25px gap). | shot-15, 21 | Slightly narrower receipt, line-break on separators. |
-| 23 | polish | Title | "PARTY MODES" button subtitle "Teams · Rush · Dumpling" wraps to three lines ("Teams · Rush · / Dumpling") and is tighter than neighbours. | shot-1 | Shorten to "Teams · Rush · Cup". |
-| 24 | polish | Title | The 🍽 FIRST SERVICE "NEXT UP" block is tiny, centred over artwork with the fork/spoon behind it, 12px text. | shot-1 | Panel behind it. |
-| 25 | polish | Title | `Finish the 1-minute Practice (+20 🪙)` is still the first suggestion after playing 7 matches including 1 Daily and 6 Cup games. | (look text) | Mark Practice optional once a match is played. |
-| 26 | polish | "STOMP READY" popups | In multi-kaiju brawls popups ("STOMP READY! KAIJU! STEAM BURST!") stack in the middle of the table near the dumpling and overlap game objects. | (look text, shot-18) | Offset per player. |
-| 27 | polish | "GOT IT!" popup | Next to the CHOCOMUNCH name tag with the spoon icon; the two labels touch. | shot-40 | Offset the popup. |
-| 28 | polish | Cup final | Title wraps to two lines "PIZZARAPTOR / WINS THE PARTY CUP!" with the second line touching the standings (≈20px). Tight but fits. | shot-21 | Reduce font 10%. |
-| 29 | polish | Pause menu in Cup | Pause screen doesn't show "Cup game n/6" or the Cup standings. | shot-23 | Add header. |
-| 30 | polish | Crumb Rush | "Crumb Monster: GOBZILLA (52 crumbs)" in the stats strip while PIZZARAPTOR won the game — fine, but the card doesn't say that crumbs *reset when you are knocked out*. | shot-8 | One-line rule. |
-| 31 | polish | Records | "Next rank: Sous Chef at 24 pts (15)" is cryptic (15 what?). | shot-37 | "Sous Chef at 24 pts (you have 15)". |
-| 32 | polish | Records stats | "Times gone KAIJU 0" after 7 matches while I only used the attack cmd; stat is correct but achievement "Size Matters" (0/10) for a party host never nudges the player to stomp. | shot-37 | Tip in the match HUD when belly full ("BELLY FULL! PRESS E → KAIJU" shows but disappears quickly). |
+| 1 | major | Party Modes / Keys | The keyboard panel lists only Keyboard Left and Keyboard Right plus Gamepad. A 6-person party needs 4+ gamepads. No phone join exists for local play. | shot-24 | Local QR phone controllers; show "needs N controllers" warning when seats exceed input devices. |
+| 2 | major | Team Feast end screen | Results list 6 individuals by rounds with no team colors and no team total ("1. TOASTBAT 3 rounds · 6 KOs 2. GOBZILLA (YOU) 3 rounds ..."). The banner says "TEAM RED" but the table shows rounds per person like a free-for-all. | shot-43 | Group by team with colored rows and a team round total. |
+| 3 | major | Crumb Rush end screen | Result ranks by "rounds · KOs" but the mode is "Eat the most crumbs". "Crumb Monster: GOBZILLA (84 crumbs)" ranks 6th. No crumb count shown on the plate. | shot-17 | Show crumbs per row; rank per mode scoring. |
+| 4 | major | Party Cup end | No Cup stats persist: Records has no "Cups won/played". Past champion is a kaiju ("NORIGON on 19 Nov"), not a person. | shot-9, shot-40 | Add Cup stats and named champions (seat names/nicknames). |
+| 5 | major | Party setup + Kid Mode | With KID MODE ON the screen shows "BOT LEVEL TOUGH" and "Bot difficulty: TOUGH" with no note that bots will actually be easy. Settings text for Kid Mode only mentions Story. | shot-39, shot-37 | Show "KID-EASY (Kid Mode)"; update Settings description. |
+| 6 | major | Pacing | Golden Spoon first-to-3 with 4 players took about 4 min real time; Team Feast first-to-3 plus replays similar. A 6-game Cup at those lengths would be over 1 hour. | shot-34 | Estimated time label and a "Quick" preset. |
+| 7 | minor | Party Modes, Cup ON | With PARTY CUP ON, the mode label still reads "◀ TEAM FEAST ▶" and the seats still show RED/BLUE TEAM, yet game 1 played as CLASSIC free-for-all. Confusing which mode applies. | shot-3, shot-4 | When Cup is ON grey out MODE and teams, show "CUP: 3 games" in the header. |
+| 8 | minor | Party Modes setup | The Cup route line at the bottom is one long truncated sentence at y=652. With 6 games it is cut off by the screen edge: "...places score 5/3/2/1 · final x2 · switch it ON, then PLAY". Also it still says "switch it ON, then PLAY" when it is already ON. | shot-3 | Two lines; change the wording based on switch state. |
+| 9 | minor | Cup game 1 banner | Banner "🏆 PARTY CUP · GAME 1/3 · CLASSIC · Pancake Stack" and tip line sit in the middle of the table, over the stack and the plate, partially hiding the "1" countdown. | shot-4 | Move to a plate under the countdown or into the top bar. |
+| 10 | minor | Between-game screen | Receipt, standings, banner and SHARE all compete. "Next: GOLDEN SPOON · 1 / START to continue" suggests a keyboard key while a mouse CONTINUE button exists. Touch/mouse hosts get a keyboard-only hint. | shot-5 | Use "Next: GOLDEN SPOON" and leave the key hint to the keys panel. |
+| 11 | minor | Between-game screen | The Standings heading shows a stray dark dot "STANDINGS 🏆" (emoji missing/ratio box) in the look text; the heading itself is plain. | shot-5 | Add trophy icon or remove. |
+| 12 | minor | Between-game screen | Receipt on Cup games only says "Play any Party Mode ✔ +25 🪙". No Cup-specific reward (no coins for finishing a Cup). Rewards for 3 games +8, +9, +12. | shot-5, shot-9 | A Cup-completion bonus line on the final receipt. |
+| 13 | minor | Cup end | Standings show "(+10)" for the winner but the x2 final bonus is not explained in the final plate. Unclear why the delta is 10. | shot-9 | Add "final x2" tag on the deltas. |
+| 14 | minor | Pause menu | "Tap QUIT again to really end it" is at the very bottom (y=690), low contrast on wood, 100px below the button. Easy to miss. | shot-11 | Put the message inside the QUIT button ("QUIT: tap again to confirm"). |
+| 15 | minor | Hot Dumpling | Top banners "FAST FORWARD x3 · ONLY BOTS LEFT" and "INSTANT REPLAY" stack right on top of each other and cover the table top edge. | shot-19 | One banner at a time. |
+| 16 | minor | Hot Dumpling | In round 1 I was knocked out in about 3 seconds of fleeing (HOT PASS) and spent the rest of the round watching. Eliminated humans have nothing to do except watch. | shot-19 | A spectator action (taunt, throw cutlery from the rail). |
+| 17 | minor | Hot Dumpling / Crumb Rush tips | The Crumb Rush countdown tip says "Shove rivals off the table edge with a dash." which has nothing to do with crumbs. The Daily's tip "Dash INTO a flying fork to catch it" shows for a Hot Dumpling match. | shot-14 | Mode-specific tips. |
+| 18 | minor | Golden Spoon | The Golden Spoon on the table is hard to see in the open (a pale oval at the center, no marker). Only the top banner says who holds it. | shot-30 | A gold pulsing ring and an off-screen arrow. |
+| 19 | minor | Golden Spoon HUD | HUD shows "🥄 0/15s" tiny; the "HOLDING! 12/15s" is red on dark and in a 12px font. | shot-30, shot-6 | Larger, add a progress ring on the kaiju. |
+| 20 | minor | Twist picker | Tile text sizes are inconsistent: "FISTS ONLY" and "MIRROR MOVES" descriptions are much smaller than the others. Double-twist titles are abbreviations ("KAIJU + CASTLE" means MINI KAIJU + BOUNCY CASTLE; "MOVES + TURBO"). | shot-21 | Same font size; use the full names in the title line. |
+| 21 | minor | Twist picker | No selected-tile marker apart from a green border on NONE; it is easy to miss which twist is chosen when reopened. The picker has no description of how many twists can stack. | shot-21 | Checkmark on selected. |
+| 22 | minor | House Rules | Slot labels show raw/uppercased ids ("HOTDUMPLING", "⚡ FRENZY"). Party Cup/cup length isn't part of a saved setup. The code is a long base64 string. | shot-23 | Friendly names; include Cup; short code. |
+| 23 | minor | House Rules | Footer "Esc closes" is shown while the ✖ button exists. Touch players do not have Esc. | shot-22 | "Tap ✖ to close". |
+| 24 | minor | Keys panel | The panel covers all the setup buttons including PLAY, with only "CLOSE KEYS" in the bottom-left. Its closed state is the same button position as KEYS; OK, but the panel is dense. | shot-24 | Fine as is; lighten the "joins/leave" row. |
+| 25 | minor | Party Modes | "BOT LEVEL" cycles NORMAL, TOUGH, HARD, BRUTAL, EASY. After BRUTAL, a single tap on RANDOM or table also changed settings. BRUTAL for a party is a trap with a single tap. | shot-25 | Warn on BRUTAL ("not for parties"). |
+| 26 | minor | Party Modes | RANDOM button also randomizes BOT LEVEL (it set BRUTAL for me, then EASY on the next visit). A host pressing 🎲 for fun gets brutal bots. | shot-25 | Exclude bot level from RANDOM or cap at NORMAL. |
+| 27 | minor | Party Modes | Setup is not remembered when returning from the title: seats are emptied each time (6 taps again) although MODE, BOT LEVEL and TABLE persist. Hosts who replay lose their roster. | shot-3 | Remember last roster ("SAME AS LAST TIME"). |
+| 28 | minor | Online lobby | "YOU (HOST) (YOU)" shows twice; with TV mode, "YOU (HOST) (YOU) • 📺 WATCHING, NOT PLAYING". | shot-27/28 | Single label. |
+| 29 | minor | Online lobby | Panel runs from y=15 to y=705 with a tight top and bottom (almost the whole 720px screen). No Cup length. "Bots fill up to 4 players" first, but "Up to 5 friends" text; the interplay between bots/friends/6 isn't explained. | shot-27 | Compact layout; one sentence on seats. |
+| 30 | minor | Online lobby | /look returns no texts (DOM overlay), so screen-reader/automation can't read it. Mode "Team Feast" description doesn't change when Party Cup is ON ("Red vs Blue, no friendly fire"). | shot-28 | Cup note under the description. |
+| 31 | minor | Records | "Matches won 0 / Win rate 0%" while Rounds won 3, after Team Feast and Cup results; there is no Party record (Cups won, team wins). | shot-40 | Party section in stats. |
+| 32 | polish | Records | "Next rank: LINE COOK AT 14 PTS (YOU: 7)" is set in the big title font and nearly touches the panel edge. | shot-40 | Use body font. |
+| 33 | polish | Pantry | Token count here (281) differed from Records (256) a few clicks earlier with no match between. Possibly a pending achievement payout. | shot-41, shot-40 | Single source of truth. |
+| 34 | polish | Team Feast HUD | Teams are interleaved by seat (RED, BLUE, RED, BLUE...), so teammates aren't adjacent in the HUD. | shot-42 | Group HUD cards by team. |
+| 35 | polish | Team Feast / lobby | "▼ YOU" marker only for local player; with 6 humans (when controllers exist) every seat needs a name or number, and Name Tags and Player Numbers default OFF. | shot-42, shot-37 | Default player numbers ON when 3+ humans. |
+| 36 | polish | Settings | The Settings screen is 2 columns of 6 and the bottom row sits at 666; fine but the highlighted first button "SOUND EFFECTS" shows a stale focus ring after returning. | shot-37 | n/a |
+| 37 | polish | Daily results | "Today: not won yet · best 1 round · tries 1 · win streak 0 days" is a run-on; the tip "Tough bots? Set BOT LEVEL to EASY" can't apply to the Daily (fixed bots). | shot-36 | Remove the tip for Daily. |
+| 38 | polish | Hot Dumpling end screen | Ranks by "rounds · KOs", with no dumpling stats. | shot-20 | Show pops. |
+| 39 | polish | Standings plate | The ant trail on the Daily table and cheese blobs show through the translucent plate. | shot-36, shot-7 | More opaque. |
+| 40 | polish | Title | The "NEXT UP" line is a single long truncated string, cut at the right ("... 🎨 L"). | (title /look) | Wrap or ellipsis. |
 
 ## 🔠 Text and layout check
-Checked screens (screenshots opened and viewed):
-- **Title** — OK except "Teams · Rush · Dumpling" wrapping to 3 lines (issue 23) and the small First Service block over art (24). shot-1
-- **Party Modes setup (empty)** — OK; no overlaps; text all readable; buttons in one row not stacked. shot-2
-- **Party Modes setup (full, Team Feast)** — Team pills overlap the kaiju sprite tops (16); otherwise OK. shot-3
-- **Intro countdown (Classic, Hot Dumpling, Team Feast, Golden Spoon)** — countdown number, "PARTY CUP · GAME n/6 · MODE · table" and tip all centred and readable, though the tip lines sit over table props (cup/plate) with outlines only. shot-4, 9, 13, 16
-- **In-match HUD (6 players)** — names and cutlery icons fit; stars readable; `GOBZILLA` is red-on-dark and hard to read when dimmed/knocked-out (greyed). OK. shot-6, 7, 40
-- **Game over / between-game card (Classic, Crumb Rush, Hot Dumpling, Team Feast, Golden Spoon)** — standings text overlaps game art and is visually cluttered (issue 3); the title text fits; receipt box tight to table edge and CONTINUE button (22). shot-6, 8, 12, 15
-- **Party Cup final** — fits; title wraps to 2 lines and sits close to the first standings row (28). shot-21
-- **Pause menu** — OK, five full-width stacked buttons, nothing overlaps. shot-23
-- **HOUSE RULES modal** — OK; slots and buttons align. shot-25, 26
-- **KEYS overlay** — OK; the CLOSE KEYS button covers the bottom-left corner of the "N add / remove bot" row slightly but no text hidden. shot-27
-- **Online (intro dialog)** — OK. shot-29
-- **Online (Your Room)** — fits; tight top/bottom margins (14); "(you)" duplication (13). shot-30, 31
-- **Match HUD with Player Numbers/Name Tags ON** — OK, though "GOT IT!" touches the name tag (27). shot-40
-- **Instant replay / fast-forward** — two banners crowd each other at the top (12). shot-18
-- **Daily result** — kaiju sprite overlaps the "Today: won" line (20). shot-35
-- **Challenges card** — OK; buttons evenly spaced. shot-36
-- **Records p1 and p2** — OK; text fits within boxes; progress bars and counters aligned. shot-37, 38
-- **Settings** — OK; all 11 toggles and descriptions fit; no overlap. shot-39
-- **Free Play setup** — OK; eight pills fit in one row. shot-41
-
-No text ran off screen edges that I could see at 1280×720 and no two buttons stacked.
+- **Title screen:** the NEXT UP string at [372,196] is one very long line that is truncated ("... 🎨 L"). Not able to screenshot every title state; nothing else overlapping. Mostly OK, with issue #40.
+- **Party Modes (empty seats):** OK. Seat cards, 10 buttons and PLAY don't overlap. The route line at the bottom is long but readable (shot-2).
+- **Party Modes (3 seated, Cup ON):** OK except the long Cup line and the stale TEAM FEAST label (shot-3).
+- **Countdown with Cup banner:** the Cup banner and tip are over the table center and cover the countdown number (shot-4).
+- **Match HUD (6 players):** OK; the top cards are tight but legible (shot-6, shot-8).
+- **Between-game standings:** text readable. Plate is translucent with bleed-through (shot-5, shot-7). Receipt panel, SHARE button and kaiju art all fit.
+- **Cup final screen:** OK. The footer stats row is very close to the table edge but not cut (shot-9).
+- **Pause menu and double-quit:** OK. The confirmation line is low contrast and far from the button (shot-11).
+- **Hot Dumpling:** two banners stacked at the top (shot-19).
+- **Twist picker:** no overlap, but inconsistent text size and a hidden title area (shot-21).
+- **House Rules modal:** OK (shot-22/23).
+- **Keys panel:** OK, dense but not overlapping, hides the setup buttons by design (shot-24).
+- **Crumb Rush, Hot Dumpling, Golden Spoon and Team Feast result screens:** OK for overlap (shot-17, shot-20, shot-34, shot-43).
+- **Daily result:** OK (shot-36).
+- **Settings:** OK (shot-37).
+- **Records (page 1):** OK. The "Next rank" value is large and tight (shot-40).
+- **Pantry:** OK (shot-41).
+- **Online menu and lobby:** OK; the lobby fills the full height (shot-26/27/28).
 
 ## The single biggest structural problem
-**The Party Cup flow is not safe or predictable enough to run a night around.** It starts from a pill that acts as a launch button, it uses its own rules (first-to-2 / first-to-3, team points handed out per team, unlabelled ties), it can be thrown away with one mis-click (Pause → QUIT, no resume), and the screens between games carry the standings on top of live art. The Cup is the one feature that makes this a "game night" product, yet the host gets no estimate of how long it takes (~45 minutes for me), no way to see the Cup table during play, and no recovery if someone leaves.
+There is no way to get 4-6 humans into the room without a pile of gamepads. A Party Host's whole job is "the room joins in 30 seconds", and Kitchen Kaiju offers keyboard seats for 2 and gamepads, while Online is a separate matchmaking flow where everyone needs their own device and nobody shares a screen. Every other host-facing improvement matters less if the room can't join.
 
-A secondary structural gap is **identity in 6-kaiju brawls**: nothing tells a group of friends which kaiju is whose (Player Numbers / Name Tags default OFF), and team membership is only a thin underline in the HUD. The online lobby has the right bones (code, QR, TV mode) but mixes in Cup-incompatible pills.
+Second, the scoring is too diffuse to feel like a competition. The Cup standings, per-mode round counts, KOs and team results all use different scoring, and the final screens don't give you a "who won the night" moment beyond a bot's name.
 
-## Big change proposals (2–3, most important first)
-### Proposal 1: Cup Night — a resumable, time-boxed Party Cup
-- **Problem it solves:** Issues 1, 2, 4, 5, 9, 12. The Cup is long, unexplained, fragile and visually unclear.
+## Big change proposals (2-3, most important first)
+### Proposal 1: Same-room phone controllers ("Join with your phone")
+- **Problem it solves:** a 6-person game night needs 6 inputs. There is no local phone joining.
 - **How it would work (detailed design):**
-  1. **Setup:** the pill becomes `CUP: OFF / QUICK / STANDARD / EPIC`. QUICK = 4 games (Classic, Crumb Rush, Hot Dumpling, Final) ~12 min; STANDARD = the current 6 games ~25 min; EPIC = 8 with two Final rounds. The estimate is printed on the pill ("~25 min"). While ON, MODE and FIRST TO collapse into "CUP RULES ▸" (opens the card). PLAY starts it.
-  2. **Rules card (4 s, skippable):** list of the games with icons, "5/3/2/1 per game · FINAL ×2 · ties broken by most game wins".
-  3. **Per game:** first-to-2 (Hot Dumpling first-to-2 with a max of 3 rounds), Final first-to-2 with ×2 points. A thin Cup bar in the HUD corner: "CUP 3/6 · you 8 pts (4th)".
-  4. **Between games:** dark panel scoreboard, six rows with portrait, pts bar and animated "+5". The game's mode title stays on top. The background is frozen, blurred and dimmed.
-  5. **Pause menu:** shows the Cup table; QUIT asks "End the Cup?" with "SAVE & EXIT" (resume later) or "END CUP".
-  6. **Setup screen:** a banner "RESUME CUP — game 4/6 · 3 players" for 24 h.
-  7. **Cup final:** keep the current trophy screen; show the 19/11 as "Cups won / Cups played", add a Cup Shelf screen in Records with portraits.
-- **Example moment:** The host's friend leans on Esc → QUIT during game 5; the game asks "End the Cup?", they say no, the Cup continues. In the final the bar reads "FINAL ×2 · AVOCADRAKE 21, PIZZARAPTOR 15", and the scoreboard shows who can still catch up.
-- **Rewards / progression hooks:** Cup stats in Records (played/won/best score), "Cup Champion" achievement pays tokens, Cup Shelf trophies with the kaiju's silhouette, +tokens for finishing a Cup you did not win.
-- **Risks and edge cases:** Online mode (state sync, host disconnect), save format, a player leaving mid-Cup (bot takes over), odd team counts in Team Feast.
-- **Size:** L
-- **Score impact for me:** +1.2
+  1. On the Party Modes screen, empty seats read "click or THROW to join" (shot-2). Add a "📱 JOIN WITH PHONE" button next to KEYS that opens a panel with a QR code and a 4-letter code (reuse the Online room code system).
+  2. Phones open a controller page that has a left joystick, THROW, SWIPE, DASH, STOMP and EMOTE, plus a name field. The phone picks the first free seat and shows a kaiju carousel (same ◀ ▶ as the seat card).
+  3. The seat card shows "Sam 📱" instead of "Bot: NORMAL (tap)"; a bot can fill any seat not claimed. The host can kick a phone from the card.
+  4. Input is relayed to the host over the existing online transport. The host's screen remains the only game view.
+  5. When the Cup is ON, phones show the standing and a "Ready for game 2" button.
+- **Example moment:** the host puts the laptop on a TV, shows the QR, and 5 friends scan. In 20 seconds all 6 seats have names.
+- **Rewards / progression hooks:** a "Party of 6" achievement; per-phone nicknames in the Cup hall of fame.
+- **Risks and edge cases:** latency on weak Wi-Fi; phone sleep; a late joiner mid-Cup (needs the "+ JOIN" button between games); the rule that the host must stay on the page.
+- **Size:** XL
+- **Score impact for me:** +0.8
 
-### Proposal 2: Table identity pack (who is who at a glance)
-- **Problem it solves:** Issues 6, 8, 15, 26, 27 — in 4–6 kaiju matches nothing says who is who or which team.
+### Proposal 2: One "Game Night" scoreboard and per-mode results
+- **Problem it solves:** the Cup has standings, but each mode ends with different scoring and the Cup's results lose context (no crumb count, no team grouping, no named champions).
 - **How it would work (detailed design):**
-  - In Party/Cup/Online, force-on Player Numbers + Name Tags (P1…P6 under each kaiju with the seat colour) and a coloured team ring/hat on every Red/Blue kaiju; show the same colours in the HUD strip (already has the underline).
-  - Per-seat colour chosen on the setup card (the setup already has a colour per kaiju), and a seat shows its controls ("WASD" / "Gamepad 2") so that a group knows who is playing where.
-  - "Which one am I?" pulse: for 1.2 s at the round start the human-controlled kaiju gets an arrow and a "P1" bounce.
-  - Use one consistent name (Gobzilla) everywhere.
-- **Example moment:** Six friends on a couch: when the countdown shows "3", each friend's arrow bounces over their kaiju with their name; no one asks "which one's mine?".
-- **Rewards / progression hooks:** cosmetic hats per Chef Rank, shown on the arrow.
-- **Risks and edge cases:** clutter on small phones, colour-blind players (shapes/hats as well as colours).
-- **Size:** S–M
+  1. A single result plate template: heading with winner, then rows with 3 columns (rank, name/team, mode-specific stat). Crumb Rush: crumbs. Golden Spoon: seconds held. Hot Dumpling: dumplings survived. Team Feast: team-colored groups with a team total.
+  2. A persistent mini-strip across the top during Cup matches: "CUP 2/3 · 5th place · 8 pts".
+  3. A final Cup screen that has a per-game table (game 1/2/3 placement per player, x2 on the final), a MVP line ("Most wins", "Biggest comeback"), and a saved "Past champions: Sam (Norigon) 19 Nov".
+  4. Records gets a "PARTY" tab: Cups played/won, best Cup score, favourite mode, team wins.
+- **Example moment:** after the final, the plate reads "SAM wins the Cup: 1st, 3rd, 1st(x2) = 18 pts; Dana was robbed in game 2 by 1 crumb".
+- **Rewards / progression hooks:** Party achievements ("Win a Cup without a first place", "Win 3 Cups"), a trophy shelf in the Gallery.
+- **Risks and edge cases:** names for bots versus phones; ties; storage size.
+- **Size:** M
+- **Score impact for me:** +0.8
+
+### Proposal 3: "Game Night" presets with time estimates
+- **Problem it solves:** the host must configure 10 buttons and doesn't know how long the night will take.
+- **How it would work (detailed design):** a row of preset tiles above the setup buttons: "Quick (3 games, about 15 min)", "Standard (6 games, about 35 min)", "Chaos (random twist each game, Hard bots)", "Kids' night (Kid Mode, no hazards, EASY)". Each preset sets MODE, CUP LENGTH, FIRST TO, TWIST, BOT LEVEL and shows an "est. X min" label next to PLAY. Remember the last roster and offer "SAME AS LAST TIME". The setup is saved in House Rules automatically.
+- **Example moment:** a parent picks "Kids' night", hits PLAY, and the Kid Mode bot override is labeled on the screen.
+- **Rewards / progression hooks:** a "Game Night streak" tied to Daily.
+- **Risks and edge cases:** presets conflicting with a manual twist; time estimates needing playtest data.
+- **Size:** S
 - **Score impact for me:** +0.5
 
-### Proposal 3: Online Party Cup lobby as a host console
-- **Problem it solves:** Issues 13, 14, 19 — the online room lacks copy-link, roster, and cup-aware settings.
-- **How it would work (detailed design):** one screen with (a) the 4-letter code with COPY CODE / COPY LINK / QR, (b) a roster list with avatars, ready ticks, and a kick/bot-swap per row, (c) the same CUP selector as the local setup, replacing MODE and FIRST TO when the Cup is on, (d) a "START when everyone is ready" gate with a countdown, (e) TV mode explained as "this screen is the TV; players use phones as controllers".
-- **Example moment:** Host puts the lobby on a TV, friends scan the QR, their icons pop into the roster, the host hits START and the Cup rules card plays.
-- **Rewards / progression hooks:** "Hosted a 4+ player Cup" achievement.
-- **Risks and edge cases:** network drops, host migration, latency fairness.
-- **Size:** L
-- **Score impact for me:** +0.4
-
 ## How this round's new features felt
-- **🏆 Party Cup (main feature I touched):** Strong idea and the biggest reason I would host game night. Per-game winners are named in the banner ("GAME 4/6: TEAM RED WINS!"), the ×2 final (+10) is a real comeback beat, and the NEW CUP button after the trophy screen starts a fresh Cup with a single click. What is missing is safety (quit protection), time-boxing, a clean scoreboard and clarity about scoring (issues 1–5, 9). The champion on a "Cup Shelf" is a great hook but only appears as text with unexplained numbers.
-- **First Service checklist:** I saw it on the title (it moved 0/6 → 1/6 after the Daily). It is helpful but small and still suggests "Finish the 1-minute Practice" for a player who has already finished seven matches.
-- **CHALLENGES card:** clean (shot-36); Trials 0★ and locked Gauntlet courses are clearly communicated. I did not play them as a host.
-- **Achievements / Records / Chef rank:** receipts list new achievements with 30 🪙 and colours ("First Bite +30 · Lime colour!"), which feels rewarding after each Cup game, but Records has no Cup information.
-- **⚡⚡ Double twists:** work (8 combos after the singles), but in a host setup the only way through is forward-only clicking (about 19 presses to get from NONE to the last combo).
-- **Settings → KID MODE / Name tags / Player numbers:** all present and clear; I would default Player Numbers/Name Tags ON for Party.
-- **Workshop / Move Lab / Trials:** not touched by this profile.
-- **Text and layout:** no overlaps that break anything; the issues are clutter (between-game card on live art) and a couple of near-touches (listed above).
+- **Party Cup ON/OFF switch and the double-quit:** clear and good. The switch reads "PARTY CUP ON" and the bottom line explains the order. The double-quit works as described, but its confirmation message sits far from the button and is easy to miss (shot-11). The Cup route line is long and does not update when the switch is on.
+- **Final first-to-2 worth x2:** works and is announced on the standings screen ("Next: CLASSIC (FINAL · x2 POINTS)"). The final's delta, "(+10)", isn't explained on the end plate. The final felt like a real climax. Making the final the only x2 is the right amount of drama.
+- **TOUGH bot level:** it appears between NORMAL and HARD in the cycle. Hard bots in Team Feast were no problem for the auto-play. I couldn't judge the fairness by hand. Kid Mode, however, doesn't show that it overrides the bot level on the setup screen (shot-39).
+- **TWIST picker:** a big upgrade over cycling. Singles and doubles in color tiles are clear. Issues: inconsistent text size, abbreviated double-twist names (shot-21).
+- **Kid Mode in Party:** it works, silently; the setup screen and Settings text don't mention Party/Daily.
+- **Giant Hand dodge and hand KO credit:** I saw "Knocked out by: ✋ the Giant Hand x3" and a tip "STOMP first, or DASH as it reaches you" on the Daily receipt. Good, but I did not dodge by hand.
+- **YOU marker:** visible in team feast and crumb rush (e.g. "▼ YOU" at [1087,557]); it's helpful. With 6 local humans, a per-seat marker or number will be needed.
+- **Receipts:** good (achievements, First Bite lime colour, Better Together bubblegum, orders). One Team Feast receipt gave +217 coins in one go (orders plus achievements), a nice surprise.
+- **Instant replay and fast-forward:** fun in Hot Dumpling, though the two banners stack (shot-19).
+- **Online lobby with QR and TV mode:** a standout for hosts. It lacks Cup length and shows a duplicated "(YOU)".
+- **Not touched (not host-relevant this round):** Story log, Shiny forms, Move Lab, Workshop, Gauntlet, Trials, Phone layout.
 
 ## Bugs that block play
-- None. /errors reported `none` at the start, middle and end of the session; no screen froze, no button was unresponsive. The nearest thing to a blocker is the unprotected QUIT in the middle of a Party Cup (issue 2), which silently destroys the Cup's standings.
+- None blocked play. No JavaScript errors (`/errors` was `none` at start, middle and end).
+- Functional oddity (not blocking): with Party Cup ON and Team Feast selected, the first Cup game ran as Classic free-for-all and the team seats were ignored (shot-3, shot-4). It is confusing rather than broken.

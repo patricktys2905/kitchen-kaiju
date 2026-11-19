@@ -1,243 +1,217 @@
-# Playtest evaluation — The Challenge Seeker (challenger)
+# Playtest evaluation: The Challenge Seeker (challenger, port 7108)
 
-**Fun score: 7.0 / 10** (Trials, Gauntlet and the post-loss coaching are the right ingredients. But the hard content is thin: Spicy is barely tougher, the Daily is one match that never changes shape, and Records/Title don't track challenge progress. A real layout bug on GAUNTLET OVER also hurts.)
+**Fun score: 6.5 / 10** (the hard modes are well built and the Gauntlet and Trials have good hooks, but the Daily is unwinnable for a fresh save, the Story and Dessert content a challenge seeker wants is locked behind a linear grind, and nothing explains what separates TOUGH / HARD / BRUTAL.)
 
-> Screenshot folder: `C:\Users\Pat\kitchen-kaiju\art-src\.playtest\r7-7108\` (shot-N.png). Harness commands used: about 118.
+> This round the bar is **9/10 from EVERY profile**. Everything below is aimed at that.
 
 ## What I did
-- **Title (shot-1, shot-33):** read First Service / NEXT UP, then opened the CHALLENGES card (shot-2) and TRIALS (shot-3).
-- **Trials:**
-  - Played Hard Duel (GOBZILLA vs PIZZARAPTOR hard) twice. Fail 1-3, then win 3-1 for ★☆☆ (+20 🪙 and the First Bite / Lime unlock, shot-5, shot-7).
-  - Played Brutal Bot (NORIGON vs BUBBLEGUMBO brutal) and was swept 0-3 by the AI-piloted hard bot (TRIAL FAILED).
-- **Daily Challenge (Hot Dumpling, Picnic Blanket, 3 hard rivals):** won 3 rounds to 2, silver medal, streak 1 (shot-10, shot-13). The match ran 7 rounds.
-- **Story:**
-  - Skipped the opening cutscene (shot-14, shot-15).
-  - Cleared ch 1 for ★★★ (shot-17, shot-18).
-  - Toggled SPICY on ch 1: first attempt lost, then won on a retry with the plain `attack` cmd (shot-19, shot-20).
-  - Cleared ch 2. Ch 3 was lost once, then unlocked.
-  - Story stands at Ch 3/12, ★5. I never reached Second Helpings or the Dessert Course.
-- **Free Play setup (shot-16):**
-  - Cycled BOT LEVEL (Easy / Normal / Hard / Brutal).
-  - Cycled all ~20 TWIST values, including the ⚡⚡ doubles (e.g. ICE RINK + TURBO, FISTS ONLY + ICE RINK).
-- **Records (both pages) and Pantry:**
-  - Pinned "Ghost Pepper" as the achievement to chase (shot-25, shot-26, shot-27).
-  - Bought Lifeline and Lunchbox for Gauntlet runs.
-- **Gauntlet:**
-  - Two long runs from STARTERS. Run 1 ended around wave 6-7. Run 2 reached wave 10, score 1210, GRADE A, "NEW BEST!".
-  - Used the perk picker (1/2/3) over about 12 waves.
-  - Checkpoints opened: MAINS "start at wave 5" and DESSERTS "start at wave 9" (shot-28 to shot-32).
-- **Pause menu:** opened and tested QUIT (shot-23).
-- **Matches:** about 30 (Trials, Daily, Free Play via autoplay, Story, Gauntlet waves).
-- **Time:** roughly 1.5 h of harness time. `/errors` was `none` at the start, middle and end.
+About 115 harness commands, about 45 minutes of game time, on a fresh save. Screenshots are in `C:\Users\Pat\kitchen-kaiju\art-src\.playtest\r8-7108\shot-N.png`.
+- **Title** (shot-1): NEXT UP box, mode buttons.
+- **Challenges popup** (shot-2): Gauntlet course picker, locked Mains/Desserts/Seconds, Trials button.
+- **Trials list** (shot-3): 8 trials, all open from the start.
+  - Hard Duel: played twice, lost 2-3 and 1-3 (both times "SO CLOSE!").
+  - Brutal Bot: lost 1-3.
+- **Daily** (Hot Dumpling, 4 players, shots 10-13): played 2 matches. Lost 0 rounds to 3, then lost 2 to 3 in a second try with a hard bot driving. Got the Bronze medal.
+- **Story map** (shots 14-18): opening cinema, SKIP, STORY LOG (empty), locked DESSERT / SECOND HELPINGS tabs, locked SPICY button.
+  - I never got into a Story chapter. The PLAY click only redrew the map and my next command started Free Play. The Story is gated per chapter, so I could not reach Spicy or Dessert.
+- **Free Play setup** (shots 19-21): cycled BOT LEVEL through every level (NORMAL, TOUGH, HARD, BRUTAL, EASY) and opened the TWIST picker.
+- **Party Modes setup** (shot-22): switched the Party Cup ON and played Cup game 1/6. Placings were 5/3/2/1. I quit and restarted the Cup, and used the pause menu double-QUIT (shot-27).
+- **Table Workshop** (shot-28): placed props, cycled hazard and surface, UNDO, PLAY IT with the Giant Hand hazard (shot-29).
+- **Gauntlet** (shots 31-33): Starters, cleared wave 1, picked a perk (shot-32), died on wave 2. GAUNTLET OVER, Score 130, Grade D, NEW BEST.
+- **Gallery** (shots 34-35): bought a Shiny form. **Pantry** (shot-36), **Records** (shot-37), **Settings** (shot-38).
+- Matches played: 12. Won: 1 (through the bot-driven Free Play grind and a Gauntlet wave). `/errors` checked at start, middle and end: always "none".
 
 ## What worked for me
-- **Trials are the best thing in the game for a challenge seeker.**
-  - Eight authored fights, each with a clear identity.
-  - The 3-star rubric is simple: win / no round lost / knockout goal.
-  - 20 🪙 per new star is a fair carrot.
-  - The "TRIAL FAILED" card shows my KO count against the ★★★ goal ("you: 1").
-- **The Brutal Bot trial is genuinely brutal.** A hard-bot-in-my-seat was swept 0-3, and kaiju-flatten deaths are readable. This is what "hard but fair" should feel like.
-- **Post-loss coaching is excellent.**
-  - Story defeat card (shot-20): "What beat you: A KAIJU flattened you. Step out of the ring before each stomp, then punish the dizzy shrink."
-  - The receipt repeats a tip ("DASH sideways when you see a charge line…").
-- **Gauntlet is moreish.**
-  - The perk pick (Full Belly / Ghost Start / Extra Life) after every wave makes each run feel different.
-  - Pantry perks (Lunchbox, Lifeline) feed it.
-  - The grade ladder (C 350 · B 650 · A 1000 · S 1500) gives a clear target. I finished A and instantly wanted S.
-  - Checkpoints let me restart at wave 5 or 9.
-- **Daily result card** ranks all four fighters by rounds and KOs, shows a streak, gives a silver medal and a "Daily Special +30". A satisfying wrap-up.
-- **Pin an achievement** works and surfaces on the title and in receipts ("📌 Ghost Pepper: 1/12"). Nice goal tracking.
-- **Twist list is huge:** doubles, Brutal bots, and Fists Only + Ice Rink give plenty of self-made challenge options.
-- **Cheap Pantry daily deal** (Lifeline 30% off) is a good nudge to come back.
+- The **Gauntlet** is the best challenge loop in the game.
+  - The score and grade ladder (C 350 · B 650 · A 1000 · S 1500) gives a clear target (shot-33).
+  - The "PICK A PERK FOR THE NEXT WAVE (1 / 2 / 3)" screen is exciting.
+  - The "NEW BEST!" callout is satisfying.
+  - Checkpoints by course make later runs less tedious.
+- **Trials** read as a real challenge list: each has a name, a fixed rival line-up, and a clear 3-star rule (win / without losing a round / hit KO goal). All 8 are open from the start, which is right for me.
+- Lose screens show **what killed me** ("Knocked out by: cutlery x2, a KAIJU") plus a coaching tip (receipt in shot-7, shot-13). That makes losses feel fair.
+- The **Daily** pays something even on a loss (Bronze medal for playing, "win for silver") and allows unlimited REMATCH. Good streak hook.
+- The tough Hard bot is clever. It went KAIJU twice and used the Giant Hand against me, so it feels like an opponent and not random noise.
+- The **TWIST picker** (shot-21) is clear and complete: every single plus ⚡⚡ doubles in one grid. The double names are colour-coded pink.
+- The **Party Cup** switch is clear: PARTY CUP ON/OFF button, the 6-game line explained under it, and a standings screen after each game (shot-24).
+- The **Cup quit warning** works from the pause menu: "Tap QUIT again to really end it".
+- The Gauntlet "start from checkpoint" idea keeps retries cheap.
 
 ## 🧾 Exactly what would make this a 9/10 for me
-1. **Make SPICY really spicy and show what it changes (+0.5).**
-   - **Where:** Story chapter panel, SPICY toggle (shot-19).
-   - **How:** SPICY ch 1 was beaten by the dumb `attack` cmd on the second try, with the same rival card ("CRABBAGE easy") before and after toggling.
-   - Replace the toggle's "(tougher rivals)" with a visible list. Example: "CRABBAGE hard · +1 rival · first to 3 · Spicy twist: Boomerangs".
-   - Update the RIVALS row live when toggled.
-   - Each Spicy chapter should also carry a unique modifier, not just a bot-level bump.
-   - Reward: a bigger payout (e.g. x2 🪙) and a flame badge on the chapter node.
-2. **Add a Challenge Ladder on the Challenges card: Daily Streak, Trial stars, Gauntlet grades, Spicy count (+0.5).**
-   - **Where:** CHALLENGES card and Records.
-   - **How:** Records currently shows only "Gauntlet best wave 0/10" in stats (shot-25). It shows nothing about Trials, Daily streak/medals or Spicy chapters.
-   - Add a "CHALLENGES" stats block: Trials ★ x/24, Daily streak and best streak, medals (bronze/silver/gold), Spicy clears 1/12, Gauntlet best score + grade.
-   - Add achievements for these: "Trial Tamer" at 12★, "Perfect Eight" at 24★, "Gauntlet S-grade", "Brutal Slayer".
-   - Currently the only challenge achievements are Gauntlet Runner/Master, Daily Special/Regular, Ghost Pepper and Feeling Spicy. None cover Trials.
-3. **Fix the GAUNTLET OVER perks overflow and the stacked text (+0.4).**
-   - **Where:** Gauntlet result, shot-31.
-   - **How:** the "Perks: …" line is a single unwrapped line that runs off BOTH screen edges ("rks: 🌶️ Hot Feet, …" and "…Full Be"). "🏅 NEW BEST!" is hidden behind the GAUNTLET OVER title, which is a text-over-text overlap.
-   - Group perks as chips with counts ("👻 Ghost Start x3 · 🌶️ Hot Feet x2 …") on two lines max.
-   - Place NEW BEST below the title.
-4. **A real Daily with a reason to return (+0.5).**
-   - **Where:** Title DAILY tile, Daily start, Daily result.
-   - **How:** Today's Daily was a plain Hot Dumpling fixed 4-player match. The start banner is one line ("📅 DAILY CHALLENGE · win this match…") over the ant column (shot-10).
-   - Add a daily modifier banner ("Today: Hot Dumpling + Ice Rink · 3 hard rivals").
-   - Give a 3-tier medal goal (bronze win / silver no-round-lost / gold also 5+ KOs).
-   - Show a streak calendar (7 flame icons), a streak bonus (+10 🪙 per day up to 70), and a "tomorrow's twist" teaser.
-   - Add a daily rematch cap or leaderboard so a hard player cares about score. The result today only says "tries 1".
-5. **Extend the Trials (+0.4).**
-   - **Where:** Trials screen (shot-3).
-   - **How:** only 8 trials and 24★. Add a Weekly Trial (rotating, 4★), and "Trial Rush" (all 8 in a row on 3 lives). Show best time/KOs on each card.
-   - Display the star you earned and what's missing next to each card, e.g. "★★ no round lost: 1 round dropped".
-   - Allow tapping a card to show a preview and a "Practice" button with an easier bot.
-6. **Make the ★★★ condition clearer and consistent (+0.3).**
-   - **Where:** Trial result (shot-7).
-   - **How:** I won 3 rounds with only 2 KOs because rounds can end by a rival falling. The text "also 4+ knockouts" is ambiguous (match or round KOs?).
-   - Show a live KO counter/target in the HUD during Trials.
-   - The card also says "Knocked out by: 👋 swipe" on a WIN, which is confusing.
-7. **Fix layout crowding on Title, Story panel and result screens (+0.3).**
-   - See the issue table: title NEXT UP text over the fork art, DAILY/CHALLENGES tile text wrapping to 2-3 lines, the SCENE button clipped against the Story panel edge, and the receipt box bottom-left covering the table.
-8. **Harder, differentiated high-end Gauntlet waves (+0.3).**
-   - **Where:** Gauntlet waves 7+.
-   - **How:** wave 1 is one rival, first to 1 (shot-28). Waves 4-5 spiked, then waves 6-10 were reachable with a plain hard bot.
-   - Add Brutal bots from wave 8, named mini-bosses at 4/8/12 (with a Phase 2 like Story bosses), and an S-grade at wave 15+.
-   - Show the next wave's preview ("Wave 4: BOSS · 3 rivals · Ice Rink") on the cleared card.
-9. **Make Dessert Course and Second Helpings reachable for a challenge seeker (+0.3).**
-   - **Where:** Story / Modes.
-   - **How:** my "hardest content" path needs 12+6 chapters before the Dessert Course. Offer a "Challenge Pass": clear a Trial ★★ or Gauntlet wave 10 to unlock a Dessert Course preview chapter.
-10. **Make Records' "Next rank" readable (+0.1).** Change "Head Chef at 36 pts (30)" to "Head Chef: 30/36 pts".
+1. **Make the Daily winnable and legible.**
+   - **What:** show the Daily's bot level and rules before it starts (a preview card), and tune it to TOUGH at most for new players.
+   - **Where:** DAILY button on the title, then the match.
+   - **How it should behave:** a pre-match card shows "Hot Dumpling · 3 bots · TOUGH · 1 / START". The bots should match the displayed level. A fresh save should be able to win the Daily at least 1 in 4 tries. Add a "daily modifier" line (for example "Boomerangs today") so each day feels different. Daily is currently a 4-seat free-for-all. I lost 0-3 on try 1 and 2-3 on try 2, and the bots scored 6 KOs against my 0.
+   - **Score impact:** +0.8.
+2. **Open a real hard-content ladder on day one.**
+   - **What:** let me open Spicy chapters, the Dessert Course and Second Helpings from a "challenge pass" (for example clear any 5 Trial stars, or win a TOUGH match). Do not require clearing the whole linear Story first.
+   - **Where:** Story map tabs (shot-15).
+   - **How it should behave:** the locked tabs currently say "clear chapter 6 to open" and "finish the Grand Feast". Spicy says "clear it first". Add a second unlock route: "or 6 Trial stars". Show progress, for example "3/6 ★".
+   - **Score impact:** +0.8.
+3. **Explain the difficulty ladder.**
+   - **What:** replace the bare "BOT LEVEL TOUGH" cycle button with a picker that says what each level does.
+   - **Where:** Free Play and Party Modes setup (shot-19, shot-22), plus the Trials list.
+   - **How it should behave:** EASY / NORMAL / TOUGH / HARD / BRUTAL, each with one line (for example "TOUGH: reacts in 0.4s, dodges Giant Hand about 50%, never goes KAIJU first"). Show a sample "you beat this bot level 3 of 10 times" stat in Records. Today the player cannot tell TOUGH from HARD except by losing.
+   - **Score impact:** +0.7.
+4. **Fix the "SO CLOSE!" lose text.**
+   - **What:** make the lose headline match the score gap.
+   - **Where:** Trials and match-end.
+   - **How it should behave:** I lost 1-3 and 0-3 and still got "SO CLOSE! TRY AGAIN?" (shot-8). Use "SO CLOSE!" only when I lost by 1 round or when I led. Otherwise use "ROUGH ONE" or "THEY WERE STRONGER: here's what to change".
+   - **Score impact:** +0.3.
+5. **Show the Shiny price and requirement on the button, and ask before spending.**
+   - **What:** change "✨ SHINY" to "✨ SHINY · 300 🪙 · Mastery Lv 3", and add a confirm.
+   - **Where:** Gallery (shot-34, shot-35).
+   - **How it should behave:** one click spent 300 tokens (494 to 219 after the earlier Pantry spend) with no price shown and no confirm, and the preview art did not visibly change. Show the shiny sprite in the preview the moment it is owned, plus an "EQUIPPED" tag.
+   - **Score impact:** +0.4.
+6. **Make weekly orders and Daily feel like a week-long reason to return.**
+   - **What:** harder weekly orders and a daily/weekly leaderboard or "beat your best".
+   - **Where:** Pantry (shot-36), Daily result screen.
+   - **How it should behave:** two of three weekly orders (Knock out 20 rivals, Go KAIJU 8 times) completed in my first ~10 matches. Add one "stretch" order (for example "Win a Gauntlet to Mains" or "Get 2 Trial stars") that pays 80 🪙. Record the best Daily rounds and show it as "best 2 rounds · beat it".
+   - **Score impact:** +0.5.
+7. **Fix the Party Cup quit path from the results screen.**
+   - **What:** the MENU button on the cup standings screen quits the Cup silently.
+   - **Where:** Cup standings (shot-24).
+   - **How it should behave:** the pause menu asks twice, but MENU on the standings screen dropped me back to Party Modes with no warning, and the next PLAY started "GAME 1/6" again, losing all standings. Ask once ("End the Cup? Your points are lost") or relabel it.
+   - **Score impact:** +0.3.
+8. **Make hard feedback visible: show the Giant Hand telegraph.**
+   - **What:** a clear warning ring plus text when the hand is coming for me.
+   - **Where:** matches with the Giant Hand hazard.
+   - **How it should behave:** a "✋ INCOMING" marker 1.0 s before the hand lands, with the dodge window drawn (DASH now). I could not verify the DASH dodge through the harness (the hand appeared too briefly between 0.3-0.8 s ticks). Twice I was KO'd by it standing still and could not tell from the screen it was about to hit me. The Gauntlet tip "the giant hand goes for whoever has the fullest belly" is great and should be shown more.
+   - **Score impact:** +0.4.
+9. **Fix the stale Kid Mode text and the wrong tip.**
+   - **What:** Settings says "KID MODE: Story: easier rivals, 1-line chats, bigger result text" but the brief says Kid Mode now gives easy bots in Free Play, Party and the Daily too.
+   - **Where:** Settings (shot-38) and the lose-screen tip (shot-13).
+   - **How it should behave:** the description must list all four places. The Daily lose tip says "Set BOT LEVEL to EASY, or switch on COMEBACK HELP in Settings", but the Daily has no bot-level control, and Comeback Help does not apply to the Daily (its Settings text says "Free Play / Party"). Point to KID MODE for the Daily.
+   - **Score impact:** +0.3.
+10. **Fix every small layout item in the issue table below** (item 1 to 4 are the most visible). +0.5 combined.
 
 ## 🔍 Every issue I saw (exhaustive)
 
 | # | Severity | Screen | What's wrong (exact text/element) | Screenshot | Suggested fix |
 |---|---|---|---|---|---|
-| 1 | **major** | Gauntlet result | "Perks: 🌶️ Hot Feet, 🍖 Sugar Rush, 🟡 Mustard Coat, 👻 Ghost Start, 👻 Ghost Start, …" is one unwrapped line. It runs off both screen edges ("rks:" on the left, "Full Be" on the right) | shot-31 | Group perks with counts and wrap to 2 lines; clamp to table width |
-| 2 | **major** | Gauntlet result | "🏅 NEW BEST!" at y=106 renders partly behind the "GAUNTLET OVER" title: text-on-text overlap | shot-31 | Put NEW BEST under the score line, and stop the title using the same space |
-| 3 | **major** | Story chapter panel | SPICY toggle changes nothing visible: rival row still "CRABBAGE easy", no rounds/rivals change shown, and SPICY ch 1 was beaten with the dumb `attack` cmd on the 2nd try | shot-19 | Show spicy rival list/levels and extra modifiers; make Spicy a real step up |
-| 4 | **major** | Records | No stats for Trials stars, Daily streak, Daily medals, Spicy chapters. Only "Gauntlet best wave" | shot-25 | Add a Challenges stats block (see checklist 2) |
-| 5 | **major** | Records achievements | No Trials achievement at all; challenge achievements are thin (Gauntlet Runner/Master, Daily Special/Regular, Ghost Pepper). Nothing for Gauntlet grade or Brutal | shot-26 | Add Trial Tamer/Perfect Eight/S-grade/Brutal Slayer |
-| 6 | minor | Title | The "🎯 NEXT UP" first-service text (13px) sits on the fork art, low contrast. A line overlaps the fork handle ("Win a Team Feast match → Bubblegum" sits over the fork) | shot-33 | Move onto a dark chip or panel, or enlarge and widen to avoid the art |
-| 7 | minor | Title tiles | DAILY "Done today ✔ · 1🔥 / streak" wraps to 2 lines with a broken "streak" orphan and the tile heading shifted up. CHALLENGES "Gauntlet (best 10) · 🎯 / Trials 1★" likewise wraps. PARTY MODES wraps to 3 lines | shot-33 | Shorten: "Done ✔ 1🔥" and "Best 10 · 1★"; keep to 2 lines |
-| 8 | minor | Story chapter panel | "🎬 SCENE" button's right edge sits on the panel border (x≈1248) and is jammed against "Not cleared yet" / "Best: ★★★" | shot-15, shot-19 | Move SCENE into the panel with 12px margin, or under the stars |
-| 9 | minor | Story chapter panel | Kaiju named "GOBZILLA JR." on the map but "GOBZILLA" in match HUDs/trials (same character, 2 names) | shot-15, shot-4 | Use one display name everywhere |
-| 10 | minor | Story clear/defeat modal | Large empty gap between title and body in DEFEATED (y 140-270). Body text is hard to find at first glance | shot-20 | Tighten vertical spacing or put an icon of the killer in it |
-| 11 | minor | Trial result card | "Knocked out by: 👋 swipe" listed on a TRIAL CLEAR (a win); label reads like I lost | shot-7 | Title it "Rounds you lost to:" or hide on wins |
-| 12 | minor | Trial result card | "★★★ also 4+ knockouts (you: 2)" but I won 3 rounds with 2 KOs because falls don't count. Unclear if round KOs or match KOs | shot-7 | Clarify "4+ KOs (cutlery/shove/KAIJU)" and show a live counter in the HUD |
-| 13 | minor | Trial/Daily result | Receipt "THIS MATCH" box sits over the playfield bottom-left; text overlaps cutlery/coffee art and is partly covered by the SHARE button area | shot-5, shot-13 | Give the receipt an opaque panel and keep it clear of the SHARE button |
-| 14 | minor | Trial result | "1 / START retry · Esc trials" is keyboard jargon; RETRY button exists below but the line is redundant | shot-7 | Remove or say "RETRY below" |
-| 15 | minor | Trials list | Card heights/vertical rhythm uneven (title y=150 vs y=141 vs 269 vs 525); 2-line sub-lines in some cards wrap ("4+ / KOs" orphan) | shot-3 | Fixed card height and text clamp; wrap "KOs" with the number |
-| 16 | minor | Trials list | Cards show no progress per star (just ☆☆☆), no best time or what's missing | shot-3 | Show "★★ missing: lost 1 round" on each |
-| 17 | minor | Daily start | Daily banner "📅 DAILY CHALLENGE · win this match to clear today and keep your 🔥 streak · Picnic Blanket" is a single line across the table, overlapping an ant column and Dumplord's mat; no modifier or reward info | shot-10 | Show a card: rules, difficulty, reward, and keep it clear of spawn mats |
-| 18 | minor | Daily result | "Today: won ✔ · best 3 rounds · tries 1 · win streak 1 day" is dense one-liner; "best 3 rounds" unclear | shot-13 | Split into labelled chips (Best / Tries / Streak) |
-| 19 | minor | Daily result | Receipt line "🥈 Silver daily medal (win without dropping a round for 🥇)" wraps and is cryptic | shot-13 | "Silver. Gold needs: win with no rounds lost" |
-| 20 | minor | Daily match HUD | Hot Dumpling match HUD still shows "Ladle · KOs 0" and no dumpling-holder indicator on the card until it's in the text; players can't tell who holds the dumpling at a glance | shot-10 | Add a persistent dumpling icon to the holder's HUD card |
-| 21 | minor | Gauntlet in-match HUD | "GAUNTLET ❤❤ WAVE 6 · BANQUET LAZY SUSAN" is tiny and at the very bottom-left (y=708), hugging the screen edge; hearts hard to see | shot-30 | Move to top-right with larger text, show perks as icons |
-| 22 | minor | Gauntlet in-match HUD | Perk icons next to the player name (🌶️🛡️🍖) are tiny and unexplained | shot-30 | Add a hover/legend or show on the wave cleared card |
-| 23 | minor | Gauntlet wave cleared | Perk cards overlap the hero kaiju art on the right (Extra Life card over the strawberry) | shot-28 | Shift cards left or hide the art while choosing |
-| 24 | minor | Gauntlet wave cleared | Perk-pick is easy to miss: harness `Enter` repeatedly re-showed the picker with no timeout or "press a number" cue beyond a small title | shot-28 | Make cards clickable with keys 1-3 shown on the cards |
-| 25 | minor | Gauntlet balance | Wave 1 is one rival, first-to-1, and waves 6-10 felt flatter than waves 4-5 for a hard bot; no named miniboss | shot-28 | Wave boss at 4/8/12 with preview |
-| 26 | minor | Gauntlet life screen | "❤❤❤❤ left · trying wave 4 again with your perks…" prints hearts without count; hard to count five hearts | shot-29 | Show "4 lives left" |
-| 27 | minor | Records stats | "Next rank: Head Chef at 36 pts (30)" parenthesis unclear; Pantry says "(you have 30)" | shot-25, shot-27 | "30/36 pts" |
-| 28 | minor | Records | "Gauntlet best wave 0" is listed after a run; stat only updates after a run ends (it showed 0 until I finished a run) | shot-25 | Update live, or label as "this device" |
-| 29 | minor | Records achievements | "Rampage 2/3", "Mix it Up 4/8" progress bars sit above the text; "Dumpling Dodger" bar overlaps the title when titles are long | shot-25 | Right-align progress away from title |
-| 30 | polish | Records | "Counts people on this device (not bots)." footnote is tiny (≈11px) | shot-25 | Raise size or remove |
-| 31 | polish | Pantry | Footnote "Colours you buy appear in the KAIJU Gallery. Gauntlet items work on every new run." tiny (≈11px), low contrast | shot-27 | Larger or move into the cards |
-| 32 | polish | Pantry | Completed weekly orders show "✔ 20/20" but no claimed/paid state or collect button; unclear if the 40 🪙 was paid | shot-27 | Show "+40 🪙 paid" |
-| 33 | polish | Pantry | Lifeline deal "🏷 TODAY 30% OFF (was 350)" fits but label crowds the price line | shot-27 | Put the deal tag on a separate line |
-| 34 | polish | Title | First Service lists "Finish the 1-minute Practice" first for a returning veteran; NEXT UP stays at 5/6 with a ton of rows beyond what I can see | shot-33 | Collapse completed steps and show only the next two |
-| 35 | polish | Free Play setup | Hard/Brutal bot levels are only on a small BOT LEVEL pill; no per-bot difficulty hint for the challenge seeker | shot-16 | Show a difficulty colour per bot seat |
-| 36 | polish | Free Play setup | "16/20 kaiju (unlock more in Story)" and "TABLE: ALL 15 … 3 more to unlock" two grey lines of dense text | shot-16 | Merge into one line with icons |
-| 37 | polish | Pause menu | PAUSED menu: RESTART in a Trial/Gauntlet gives no confirmation of consequences (life lost? new run?) | shot-23 | Add a one-line note per mode |
-| 38 | polish | Story (first entry) | Opening cutscene plays on first entry and the first frame is nearly black (shot-14), with only SKIP visible and "THE GRAND FEAST" | shot-14 | Fade in faster or show title art immediately |
-| 39 | polish | Trial fail card | "+11 Chef Tokens" on a fail while 0 shown for "★": the player is told nothing about the best attempt | shot-5 | Show "Best: ☆☆☆" and attempts |
-| 40 | polish | Defeat card | Story defeat gives "+51 Chef Tokens" and the full chapter win could be tuned lower, making failure pay almost like winning | shot-20 | Scale loss payout lower than win payout |
+| 1 | major | Daily (Hot Dumpling) | Fresh-save Daily vs 3 bots is lost 0-3 (first try) and 2-3 (second). Bot level is not shown anywhere before the match. "Hard but fair" is not met. | shot-13 | Preview card with bot level; cap at TOUGH; consider team or co-op Daily |
+| 2 | major | Story map | Chapters 2-12 locked, Spicy locked "clear it first", Dessert "finish the Grand Feast", Second Helpings "clear chapter 6 to open". A challenge seeker has no hard Story content for the first hour. | shot-15 | Alternative unlock via Trial stars or a "skip ahead" challenge |
+| 3 | major | Story map | Clicking PLAY on chapter 1 (1070,640) only redrew the map and did not start the chapter in the harness (the cinema was still running from the OPENING screen). Then autoplay started a Free Play with Toastbat as "YOU". Could be a harness quirk, but "GOBZILLA JR. RULES THE TABLE" with "TOASTBAT (YOU)" is confusing. | shot-14 | Confirm PLAY starts the chapter; keep the player's name consistent |
+| 4 | major | Gallery | SHINY button shows no price or level requirement, and spent 300 🪙 on one click with no confirm. Preview art showed no visible change after purchase. | shot-34, shot-35 | Label "✨ SHINY · 300 🪙 · Lv 3"; confirm; swap preview to shiny |
+| 5 | major | Cup standings | MENU on the standings screen quits the Cup with no warning, and the next PLAY starts GAME 1/6 again. The brief says quitting a Cup asks twice (only the pause menu does). | shot-24 | Ask on MENU too |
+| 6 | minor | Lose screen | "SO CLOSE! TRY AGAIN?" is shown after 1-3 and 0-3 losses. | shot-8 | Vary text by score gap |
+| 7 | minor | Free Play and Party setup | BOT LEVEL button cycles NORMAL, TOUGH, HARD, BRUTAL, EASY with no explanation of what changes. | shot-19, shot-20 | Add one-line description per level; show it below "Bot difficulty:" |
+| 8 | minor | Trials list | The Chef's Table card's text is shrunk and visibly smaller than the other cards. Bare Knuckles line is nearly edge-to-edge. | shot-3 | Allow 2-line wrapping or shorter text |
+| 9 | minor | Challenges popup | The popup's Gauntlet starters are "locked: clear wave 4 / 8 / 12", but the Gauntlet's wave-2 jump to 2 rivals killed me in under one round with no preview of what wave 2 is. The "Next: wave 2" card shows only hearts. | shot-2, shot-32 | Show "Next: wave 2 · 2 rivals · Kaiju Frenzy" |
+| 10 | minor | Trials 3-star rule | "★★★ also hit the knockout goal" shows "(you: 2)" but the goal is only shown in the trial list. | shot-7 | Show "goal 4+, you: 2" together |
+| 11 | minor | Settings | KID MODE description says only "Story: easier rivals, 1-line chats, bigger result text"; the brief says it also affects Free Play, Party and the Daily. | shot-38 | Update text |
+| 12 | minor | Daily lose screen | Tip "Set BOT LEVEL to EASY, or switch on COMEBACK HELP in Settings" does not apply to the Daily (no bot-level control, and Comeback Help is Free Play / Party only per Settings). | shot-13 | Point to KID MODE |
+| 13 | minor | Records | "Next rank" value "Line Cook at 14 pts (you: 9)" is a larger font than the other stat values and almost touches its label. "Chef Rank / Prep Cook" uses a different font size from rows above. | shot-37 | Same font and right-align |
+| 14 | minor | Pantry | Footnote "Colours you buy appear in the Gallery. Gauntlet items work on every new run." is tiny and low contrast. | shot-36 | Raise contrast or size |
+| 15 | minor | Pantry | The "Lifeline" shop tile shows "-30% today" with the tag and "(not enough yet)" crammed on the same line as the price. | shot-36 | Put price and sale tag on separate lines |
+| 16 | minor | Pantry | Shiny forms (the new 300 🪙 item) are not mentioned at all in the shop or Chef Tokens explainer. | shot-36 | Add a "Shiny forms: Gallery" pointer |
+| 17 | minor | Pause menu | The "Tap QUIT again to really end it" warning at the bottom is dim and sits against the table edge and bottom frame. | shot-27 | Larger bright text near the QUIT button |
+| 18 | minor | Locked tabs | Clicking the locked DESSERT / SECOND HELPINGS tab gave no visible reaction in my screenshot (shot-18); the text only says how to open it on the tab itself. | shot-18 | Toast "Clear chapter 6 to open (3/6)" |
+| 19 | minor | Gallery | The Mastery line wraps awkwardly: "Mastery ★★★☆☆☆ Lv 3 Sous Chef (4/160 XP)" then a second line starts with "· next: Gold name in matches". | shot-34 | Break before "next:" and drop the leading dot |
+| 20 | minor | Gallery | Name inconsistency: the Gallery calls the kaiju "GOBZILLA JR." but match HUDs and results say "GOBZILLA". | shot-34 vs shot-33 | Use one name |
+| 21 | minor | Hot Dumpling HUD | The mode is called "HOT DUMPLING" but I could not see who holds the dumpling from the HUD; the pop was only in the bottom ticker. | shot-12 | Show a bomb icon on the holder's card |
+| 22 | polish | Daily countdown | The challenge banner "DAILY CHALLENGE · win this match to clear today..." is centred across the table and overlaps the countdown "1", the ant trail, and a spawn mat. | shot-11 | Move the banner to the bottom |
+| 23 | polish | Round-end banner | For a 4-player round the stars row "SALMONSTER ☆☆☆ PIZZARAPTOR ★★☆ SLOBA ☆☆☆ DUMPLORD ☆☆☆" wraps to two lines; the wrapped name looks orphaned. | shot-12 | Use a 2x2 grid or short names |
+| 24 | polish | Free Play | Subtitle "Tiny monsters. Giant dinner." under "FREE PLAY" and "PARTY MODES" is replaced by mode text but Free Play reuses the title tagline. | shot-19 | Use mode-specific line |
+| 25 | polish | Party Modes | After Party Cup is switched ON the header still says "◀ TEAM FEAST ▶", though the Cup starts with CLASSIC. | shot-22 | Show "CUP: starts with CLASSIC" |
+| 26 | polish | Party Modes | Bottom hint "🏆 Party Cup = 6 games: CLASSIC → CRUMB RUSH ... switch it ON, then PLAY" sits at y=661, almost touching the KEYS / HOUSE RULES buttons; the sentence is clipped by the screen width. | shot-22 | Wrap to two lines above the buttons |
+| 27 | polish | Twist picker | MIRROR MOVES and FISTS ONLY descriptions are in a much smaller font than the other cards. Doubles are abbreviated ("ONLY + RINK", "KAIJU + CASTLE", "MOVES + TURBO") and "KAIJU" means MINI KAIJU. | shot-21 | Use full names or wrap |
+| 28 | polish | Match-end | The "THIS MATCH" receipt covers a spawn mat and part of the table; on Daily it overlaps the "Knocked out by" text at the bottom left. | shot-13 | Keep the receipt clear of the table or collapse it |
+| 29 | polish | Story map | The SCENE button touches the panel's right border; "★★★ no rounds lost · ★★ lost one · ★ any win" is small. | shot-15 | Add 8 px of padding |
+| 30 | polish | Story log | Empty log is a very large dark panel with one line of text. | shot-16 | Add a pictured example entry |
+| 31 | polish | Gauntlet | Perk descriptions have no numbers: "Dash and swipe recharge fast", "Move faster every wave". | shot-32 | Add "-30% cooldown", "+5% per wave" |
+| 32 | polish | Records | Achievement "Crumb Muncher" and "First Bite" use a gold frame but there is no "claim" or reward readout. | shot-37 | Show "+30 🪙 earned" |
+| 33 | polish | Workshop | The hazard button shows "⚠ HAZARD ▶" with no current value; the name is only in the header line, and the new surface and hazard show in the SLOT 1/3 header text only, not as an icon on the preview. | shot-28 | Add an icon on the table preview |
+| 34 | polish | Gauntlet over | "You cleared 1 wave (reached 🥗 STARTERS)": the course name makes it sound like I reached Starters as a new place. | shot-33 | "Best course: Starters" |
+| 35 | polish | Trials result | The instant "INSTANT REPLAY" banner at the top of the table is large and sits over the table during live play of the next round. | shot-6 | Smaller, dimmer banner |
 
-## 🔠 Text and layout check (do this on EVERY screen you visit)
-- **Title (shot-1, shot-33):**
-  - NEXT UP text overlaps the fork art, low contrast, small (issue 6).
-  - DAILY and CHALLENGES tiles wrap to 2 lines with orphans, and PARTY MODES wraps to 3 lines (issue 7).
-  - Nothing is cut off at the screen edge.
-- **Challenges card (shot-2):** OK. Text fits its buttons, the lock states are clear, and nothing overlaps.
-- **Trials list (shot-3):** OK for overflow, but card heights are uneven and "KOs" orphans on some cards (issues 15 and 16).
-- **Trial intro / match HUD (shot-4):** the tip line "Hold THROW longer…" runs across the full table width over the tablecloth and a coffee cup. It is readable but a little busy.
-- **Trial result, fail and clear (shot-5, shot-7):**
-  - The receipt box overlaps the table art.
-  - The long ★ rule line is wide but within the screen.
-  - The gravy boat sits behind the "1 / START retry" line.
-  - Nothing is cut off.
-- **Daily start (shot-10):** banner overlaps the ant column and Dumplord's mat (issue 17).
-- **Daily result (shot-13):** OK on edges. The receipt wraps in a long box over the table, and the bottom award bar is close to both edges.
-- **Story map (shot-15, shot-19):** SCENE button crowds the panel edge and "Not cleared yet" (issue 8). The kaiju selector arrow ▶ sits right against the "Seed Spray" text.
-- **Chapter clear modal (shot-18):** OK. Spacing is clear.
-- **Defeat modal (shot-20):** OK, with a big empty gap (issue 10).
-- **Free Play setup (shot-16):** OK. The dense bottom lines are readable.
-- **Pause menu (shot-23):** OK.
-- **Records both pages (shot-25, shot-26):** OK. The footers are small (issue 30) and the progress bars sit close to the titles (issue 29).
-- **Pantry (shot-27):** OK. The deal tag is tight and the footnote is tiny (issues 31 and 33).
-- **Gauntlet cleared and perk picker (shot-28):** perk cards overlap the hero art and are crowded with the receipt (issue 23). Otherwise readable.
-- **Gauntlet Life Lost (shot-29):** OK.
-- **Gauntlet in-match HUD (shot-30):** the small bottom-left wave label hugs the edge (issue 21).
-- **GAUNTLET OVER (shot-31):** FAIL. The perks line is cut off at both edges and NEW BEST overlaps the title (issues 1 and 2).
-- **Challenges card after progress (shot-32):** OK.
+## 🔠 Text and layout check
+Checked at 1280x720 on desktop (not phone mode).
+- **Title** (shot-1): OK. The NEXT UP box is tight to the candlestick but legible; the version text in the corner is tiny but is not meant to be read.
+- **Challenges popup** (shot-2): OK. Locked buttons are dim but readable.
+- **Trials list** (shot-3): minor. Chef's Table text is smaller than the others and Bare Knuckles' second line almost touches its card edge (issue 8).
+- **In-match HUD, 2-player** (shot-6): OK. The replay banner sits over the table (issue 35).
+- **Trial lose screen** (shot-7, shot-8): OK. No overlap. Receipt sits over the table but not over the text. The title is very large but clear.
+- **Daily countdown** (shot-11): overlap. The challenge banner overlaps the countdown number and ant lane (issue 22).
+- **Daily round-end** (shot-12): the 4-player star row wraps to two lines (issue 23). Otherwise OK.
+- **Daily result** (shot-13): OK. The ranked list is clear; the receipt overlaps a spawn mat only.
+- **Story map** (shot-15): minor. SCENE button touches the panel edge (issue 29). Locked-tab text is small but fits.
+- **Story log** (shot-16): OK, but very empty.
+- **Free Play setup** (shot-19): OK. Every seat card text fits.
+- **Twist picker** (shot-21): minor. Small descriptions on two cards (issue 27).
+- **Party Modes setup** (shot-22): minor. The Cup line crowds the KEYS and HOUSE RULES buttons (issue 26). All 10 option buttons fit with no overlap.
+- **Cup standings** (shot-24): OK.
+- **Pause menu** (shot-27): the bottom warning text is dim (issue 17).
+- **Workshop** (shot-28): OK. The label "Sunday Roast" on the preview is readable.
+- **Gauntlet perk pick** (shot-32): OK. All three perk cards fit.
+- **Gauntlet over** (shot-33): OK.
+- **Gallery** (shot-34, shot-35): minor. The Mastery text wraps awkwardly (issue 19). The SHINY button's tick text is fine.
+- **Pantry** (shot-36): minor. Footnote is low contrast (issue 14). Lifeline tile is crowded (issue 15).
+- **Records** (shot-37): minor. "Next rank" row font mismatch (issue 13).
+- **Settings** (shot-38): OK. No overlap. Text of every row fits its button.
+- **Phone mode**: not tested (this harness instance was desktop).
 
 ## The single biggest structural problem
-The hard content is a pile of good fights that don't connect to anything. Trials, Gauntlet, Daily and Spicy each reward me on their own (stars, grade, medal, ghost-pepper), but nothing tells me my overall standing as a challenger. Records has no Trials/Daily/Spicy stats, the title shows only a tiny line per tile, and Spicy mode, which should be the hardest tier, is a toggle with no visible changes and fell to a basic bot on the second try. So even after Gauntlet wave 10 grade A, I had no "next big goal" beyond "get more stars".
+There is **no scalable, self-selected difficulty ladder that a challenge seeker can reach on day one**. The hard content is split into four disconnected places with four different gates. The Gauntlet is good but one-note and ends quickly (wave 2 for me). Trials are open but each is one fixed fight with no progression between them. The Daily is the one that comes back every day but is too hard for a new save, with no preview. And the Story's Spicy, Second Helpings and Dessert are locked behind a linear 12-chapter grind. The result is that the one thing I wanted, hard content with a clear goal and a reason to return, is spread thin and mostly gated. The bot levels (TOUGH / HARD / BRUTAL) are not explained, so I could not tell what I was choosing.
 
-Second, the repeat loop is thin. The Daily is a different mode each day but one match. Trials are 8 fixed fights. Gauntlet has no S-grade guidance beyond a score number. A challenge seeker wants a ladder with named rungs and a weekly rotation.
+The return loop is also thin. Records, weekly orders and achievements pay small tokens, but there is nothing like a leaderboard, rank ladder or "challenge of the week" that makes me return tomorrow. Weekly orders were finished in my first session.
 
-## Big change proposals (2–3, most important first)
-### Proposal 1: Challenger Ladder (unified rank and hub)
-- **Problem it solves:** challenge content is scattered and unrewarded as a whole. Players cannot see progress across Trials, Gauntlet, Daily and Spicy.
+## Big change proposals (2-3, most important first)
+### Proposal 1: Challenge Ladder (one place for all hard content)
+- **Problem it solves:** hard content is scattered (Trials, Gauntlet, Daily, Spicy, Dessert) and gated differently; I could not see "what is next".
 - **How it would work (detailed design):**
-  - Add a "CHALLENGER RANK" ladder (Bronze to Silver to Gold to Platinum to Brutal Chef) fed by Trial stars (1 pt each), Gauntlet grade (C=2, B=4, A=6, S=10 per best), Daily gold medals (1 pt each), and Spicy chapters (2 pts each).
-  - The CHALLENGES card becomes a hub with four rows, each with its progress bar and rank points. Tapping a row jumps to that mode.
-  - Records gets a matching "CHALLENGES" stats panel. The Pantry sells challenger-only cosmetics (e.g. a flame aura, a "Hard Mode" title) at rank thresholds.
-  - The title tile shows "RANK: GOLD · 38 pts" instead of the wrapped Gauntlet/Trials line.
-- **Example moment:** I clear Trial 5 with ★★★, the receipt says "+1 Challenger pt → 24/30 for PLATINUM". I open CHALLENGES and see the next thing to chase: "Gauntlet S-grade = +10 pts".
-- **Rewards / progression hooks:** crown aura on the title card, a gold-framed Gallery entry per rank, a 150 🪙 rank-up payout.
-- **Risks and edge cases:** point values must be tuned so Spicy and Gauntlet matter equally. Needs migrating existing saves.
+  - The CHALLENGES popup becomes a ladder screen with 5 rungs: Trials, Gauntlet to Mains, Daily streak 3, Spicy 3 chapters, Dessert Course.
+  - Each rung shows a star cost (Trial ★ total) and a reward.
+  - A header "CHALLENGE RANK" goes from Bronze to Platinum by total ★ earned across Trials, Gauntlet grade, Daily and Spicy.
+  - Spicy chapters and Dessert open at Silver rank (12 ★), so they no longer need the full Story.
+  - Each rung shows one line of what the bot level means ("TOUGH: dodges the hand about half the time").
+  - Flow: Title, CHALLENGES, ladder, pick a rung, preview card (rivals, rules, bot level, rewards), 1 / START.
+- **Example moment:** I win my first Hard Duel for 1 star, the ladder shows "Silver in 9 ★", and "Spicy Ch 1 unlocks at Silver". I immediately want one more Trial.
+- **Rewards / progression hooks:** rank badge shown on the title and in results; a cosmetic per rank (Silver spoon colour, Gold name). 20 🪙 per star stays.
+- **Risks and edge cases:** Story-first players see Spicy open before the Story, so label it clearly; keep Story rewards separate.
+- **Size:** L
+- **Score impact for me:** +1.0
+
+### Proposal 2: Daily Challenge v2 (preview, modifiers, personal best)
+- **Problem it solves:** the Daily starts with no preview, was too hard (0-3 and 2-3 losses), and has no sense of "beat yesterday".
+- **How it would work (detailed design):**
+  - Before the match a card shows: mode, table, modifier of the day (one twist), bot level (TOUGH by default, HARD after you have 3 medals), and your best.
+  - Tiered medals: Bronze for playing, Silver for 1 round, Gold for the win, with a visible rule line.
+  - Each retry changes the bots' start spots, not their strength.
+  - After 3 failed tries, offer "Practice mode: EASY bots, no medal" so a new player can still learn the modifier.
+  - Results show "best rounds 2 (today)" and a 7-day streak ribbon.
+- **Example moment:** "Today: Hot Dumpling + Mini Kaiju. You: TOUGH. Best: 2 rounds. 1 / START". I see I almost won, so I retry.
+- **Rewards / progression hooks:** streak bonus 10 🪙 per day up to 7; cosmetic at a 7-day streak; weekly "perfect week" order.
+- **Risks and edge cases:** fairness across devices (same seed); time-zone rollover; players farming Practice.
 - **Size:** M
 - **Score impact for me:** +0.8
 
-### Proposal 2: Spicy 2.0, a real hard mode with its own modifiers
-- **Problem it solves:** Spicy ch 1 fell to a plain `attack` bot, and the toggle shows no changes. It should be the pinnacle of the Story.
+### Proposal 3: Bot level cards plus post-loss coaching
+- **Problem it solves:** TOUGH / HARD / BRUTAL are unexplained, and "SO CLOSE!" appears regardless of score.
 - **How it would work (detailed design):**
-  - Each Spicy chapter shows a preview strip: "Rivals +1 level · +1 rival (first to 3) · Twist: <named twist>".
-  - Chapters 4/8/12 bosses get a "PHASE 3" and start every round with KAIJU ready.
-  - Spicy chapters pay 2x tokens and award a flame frame on the map node and a unique spicy colour at 3, 6 and 12.
-  - Rival cards update when toggled. A "Spicy Ladder" in Records lists 12 flames.
-- **Example moment:** I toggle SPICY on chapter 4. The panel flips to "BOSS OF THE BELT 🔥: Phase 3, +1 minion, Ice Rink". The Play button says "PLAY 🔥".
-- **Rewards / progression hooks:** Ghost Pepper achievement becomes a chain (3/6/12), plus a "Spicy Chef" Chef Rank multiplier.
-- **Risks and edge cases:** tuning with kid mode (it should be off by default there). Needs Spicy balance passes per boss.
-- **Size:** L
-- **Score impact for me:** +0.7
-
-### Proposal 3: Daily Gauntlet + weekly Trial rotation
-- **Problem it solves:** the Daily is one match, and Trials never change, so there is little reason to return daily.
-- **How it would work (detailed design):**
-  - Daily becomes a 3-match "Daily Run": match 1 is the Hot Dumpling (or other) mode, match 2 a Trial-style fight with a rotating twist, match 3 a boss. Score = rounds + KOs, shown on a local board with a streak calendar.
-  - Medals: bronze win, silver no rounds lost, gold hit the KO goal. A 7-day streak gives a gold frame.
-  - Weekly: a "Trial of the Week" built from a random kaiju + twist combo, worth 4★ and 60 🪙. The Daily tile previews tomorrow's mode.
-- **Example moment:** the title DAILY tile says "Today: Ice Rink Run · 🔥3 · gold chance". I finish and see "Gold medal! 4/7 days this week".
-- **Rewards / progression hooks:** a daily cosmetic piece (one per week), a streak shield for one missed day, weekly chest of 100 🪙.
-- **Risks and edge cases:** needs a deterministic seed per date, offline-safe (device clock). Time-zone rollover edge case.
-- **Size:** M
-- **Score impact for me:** +0.6
+  - Tapping BOT LEVEL opens a picker like the TWIST one: five cards (EASY to BRUTAL) each with a one-line behaviour and your win rate against it ("won 1 of 4").
+  - Lose screens pick the headline from the score gap (1 round behind: "SO CLOSE!", otherwise "THEY OUTPLAYED YOU") and the coaching tip from the top cause of death (for example "Giant Hand x2: DASH as it reaches you").
+  - After 3 straight losses on the same fight, the lose screen suggests dropping a level or switching on COMEBACK HELP / KID MODE, with the button right there.
+- **Example moment:** I lose to Pizzaraptor twice to the Giant Hand. The screen says "The Giant Hand got you twice. DASH just as it reaches you" and highlights the DASH button.
+- **Rewards / progression hooks:** per-level win-rate stat in Records; an achievement for beating each level.
+- **Risks and edge cases:** the cause-of-death tally must handle ties; do not nag too early.
+- **Size:** S-M
+- **Score impact for me:** +0.5
 
 ## How this round's new features felt
-- **Progression (mastery, chef rank, achievements, pin, daily deal):**
-  - Mastery levels climbed fast. I was Lv 6 Legend and MAX after about 30 matches, so the cosmetic ladder has no long-term pull for a challenger.
-  - Chef Rank (Sous Chef, 30/36) reads clearly in Pantry.
-  - Achievements pay 30 🪙. Pinning works and surfaces on the title and in receipts, which is great.
-  - The Daily 30%-off deal is a nice hook.
-  - Receipts list achievements well ("🏆 Not It! +30", "🏆 First Bite +30").
-- **🍽 First Service:**
-  - The title checklist showed 4/6 then 5/6, and the "Clear ch 4 → Minturtle" prompts gave direction.
-  - It uses small text over the art (issue 6).
-  - As a veteran I never needed the 1-minute practice, so one step stays pending.
-- **CHALLENGES card:** a good consolidation. The Gauntlet and Trials split is clear and the checkpoint rule is understandable. The title tile text wraps (issue 7).
-- **🎯 Trials:**
-  - The best part for me. Distinct fights, clear rubric, 20 🪙 per star.
-  - Needs live KO counters, per-star progress, and more than 8 trials.
-- **⚡⚡ Double twists:** the TWIST button cycles through singles first, then doubles. It's easy to find in Free Play. Combos like Fists Only + Ice Rink are fun, though the button label length is long on the setup pills.
-- **🏆 Party Cup / 🥋 Move Lab / Workshop codes / 🧸 Kid Mode:** not touched this session (outside my profile's hard-content path).
-- **Boss PHASE 2:** not reached (I stopped at Story ch 3 and never fought a boss).
-- **Text/layout audit claim:** mostly true, but the GAUNTLET OVER perk line overflows both screen edges (shot-31), and several title/Story texts crowd their boxes (shots 33 and 15).
+- **TOUGH bot level:** exists and is selectable (NORMAL, TOUGH, HARD, BRUTAL, EASY cycle) but is not explained anywhere, so I cannot judge fairness by description. In play the Hard bot in Hard Duel beat me 3-2 then 3-1; I could not feel a difference in the 4-player Daily.
+- **Giant Hand dodge:** I could not confirm the DASH dodge through the harness. The hand appeared for less than a 0.3-0.8 s tick between my samples, and I got hit by it standing still (`YOU knocked out (hand)`). The Gauntlet tip "the giant hand goes for whoever has the fullest belly" is a nice hint. The hand needs a visible telegraph (proposal item 8).
+- **Hand KOs count for the last hitter:** result screens list "Knocked out by: the Giant Hand" without crediting a player, so I could not verify the credit. The line is clear though.
+- **Kid Mode:** Settings still describes it as Story-only (issue 11), so the new Free Play / Party / Daily behaviour is not discoverable.
+- **Shiny forms:** works, but no price or level shown on the button, no confirmation, and no visible preview change (issue 4). A 300 🪙 purchase must feel special.
+- **Party Cup:** ON/OFF switch is clear. Standings screen (shot-24) is good. The pause quit asks twice (good). MENU on the standings quits with no warning (issue 5). The "TEAM FEAST" header still showing with Cup ON is confusing (issue 25).
+- **Story log / locked tabs / Boss phase 2:** log works but is empty on a fresh save. Locked tabs say how to open them, which is good, but I could not reach a boss, so Phase 2 and the gentler chapter 4 boss are not judged.
+- **TWIST picker:** the best new addition for me. Every twist and double in one grid.
+- **Workshop UNDO / surface and hazard on preview:** UNDO works (props 2 to 1). Surface and hazard change shows only in the header text, not as an icon (issue 33). The Giant Hand hazard worked in a match.
+- **Phone layout (table at left edge):** not tested.
+- **YOU marker / plates / receipts:** receipts are good (achievements and First Service-style lines appear: "🏆 First Bite +30 🪙 · 🎨 Lime colour!"). Plates behind result text are readable (shot-7, shot-13).
+- **BRUTAL:** the Brutal Bot Trial is the right "hardest bot in the game" fight; I lost 1-3 and the reasons were clear. Good.
+- **Mastery cosmetics, Trials, Move Lab, Pantry:** Mastery text is informative but the wrapped line is awkward (issue 19). I did not enter the Move Lab. Pantry orders were easy (issue in item 6).
 
 ## Bugs that block play
-- None blocked play, and `/errors` was `none` at the start, middle and end.
-- Non-blocking oddities:
-  - The `/autoplay` harness sometimes reported "left the match screen" after a Story chapter defeat (the Defeat modal is not a game screen).
-  - A Free Play match began when I clicked PLAY at (1070,640) on the Story map in some states.
-  - These look like harness sequencing, not game bugs, but they should be re-checked with a real mouse.
+- None that fully block play. `/errors` returned "none" at the start, middle and end.
+- Near-blockers worth fixing first: the Cup standings MENU silently ending the Cup (issue 5), and the Story chapter PLAY click that did not start the chapter in the harness (issue 3).

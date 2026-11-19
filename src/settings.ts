@@ -52,7 +52,7 @@ export const SETTINGS_ROWS: { key: keyof Settings; label: string; kind: 'level' 
   { key: 'tips', label: 'QUICK TIPS', kind: 'toggle', help: 'A handy tip under the countdown' },
   { key: 'bigButtons', label: 'BIG TOUCH BUTTONS', kind: 'toggle', help: 'Phones: bigger THROW / SWIPE / DASH / STOMP' },
   { key: 'kaijuPowers', label: 'KAIJU POWERS', kind: 'toggle', help: 'Each kaiju\'s own power in KAIJU form (off = Classic: all the same)' },
-  { key: 'kidMode', label: 'KID MODE', kind: 'toggle', help: 'Story: easier rivals, 1-line chats, bigger result text' },
+  { key: 'kidMode', label: 'KID MODE', kind: 'toggle', help: 'Easy bots everywhere, easier Story, 1-line chats, bigger text' },
   { key: 'catchUp', label: 'COMEBACK HELP', kind: 'toggle', help: 'Free Play / Party: whoever is behind starts rounds with a fuller belly' },
   { key: 'rumble', label: 'RUMBLE', kind: 'toggle', help: 'Gamepad / phone vibration on big hits' },
   { key: 'nameTags', label: 'NAME TAGS', kind: 'toggle', help: 'Show every kaiju\'s name above it in matches' },

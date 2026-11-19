@@ -9,7 +9,7 @@ import { Rng } from './sim/rng';
 export const DAILY = {
   modes: ['classic', 'classic', 'crumbRush', 'hotDumpling', 'teams'] as GameMode[], // picked by the date (classic twice as likely)
   rivals: 3,
-  levels: ['normal', 'normal', 'easy'] as Difficulty[],
+  levels: ['normal', 'easy', 'easy'] as Difficulty[],
   rounds: 3,
   powerups: true,
 };

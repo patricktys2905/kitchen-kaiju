@@ -132,7 +132,7 @@ export class StoryScene extends Phaser.Scene {
       this.rewardsBtn = new Button(this, 775, 676, { w: 210, h: 50, label: `🎁 REWARDS ${earnedCount}/${UNLOCKS.length}`, size: 18, accent: 0xffd24a, onClick: () => this.showRewards() }, 6);
       this.buttons.push(this.rewardsBtn);
     }
-    this.add.text(1070, 712, 'arrows choose · ENTER play · Q / E kaiju · Esc back', body(12, '#a89680', 700)).setOrigin(0.5, 1).setDepth(5);
+    if (!isTouchDevice) this.add.text(1070, 712, 'arrows choose · ENTER play · Q / E kaiju · Esc back', body(12, '#a89680', 700)).setOrigin(0.5, 1).setDepth(5);
 
     this.playBtn = new Button(this, 1070, 640, { w: 330, h: 74, label: '▶ PLAY', size: 34, accent: 0xff9a3c, onClick: () => this.play() }, 6);
     this.drawMap();
@@ -370,8 +370,8 @@ export class StoryScene extends Phaser.Scene {
     this.overlay.push(withShadow(this.add.text(380, 450, name, display(28, color, { strokeThickness: 5 })).setDepth(31), 3));
     this.lineText = this.add.text(380, 494, '', body(22, '#ffe9c7', 800, { wordWrap: { width: 720 }, lineSpacing: 6 })).setDepth(31);
     this.overlay.push(this.lineText);
-    this.overlay.push(this.add.text(1110, 630, '▶ tap / SPACE', body(14, '#cdb9a3', 900)).setOrigin(1, 1).setDepth(31));
-    const skip = this.add.text(380, 630, '⏩ SKIP CHAT (S)', body(15, '#ffd24a', 900)).setOrigin(0, 1).setDepth(33).setInteractive({ useHandCursor: true });
+    this.overlay.push(this.add.text(1110, 630, isTouchDevice ? '▶ tap' : '▶ click / SPACE', body(14, '#cdb9a3', 900)).setOrigin(1, 1).setDepth(31));
+    const skip = this.add.text(380, 630, isTouchDevice ? '⏩ SKIP CHAT' : '⏩ SKIP CHAT (S)', body(15, '#ffd24a', 900)).setOrigin(0, 1).setDepth(33).setInteractive({ useHandCursor: true });
     skip.on('pointerup', (_p: unknown, _x: unknown, _y: unknown, ev: { stopPropagation?: () => void }) => { ev?.stopPropagation?.(); this.skipChat(); });
     this.overlay.push(skip);
     const zone = this.add.zone(640, 360, 1280, 720).setInteractive().setDepth(32);
@@ -553,7 +553,7 @@ Next course: ${nextCh.title}. ${nextRival} is already sharpening the cutlery…`
       this.overlay.push(this.add.text(x + 100, y + 18, (got ? '✓ ' : '🔒 ') + name, display(19, got ? (u.kind === 'kaiju' ? SPECIES[u.index].css : '#ffe9c7') : '#a89680', { strokeThickness: 3 })).setDepth(32));
       this.overlay.push(this.add.text(x + 100, y + 50, got ? (u.kind === 'kaiju' ? `Playable now · ${SPECIES[u.index].food}` : 'Playable now in Free Play and Online') : needText(u), body(14, got ? '#8dff6a' : '#e9dccb', 800, { wordWrap: { width: 290 } })).setDepth(32));
     });
-    this.overlayButtons.push(new Button(this, 640, 612, { w: 200, h: 54, label: 'CLOSE', size: 22, onClick: () => { this.clearOverlay(); this.mode = 'map'; } }, 33));
+    this.overlayButtons.push(new Button(this, 990, 112, { w: 150, h: 48, label: '✖ CLOSE', size: 20, onClick: () => { this.clearOverlay(); this.mode = 'map'; } }, 33));
     this.overlayFocus = 0;
   }
 

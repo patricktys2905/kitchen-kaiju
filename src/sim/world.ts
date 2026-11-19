@@ -549,7 +549,7 @@ export class World {
     }
 
     // Swipe
-    if (pressed('swipe') && (p.holding !== null || this.tw('fists')) && p.swipeCD <= 0 && !kaiju) {
+    if (pressed('swipe') && (p.holding !== null || this.tw('fists') || this.mode === 'practice') && p.swipeCD <= 0 && !kaiju) {
       p.swipeT = P.swipeWindup + P.swipeTime;
       p.swipeCD = P.swipeCD;
       p.swipeHit.clear();
@@ -1611,7 +1611,7 @@ export class World {
     for (const p of this.players) {
       if (!p.alive) continue;
       // 🖐 a well-timed DASH slips under the hand (counter-play); a KO after a rival's hit counts for that rival
-      if (Math.abs(p.y - h.y) < band / 2 + p.r * 0.5 && p.x + p.r > lo && p.x - p.r < hi && p.dodgeT <= 0 && p.invT <= 0) this.ko(p, p.lastHitBy, 'hand');
+      if (Math.abs(p.y - h.y) < band / 2 + p.r * 0.5 && p.x + p.r > lo && p.x - p.r < hi && p.dodgeT <= 0 && p.invT <= 0 && p.kaijuT <= 0) this.ko(p, p.lastHitBy, 'hand'); // a KAIJU is too big for the hand to flick
     }
     this.crumbs = this.crumbs.filter(c => !(Math.abs(c.y - h.y) < band / 2 && c.x > lo && c.x < hi));
     const done = h.dir > 0 ? h.x - W > TABLE.x + TABLE.w : h.x + W < TABLE.x;

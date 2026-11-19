@@ -85,7 +85,7 @@ export class SettingsScene extends PanelScene {
     });
     this.buttons.push(new Button(this, 440, top + rows * step + 26, { w: 360, h: 48, label: '⌨ KEYBOARD CONTROLS', size: 20, accent: 0x4fd1ff, onClick: () => { sfx.go(); this.scene.start('controls'); } }, 6));
     this.buttons.push(new Button(this, 840, top + rows * step + 26, { w: 360, h: 48, label: '💾 BACK UP / MOVE SAVE', size: 20, accent: 0x8dff6a, onClick: () => this.backupPanel() }, 6));
-    this.add.text(640, 706, 'Saved on this device · ENTER / tap to change', body(15, '#cdb9a3', 800)).setOrigin(0.5).setDepth(5);
+    this.add.text(640, 706, isTouchDevice ? 'Saved on this device · tap to change' : 'Saved on this device · ENTER / click to change', body(15, '#cdb9a3', 800)).setOrigin(0.5).setDepth(5);
   }
 
   /** A small HTML panel: copy your save code, or paste one from another device. */
@@ -285,9 +285,9 @@ export class HelpScene extends PanelScene {
           const t = this.add.text(90, y, `${m.blurb}. ${m.howTo}${m.minPlayers > 2 ? ` (${m.minPlayers}+ players; bots fill in.)` : ''}`, body(size, '#f1e4d2', 800, { wordWrap: { width: 1100 }, lineSpacing: 3 })).setDepth(5); this.content.push(t); flow(t, 8);
         }
         y += 4;
-        const th = withShadow(this.add.text(90, y, 'TWISTS (Free Play / Party Modes [X] · online lobby)', display(size + 3, '#ffd24a', { strokeThickness: 4 })).setDepth(5), 2); this.content.push(th); flow(th, 2);
+        const th = withShadow(this.add.text(90, y, 'TWISTS (Free Play / Party Modes: the TWIST button)', display(size + 3, '#ffd24a', { strokeThickness: 4 })).setDepth(5), 2); this.content.push(th); flow(th, 2);
         const tw = this.add.text(90, y, enabledMutators().filter(m => m.id !== 'none').map(m => `${m.name}: ${m.blurb}`).join(' · '), body(size - 3, '#e9dccb', 800, { wordWrap: { width: 1100 }, lineSpacing: 3 })).setDepth(5); this.content.push(tw); flow(tw, 6);
-        const ft = this.add.text(90, y, 'Play these from the PARTY MODES card on the title screen ([G] or tap the mode to change).', body(Math.max(11, size - 4), '#cdb9a3', 800)).setDepth(5); this.content.push(ft); flow(ft, 0);
+        const ft = this.add.text(90, y, 'Play these from the PARTY MODES card on the title screen (MODE ▶ changes the mode).', body(Math.max(11, size - 4), '#cdb9a3', 800)).setDepth(5); this.content.push(ft); flow(ft, 0);
         if (y <= 708) break;
       }
     }
@@ -385,6 +385,7 @@ export class GalleryScene extends PanelScene {
   /** 🥋 MOVE LAB: try the shown kaiju's KAIJU power with a belly that never empties. */
   private labBtn: Button | null = null;
   private shinyBtn: Button | null = null;
+  private shinyArm = -1;
   private addLabBtn(): void {
     this.buttons.push(this.labBtn = new Button(this, 1045, 488, { w: 150, h: 42, label: '🥋 MOVE LAB', sub: 'try its power', size: 15, accent: 0x8dd8ff, onClick: () => {
       const sp = this.shown < 0 ? 0 : this.shown;
@@ -392,8 +393,12 @@ export class GalleryScene extends PanelScene {
       sfx.go(); this.scene.start('game', GameScene.labData(sp));
     } }, 6));
     // ✨ buy this kaiju's Shiny form (a token sink once the Pantry is bought out)
-    this.buttons.push(this.shinyBtn = new Button(this, 1045, 640, { w: 150, h: 46, label: '✨ SHINY', sub: '', size: 15, accent: 0xffe27a, onClick: () => {
-      const sp = this.shown < 0 ? 0 : this.shown, r = buyShiny(sp);
+    this.buttons.push(this.shinyBtn = new Button(this, 1045, 640, { w: 150, h: 46, label: '✨ SHINY', sub: `${SHINY.cost} 🪙 · needs Lv ${SHINY.level}`, size: 15, accent: 0xffe27a, onClick: () => {
+      const sp = this.shown < 0 ? 0 : this.shown;
+      if (isShiny(sp)) { sfx.thwock(); return; }
+      if (this.shinyArm !== sp) { this.shinyArm = sp; sfx.pickup(); this.shinyBtn?.setText('✨ BUY SHINY?', `tap again: ${SHINY.cost} 🪙`); return; } // a second tap confirms
+      this.shinyArm = -1;
+      const r = buyShiny(sp);
       if (r === 'ok') { sfx.matchWin(); this.showDetail(sp, false); return; }
       sfx.thwock();
       this.shinyBtn?.setText('✨ SHINY', r === 'level' ? `needs Mastery Lv ${SHINY.level}` : r === 'tokens' ? `need ${SHINY.cost} 🪙` : 'yours!');
@@ -453,7 +458,7 @@ export class GalleryScene extends PanelScene {
 
   private showDetail(i: number, click: boolean): void {
     this.labBtn?.setVisible(i < SPECIES.length && owned().kaiju.includes(i)); // 🥋 only for kaiju you own
-    if (this.shinyBtn && i < SPECIES.length) { const own = owned().kaiju.includes(i), sh = isShiny(i); this.shinyBtn.setVisible(own); this.shinyBtn.setText(sh ? '✨ SHINY ✔' : '✨ SHINY', sh ? 'yours!' : `${SHINY.cost} 🪙 · Mastery Lv ${SHINY.level}`); }
+    if (this.shinyBtn && i < SPECIES.length) { const own = owned().kaiju.includes(i), sh = isShiny(i); this.shinyBtn.setVisible(own); this.shinyBtn.setText(sh ? '✨ SHINY ✔' : '✨ SHINY', sh ? 'on in matches' : `${SHINY.cost} 🪙 · needs Lv ${SHINY.level}`); this.shinyArm = -1; if (sh) this.detail.push(withShadow(this.add.text(600, 444, '✨ SHINY', display(16, '#ffe27a', { strokeThickness: 4 })).setDepth(7), 2)); }
     if (click) sfx.pickup();
     this.shown = i;
     for (const o of this.detail) o.destroy();
@@ -573,6 +578,7 @@ export class PantryScene extends PanelScene {
   protected cols = 2;
   constructor() { super('pantry'); }
   private objs: Phaser.GameObjects.GameObject[] = [];
+  private armed = '';
 
   protected build(): void {
     const step = completeStep('pantry');
@@ -607,6 +613,9 @@ export class PantryScene extends PanelScene {
       const x = 720 + (k % 2) * 360, y = 206 + Math.floor(k / 2) * 112, own = m.owned.includes(it.id), cost = priceOf(it.id), deal = dailyDeal()?.id === it.id, afford = m.tokens >= cost;
       const b = new Button(this, x, y, { w: 340, h: 100, label: `${it.name}`, sub: own ? '✔ OWNED' : `${it.desc}\n🪙 ${cost}${deal ? `  🏷 −30% today` : ''}${afford ? '' : '  (not enough yet)'}`, size: 18, accent: own ? 0x8dff6a : deal ? 0x8dd8ff : afford ? 0xffd24a : 0x6a5a4a, onClick: () => {
         if (own) { sfx.thwock(); return; }
+        if (m.tokens < cost) { sfx.thwock(); b.setText(it.name, `need ${cost - m.tokens} more 🪙`); return; }
+        if (this.armed !== it.id) { this.armed = it.id; sfx.pickup(); b.setText(`${it.name}?`, `tap again to buy for ${cost} 🪙`); return; }
+        this.armed = '';
         if (buy(it.id)) { sfx.matchWin(); this.drawShop(); } else sfx.thwock();
       } }, 6);
       this.buttons.push(b);

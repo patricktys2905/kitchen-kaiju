@@ -877,3 +877,20 @@ From the 10 Sonnet playtester reports in `playtest-reports/`.
    - The Workshop shows the surface name and a hazard badge on the preview, and has **↶ UNDO**.
    - Setup panels swallow clicks between their buttons.
 6. **Phone thumb zone:** in matches on wide phones the table sits at the left edge, so THROW/SWIPE/DASH/STOMP sit in the free space on the right instead of over mats and labels.
+
+## 68. Round 8 fixes
+- **Shiny:** the button shows the price and level needed, a second tap confirms, and a "✨ SHINY" badge shows on owned forms.
+- **Pantry:** a second tap confirms, and items you can't afford say how many 🪙 are missing.
+- **Quit confirm:** it resets on resume and expires after 4 s, the warning is big and yellow, and Cup-standings MENU asks too.
+- **Double twists** survive returning to the menu.
+- **Kid Mode:** easy bots every time in Free Play, Party and the Daily, shown as EASY in setup.
+- **Practice:** SWIPE works without cutlery in Practice (the step can be finished), and the title's Practice button stays until it's done.
+- **Giant Hand:** a KAIJU is too big for it to flick.
+- **Gentler difficulty:** Story ch3 Mothball is easy, and the Daily bots are normal / easy / easy.
+- **Phone:** the TWIST pill opens the picker, and keyboard hints become tap wording on the title, Settings and Story.
+- **Layout:**
+  - At most 3 pop-ups at once, and pop-ups fade at round end.
+  - FAST FORWARD sits below INSTANT REPLAY.
+  - The Rewards close button is at the top.
+  - Help placeholders are fixed.
+  - The trial-loss wording depends on the score.

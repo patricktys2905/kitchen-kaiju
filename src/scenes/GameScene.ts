@@ -210,7 +210,8 @@ export class GameScene extends Phaser.Scene {
     this.callout = { first: false, recent: data.slots.map(() => []), streak: data.slots.map(() => 0), nemesis: data.slots.map(() => null) };
     this.replayBuf = new ReplayBuffer();
     this.replay = null;
-    this.bots = this.slots.map((s, i) => (s.kind === 'bot' && this.mode !== 'practice' ? new BotBrain(i, data.botLevels?.[i] ?? this.difficulty, seed + i * 101) : null));
+    const kidCap = getSettings().kidMode && !data.story && !data.gauntlet && !data.trial && !data.net; // 🧸 Kid Mode: easy bots outside Story / challenges
+    this.bots = this.slots.map((s, i) => (s.kind === 'bot' && this.mode !== 'practice' ? new BotBrain(i, kidCap ? 'easy' : data.botLevels?.[i] ?? this.difficulty, seed + i * 101) : null));
     this.net = data.net;
     this.netAcc = 0;
     this.netEvents = [];
@@ -256,7 +257,7 @@ export class GameScene extends Phaser.Scene {
     this.hudHeld = this.slots.map((_, i) => (hasArt('cut-fork') ? this.add.image(this.hudX(i) + this.hudW - 40, 18, 'cut-fork').setDepth(6).setRotation(-0.35) : null));
 
     this.nameTexts = [];
-    this.ffText = withShadow(this.add.text(640, 96, '⏩ FAST FORWARD ×' + FAST_FORWARD + '  ·  only bots left', display(22, '#8dd8ff', { strokeThickness: 5 })).setOrigin(0.5).setDepth(40).setVisible(false), 3);
+    this.ffText = withShadow(this.add.text(640, 134, '⏩ FAST FORWARD ×' + FAST_FORWARD + '  ·  only bots left', display(22, '#8dd8ff', { strokeThickness: 5 })).setOrigin(0.5).setDepth(40).setVisible(false), 3);
     this.scoreTexts = this.slots.map(() => this.add.text(0, 0, '', display(15, '#ffe9c7', { strokeThickness: 3 })).setDepth(6));
     this.infoTexts = [];
     this.slots.forEach((s, i) => {
@@ -344,7 +345,7 @@ export class GameScene extends Phaser.Scene {
 
   private setPaused(on: boolean, focus = 0): void {
     this.paused = on;
-    if (!on) { this.closePause(); return; }
+    if (!on) { this.quitArmed = false; this.closePause(); return; }
     if (this.pauseUi) return;
     const dim = this.add.graphics().setDepth(11);
     dim.fillStyle(0x0d0805, 0.6); dim.fillRect(0, 0, VIEW.w, VIEW.h);
@@ -355,7 +356,7 @@ export class GameScene extends Phaser.Scene {
       [`🎵 MUSIC: ${s.music > 0 ? 'ON' : 'OFF'}`, () => { const m = getSettings().music; if (m > 0) GameScene.lastMusic = m; setSetting('music', m > 0 ? 0 : GameScene.lastMusic); this.closePause(); this.setPaused(true, 2); }],
       [`🔊 SOUND: ${s.volume > 0 ? 'ON' : 'OFF'}`, () => { const v = getSettings().volume; if (v > 0) GameScene.lastVolume = v; setSetting('volume', v > 0 ? 0 : GameScene.lastVolume); this.closePause(); this.setPaused(true, 3); }],
       [this.initData.cup || this.initData.gauntlet ? '✖ QUIT (ends the Cup / run)' : '✖ QUIT', () => {
-        if ((this.initData.cup || this.initData.gauntlet) && !this.quitArmed) { this.quitArmed = true; this.closePause(); this.setPaused(true, 4); this.popup(VIEW.w / 2, 690, 'Tap QUIT again to really end it', '#ff8a7a', 20); return; }
+        if ((this.initData.cup || this.initData.gauntlet) && !this.quitArmed) { this.quitArmed = true; this.time.delayedCall(4000, () => { this.quitArmed = false; }); this.closePause(); this.setPaused(true, 4); this.popup(VIEW.w / 2, 260, '⚠ Tap QUIT again to really end the Cup / run', '#ffd24a', 24); return; }
         this.closePause(); this.leave();
       }],
     ];
@@ -578,7 +579,7 @@ export class GameScene extends Phaser.Scene {
       const cupNext = !!this.initData.cup;
       this.resultBtns = [
         new Button(this, VIEW.w / 2 - 70, VIEW.h - 96, { w: 220, h: 56, label: gLost ? '↻ NEW RUN' : this.initData.dessert || this.initData.trial ? '↻ RETRY' : cupNext ? (this.initData.cup!.game + 1 >= cupGames(this.slots.length).length ? '↻ NEW CUP' : '▶ CONTINUE') : '↻ REMATCH', size: 20, accent: 0xff9a3c, onClick: () => (gLost ? this.newGauntletRun() : injectTap('Digit1')) }, 12),
-        new Button(this, VIEW.w / 2 + 170, VIEW.h - 96, { w: 220, h: 56, label: '☰ MENU', size: 20, onClick: () => this.leave() }, 12),
+        new Button(this, VIEW.w / 2 + 170, VIEW.h - 96, { w: 220, h: 56, label: '☰ MENU', size: 20, onClick: () => { const c = this.initData.cup; if (c && c.game + 1 < cupGames(this.slots.length).length && !this.quitArmed) { this.quitArmed = true; this.time.delayedCall(4000, () => { this.quitArmed = false; }); this.popup(VIEW.w / 2, 560, '⚠ MENU again ends this Party Cup', '#ffd24a', 22); return; } this.leave(); } }, 12),
       ];
     }
     for (const b of this.resultBtns) b.update(dt);
@@ -616,7 +617,7 @@ export class GameScene extends Phaser.Scene {
     if (this.net?.role === 'host') this.net.host.close();
     if (this.net?.role === 'guest') this.net.guest.close();
     if (this.net) { this.scene.start('title'); return; }
-    this.scene.start('menu', { slots: this.net ? [] : this.slots, difficulty: this.difficulty, species: this.net ? [] : this.species, botLevels: this.initData.botLevels ?? undefined, tables: this.tables, rounds: this.rounds, mode: this.mode, powerups: this.powerups, hazards: this.hazards, mutator: this.initData.mutator, party: this.initData.party || this.mode !== 'classic' || !!this.initData.cup });
+    this.scene.start('menu', { slots: this.net ? [] : this.slots, difficulty: this.difficulty, species: this.net ? [] : this.species, botLevels: this.initData.botLevels ?? undefined, tables: this.tables, rounds: this.rounds, mode: this.mode, powerups: this.powerups, hazards: this.hazards, mutator: this.initData.mutator, mutator2: this.initData.mutator2, party: this.initData.party || this.mode !== 'classic' || !!this.initData.cup });
   }
 
   private rematch(): void {
@@ -1295,6 +1296,8 @@ export class GameScene extends Phaser.Scene {
     const same = this.popups.find(p => p.text.active && p.text.text === text && Math.abs(p.text.x - x) < 160 && Math.abs(p.text.y - y) < 120);
     if (same) { same.life = 1; same.text.setPosition(Math.max(same.text.width / 2 + 8, Math.min(VIEW.w - same.text.width / 2 - 8, x)), Math.max(132 + same.text.height / 2, y)); return; }
     const t = withShadow(this.add.text(x, y, text, display(size + 2, color, { strokeThickness: 5 })).setOrigin(0.5).setDepth(7), 3);
+    const live = this.popups.filter(p => p.text.active && p.life > 0.15);
+    if (live.length >= 3) live.sort((a, b) => a.life - b.life)[0].life = 0.15; // keep the screen readable
     // never on top of another pop-up: keep it on screen (below the HUD), then step down past any live one it would cover
     const half = t.width / 2 + 8;
     t.setX(Math.max(half, Math.min(VIEW.w - half, x)));
@@ -1329,6 +1332,7 @@ export class GameScene extends Phaser.Scene {
     this.parts = this.parts.filter(p => p.life > 0);
     for (const r of this.rings) { r.t += dt; r.r = r.max * Math.min(1, r.t / 0.3); }
     this.rings = this.rings.filter(r => r.t < 0.5);
+    if (this.world.phase === 'roundEnd' || this.world.phase === 'matchEnd') for (const p of this.popups) p.life = Math.min(p.life, 0.25); // the round banner gets the screen
     for (const p of this.popups) {
       p.life -= dt;
       p.text.y = Math.max(132 + p.text.height / 2, p.text.y + p.vy * dt); // drifts up, but never into the HUD or the mode line
@@ -1634,7 +1638,7 @@ export class GameScene extends Phaser.Scene {
       }
     } else if (w.phase === 'matchEnd' && this.initData.trial) {
       const t = TRIALS.find(q => q.id === this.initData.trial!.id)!, r = this.trialResult ?? { stars: 0, gained: 0 };
-      main = r.stars ? `TRIAL CLEAR ${'★'.repeat(Math.max(0, r.stars))}${'☆'.repeat(Math.max(0, Math.max(0, 3 - r.stars)))}` : 'SO CLOSE!\nTRY AGAIN?';
+      main = r.stars ? `TRIAL CLEAR ${'★'.repeat(Math.max(0, r.stars))}${'☆'.repeat(Math.max(0, Math.max(0, 3 - r.stars)))}` : (w.players[0].score > 0 ? 'SO CLOSE!\nTRY AGAIN?' : 'NOT THIS TIME\nTRY AGAIN?');
       color = r.stars ? '#ffd24a' : '#ff8a7a';
       sub = `🎯 ${t.name}\n★ win · ★★ without losing a round · ★★★ also ${t.kos}+ knockouts (you: ${w.players[0].kos})${r.gained ? `\n+${r.gained * TRIAL_TOKENS} 🪙 for ${r.gained} new star${r.gained > 1 ? 's' : ''}!` : ''}\n\n1 / START retry · Esc trials`;
     } else if (w.phase === 'matchEnd' && this.story) {

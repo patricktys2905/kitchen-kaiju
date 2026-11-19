@@ -1,182 +1,188 @@
-# Playtest evaluation: The First-Timer (profile "newbie", port 7104)
+# Playtest evaluation: The First-Timer (newbie)
 
-**Fun score: 7.5 / 10** (charming art, great feedback after matches and an excellent practice card, but the first 3 minutes hide who "I" am, the hazard that kills new players is explained only AFTER they die, and several menu/label choices assume prior knowledge.)
+**Fun score: 7.0 / 10** (charming art, readable HUD and generous rewards, but a new player is thrown between three different "how do I start" paths, the 1-minute Practice does not finish cleanly, and several small clarity and text-collision problems keep it below the 9.0 bar.)
 
-> Screenshots live in `C:\Users\Pat\kitchen-kaiju\art-src\.playtest\r7-7104\shot-N.png` (referred to below as shot-N).
+> Screenshot paths below are relative to `C:\Users\Pat\kitchen-kaiju\` (folder `art-src\.playtest\r8-7104\`, files `shot-N.png`).
 
 ## What I did
-- About 105 harness commands, roughly 40 minutes of simulated play, never played before.
-- Title screen (shot-21): read the NEXT UP text, hit HELP and read all 5 tabs (BASICS, CUTLERY, TABLES, MODES, PRACTICE) (shots 4, 3, 5, 6).
-- Did the 1-minute Practice (8 steps, shots 7 to 11), got "PRACTICE COMPLETE! +20" and the 3-choice card, picked FIRST MATCH.
-- Landed on Free Play setup (shot-12), pressed PLAY, played 2 Free Play matches vs Squidgeon (EASY): lost the first 2-3 (killed by the Giant Hand twice), won the rematch 3-1 (shots 16, 17, 19, 20).
-- Story: Opening cutscene (shot-22), chapter 1 chat (shot-23), won chapter 1 on 2 stars (shot-27).
-- Records pages 1 and 2, pinned World Tour (shots 28 to 30).
-- Pantry: bought Toffee colour (shots 31, 32). Gallery (shot-33) and Move Lab (shots 34 to 36). Settings (shot-37).
-- Party Modes setup (shot-38), played a 1v1 Team Feast round (shots 39, 40).
-- CHALLENGES popup (shot-41) and Trials list (shot-42). Table Workshop: placed 2 props, saved, copied code (shots 43, 44).
-- Daily (Hot Dumpling): won 3 rounds to 2 (shots 45 to 48). Online popup (shot-49).
-- Free Play twist cycling through all singles and the first double (shots 50, 51). One ICE RINK + TURBO match, went KAIJU (shot-52).
-- Checked `/errors` at the start, middle and end: always "none".
-- Matches played: 6 (Free Play 3 incl. twist match, Story 1, Team Feast 1, Daily 1). Won 3.
+- About 118 harness commands over a fresh save, acting as someone who has never seen the game. Port 7104. `/errors` checked at the start, middle and end: always "none".
+- **Title** (shot-1): read the NEXT UP box, then opened **HELP** and read all five tabs: BASICS, CUTLERY, TABLES, MODES, PRACTICE (shot-2..5).
+- **1-minute Practice** (shot-6..11): walked, ate crumbs, picked cutlery up, KO'd the dummy, went KAIJU, used the power. Reached 7/8. The step "SWIPE up close" never ticked in the harness (see issue #6). Paused (Esc) and QUIT; this dropped me on the HELP screen.
+- **Free Play** (shot-13..20): joined by clicking a seat, added 2 bots, cycled BOT LEVEL, played a full 3-player match on EASY (lost 2 rounds, won 1, final place 2nd). Result screen and match receipt (shot-18, 20). Later played a 1v1 vs SQUIDGEON on NORMAL (shot-50..53), including my own stomp then power. Stopped after round 6 because the 1v1 had gone to "first to 5".
+- **Story** (shot-21..27): opening video, chapter 1 intro cutscene, Head Chef chat, played chapter 1 (won 3 stars, +75 tokens, Mastery Lv 2), Chapter Clear screen, then the 📜 STORY LOG.
+- **Gallery** (shot-28), **Move Lab** (shot-29, 30), **Records** (shot-31), **Pantry** (shot-32, 33: bought Toffee colour), **Settings** (shot-34), **Table Workshop** (shot-35).
+- **Party Modes** (shot-36..39): turned PARTY CUP ON, started it, paused, and used the double-QUIT confirm.
+- **Daily** (shot-41..46): played a full Hot Dumpling Daily and lost (FAILED screen).
+- **Challenges** popup (shot-47), **Online** dialog (shot-48), title again (shot-49).
+- Matches: 5 started (1 Free Play 3P, 1 Story chapter, 1 Daily, 1 Free Play 1v1 unfinished, plus Practice and Move Lab). 2 won (Free Play 3P round-level loss, Story ch 1 won). Roughly 35 minutes of game time.
 
 ## What worked for me
-- **The Practice is excellent.** 8 short steps, each says exactly what to press, and my first kill happens within ~20 seconds (shot-10). The "PRACTICE COMPLETE! +20" card with three clear next steps (shot-11) is exactly what a new player needs.
-- **The post-match receipt tip is the best teaching tool in the game.** After I died to the Giant Hand it told me: "The Giant Hand goes for the fullest belly: STOMP before it reaches you." (shot-19). It turned a confusing death into a lesson.
-- The art is lovely and the characters are charming. Title (shot-21), Gallery (shot-33) and result screens look polished.
-- Pre-round tip lines ("Swipe knocks flying cutlery out of the air.") are well written and short.
-- Records is clear: progress bars, reward colours listed on each row, pin feature works (shot-29).
-- Pantry is simple and readable (shot-31). Buying is instant and the OWNED state is obvious (shot-32).
-- Settings has plain-English descriptions for each toggle (shot-37).
-- Free Play rematches are quick, and "Esc / P pause" is always visible.
-- No JavaScript errors anywhere.
+- **Art and tone are excellent.** The title (shot-1), the cutscenes (shot-21, 23), kaiju portraits (shot-28) and the result-screen kaiju shouting at the camera (shot-20, 46) all feel like a finished product and made me want to keep going.
+- **The YOU marker** (`▼ YOU` over my kaiju, shot-7 and shot-51) solved "which one am I?" instantly in matches.
+- **Practice step prompts** at the bottom-left (`PRACTICE 4/8 👉 Knock out the dummy`) are short, clear and tick off with a `✔` banner next to the action. The "BELLY FULL! PRESS E / Y → KAIJU" prompt over my kaiju (shot-9) is exactly what a beginner needs.
+- **Pre-round tips** ("Red square = spatula incoming. Shove someone in and step out!") teach table hazards at the moment they matter (shot-16).
+- **Match receipt** (shot-20) is great: tokens earned, Mastery progress, the First Service step I ticked, "Knocked out by", and a coaching tip ("Step out of the ring before each stomp").
+- **Chapter 1 is a real tutorial**: easy rival (Crabbage), a spoken tip, 3 stars on the first try, generous +75 tokens, clear "Chapter 2 unlocked" (shot-26).
+- **Locked things say how to open them** (TABLES help tab: "Beat Story chapter 6...", Second Helpings: "clear chapter 6 to open").
+- **Quit-twice** on a Party Cup works and tells me why ("QUIT (ends the Cup / run)" then "Tap QUIT again to really end it", shot-39).
+- **Records**: achievements show progress bars (4/25, 27/100) and the footer tells me the next-closest one (Rampage 67%).
+- No JS errors at all across ~118 commands.
 
 ## 🧾 Exactly what would make this a 9/10 for me
-1. **Mark "YOU" in every match.** Where: all match screens, especially Daily/Party with 3-6 kaiju (shot-45, shot-46). How: a "YOU" / "P1" arrow or label above my kaiju for the first 5 seconds of every round, and keep a small coloured ring plus name tag permanently on the human player even when NAME TAGS is OFF. Also turn NAME TAGS ON by default for the first 10 matches. In the Daily I was assigned SALMONSTER at random and could only tell it was me via `/state`. Score impact: **+0.5**.
-2. **Warn about the Giant Hand BEFORE it kills.** Where: Sunday Roast, Picnic Blanket and any table with the hand (shots 17, 19, 24). How: when belly passes 80%, show a pulsing HUD line "THE HAND IS COMING FOR YOU: PRESS STOMP!" plus a red hand shadow on the table 1.5 s before the flick. The current tip is only shown as a 3-second countdown line before round start or in the post-match receipt. A first-timer who does what the game asks (eat crumbs) is punished by the hazard. I died twice to it in one match. Score impact: **+0.5**.
-3. **Make "STOMP READY" impossible to miss.** Where: in-match HUD (shot-17 shows only small "STOMP READY!" text inside the HUD card). How: when belly hits 100, show a big pulsing "PRESS E / STOMP" badge near the kaiju and flash the HUD bar. I sat at belly 100 for 6 seconds in my first Free Play match and then died to the hand without ever stomping. Score impact: **+0.4**.
-4. **Make the first match start immediately after Practice.** Where: Practice card "FIRST MATCH vs one EASY bot, first to 3" (shot-11) leads to the Free Play setup screen (shot-12) where I must press PLAY again, with a different kaiju label ("GOBZILLA JR.") than the practice used ("GOBZILLA"). How: the button must start the match directly (as it promises) and pass through the same kaiju name. Score impact: **+0.3**.
-5. **Fix the kaiju name inconsistency.** Where: HUD ("GOBZILLA") vs setup/gallery/win title ("GOBZILLA JR.", shots 12, 20, 33). A new player thinks these are two different characters. Use one name everywhere. Score impact: **+0.2**.
-6. **Explain the point system and ranks in plain words.** Where: Records "Next rank: Prep Cook at 6 pts (3)" (shot-28) and Pantry "Chef Rank: Dishwasher Next: Prep Cook at 6 pts (you have 3)" (shot-31). How: say what a "pt" is ("1 pt per achievement, 1 per story star...") and show the reward for the rank. Score impact: **+0.3**.
-7. **Add a one-line explanation to every title card/menu entry a new player would be afraid to press.** Where: CHALLENGES (what is "Gauntlet"?), DAILY ("Today: HOT DUMPLING" gives no hint), PARTY MODES ("Teams · Rush · Dumpling"), ONLINE. How: a hover/selected-state caption under the cards at (640,574) replacing the generic "◀ ▶ choose · ENTER / A / tap to start" line, e.g. "DAILY: one special match a day, win it for a streak." Score impact: **+0.3**.
-8. **Daily and Party should warn a first-timer.** Where: pressing DAILY dumped me straight into a 4-player Hot Dumpling round with no preview (shot-45). Pressing PARTY MODES then PLAY gave a "Team Feast" with only me and one bot (no teammates, shot-40). How: a one-time "this is a 4-player Hot Dumpling game, rules in 1 line, GO" card for Daily, and a disabled PLAY with message "Add at least 2 more players or bots" for Team Feast. Score impact: **+0.3**.
-9. **Make "Esc to leave" actually leave in Move Lab.** Where: Move Lab banner "Esc to leave" opens the Pause menu (shot-36); need QUIT, then I landed in the Gallery. How: Esc in Move Lab goes straight back to the Gallery, or change the banner to "Esc, then QUIT". Score impact: **+0.1**.
-10. **Fix the HELP tab highlight.** Where: How to Play tabs (shots 3, 5, 6) all show BASICS highlighted together with the active tab, so it looks like two tabs are selected. How: only the active tab gets the filled style. Score impact: **+0.1**.
-11. **Tighten a few overlapping/ghosted texts** (see issue table: practice card ghost text, Daily title icon overlapping "COMPLETE!", FIRST SERVICE toast faint behind the match title). Score impact: **+0.2**.
-12. **Get a first win into the first 3 minutes.** My first Free Play match was lost to hazards, not skill. How: for the first 3 matches, give "First Match" a friendlier setup: no Giant Hand on tables, bot throws slower. Score impact: **+0.3**.
-13. **Show the first-match goal on screen.** The only place the goal "last kaiju standing" appears is HELP > BASICS. How: a 3-second banner at round 1 of the first match "KNOCK THE OTHER KAIJU OFF THE TABLE" with the first-to-N score. Score impact: **+0.2**.
-
-Total if all done: roughly +4.0 gross, realistically landing at 9.0 to 9.3.
+1. **One clear "start here" path that always works.** WHERE: title screen. WHAT: Make the first launch show ONE highlighted big button, "▶ PLAY: 1-MINUTE PRACTICE", and keep it (not remove it) until Practice is genuinely finished. Today the `NEW HERE?` button disappears after one visit (shot-49 vs shot-1) while NEXT UP still says "Finish the 1-minute Practice" (still unfinished). HOW: Practice button stays until 8/8; after finishing, auto-promote "STORY ch 1" with a pulse. Hide the other 6 buttons' sub-labels' density on first run. SCORE IMPACT: +0.5.
+2. **Make Practice finish-able and forgiving.** WHERE: Practice. WHAT: Step 7/8 "SWIPE up close" never ticked for me even when 36 px from the dummy with F pressed (could be harness key timing, but a real first-timer will have the same "nothing happens" feeling if the window is narrow). HOW: tick SWIPE if a swipe is pressed within ~250 px of any rival or the dummy; show a small "hold to charge / tap to swipe" icon animation; after 20 s on one step show a bigger hint ("Press F next to the dummy"). Also make QUIT from Practice return to the title (it currently dumps me in HELP) and show "Practice 7/8: come back anytime". SCORE IMPACT: +0.6.
+3. **Collapse the Story start into one skippable flow.** WHERE: Story → PLAY. WHAT: On a fresh save I hit an opening video (shot-21), then a chapter 1 intro video (shot-23, subtitle typing "CRABBAGE IS"), then the Head Chef dialogue box (shot-24), then the match. Three screens before any play. HOW: play opening only once, ever; chapter intro cutscenes become a single ~8 s card with a visible `START ▶` that goes straight to the countdown; SKIP CHAT should also be `SKIP ALL`. First chapter 1 should start within 2 clicks of PLAY. SCORE IMPACT: +0.5.
+4. **Fix text collisions in the match HUD.** WHERE: in-match banners. WHAT: at the top-left of shot-42 the stacked pop-ups ("STOMP READY!", "SLOBA swiped you", "HOT DUMPLING!", "FIRST BITE!", "DOUBLE SKEWER!", "KAIJU!") overlap each other and are unreadable; at the top (shot-42, 44) "FAST FORWARD ×3 · only bots left" overlaps "SLOBA HAS THE HOT DUMPLING" / "INSTANT REPLAY" with ~1 px gap. HOW: queue pop-ups in a single vertical stack with 28 px spacing and max 2 visible; put banner messages in separate fixed lanes (y=96 hot-dumpling, y=124 fast-forward). SCORE IMPACT: +0.4.
+5. **Explain the round/star score line.** WHERE: HUD cards and the round result (`GOBZILLA ☆☆☆ AVOCADRAKE ★★☆`). WHAT: I never learned that the stars are round wins toward "first to 3" and that the 1v1 target silently becomes 5 (shot-51: five star slots, lobby says "First to 3"). HOW: round-start tip "First to 3 round wins"; make the lobby text say "First to 3 (1v1: first to 5)" or make 1v1 consistent; the HUD tooltip/legend on round 1: "★ = rounds won". SCORE IMPACT: +0.4.
+6. **Say what each screen is FOR in one short line.** WHERE: Challenges popup, Daily, Party Modes, Records. WHAT: CHALLENGES says "GAUNTLET: pick where your run starts" but never says what a Gauntlet is (shot-47). DAILY drops me straight into a match as a random kaiju with no setup card and ends in "DAILY CHALLENGE FAILED" (shot-46), which is harsh for a first-timer. HOW: each entry gets a one-line plain description ("Gauntlet: survive waves of bots with a few lives. Starters = easy."), Daily shows a pre-match card ("Hot Dumpling today. You play as Salmonster. Win 1 match for the Silver medal."), and the loss screen says "NOT YET: try again, no penalty". SCORE IMPACT: +0.4.
+7. **Name consistency and plain wording.** WHERE: everywhere. WHAT: my kaiju is "GOBZILLA JR." in lobby and Story/Gallery but "GOBZILLA" in HUD, result and Records; "Chef Tokens", "🪙", "Mastery Lv 2 Line Cook", "KAIJU power", "STOMP", "belly" are never glossed in one place for a new player; the result footer says "1 / START rematch · Esc menu" on a mouse screen. HOW: one name everywhere; first-run glossary card on Help BASICS with 6 icons (belly, STOMP, KAIJU, crumbs, tokens, mastery). SCORE IMPACT: +0.3.
+8. **Keep tiny text readable.** WHERE: title top buttons (⚙ SETTINGS / ❓ HELP… about 10 px, shot-1), NEXT UP box (shot-1), Help BASICS body (shot-2), Help MODES twists (shot-5), Pantry footnote (shot-32), pause "Tap QUIT again" (shot-39, red on dark), Story Log lines (shot-27). HOW: minimum 14 px body, 16 px for buttons; Help BASICS and TWISTS split into two pages instead of tiny walls of text. SCORE IMPACT: +0.3.
+9. **Shop clarity and safety.** WHERE: Pantry. WHAT: a single click bought Toffee for 40 🪙 (177 → 137) with no confirm and no "equip" hint (shot-32/33); two different outline colours (yellow, blue, green) are unexplained. HOW: confirm ("Buy Toffee for 40? YES/NO") and, after buying, "Equip in Gallery" button; a legend "yellow = you can afford it, blue = on sale". SCORE IMPACT: +0.2.
+10. **Gauntlet/Kid Mode/Settings copy up to date.** WHERE: Settings. WHAT: KID MODE still reads "Story: easier rivals, 1-line chats, bigger result text" but the round brief says it also eases Free Play, Party and Daily. HOW: update the sub-line to list every mode it affects. SCORE IMPACT: +0.1.
 
 ## 🔍 Every issue I saw (exhaustive)
+Severity: blocker / major / minor / polish.
 
 | # | Severity | Screen | What's wrong (exact text/element) | Screenshot | Suggested fix |
 |---|---|---|---|---|---|
-| 1 | major | Match HUD (Daily, Free Play, Party) | No marker showing which kaiju is mine. In the Daily my kaiju was random (Salmonster); name tags are OFF by default, nothing says "YOU" | shot-45, shot-46 | "YOU" arrow for first seconds each round, ring always on; NAME TAGS ON by default for new players |
-| 2 | major | Sunday Roast / Picnic Blanket match | Giant Hand killed me twice in one match (Knocked out by: Giant Hand x2). The only warning is a 3 s pre-round line, then a receipt line after dying | shot-17, shot-19 | Pulsing on-screen warning + shadow when belly > 80% |
-| 3 | major | Match HUD | "STOMP READY!" appears only as small text in the HUD card; I sat at belly 100 without noticing, then got flicked by the hand | shot-17 | Big pulsing STOMP badge by the kaiju when belly = 100 |
-| 4 | major | Practice complete card to Free Play | "FIRST MATCH vs one EASY bot, first to 3" opens the Free Play setup screen instead of starting the match (an extra PLAY press, and I could have changed settings unprepared) | shot-11, shot-12 | Start the match directly |
-| 5 | major | Daily start | Pressing DAILY dumps me in a 4-kaiju Hot Dumpling round with no intro; rules only appear in the 3 s countdown line | shot-45 | One-time intro card with 1-line rules and a GO button |
-| 6 | major | Party Modes to PLAY | Team Feast started with 1 human vs 1 bot (RED vs BLUE, one each); "teams" are meaningless and nothing warned me | shot-38, shot-40 | Require 4+ seats or auto-fill bots, with a message |
-| 7 | minor | Name consistency | HUD says "GOBZILLA" while setup/gallery/win banner say "GOBZILLA JR." ("GOBZILLA JR. RULES THE TABLE" but the ranking line says "GOBZILLA (YOU)") | shot-12, shot-20, shot-33 | Pick one name |
-| 8 | minor | Records / Pantry | "Prep Cook at 6 pts (3)" and "you have 3": "pts" is undefined and "(3)" cryptic | shot-28, shot-31 | Define points; show "3 / 6 points" bar |
-| 9 | minor | Title, NEXT UP text | The 4-line NEXT UP block is tiny (about 13 px) and low contrast over the busy background; easy for a first-timer to miss the most important guidance | shot-21 | Larger text on a dark pill; show only the next single step |
-| 10 | minor | Title | FIRST SERVICE counter says "2/6" but I had done 3 things (practice, first match, story clear); counting rules not shown. Practice stomp did not count towards "Go KAIJU" | shot-21, shot-41 | Show the 6 steps as a checklist in Records or a tooltip; count Practice stomp or explain it does not |
-| 11 | minor | Title (cards) | CHALLENGES/GAUNTLET unexplained; DAILY says "Today: HOT DUMPLING" with no description | shot-21 | Caption on focus, see 9/10 item 7 |
-| 12 | minor | CHALLENGES popup | "GAUNTLET: pick where your run starts" assumes I know what a Gauntlet is; the locked rows say "clear wave 4" with no explanation of waves | shot-41 | Add "Survive endless waves of bots" line |
-| 13 | minor | Trials list | Header says "★ win · ★★ win without losing a round..." in small 13 px text; card "stars" show as hollow outlines that are hard to read; Trials available to brand-new players (BRUTAL BOT) with no recommended-level hint | shot-42 | Bigger star legend, "recommended after chapter X" tag |
-| 14 | minor | Trials list | Card sizes/alignments uneven: left column cards are wider/taller than right ones (Hard Duel vs Thin Ice) and descriptions run 3 lines in some cards | shot-42 | Fixed card heights, shorten "You: X vs Y (hard)" lines |
-| 15 | minor | Move Lab | Banner says "Esc to leave" but Esc opens the Pause menu; QUIT needed (2 steps) | shot-36 | Esc leaves directly |
-| 16 | polish | HELP tabs | BASICS tab stays highlighted when another tab is chosen (two tabs look selected) | shot-3, shot-5, shot-6 | Single selected state |
-| 17 | polish | HELP BASICS | Large text wall; the CONTROLS rows are about 14 px, tight line spacing | shot-4 | Split into a picture of keys, bigger font |
-| 18 | polish | HELP MODES | TWISTS paragraph is a single 12 px dense line; very hard to read | shot-6 | Make it a 2-column list |
-| 19 | polish | HELP TABLES | Locked tables show a dark placeholder swatch; text "Beat Story chapter 6... (0/6 cleared)" is dim | shot-5 | Brighten lock text |
-| 20 | polish | Practice complete card | Ghost of the final tutorial hint ("STOMP TO GO KAIJU...", "THROW / SWIPE: SEED SPRAY") is visible faintly behind the card, overlapping the top of the kaiju | shot-11 | Clear the tutorial hint before the card |
-| 21 | polish | Match end (first match) | The faint "FIRST SERVICE: Play a Free Play match" toast overlaps the big winner title area and is hard to read | shot-19 | Move toast to the receipt box |
-| 22 | polish | Match end (Daily) | The calendar icon sticks out behind the "C" of "COMPLETE!" and the result lines overlap the ant-trail background, making the line "Today: won..." busy | shot-48 | Place the icon left of the title with a margin; dark backing panel behind the result list |
-| 23 | polish | Match end | The big kaiju portrait (Squidgeon/Salmonster/Gobzilla) overlaps the table and a rankings backdrop; fine visually but it hides the mat and loose cutlery | shot-19, shot-48 | Fine, optional |
-| 24 | polish | Replay | "YOU GOT FLICKED BY THE GIANT HAND" text sits right over the player kaiju and the ant trail; slightly hard to read against stripes | shot-17 | Add a dark backing to kill text |
-| 25 | polish | Story cutscene | Caption "THE GRAND FEAST" at the bottom is small and partly hidden behind the plate rim | shot-22 | Larger caption on dark strip |
-| 26 | polish | Story chat | Typewriter text is cut mid-word ("the legendary GOLDE") while printing, with only "tap / SPACE" to skip; pressing Space 3 times also skipped straight into the match (skipped the rest of the chat unintentionally) | shot-23 | Space finishes the line first, then advances |
-| 27 | polish | Story map | Rows run 1-2-3-4 then 5-6-7-8 right-to-left (snake order); 8 appears below 1 which looks like it follows 1 | shot-23 | Draw arrows between nodes |
-| 28 | polish | Free Play setup | Instructions "Keys left · A / D" under my kaiju is meaningless to a newcomer | shot-12 | "Move: W A S D" |
-| 29 | polish | Free Play setup | Subtitle "Tiny monsters. Giant dinner." repeated on Free Play and Daily; title text on Free Play does not tell what a screen is for | shot-12 | Replace with "Pick opponents, then press PLAY" |
-| 30 | polish | Free Play setup | Empty seat tiles show only a dark circle; "click: add a bot" is small 12 px grey. My click at the middle of the tile did nothing (needs the bottom label?) | shot-12, shot-51 | Make the whole tile clickable with a big + icon |
-| 31 | polish | Free Play setup | Setting "FIRST TO 3" changed to "FIRST TO 5" and the opponent changed from Squidgeon to Salmonster after I visited other modes; I never changed these | shot-12 vs shot-51 | Verify settings do not leak between modes (unconfirmed cause) |
-| 32 | polish | Free Play | Both of my first two matches started on Smoothie Bar round 1 even though the setting says "a different one every round" | shot-13 | Randomise the first table |
-| 33 | polish | Free Play | The "Bot difficulty: EASY" bot dies within 2 seconds in round 1 and then beats me in rounds 2 and 3: skill spike feels random | shot-14 | Smooth easy-bot behaviour |
-| 34 | polish | Records | "Counts people on this device (not bots)." under stats is confusing | shot-28 | Remove or rephrase |
-| 35 | polish | Records | "Next up: World Tour (75%)" stays shown after pinning (looks unchanged); no pin confirmation text | shot-29 | Show "Pinned: World Tour" |
-| 36 | polish | Pantry | Lifeline entry: "245 TODAY 30% OFF (was 350) (not enough yet)" wraps to 3 lines and is cramped within its card | shot-31 | Put the discount on its own line |
-| 37 | polish | Pantry | No confirm before purchase; clicking Toffee immediately spent 40 | shot-32 | Add confirm or undo for first purchase |
-| 38 | polish | Pantry vs Records | Token numbers differ between screens in the same moment (Records/chapter 171, Pantry 196) because an achievement paid out silently (Table Maker +30) | shot-31 | Show a toast when tokens change |
-| 39 | polish | Gallery | "Collection 59% 16/20 15/18 4/21" at the top-right is about 12 px and the icons are tiny | shot-33 | Larger, with labels |
-| 40 | polish | Gallery | Locked kaiju "???" give no hint how to unlock them | shot-33 | Show unlock hint on hover |
-| 41 | polish | Workshop | "PROPS (tap one, then tap the table)" header sits very tight over the first prop row | shot-43 | Add 8 px spacing |
-| 42 | polish | Workshop | Copy code shows a long truncated code message ("KKT1-eyJuYW1lIjoi...") that is the only feedback | shot-44 | Show "Copied!" |
-| 43 | polish | Online | The Play Online popup uses a different heading font and is not readable through `/look` (no texts listed). Also says "free public matchmaking server" with no safety info for kids | shot-49 | Match fonts; check accessibility labels |
-| 44 | polish | Party Modes | Bottom lines ("Click a seat...", "Party Cup = 6 games... points 5 / 3 / 2 / 1") sit tightly stacked above the KEYS buttons and are about 12 px; "points 5 / 3 / 2 / 1" unexplained | shot-38 | Add spacing and a clear label |
-| 45 | polish | Party Modes | "MODE ▶ TEAM FEAST" button and "◀ TEAM FEAST ▶" header both change the mode; unclear which to press | shot-38 | One control |
-| 46 | polish | Table art | Fondue Night uses a photo-realistic wood and cloth look unlike the other cartoon tables | shot-40 | Style match |
-| 47 | polish | Match (twist) | Pancake Stack with ICE RINK + TURBO is very busy visually (blueberries, tiles, slide marks); hard to find the players | shot-52 | Reduce clutter on twist tables |
-| 48 | polish | Pause menu | In Move Lab the banner stays over the paused screen top and overlaps the "PAUSED" scrim | shot-36 | Hide banner when paused |
-| 49 | polish | Match end | "1 / START rematch · Esc menu" hint is white 14 px text over the busy table; harder to read than the buttons below it | shot-19 | Dark backing |
-| 50 | polish | Match flow | "FAST FORWARD x3 only bots left" appears after I die, a good idea but it is a surprise to a newcomer who can't tell the match is still running | shot-52 look | Add "You are out: watching" banner |
+| 1 | major | Title, first run | `👋 NEW HERE? 1-MINUTE PRACTICE ▶` is the only beginner pointer; it vanishes after one visit even though Practice is unfinished, while NEXT UP still says "Finish the 1-minute Practice (+20 🪙)". | shot-1, shot-49 | Keep until Practice 8/8; promote Story ch 1 afterwards. |
+| 2 | major | Title | NEXT UP box is a dense 3-line block of ~12 px text mixing a 6-step checklist ("FIRST SERVICE 0/6"), a story goal and a colour goal. A first-timer cannot tell which is the instruction. | shot-1 | One big line only: the very next step. |
+| 3 | minor | Title | The row of top-right buttons (⚙ SETTINGS, ❓ HELP, 📖 KAIJU…) uses ~10 px text, much smaller than the bottom buttons. | shot-1 | Bigger font or icon + label stacking. |
+| 4 | minor | Title | The hint "◀ ▶ choose · ENTER / A / tap to start" is faint grey on a busy art background, sits right above PLAY buttons. | shot-1 | Raise contrast, add a plate behind it. |
+| 5 | minor | Help BASICS | MOVES paragraph is a wall of ~13 px text (7 lines) and cuts across 3 ideas; CONTROLS block also long. | shot-2 | Split into pages with icons; larger text. |
+| 6 | major | Practice | Step 7/8 `SWIPE up close F / X / SWIPE` never completed for me (F pressed 4 times next to the dummy, 36 px away); I could not finish the Practice and get its +20 🪙. May be harness-key timing, but a real beginner will hit "nothing happens" with no extra hint. | shot-10 | Widen the swipe hit window, add a hint after 20 s, animate the F key. |
+| 7 | minor | Practice | The dummy re-arms and respawns during step 4-6, making it unclear what exactly counts ("Knock out the dummy"; I KO'd it 5+ times before the step ticked). | shot-9 | Tick on first KO; show a big "✔". |
+| 8 | minor | Practice | Pause → QUIT returns to the HELP screen (not the title); no "Practice not finished" note. | shot-12 | Return to where the player came from; say "Practice 7/8, resume anytime". |
+| 9 | polish | Practice | The bottom-left `PRACTICE 0/8 👉 Walk around the table WASD / stick / drag left side` box is small (~13 px) and sits hard against the table frame. | shot-6 | Larger box, centred at bottom. |
+| 10 | minor | Free Play setup | The back button is labelled `◀ MODES` but goes to the title screen, not a "modes" screen. | shot-13 | Rename to `◀ BACK` or `◀ TITLE`. |
+| 11 | minor | Free Play setup | Empty seats say "click or THROW to join": THROW is jargon before the player has learned it. | shot-13 | "click a seat to join" for mouse; show key only on keyboard. |
+| 12 | minor | Free Play setup | After joining, the seat shows `Keys left · A / D` which is not explained (it is the colour/kaiju swap key). | shot-14 | "A / D: change kaiju". |
+| 13 | minor | Free Play setup | `BOT LEVEL` button cycles NORMAL→TOUGH→HARD→BRUTAL→EASY→NORMAL on click; going "down" to EASY takes 4 clicks and I accidentally overshot to BRUTAL. No right-click/left-click reverse and no difficulty descriptions. | shot-15 | Left/right arrows or a dropdown with 1-line text ("EASY: bots rarely aim"). |
+| 14 | major | Free Play | Lobby shows `First to 3 rounds` but a 2-player match is `firstTo 5` (5 star slots on the HUD). Unexplained rule difference. | shot-51 | Say so in the lobby text, or keep first-to-3. |
+| 15 | minor | Free Play | Kaiju name inconsistency: lobby/Story/Gallery show `GOBZILLA JR.`, HUD, results and Records show `GOBZILLA`. | shot-14 vs shot-16 | Use one name. |
+| 16 | minor | In match | Pre-round tip text sits over a busy blueberry/pancake area; hard to read (white text with thin outline over dark berries). | shot-16 | Dark plate behind tips. |
+| 17 | minor | Match HUD | Round score `☆☆☆ / ★★☆` stars are never explained (round wins). | shot-18 | Round-1 legend: "★ = rounds won". |
+| 18 | major | In match | Top-left pop-up stack ("STOMP READY! / SLOBA swiped you / HOT DUMPLING! / FIRST BITE! / DOUBLE SKEWER! / KAIJU!") overlaps itself and is unreadable. | shot-42 | Single queue, max 2 visible, 28 px spacing. |
+| 19 | minor | In match | `⏩ FAST FORWARD ×3 · only bots left` overlaps / touches `SLOBA HAS THE HOT DUMPLING` and `⏪ INSTANT REPLAY` (1 px gap). | shot-42, shot-44 | Give each banner its own lane. |
+| 20 | polish | Move Lab | The `YOU` marker is hidden behind the big `SEED SPRAY!` label above my kaiju. | shot-30 | Move the marker, or fade it behind power text. |
+| 21 | polish | Result screen | Result footer `1 / START rematch · Esc menu` is keyboard-only wording on a screen with clickable REMATCH / MENU buttons. | shot-20, shot-46 | Hide on mouse/touch; show only keys that apply. |
+| 22 | minor | Result screen | The bottom "Most KOs / Crumb Monster / Kaiju Lover / Butterfingers" ticker runs along the table edge at ~12 px and is cut by the 3D frame. | shot-20 | Move into the results panel. |
+| 23 | polish | Result screen | THIS MATCH receipt text is ~13 px and wraps tightly; "Knocked out by: 🦖 a KAIJU, ✋ the Giant Hand, 👋 swipe" is not obviously a coaching list. | shot-20, shot-46 | Larger text, section headings. |
+| 24 | minor | Story | Three sequential intros before the first fight: opening video, chapter intro video, Head Chef chat; each needs its own SKIP. | shot-21, 23, 24 | One flow, one skip. |
+| 25 | minor | Story map | The `🎬 SCENE` button crosses the right edge of the chapter panel and sits right next to "Not cleared yet"/"Best: ★★★". | shot-22 | Re-lay out; move SCENE to the panel header. |
+| 26 | polish | Story map | Back button labelled `◀ MODES` (goes to the title). Keyboard hint at the bottom (`arrows choose · ENTER play · Q / E kaiju · Esc back`) is tiny grey text. | shot-22 | Rename to BACK; larger hint. |
+| 27 | polish | Story Log | Only one short entry at the top of a huge empty panel with ~13 px text. | shot-27 | Smaller panel or a "Chapter 1 ✔ / Chapter 2 …" timeline with portraits. |
+| 28 | minor | Gallery | `Collection 58%` on a fresh save and `16/20 kaiju` unlocked read oddly: I have done nothing yet. Mastery line `★★★★★★★ Lv 2 Line Cook (4/100 XP) · next: ⭐ Star on your HUD card` is one run-on sentence. | shot-28 | Explain what counts; split into two lines. |
+| 29 | polish | Gallery | `MOVE LAB try its power` button has 11 px sub-label; SHINY button has no price/Mastery requirement shown until pressed. | shot-28 | Show "300 🪙 · Mastery 3". |
+| 30 | minor | Records | "Next rank: PREP COOK AT 6 PTS (YOU: 3)" is large display font, crowds the label, and the label/value rows are tightly stacked (about 33 px). | shot-31 | Smaller value font, or move to its own line. |
+| 31 | polish | Records | The "👉 Next up: Rampage (67%) … Click any locked one to 📌 pin it …" footer is two long ~12 px lines at the very bottom. | shot-31 | Break into two lines or a tip chip. |
+| 32 | minor | Pantry | Clicking an item buys it immediately (40 🪙, 177→137) with no confirm and no "equip" prompt. | shot-32, 33 | Confirm dialog + "wear it" button. |
+| 33 | minor | Pantry | Outline colours (yellow on Lilac and Peach, blue on Lifeline, green on Toffee after buying) are unexplained; the bottom note is faint. | shot-32, 33 | Add a legend; raise contrast. |
+| 34 | polish | Pantry | Token total changed 152 → 177 between Chapter Clear / Records and the Pantry without a visible reason (25 🪙 from a First Service step, not announced at the time). | shot-26, 32 | Toast "+25 🪙 First Service step". |
+| 35 | minor | Settings | Rows are packed with no gap; wide helper text ("Free Play / Party: whoever is behind starts rounds with a fuller belly") fills the full button width. | shot-34 | More row spacing; shorten text. |
+| 36 | minor | Settings | KID MODE sub-line says only "Story: easier rivals, 1-line chats, bigger result text" although it also eases Free Play, Party and Daily. | shot-34 | Update copy. |
+| 37 | polish | Settings | Bottom hint "Saved on this device · ENTER / tap to change" is only ~12 px. | shot-34 | Bigger. |
+| 38 | polish | Workshop | "PROPS: tap one, then tap the table" label above the grid is ~12 px yellow, easy to miss; slot label line is small. | shot-35 | Larger helper text. |
+| 39 | minor | Party Modes | The Party Cup help line "🏆 Party Cup = 6 games: CLASSIC → CRUMB RUSH → … final ×2 · switch it ON, then PLAY" runs at y≈660 and nearly touches the KEYS / HOUSE RULES buttons (≈670); it also wraps across almost the full screen width. | shot-36 | Move it above PLAY or into a tooltip. |
+| 40 | minor | Party Modes | `MODE ▶ TEAM FEAST` shown but Party Cup ON starts with CLASSIC game 1/6; the Mode button is silently ignored. | shot-36, shot-38 | Grey out MODE when Cup is ON. |
+| 41 | polish | Pause (Cup) | `Tap QUIT again to really end it` is red on dark at the very bottom edge. | shot-39 | Move under the QUIT button with higher contrast. |
+| 42 | major | Daily | Starts instantly without a setup/rules card, and I am assigned a random kaiju (SALMONSTER). Result headline `DAILY CHALLENGE FAILED` feels punishing for a loss. | shot-41, 46 | Pre-match card; kinder loss wording. |
+| 43 | minor | Daily banner | Daily + tip text is two long lines of overlay across the table (`📅 DAILY CHALLENGE · win this match to clear today and keep your 🔥 streak · Picnic Blanket` over the pads). | shot-41 | One line, plate behind. |
+| 44 | minor | Challenges | The popup says "GAUNTLET: pick where your run starts" but never says what Gauntlet is; Mains/Desserts/Seconds locked with "clear wave 4/8/12" but no hint of lives or waves. | shot-47 | Add a one-line definition. |
+| 45 | polish | Challenges | Trials card: "8 fixed hard fights · 3 stars each · you have 0★" mixes jargon with a tiny reward statement; Checkpoints footnote is small. | shot-47 | Bigger footnote. |
+| 46 | polish | Online | The Play Online dialog uses a different font/style from the rest of the game and is invisible to `/look` (DOM overlay), so text layout cannot be audited by the harness. | shot-48 | Use the game's own dialog styling. |
+| 47 | minor | Help TABLES | Locked tables show the unlock rule in tiny, dim grey (`Beat Story chapter 6: On the Chopping Block (0/6 cleared)`). | shot-4 | Larger/brighter text. |
+| 48 | minor | Help MODES | TWISTS paragraph is one small-font wall of text; last line "Play these from the PARTY MODES card (...[G] or tap the mode to change)" is dim and tiny. | shot-5 | Split into a 2-column list. |
 
-## 🔠 Text and layout check (do this on EVERY screen you visit)
-- **Title** (shot-21): no overlaps; NEXT UP text is very small (issue 9); bottom 6 cards fit; "Teams · Rush · Dumpling" wraps to 2 lines but stays inside its card. OK except small text.
-- **Help BASICS** (shot-4): no overlap; text small but within the screen. OK.
-- **Help CUTLERY** (shot-3): OK. Tab highlight bug on BASICS.
-- **Help TABLES** (shot-5): OK; three-column text fits; lock text dim.
-- **Help MODES** (shot-6): OK but TWISTS paragraph very small (12 px).
-- **Practice match** (shots 7 to 10): OK; bottom-left tutorial box fits.
-- **Practice complete** (shot-11): three buttons OK; ghost tutorial text visible behind card (issue 20).
-- **Free Play setup** (shot-12, shot-51): OK; no overlap, all 8 pills fit. Bottom hint small.
-- **Round start / in-match HUD** (shots 13, 24, 40, 45): OK. Top HUD cards fit with long names.
-- **Replay** (shots 16, 17): "REVENGE IS SWEET!" overlaps the player's mat slightly; hand text over player (issue 24). Readable.
-- **Match end** (shots 19, 20, 48): receipt panel fits; Daily title icon overlaps (issue 22). Buttons not overlapping each other.
-- **Story cutscene** (shot-22): caption small; OK.
-- **Story chat** (shot-23): text fits the box; mid-typing cut is expected.
-- **Chapter clear** (shot-27): OK, nothing overlaps.
-- **Records p1/p2** (shots 28 to 30): OK; reward text fits; bottom hint wraps to 2 lines within the screen.
-- **Pantry** (shots 31, 32): OK, Lifeline card text wraps to 3 lines (issue 36).
-- **Gallery** (shot-33): OK; top-right collection text tiny.
-- **Move Lab** (shots 35, 36): banner OK; overlaps pause scrim.
-- **Settings** (shot-37): OK, 11 rows plus 2 buttons all fit.
-- **Party Modes setup** (shot-38): OK, bottom lines tight.
-- **Team Feast match** (shot-40): OK.
-- **CHALLENGES popup** (shot-41): OK.
-- **Trials** (shot-42): OK; uneven card sizes; text small.
-- **Workshop** (shots 43, 44): OK.
-- **Online popup** (shot-49): OK visually; different font; no text exposed to `/look`.
-- **Pause menu** (shot-36): all 5 buttons fit, no overlap.
-
-No hard cut-off text or stacked buttons found on any screen.
+## 🔠 Text and layout check
+- **Title** (shot-1, shot-49): top-right buttons small text, NEXT UP dense (issues 2, 3, 4). No overlaps. OK otherwise.
+- **Help BASICS** (shot-2): no overlap or cut-off; text small and dense (issue 5).
+- **Help CUTLERY** (shot-3): OK, readable, icons aligned.
+- **Help TABLES** (shot-4): no overlap; locked descriptions dim (issue 47).
+- **Help MODES** (shot-5): OK but small (issue 48).
+- **Practice** (shot-6..9, 10, 11): OK; hint box small (issue 9). Pause menu OK (shot-11).
+- **Free Play setup** (shot-13, 14, 15): no overlaps; wording issues (10-13).
+- **In-match HUD** (shot-16, 17, 18, 19, 41, 43, 44, 51): top-left pop-up stack overlaps (shot-42, issue 18); fast-forward/replay banners touching (shot-42, 44). Everything else OK.
+- **Round-end** (shot-18): OK; the bottom feed lines sit on the table edge, readable.
+- **Match end** (shot-20, 46): OK, no overlaps; small receipt text and ticker (issues 22, 23).
+- **Story cutscenes** (shot-21, 23): subtitle text OK; Head Chef box (shot-24) OK, the spoon art intentionally overlaps the map.
+- **Story map** (shot-22): SCENE button crosses panel edge (issue 25); otherwise OK.
+- **Chapter Clear** (shot-26): OK, clean.
+- **Story Log** (shot-27): OK, mostly empty.
+- **Gallery** (shot-28): OK; detail panel tight but nothing cut off.
+- **Move Lab** (shot-29, 30): OK; `YOU` marker hidden under POWER label (issue 20).
+- **Records** (shot-31): OK; "Next rank" row tight (issue 30).
+- **Pantry** (shot-32, 33): OK; footnote faint (issue 33).
+- **Settings** (shot-34): OK; rows tight (issue 35).
+- **Workshop** (shot-35): OK.
+- **Party Modes** (shot-36): help line almost touching bottom buttons (issue 39).
+- **Pause with QUIT confirm** (shot-39): OK; confirm text low contrast (issue 41).
+- **Daily** (shot-41, 46): OK; banner long (issue 43).
+- **Challenges** (shot-47): OK.
+- **Online** (shot-48): OK; different style (issue 46).
+- Nothing was cut off at the screen edge and no two buttons stacked on each other. The only true text-on-text overlaps are issue 18 and 19 (shot-42, 44).
 
 ## The single biggest structural problem
-A first-timer is taught the controls well (Practice, Help) but is **not taught who they are and what is killing them while playing a real match**. In my first Free Play match I could not easily tell my kaiju from the bot at a glance, I ate crumbs as the game asked until my belly was full, I did not notice STOMP READY, and the Giant Hand then killed me (twice) as a punishment for doing the "right" thing. The explanation exists ("The Giant Hand goes for the fullest belly: STOMP before it reaches you") but it arrives in a small receipt after the loss. The loop "eat, then stomp" is the heart of the game and it needs a loud on-screen prompt in the moment.
+The first ten minutes have no single guided path. Practice is optional, hard to finish, and the button to restart it disappears; Story opens with up to three cutscenes before the first fight; Daily, Gauntlet and Party Modes each throw a different rule set at you with no one-line explanation; and the HUD never teaches that the stars are "round wins to 3 (5 in a 1v1)". A first-timer cannot answer "what should I press next, and what am I trying to win?" without reading the Help tabs, and the Help tabs are dense walls of small text. That gap, not the game itself (which is fun once I understood it), keeps me from scoring a 9.
 
-Second, the title offers six big cards with little explanation, and the ones that look equal (DAILY, PARTY MODES, CHALLENGES) are very different in difficulty. For someone who has never played, the first-hour path is not obvious beyond the tiny NEXT UP text.
+The other cap is polish: small things like the overlapping pop-up stack, "◀ MODES" meaning "back", inconsistent kaiju names, 10-13 px text in many panels, and one-click purchases add up to a product that looks great in screenshots but feels slightly rough when you read it closely.
 
-## Big change proposals (2–3, most important first)
-### Proposal 1: "Coach Spoon" live hints for the first 5 matches
-- **Problem it solves:** First-timers die to the Giant Hand/stomp rules and cannot tell which kaiju is theirs (issues 1 to 3).
-- **How it would work (detailed design):** For the first 5 matches (counted via save data), a small "Coach Spoon" bubble (the golden spoon from the story) pops up bottom-centre for 3 seconds at the following moments: round start ("That's YOU: look for the arrow!" with an arrow above the player's kaiju); first time belly reaches 60% ("Keep eating crumbs!"); belly 100% ("Press E / STOMP: go KAIJU!" with the key icon and a pulsing ring); hand incoming (2 s warning "Hand targets the fullest belly: STOMP NOW or run!"); first time hit by cutlery ("Dash into cutlery to catch it"). Each hint appears once per match, never over the action centre, and can be turned off with Settings > QUICK TIPS. The existing "Quick tips" line becomes the data source.
-- **Example moment:** I fill my belly to 100 on Picnic Blanket. A bubble says "STOMP! (E)" and a ring pulses around me. I press E and go KAIJU 2 seconds before the hand arrives, and it flicks at nothing.
-- **Rewards / progression hooks:** Completing the 5 coached matches gives a "Coach's Pet" achievement (+30) and ticks the First Service checklist.
-- **Risks and edge cases:** Hints must be suppressed in Online and Party games with humans. Phone layouts need the bubble above the on-screen buttons.
+## Big change proposals (2-3, most important first)
+### Proposal 1: "First Service" guided ribbon
+- **Problem it solves:** the unclear start path (issues 1, 2, 6, 7, 8, 24).
+- **How it would work (detailed design):**
+  - On first launch the title screen shows a single big button, `▶ START HERE: 1-MINUTE PRACTICE`, with the other six buttons dimmed to 60 % and a small "you can skip this" link.
+  - Practice becomes a 3-screen flow: (1) 20 s "move + crumbs", (2) 20 s "throw + swipe", (3) 20 s "stomp + KAIJU". Each step ticks at the first valid action and the checklist at the bottom-left uses 18 px text. After 20 s on one step a hint animates the key.
+  - On completion: a full-screen "PRACTICE DONE +20 🪙" card with two buttons: `▶ STORY CH 1` (pulsing) and `FREE PLAY`.
+  - Quitting Practice returns to the title with a "Resume 7/8" button.
+  - The "FIRST SERVICE" 0/6 checklist moves into a collapsible ribbon on the title (one line, tap to expand), not three lines of text.
+- **Example moment:** I open the game, press START HERE, ~50 s later I get "+20 🪙" and a pulsing STORY button; I never have to read HELP.
+- **Rewards / progression hooks:** +20 🪙 for Practice, plus the existing First Service rewards shown as toasts the moment they tick.
+- **Risks and edge cases:** keyboard vs touch hints must switch; players who skip Practice should still see a nudge once.
 - **Size:** M
-- **Score impact for me:** +1.0
+- **Score impact for me:** +0.8
 
-### Proposal 2: Smart title: single "PLAY" path for new players
-- **Problem it solves:** 6 equal cards and a tiny NEXT UP text (issues 9, 11, 12, 5).
-- **How it would work (detailed design):** Until First Service reaches 6/6, the title highlights ONE big card ("▶ CONTINUE: Story Chapter 2" or "▶ FIRST MATCH") with a pulsing border and a label "Start here". Other cards remain but have a one-line caption that appears under the selected card, for example "DAILY: one special match each day. Win it to keep a streak." and "CHALLENGES: harder fights for stars. Try after Story chapter 4." The NEXT UP text becomes a 2-line banner with bigger text and a progress bar "3 / 6". DAILY shows a one-time intro card before starting.
-- **Example moment:** I arrive at the title, the Story card pulses with "Start here: Chapter 2", and I press ENTER without reading anything.
-- **Rewards / progression hooks:** Checklist completion gives the existing +20 per step plus a cosmetic hat at 6/6.
-- **Risks and edge cases:** Veterans should not see the pulsing path (hide when First Service is complete or Records shows 10+ matches).
-- **Size:** S to M
-- **Score impact for me:** +0.5
+### Proposal 2: Mode explainer cards and a plain-language setup
+- **Problem it solves:** issues 6, 11-14, 40, 42, 44: Daily/Gauntlet/Party have no explanation and defaults are confusing.
+- **How it would work (detailed design):**
+  - Every mode entry (Daily, Gauntlet/Trials, each Party Mode, Cup) shows a 2-line "card" before the match: one line "What it is", one line "How to win", plus a `PLAY` and `BACK` button. First time only; later a small `?` button.
+  - Daily's card names the kaiju I will play, the table, the rule, and the medals ("Bronze for playing, Silver for winning"). The fail screen says "Not yet: try again" and shows tokens/progress, not "FAILED".
+  - Free Play setup gets plain-language bot levels with one-line descriptions on hover/tap and left/right arrows; lobby text reads `First to 3 rounds (1v1: first to 5)` or the 1v1 uses 3 too.
+  - Party Cup ON greys out MODE and shows the 6-game list in a small panel above PLAY instead of a long line near the bottom buttons.
+- **Example moment:** I tap DAILY, see "Hot Dumpling · You: Salmonster · Win once for Silver", press PLAY, lose, and see "Not yet! Bronze earned (+20 🪙). Try again?".
+- **Rewards / progression hooks:** none new; this removes friction.
+- **Risks and edge cases:** extra click before every Daily; make the card skippable after the first view.
+- **Size:** M
+- **Score impact for me:** +0.6
 
-### Proposal 3: Friendlier first match (training wheels)
-- **Problem it solves:** The first real match is decided by hazards and easy-bot swings rather than the player's actions (issues 33, 2).
-- **How it would work (detailed design):** Matches 1 to 3 of a new save use "Gentle table" rules: Giant Hand disabled, easy bot throws 25% slower and misses more, and the bot never goes KAIJU before the player has done it once. A subtle "Gentle mode" pill appears on the setup screen and can be switched off. Matches 4+ revert automatically.
-- **Example moment:** I win my first Free Play match 2-1 after two close rounds, and the receipt says "Nice! Tables get harder from here".
-- **Rewards / progression hooks:** "First Bite" achievement lands within the first 3 minutes for nearly everyone.
-- **Risks and edge cases:** Players who skip the Practice should still get it; fairness in Online/Party is not affected.
-- **Size:** S
-- **Score impact for me:** +0.4
+### Proposal 3: HUD banner lanes and text-size pass
+- **Problem it solves:** issues 3-5, 16-23, 28-31, 35, 37, 38, 41, 47, 48 (collisions and tiny text).
+- **How it would work (detailed design):**
+  - In matches: fixed lanes for banners: y=96 mode status (hot dumpling / golden spoon), y=124 system banner (fast-forward / replay), y=150-260 left column for event pops with a queue of 2 and 28 px spacing. Pop-ups older than 1.5 s fade out before a third appears.
+  - Global minimum text size: 14 px for helper copy, 16 px for buttons, 18 px for step hints. Help BASICS and MODES split into two pages each. Title top-right buttons use the same size as the bottom buttons.
+  - Move the Most KOs / Crumb Monster ticker inside the result panel, and the "1 / START rematch" key hint is shown only when a keyboard was used last.
+  - Buying in the Pantry gets a confirm + "equip" step.
+- **Example moment:** Hot Dumpling round: "SLOBA HAS THE HOT DUMPLING" sits at the top, "FAST FORWARD" below it, and my KAIJU/STOMP pops queue neatly on the left.
+- **Rewards / progression hooks:** none.
+- **Risks and edge cases:** some panels (Settings, Records) need layout rework to fit larger text.
+- **Size:** M
+- **Score impact for me:** +0.6
 
 ## How this round's new features felt
-- **Progression (Mastery, Chef Rank, achievements, pin, daily deal, receipts):** The receipts that list new achievements (shot-48) are rewarding and clear: "Not It! +30, Table Maker +30" made the game feel generous. Mastery levels appear on the receipt ("Mastery Lv 2 Line Cook") and the Gallery, but I never saw what Lv 2 gave me until I read "next: Star on your HUD card" in the Gallery. The pin works (shot-29) but gives no confirmation line. Chef Rank "Dishwasher" is charming, but "pts" is unexplained. The daily 30% deal on Lifeline is visible but wrapped (shot-31).
-- **First Service checklist:** A good idea; the title line is too small and the counting felt odd (Practice stomp did not count as "Go KAIJU"). The step "Clear Story ch 4 -> Minturtle" is a strong goal and motivating.
-- **Practice card:** Excellent (shot-11), except the FIRST MATCH button sends me to a setup screen rather than a match, and the ghost text behind the card.
-- **CHALLENGES (Gauntlet checkpoints, Trials):** The popup is clean (shot-41) but offers no explanation of the Gauntlet for newcomers. Trials are clear in structure (8 fights, 3 stars, goals in each card) but the list is dense and available to a brand-new player including "BRUTAL BOT" (shot-42). Not something I would try in the first hour.
-- **Move Lab:** A great discovery tool; stomp instantly then throw to see "SEED SPRAY!" (shot-35). The "Esc to leave" wording is wrong (it pauses).
-- **Double twists:** Cycling the TWIST button reached "ICE RINK + TURBO" after 11 presses (shot-51); the description line at the bottom explains it well. A first-timer would not find these unless they cycle; 11 presses is a lot (consider a dropdown). The twist game itself looked clutter-heavy on Pancake Stack (shot-52).
-- **Party Cup:** Only saw the setup line ("Party Cup = 6 games: CLASSIC -> CRUMB RUSH -> ... points 5 / 3 / 2 / 1") on shot-38; I did not play it. The line is promising but tiny and tight above the KEYS button.
-- **Story (Phase 2 bosses, Kid Mode):** Chapter 1 was charming (shots 22, 23, 27). Chapter-clear card with a tip ("Next time, eat those crumbs and STOMP: KAIJU wins fights") is great for a newcomer. I did not reach a boss. Kid Mode exists in Settings with a clear description (shot-37).
-- **Workshop COPY/PASTE CODE:** Copy gave a "Table code copied: send it to a friend!" message with a long code (shot-44). Saving unlocked "Table Maker" right away: a nice surprise. I did not test paste.
-- **Text and layout audit:** Mostly holds up. No cut-off or stacked buttons. Only small issues: tiny help text, ghost text behind the practice card, icon overlapping the Daily result title, uneven Trials cards.
+- **TOUGH bot level:** it appears in the BOT LEVEL cycle (NORMAL → TOUGH → HARD → BRUTAL → EASY); I cannot judge fairness as a newbie, but the cycle order is confusing (shot-15) and there is no description of any level. EASY bots still beat me in the 3-player match (as a player who was driven by the harness's "attack" command), so EASY is a reasonable default for a first match, but I want the game to default to EASY for new saves (it defaulted to NORMAL).
+- **Giant Hand dodge:** I got knocked out by the Giant Hand ("GOBZILLA got flicked by the GIANT HAND", shot-18) in my first Free Play match, and the Help BASICS text explains "DASH just as it reaches you". Good that it is documented, but nothing in the match warned me visually in the screenshots I took; a first-timer will assume it is random.
+- **Kid Mode:** I did not enable it. The Settings sub-line (shot-34) still only mentions Story, which contradicts the new behaviour (issue 36).
+- **Shiny forms:** the SHINY button in the Gallery exists (shot-28) but shows no price or Mastery requirement on the button; with 177 tokens and Mastery Lv 2 I could not tell why I could not buy it. Add "300 🪙 · Mastery 3" to the button.
+- **Party Cup ON/OFF:** the switch is clear (PARTY CUP OFF/ON, shot-36), and starting the Cup with Team Feast selected silently starts with Classic (issue 40). The long Cup description near the bottom buttons is cramped (issue 39). The double-quit works and the text explains it, but the second prompt is tiny and red (issue 41).
+- **Story log:** a nice idea (shot-27) but it is almost empty after chapter 1 and the text is small. Locked Second Helpings/Dessert tabs say "clear chapter 6 to open" / "finish the Grand Feast" which is exactly what I needed.
+- **Boss phase 2 / chapter 4 gentler / TWIST picker / Workshop UNDO:** did not reach a boss or use TWIST; the Workshop screen shows UNDO and HAZARD/SURFACE buttons clearly (shot-35).
+- **YOU marker:** works well (shot-7, 51).
+- **Plates behind result text:** the results panel on a busy picnic cloth (shot-46) stays readable; the daily tip text in shot-41 has no plate and is harder to read.
+- **Receipts with achievements and First Service:** very good (shot-20, 46), the best onboarding element in the game. They should be bigger.
+- **Move Lab:** Esc leaves as promised; the label at the bottom explains what to press (shot-29, 30).
+- **Mastery cosmetics:** I only saw "next: ⭐ Star on your HUD card" in the Gallery; the star never appeared on my HUD during my matches because Mastery 1 to 2 earns the star only for Lv 2+ (the HUD had a pink ★ at the first card in shot-7, which is probably it).
+- **Pantry / weekly orders:** clear, with progress bars (shot-32); the one-click purchase (issue 32) is my only complaint.
 
 ## Bugs that block play
-- None. No blockers and no JavaScript errors (`/errors` returned "none" at the start, middle and end).
-- Possible leak (unconfirmed): Free Play "FIRST TO" changed from 3 to 5 and the bot changed from Squidgeon to Salmonster after visiting other modes without me changing them (shot-12 vs shot-51).
+- None blocking. No JavaScript errors (`/errors` returned "none" at the start, middle and end).
+- Possibly blocking for a real first-timer: Practice step 7/8 `SWIPE up close` never completed during my session (issue 6), which prevented finishing the 1-minute Practice and its +20 🪙; I could not tell whether this was a harness limitation with keyboard input or a real window problem.

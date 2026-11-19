@@ -10,10 +10,11 @@ import { Button, FocusNav } from '../render/ui';
 import { loadStory, totalStars } from '../story/save';
 import { CHAPTERS } from '../story/chapters';
 import { secondsUnlocked } from '../story/campaigns';
-import { setTouchMode } from '../touch';
+import { isTouchDevice, setTouchMode } from '../touch';
 import { playMusic } from '../music';
 import { GAUNTLET, gauntletBest } from '../gauntlet';
 import { totalTrialStars, TRIALS } from '../trials';
+import { stepsDone } from '../meta';
 import { dailySetup, loadDaily, todayKey } from '../daily';
 import { modeDef } from '../sim/modes';
 import { GameScene } from './GameScene';
@@ -87,13 +88,14 @@ export class TitleScene extends Phaser.Scene {
     this.nav = new FocusNav([...extras, ...buttons], extras.length);
     this.nav.index = extras.length; // start on STORY
     this.add.text(1272, 712, `v${__APP_VERSION__}`, body(11, '#a89680', 700)).setOrigin(1, 1).setDepth(5);
-    this.add.text(640, 574, '◀ ▶ choose   ·   ENTER / A / tap to start', body(15, '#f1e4d2', 800)).setOrigin(0.5).setDepth(2).setAlpha(0.85);
+    const hint = this.add.text(640, 574, isTouchDevice ? 'tap a card to start' : '◀ ▶ choose   ·   ENTER / A / click to start', body(15, '#f1e4d2', 800)).setOrigin(0.5).setDepth(2).setAlpha(0.85);
     // first time here: offer the 1-minute Practice (until you've finished a match or tried it)
     let tried = false;
     try { tried = !!localStorage.getItem('kk-practice-tried'); } catch { /* blocked */ }
-    if (!tried && loadStats().matches === 0) {
+    if (!stepsDone().includes('practice') && (!tried || loadStats().matches < 5)) { // stays until Practice is really finished (or you've clearly moved on)
       const pb = new Button(this, 640, 520, { w: 420, h: 50, label: '👋 NEW HERE?  1-MINUTE PRACTICE ▶', size: 18, accent: 0x8dff6a, onClick: () => { try { localStorage.setItem('kk-practice-tried', '1'); } catch { /* blocked */ } sfx.go(); this.scene.start('game', { ...GameScene.practiceData(loadStory().pick), from: 'title' }); } }, 6);
       this.extraBtns.push(pb);
+      hint.setVisible(false); // the Practice button takes that spot
       popIn(this, pb.label, 1.2, 500);
     }
 

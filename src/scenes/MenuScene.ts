@@ -98,7 +98,7 @@ export class MenuScene extends Phaser.Scene {
     // 📱 phones: a keyboard seat with no keyboard is useless, so it becomes the touch seat (with on-screen controls)
     if (isTouchDevice && !this.slots.some(q => q.kind === 'touch')) { const k = this.slots.findIndex(q => q.kind === 'kb' || q.kind === 'local'); if (k >= 0) this.slots = this.slots.map((q, i) => (i === k ? { kind: 'touch', index: 0 } : q)); }
     this.picks = (data.species ?? []).slice(0, this.slots.length);
-    this.difficulty = data.difficulty ?? (getSettings().kidMode && !MenuScene.kidApplied ? 'easy' : this.difficulty); // 🧸 Kid Mode starts with EASY bots
+    this.difficulty = getSettings().kidMode ? 'easy' : data.difficulty ?? this.difficulty; // 🧸 Kid Mode: EASY bots
     if (getSettings().kidMode) MenuScene.kidApplied = true;
     this.botLevels = (data.botLevels ?? []).slice(0, this.slots.length);
     this.party = !!data.party;
@@ -399,7 +399,8 @@ export class MenuScene extends Phaser.Scene {
     if (consumeTap('KeyG') || consumeTap('TouchMode')) this.cycleMode();
     if (consumeTap('KeyU') || consumeTap('TouchPowerups')) { this.powerups = !this.powerups; sfx.pickup(); }
     if (consumeTap('KeyH') || consumeTap('TouchHazards')) { this.hazards = !this.hazards; sfx.pickup(); }
-    if (consumeTap('KeyX') || consumeTap('TouchMutator')) { const l = twistChoices(), k = l.findIndex(([a, b]) => a === this.mutator && b === this.mutator2); [this.mutator, this.mutator2] = l[(k + 1) % l.length] ?? ['none', 'none']; sfx.pickup(); }
+    if (consumeTap('TouchMutator')) { this.toggleTwists(); return; }
+    if (consumeTap('KeyX')) { const l = twistChoices(), k = l.findIndex(([a, b]) => a === this.mutator && b === this.mutator2); [this.mutator, this.mutator2] = l[(k + 1) % l.length] ?? ['none', 'none']; sfx.pickup(); }
     if (consumeTap('KeyO') || consumeTap('TouchOnline')) { this.scene.start('lobby', { difficulty: this.difficulty, rounds: this.rounds }); return; }
     if (consumeTap('TouchJoin')) {
       const j = this.slots.findIndex(s => s.kind === 'touch');

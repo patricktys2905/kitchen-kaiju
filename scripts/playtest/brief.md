@@ -1,4 +1,4 @@
-# Playtest brief (round 7): read this fully before playing
+# Playtest brief (round 8): read this fully before playing
 
 You are an AI playtester for **Kitchen Kaiju**, a couch party brawler. Food kaiju throw cutlery, shove each other off a table,
 eat crumbs to fill their belly, then STOMP to go giant (KAIJU mode, with a per-kaiju power).
@@ -20,28 +20,35 @@ You play the REAL built game through a local HTTP harness. The game is frozen be
 - **Budget: 90–130 harness commands.** Play like your profile would, but cover a lot: this is the most thorough round yet.
 - Do NOT edit any game files and do NOT stop or restart the server. Only write your report file.
 
-## New since the last round (judge these in depth where your profile would touch them)
-1. **Progression:**
-   - Mastery levels unlock cosmetics for each kaiju: dash sparkles, ⭐ HUD star, gold name, gold Gallery frame, crown aura.
-   - Chef Rank ladder with thresholds (Records, Pantry).
-   - Achievements pay 30 🪙. 📌 Pin one in Records by clicking it.
-   - A daily 30%-off Pantry deal, and cheap colours.
-   - Receipts list new achievements.
-2. **🍽 First Service:** a 6-step first-hour checklist on the title. Practice now ends with a card (FIRST MATCH / STORY / MENU).
-3. **CHALLENGES** (the title card that replaced GAUNTLET):
-   - Gauntlet course checkpoints.
-   - **🎯 TRIALS:** 8 fixed hard fights with 1–3 stars each.
-   - **🥋 MOVE LAB:** in the Gallery, practise any kaiju's KAIJU power.
-4. **⚡⚡ Double twists:** the TWIST button cycles through combos after the single twists.
-5. **🏆 Party Cup:**
-   - Each game names its winner.
-   - The final is worth ×2 points.
-   - The champion goes on a Cup Shelf, and there's a NEW CUP button.
-6. **Story:**
-   - Bosses get a PHASE 2 after losing a round.
-   - **🧸 KID MODE** in Settings: easier rivals, one-line chats, bigger result text.
-7. **Workshop:** COPY CODE and PASTE CODE share codes.
-8. **Text and layout:** every screen was audited on desktop AND phone so nothing overlaps or runs out of its box. **Prove us wrong:** report any overlap, cut-off text or stacked buttons with the screenshot path.
+## New since the last round (round 8: judge these in depth where your profile would touch them)
+1. **Difficulty and fairness:**
+   - New **TOUGH** bot level between NORMAL and HARD.
+   - The **Giant Hand can be dodged**: DASH just as it reaches you.
+   - Hand KOs now count for whoever hit you last.
+   - **Kid Mode** gives easy bots in Free Play, Party and the Daily.
+2. **✨ Shiny forms:** 300 🪙 each and Mastery Lv 3. Buy them in the Gallery panel; they show in matches. There are also new in-between grind achievements.
+3. **Party Cup:**
+   - The 🏆 PARTY CUP button is an **ON/OFF switch**; PLAY starts the Cup when it's ON.
+   - Quitting a Cup or Gauntlet asks twice.
+   - The final is first-to-2 and worth ×2.
+4. **Story:**
+   - **📜 STORY LOG** on the map.
+   - Locked Second Helpings and Dessert tabs say how to open them.
+   - Boss **PHASE 2** shows on the boss's HUD card with a red aura.
+   - The chapter 4 boss is gentler.
+5. **Tinkering:**
+   - The **TWIST** button opens a picker with every single and ⚡⚡ double twist.
+   - Workshop **UNDO**, and the surface and hazard show on the preview.
+6. **Phone:** in matches the table sits at the left edge, so the on-screen buttons have their own space on the right.
+7. **From last round, still worth judging:**
+   - YOU marker.
+   - Tap wording on phones.
+   - Plates behind result text.
+   - Receipts carry achievements and First Service.
+   - Move Lab: Esc leaves.
+   - BRUTAL retuned.
+   - Mastery cosmetics, Trials, Move Lab, Pantry.
+8. **Text and layout:** audited on desktop AND phone again. **Prove us wrong:** report any overlap, cut-off text or stacked buttons with the screenshot path.
 
 ## What we want from you: EXTREME, SPECIFIC feedback aimed at 9/10
 The goal is **9/10 from every profile**. Your report must make it obvious exactly what stands between the game and a 9 for you.
