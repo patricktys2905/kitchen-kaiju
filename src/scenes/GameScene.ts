@@ -177,6 +177,7 @@ export class GameScene extends Phaser.Scene {
   private trialResult: { stars: number; gained: number } | null = null;
   private bossPhase2 = false;
   private quitArmed = false;
+  private practiceStuck = { i: -1, t: 0 };
   private firstServiceLines: string[] = [];
   /** How the person playing went out this round (for the round-end line). */
   private roundOut: string | null = null;
@@ -269,7 +270,7 @@ export class GameScene extends Phaser.Scene {
     this.hudHeld = this.slots.map((_, i) => (hasArt('cut-fork') ? this.add.image(this.hudX(i) + this.hudW - 40, 18, 'cut-fork').setDepth(6).setRotation(-0.35) : null));
 
     this.nameTexts = [];
-    this.ffText = withShadow(this.add.text(640, 134, '⏩ FAST FORWARD ×' + FAST_FORWARD + '  ·  only bots left', display(22, '#8dd8ff', { strokeThickness: 5 })).setOrigin(0.5).setDepth(40).setVisible(false), 3);
+    this.ffText = withShadow(this.add.text(640, 168, '⏩ FAST FORWARD ×' + FAST_FORWARD + '  ·  only bots left', display(22, '#8dd8ff', { strokeThickness: 5 })).setOrigin(0.5).setDepth(40).setVisible(false), 3);
     this.scoreTexts = this.slots.map(() => this.add.text(0, 0, '', display(15, '#ffe9c7', { strokeThickness: 3 })).setDepth(6));
     this.infoTexts = [];
     this.slots.forEach((s, i) => {
@@ -368,7 +369,7 @@ export class GameScene extends Phaser.Scene {
       [`🎵 MUSIC: ${s.music > 0 ? 'ON' : 'OFF'}`, () => { const m = getSettings().music; if (m > 0) GameScene.lastMusic = m; setSetting('music', m > 0 ? 0 : GameScene.lastMusic); this.closePause(); this.setPaused(true, 2); }],
       [`🔊 SOUND: ${s.volume > 0 ? 'ON' : 'OFF'}`, () => { const v = getSettings().volume; if (v > 0) GameScene.lastVolume = v; setSetting('volume', v > 0 ? 0 : GameScene.lastVolume); this.closePause(); this.setPaused(true, 3); }],
       [this.initData.cup || this.initData.gauntlet ? '✖ QUIT (ends the Cup / run)' : '✖ QUIT', () => {
-        if ((this.initData.cup || this.initData.gauntlet) && !this.quitArmed) { this.quitArmed = true; this.time.delayedCall(4000, () => { this.quitArmed = false; }); this.closePause(); this.setPaused(true, 4); this.popup(VIEW.w / 2, 260, '⚠ Tap QUIT again to really end the Cup / run', '#ffd24a', 24); return; }
+        if (this.mode !== 'practice' && !this.initData.lab && !this.quitArmed) { this.quitArmed = true; this.time.delayedCall(4000, () => { this.quitArmed = false; }); this.closePause(); this.setPaused(true, 4); this.popup(VIEW.w / 2, 260, this.initData.cup || this.initData.gauntlet ? '⚠ Tap QUIT again to really end the Cup / run' : '⚠ Tap QUIT again to leave this match', '#ffd24a', 24); return; }
         this.closePause(); this.leave();
       }],
     ];
@@ -513,7 +514,7 @@ export class GameScene extends Phaser.Scene {
       next.gauntlet = { ...next.gauntlet!, kos: (gw.kos ?? 0) + this.world.players[0].kos, perks: id === 'heart' ? gw.perks ?? [] : [...(gw.perks ?? []), id], lives: id === 'heart' ? lives + 1 : lives };
       this.scene.restart(next);
     };
-    this.perkUi = pool.map((pk, k) => new Button(this, VIEW.w / 2 + (k - 1) * 340, 470, { w: 320, h: 96, label: pk.name, sub: pk.desc, size: 22, accent: 0x8dff6a, onClick: () => go(pk.id) }, 14));
+    this.perkUi = pool.map((pk, k) => new Button(this, VIEW.w / 2 + (k - 1) * 340, 470, { w: 320, h: 96, label: `${k + 1} · ${pk.name}`, sub: pk.desc, size: 22, accent: 0x8dff6a, onClick: () => go(pk.id) }, 14));
     const keys = ['Digit1', 'Digit2', 'Digit3'];
     this.perkKeys = () => { const k = keys.findIndex(c => consumeTap(c)); if (k >= 0 && pool[k]) go(pool[k].id); };
     this.popup(VIEW.w / 2, 392, 'PICK A PERK FOR THE NEXT WAVE (1 / 2 / 3)', '#8dff6a', 22);
@@ -564,10 +565,11 @@ export class GameScene extends Phaser.Scene {
   }
   private renderYou(): void {
     const w = this.world, humans = this.slots.map((_, i) => i).filter(i => this.isHuman(i));
-    const me = humans.length === 1 ? w.players[humans[0]] : null, show = !!me && me.alive && w.phase === 'play' && w.roundT < 4 && !this.replay;
+    const me = humans.length === 1 ? w.players[humans[0]] : null, show = !!me && me.alive && w.phase === 'play' && w.roundT < 4 && !this.replay && me.meter < 100; // the STOMP coach takes that spot when the belly is full
     if (!show || !me) { this.youText?.setVisible(false); return; }
     this.youText ??= withShadow(this.add.text(0, 0, '▼ YOU', display(20, '#ffffff', { strokeThickness: 5 })).setOrigin(0.5, 1).setDepth(7), 3);
-    this.youText.setPosition(me.x, Math.max(150, me.y - me.r - 18 - Math.abs(Math.sin(this.t * 6)) * 6)).setAlpha(Math.min(1, (4 - w.roundT) * 2)).setVisible(true);
+    const top = this.modeText?.text ? this.modeText.y + this.modeText.height + this.youText.height + 4 : 150; // never under the mode line
+    this.youText.setPosition(me.x, Math.max(top, me.y - me.r - 18 - Math.abs(Math.sin(this.t * 6)) * 6)).setAlpha(Math.min(1, (4 - w.roundT) * 2)).setVisible(true);
   }
   private renderStompCoach(): void {
     const w = this.world;
@@ -1104,7 +1106,9 @@ export class GameScene extends Phaser.Scene {
     const p = this.world.players[0];
     if (p.alive) { P0.moved += Math.hypot(p.x - P0.lx, p.y - P0.ly); P0.lx = p.x; P0.ly = p.y; }
     PRACTICE_STEPS.forEach((st, i) => { if (!P0.done[i] && st.done({ type: 'go' }, P0.moved)) this.tick(i); });
-    const next = P0.done.indexOf(false);
+    let next = P0.done.indexOf(false);
+    // stuck on one step for 30 s: it counts anyway (with a note), so Practice can always be finished
+    if (next >= 0) { if (this.practiceStuck.i !== next) this.practiceStuck = { i: next, t: 0 }; this.practiceStuck.t += this.game.loop.delta / 1000; if (this.practiceStuck.t > 30) { this.popup(VIEW.w / 2, 200, 'Skipped this step: try it in a real match!', '#cdb9a3', 18); this.tick(next); next = P0.done.indexOf(false); } }
     const all = next < 0, doneN = P0.done.filter(Boolean).length;
     // two short lines in the strip below the table (TABLE ends at y 670), so it never covers the action
     P0.text.setText(all ? `PRACTICE ${doneN}/${PRACTICE_STEPS.length}  🎉 All done!\nEsc → pause → QUIT` : `PRACTICE ${doneN}/${PRACTICE_STEPS.length}  👉 ${PRACTICE_STEPS[next].text}\n${PRACTICE_STEPS[next].keys}`);
@@ -1134,7 +1138,7 @@ export class GameScene extends Phaser.Scene {
     const go = (k: number) => {
       for (const b of this.perkUi) { b.g.destroy(); b.label.destroy(); b.sub?.destroy(); b.zone.destroy(); }
       this.perkUi = [];
-      if (k === 0) this.scene.start('game', { slots: [isTouchDevice ? { kind: 'touch', index: 0 } : { kind: 'local', index: 0 }, { kind: 'bot', index: 1 }], species: [this.species[0], this.species[0] === 1 ? 2 : 1], difficulty: 'easy', rounds: 3, mode: 'classic', powerups: true, hazards: true });
+      if (k === 0) this.scene.start('game', { slots: [isTouchDevice ? { kind: 'touch', index: 0 } : { kind: 'local', index: 0 }, { kind: 'bot', index: 1 }], species: [this.species[0], this.species[0] === 1 ? 2 : 1], difficulty: 'easy', rounds: 3, mode: 'classic', powerups: true, hazards: true, tables: owned().tables.filter(t => !LAYOUTS[t].custom) });
       else if (k === 1) this.scene.start('story');
       else this.scene.start('title');
     };
@@ -1206,8 +1210,8 @@ export class GameScene extends Phaser.Scene {
     if (e.type === 'matchEnd' || e.type === 'roundEnd') saveStats(st);
     if (e.type === 'matchEnd' && this.ownedAtStart) { // 🎁 kaiju / tables earned by playing (new saves): celebrate them here
       const now = owned();
-      for (const k of now.kaiju) if (!this.ownedAtStart.kaiju.includes(k)) this.toastQ.push(`🎁 NEW KAIJU: ${SPECIES[k].full}!`);
-      for (const t of now.tables) if (!this.ownedAtStart.tables.includes(t)) this.toastQ.push(`🎁 NEW TABLE: ${LAYOUTS[t].name}!`);
+      for (const k of now.kaiju) if (!this.ownedAtStart.kaiju.includes(k)) { this.toastQ.push(`🎁 NEW KAIJU: ${SPECIES[k].full}!`); this.receipt?.lines.push(`🎁 NEW KAIJU: ${SPECIES[k].full} (Gallery)`); }
+      for (const t of now.tables) if (!this.ownedAtStart.tables.includes(t)) { this.toastQ.push(`🎁 NEW TABLE: ${LAYOUTS[t].name}!`); this.receipt?.lines.push(`🎁 NEW TABLE: ${LAYOUTS[t].name}`); }
       this.ownedAtStart = now;
     }
   }
@@ -1262,7 +1266,7 @@ export class GameScene extends Phaser.Scene {
       this.toastText.setText(msg).setVisible(true);
       const bb = this.toastText.getBounds();
       this.toastG.clear().fillStyle(0x1a0d06, 0.92).fillRoundedRect(bb.x - 12, bb.y - 8, bb.width + 24, bb.height + 16, 12).lineStyle(2, 0xffd24a, 1).strokeRoundedRect(bb.x - 12, bb.y - 8, bb.width + 24, bb.height + 16, 12).setVisible(true);
-      this.toastT = 2.6;
+      this.toastT = 4;
     } else if (this.toastT <= 0) { this.toastText?.setVisible(false); this.toastG?.setVisible(false); }
   }
 
@@ -1282,7 +1286,7 @@ export class GameScene extends Phaser.Scene {
       const tip: Record<string, string> = { fall: 'Stay away from the edges, and DASH back to the middle.', cutlery: 'DASH sideways when you see a charge line, or SWIPE to parry it back.', kaiju: 'Step out of the ring before each stomp, then hit them while they are dizzy.', squash: 'Step out of the ring before each stomp, then hit them while they are dizzy.', hand: 'The Giant Hand goes for the fullest belly: STOMP first, or DASH as it reaches you.' };
       if (tip[top]) lines.push('💡 ' + tip[top]);
     }
-    if (GameScene.lossRun >= 2 && !this.humanWon(w.winner) && !this.initData.cup && !this.initData.gauntlet && !this.initData.trial && !this.story) lines.push('💡 Tough bots? Set BOT LEVEL to EASY, or switch on COMEBACK HELP in Settings.');
+    if (GameScene.lossRun >= 2 && !this.humanWon(w.winner) && !this.initData.cup && !this.initData.gauntlet && !this.initData.trial && !this.initData.daily && !this.story) lines.push('💡 Tough bots? Set BOT LEVEL to EASY, or switch on COMEBACK HELP in Settings.');
     this.receiptText.setText(['🧾 THIS MATCH', ...lines].join('\n')).setVisible(true);
     const b = this.receiptText.getBounds();
     this.receiptG.fillStyle(0x1a0d06, 0.88).fillRoundedRect(b.x - 12, b.y - 10, b.width + 24, b.height + 20, 14).lineStyle(2, 0xffb347, 0.9).strokeRoundedRect(b.x - 12, b.y - 10, b.width + 24, b.height + 20, 14);
@@ -1373,7 +1377,10 @@ export class GameScene extends Phaser.Scene {
     if (this.world.phase === 'roundEnd' || this.world.phase === 'matchEnd') for (const p of this.popups) p.life = Math.min(p.life, 0.25); // the round banner gets the screen
     for (const p of this.popups) {
       p.life -= dt;
-      p.text.y = Math.max(132 + p.text.height / 2, p.text.y + p.vy * dt); // drifts up, but never into the HUD or the mode line
+      const ny = Math.max(132 + p.text.height / 2, p.text.y + p.vy * dt); // drifts up, but never into the HUD or the mode line
+      const blocked = this.popups.some(o => o !== p && o.text.active && o.life > 0 && Math.abs(o.text.x - p.text.x) < (o.text.width + p.text.width) / 2 && Math.abs(o.text.y - ny) < (o.text.height + p.text.height) / 2 && Math.abs(o.text.y - p.text.y) >= Math.abs(o.text.y - ny));
+      if (!blocked) p.text.y = ny; // ...and never drifts into another pop-up
+      if (this.youText?.visible && Math.abs(this.youText.x - p.text.x) < (this.youText.width + p.text.width) / 2 && Math.abs(this.youText.y - this.youText.height / 2 - p.text.y) < (this.youText.height + p.text.height) / 2) p.text.y = Math.min(VIEW.h - p.text.height / 2 - 4, this.youText.y + p.text.height / 2 + 4); // the YOU marker keeps its spot: step below it
       p.text.setAlpha(Math.min(1, p.life * 2));
       if (p.life <= 0) p.text.destroy();
     }

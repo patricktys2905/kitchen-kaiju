@@ -124,6 +124,7 @@ await pg.mouse.click(262, 690); await wait(500); await audit('house rules panel'
 await start('menu', {}, 1500); await pg.mouse.click(92, 690); await wait(400); await audit('keys panel');
 await start('menu', { party: true, mode: 'teams' }, 1500); await pg.evaluate(() => window.__game.scene.getScene('menu').toggleTwists()); await wait(400); await audit('twist picker');
 await start('story', {}, 2000); await pg.evaluate(() => window.__game.scene.getScene('story').showLog()); await wait(400); await audit('story log');
+await start('story', {}, 2000); await pg.evaluate(() => window.__game.scene.getScene('story').showRewards()); await wait(400); await audit('story rewards');
 // story
 await start('story', {}, 2500); await audit('story map');
 await start('story', { campaign: 'seconds' }, 2500); await audit('story map seconds');

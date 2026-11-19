@@ -1,128 +1,192 @@
-# Playtest evaluation: The Achiever (profile 1, port 7101)
+# Playtest evaluation — The Achiever
 
-**Fun score: 6.5 / 10** (the achievement list itself is clear and generous, but unlocks are silent, wins are slow to farm, several achievements hide their requirement behind a mode the harness/Party flow could not reliably start, and money/progress rewards are unannounced.)
+**Fun score: 7.0 / 10** (The Records screen, pinning, achievement payouts and colour rewards are a good loop, but requirements are hidden in the Gallery, progress is not shown after matches, several achievements are trivial or hours-long, and the Practice step 6 SWIPE would not complete for me.)
+
+> Screenshots are in `C:\Users\Pat\kitchen-kaiju\art-src\.playtest\r9-7101\` (shot-N.png). Harness commands used: about 112.
 
 ## What I did
-- About 110 harness commands, roughly 35 minutes of wall time (autoplay is ~36 s per match, so grinding is slow).
-- Screens visited: Title, Records (all 3 pages, pinning), Free Play setup, Party Modes setup, Settings, Pantry (bought Toffee colour), Gallery (kaiju, colour swatches, locked kaiju, Shiny), Challenges panel, Gauntlet (3 runs, best wave 4), Pause menu with QUIT twice, Help > Practice (completed), Story map, Opening cutscene, chapter dialogue, Story Log, Chapter 1 and 2 clears.
-- Matches: ~35 played (autoplay NORMAL ~20, Gauntlet waves ~12, Story 3 tries, Practice). Records ended at 35 matches / 12 wins, 9/37 achievements, Sous Chef rank, ~1170 tokens.
-- Not reached: Daily, Workshop, Online, Spicy, Trials (budget spent on grinding).
-- /errors: "none" at start, middle, end.
+- Title screen, then Records (all 3 pages of 37 achievements, pinned Crumb Muncher), back to title to check the pin showed in NEXT UP.
+- Free Play setup (1 player + bot), played 1 match by hand with /act (won 3-0 vs Pizzaraptor, earned First Bite + Clean Sweep), then `/autoplay n=3` (took about 2 minutes, roughly 40 s per match) and `/autoplay n=1` (54 s). The autoplay matches were 4-player random-kaiju games with my seat moving to a different kaiju each time.
+- 1-minute Practice: reached step 6/8 (SWIPE up close) and could not get past it in about 20 attempts. Quit via the pause menu.
+- Story: opening cutscene, ch1 (2 stars, Crabbage), ch2 (lost once with a bot at the controls, then won 3 stars, unlocked Sloba + New Kaiju reveal), Story map, Rewards counter.
+- Pantry (weekly orders, shop second-tap buy of Toffee), Gallery (kaiju grid, locked kaiju hint, colour row, Mastery ladder), Challenges popup, Daily (Hot Dumpling, lost, 6 rounds).
+- Roughly 9 matches played, 4 won. Records at the end: 5 matches / 1 win after the first batch, 12/18 tables visited after 5 matches.
+- /errors checked at start, middle and end: none.
 
 ## What worked for me
-- Records page is excellent for an achiever: locked cards show progress bars, 0/N counters, the colour reward, and "👉 Next up: X (68%)" at the bottom.
-- Pinning works and shows on the title NEXT UP card ("📌 First Bite: Win a match (0/1)") (shot-5, shot-6).
-- First Service checklist on the title and its entry in the post-match receipt ("🍽 Clear Story chapter 1 ✔ +25 🪙", shot-39) feel great.
-- Locked-colour and locked-kaiju hints in the Gallery say exactly how to unlock ("Ocean: Regular Diner: Win 10 matches (3/10)", "Collect 30 stars in THE GRAND FEAST (you have 0/30)") (shot-23).
-- Gauntlet perks, grade ladder ("C 350 · B 650 · A 1000 · S 1500") and checkpoints are clear (shot-26).
-- Quit-twice works: pause > QUIT shows "TAP QUIT AGAIN TO REALLY END IT" (shot-29).
-- Story chapter-clear panel with stars, quip, unlock line, tokens is charming (shot-43). Story Log works (shot-44).
+- Records is clear: 3 pages, each row has a progress bar, count, colour reward, and the footer says "Each achievement pays 30 🪙". (shot-2/3/5)
+- 📌 Pin works: clicking a locked achievement highlights it and puts it on the title NEXT UP and the post-match "THIS MATCH" panel with live progress (Crumb Muncher 22/100, then 71/100). This is the best thing for me. (shot-5, shot-11, shot-12)
+- Post-match panel lists every 🏆 achievement earned with token payout and the unlocked colour. (shot-11, shot-19)
+- NEW KAIJU reveal after Story ch2 plus "UNLOCKED: SLOBA" on the Chapter Clear card is a satisfying reward moment. (shot-30, shot-31)
+- Locked kaiju in the Gallery say exactly how to unlock them with progress: "Win 5 matches in any mode (you have 3/5)". (shot-36)
+- Pantry second-tap buying ("Silverware colour? tap again to buy for 400") shows price and works; owned items turn green with ✔ OWNED. (shot-34)
+- Defeat card explains "What beat you" and gives a tip. (shot-27)
+- Story chapter clear card with stars, rival quote and next-chapter unlock. (shot-23)
 
 ## 🧾 Exactly what would make this a 9/10 for me
-1. **Loud achievement-unlock moment.** What: toast/banner + receipt row for every achievement unlock. Where: in-match banner and every result receipt (Free Play, Party, Gauntlet, Story). How: "🏆 ACHIEVEMENT: Crumb Muncher +30 🪙 · 🎨 Lime unlocked" slides in for 3 s and is listed on the receipt with a "view" link to Records. Today I earned 9 achievements and never once saw one announced (receipt shot-9, shot-11, shot-14 show nothing; tokens just jump, e.g. 616 to 887 to 912 unexplained). +1.0
-2. **Make win-based achievements farmable.** What: NORMAL autoplay bots won me only 18% of matches (3/17), so "Win 10 / 25 / 50 matches", "On a Roll (3 in a row)", "Too Hot to Handle (5 in a row)" take hours. How: add an "Achievement Tuning" difficulty (EASY bots count at x1) or show clearly on the achievement card which bot level counts; add a Records "how long will this take" hint (e.g. "~25 matches at your win rate"). +0.7
-3. **Unreachable/hidden requirement fixes.** What: title NEXT UP says "Finish the 1-minute Practice (+20 🪙)" but the "NEW HERE? 1-MINUTE PRACTICE" button disappears after your first match; it is only reachable via HELP > PRACTICE tab (shot-32). How: keep a small "PRACTICE" button on the title while First Service step is incomplete, or make the NEXT UP line clickable. +0.4
-4. **Per-achievement "where to do it" shortcut.** What: clicking a locked card only pins it. How: add a "GO" button (Win a Hot Dumpling match opens Party Modes with Hot Dumpling preselected; Clear Gauntlet waves opens Challenges). +0.5
-5. **Party Modes keep their mode.** What: after a Party match, ESC goes to FREE PLAY and a following rematch/autoplay reverted /state mode to "classic" (Crumb Rush state was "crumbRush" for the first match only). If real, Team Feast/Hot Dumpling/Golden Spoon achievements are hard to farm. How: rematch keeps mode, ESC returns to PARTY MODES. +0.4
-6. **Fix inconsistent counters.** What: Records says "Tables visited 18/18" while Free Play says "TABLE: ALL 15 · 3 more to unlock in Story"; World Tour says "12 different tables". How: count only unlocked tables (15/15 or 15/18) and say so. +0.2
-7. **Show price and confirmation on Shiny and give a visible result.** What: Gallery "✨ SHINY" button shows no cost, spends 300 🪙 instantly with no confirm (802 to 502), and the preview did not visibly change (shot-22). How: "✨ SHINY 🪙300 (Lv3 ✔)" with a confirm, and a sparkle preview. +0.4
-8. **Records layout polish.** "Next rank" value ("SOUS CHEF AT 24 PTS (YOU: 19)") crowds the label (shot-17); 3rd achievements page has 1 card with no page indicator ("PAGE ▶" only). Add "PAGE 1/3" and filters (Locked / Close to done / by mode). +0.3
-9. **Rank/points breakdown.** Rank pts "2 per achievement + 1 per Mastery level" is good, but add a rank-ladder view (all ranks and their point costs). +0.2
-10. **Grind speed.** Autoplay ~36 s/match; add a faster "turbo" option or shorter match presets for farming achievements (First to 1 is not offered, FIRST TO cycles up to 5). +0.4
+1. **Show requirements for every locked colour in the Gallery.**
+   - **What:** the 21-swatch "YOUR COLOUR" row shows 15 padlocks with no text.
+   - **Where:** Gallery.
+   - **How:** hovering or selecting a locked swatch shows "🔒 Lime — Win a match (0/1)" with the same progress bar as Records, plus a "go to Records" link.
+   - **Score impact:** +0.6
+2. **A visible progress bar and "how long" estimate for grind achievements.**
+   - **What:** 1,000 crumbs, 250 knockouts, 50 wins, 25 matches, 10 Gauntlet waves have only "0/1000".
+   - **Where:** Records and the post-match panel.
+   - **How:** after every match show a "+N" delta on pinned goals (e.g. "Crumb Muncher 71/100 (+49)") and in Records show "about 3 more matches at your average" for numeric goals. Autoplay should show a running ETA.
+   - **Score impact:** +0.5
+3. **Make Records "Next up" respect the pin and surface more than one goal.**
+   - **What:** after pinning Crumb Muncher the footer still said "Next up: First Bite (0%)" and later "Forked Up (40%)".
+   - **Where:** Records footer.
+   - **How:** footer shows the pinned goal first, then the nearest unpinned. Allow 3 pins.
+   - **Score impact:** +0.3
+4. **Fix the Practice SWIPE step so it can be finished (or auto-skip after 3 tries).**
+   - **What:** stuck at "PRACTICE 6/8 SWIPE up close F / X / SWIPE" for about 20 attempts, even though a rival was in range, and the title goal "Finish the 1-minute Practice (+20 🪙)" never completed.
+   - **Where:** Practice.
+   - **How:** accept SWIPE any time the swipe animation fires, regardless of target. After 20 s on one step show "SKIP STEP ▶".
+   - **Score impact:** +0.5 (a blocked starter goal is the worst thing for an achiever)
+5. **Fix trivial or misleading achievements.**
+   - **What:** "Clean Sweep" (win first-to-3+ without losing a round) was earned in the first 1-bot match; "World Tour: Play on 12 different tables" was earned after 5 matches because Free Play rotates tables each round; "Plot Twist" and "Cup Champion" have no hint at all.
+   - **Where:** Records.
+   - **How:** Clean Sweep needs at least 3 rivals (or Normal+ bots). World Tour should count only tables you won on, or 12 distinct matches. Add subtitle hints to the hint-less ones.
+   - **Score impact:** +0.4
+6. **Show several achievement toasts, not only the last.**
+   - **What:** a match earned 3 achievements (Crumb Muncher, Size Matters, World Tour) but only "Crumb Muncher! +30" appeared top-right at match end. The panel lists them, but the top-right toast shows one.
+   - **Where:** Match-end screen.
+   - **How:** stack up to 3 toasts (the brief says max 3 pop-ups) with a small "+2 more" chip.
+   - **Score impact:** +0.3
+7. **Make autoplay fit grinding.**
+   - **What:** `/autoplay` runs at about 40-55 s per match and ignores which mode I set up (I started in Story ch1 and it ran a 4-player Free Play). With 1,000 crumbs as a goal this is very slow.
+   - **Where:** Free Play / Story.
+   - **How:** a "Grind" speed ×3, or an on-screen FAST button for bot-only matches, plus the ability to choose "play as: bot" for a given mode.
+   - **Score impact:** +0.3
+8. **Show how and when YOU went out on the banner.**
+   - **What:** the result screen lists "Knocked out by: 🦖 a KAIJU x4, 🍴 cutlery" only in the small bottom-left panel, no timestamps. The brief promises "how and when".
+   - **Where:** Match end.
+   - **How:** a line under the title: "You went out in round 2 at 0:41 to a KAIJU stomp".
+   - **Score impact:** +0.2
+9. **Name the achievement rewards, not just the colour name.**
+   - **What:** Records rows show "🎨 Lime" but not what it is.
+   - **Where:** Records.
+   - **How:** a 12-px swatch of the colour next to the name, and a "Wear it" button on the earned row.
+   - **Score impact:** +0.2
+10. **Fix the Daily result length.**
+    - **What:** a Daily (Hot Dumpling, 3 rivals) went to 6+ rounds and about 40 harness seconds, and I lost with "best 1 round".
+    - **Where:** Daily.
+    - **How:** first to 2 for Daily, or cap at 5 rounds.
+    - **Score impact:** +0.2
 
 ## 🔍 Every issue I saw (exhaustive)
+
 | # | Severity | Screen | What's wrong (exact text/element) | Screenshot | Suggested fix |
 |---|---|---|---|---|---|
-| 1 | major | Match result receipt | No achievement unlock shown (9 earned, none announced; receipts only list tokens/XP/First Service) | art-src/.playtest/r8-7101/shot-9.png, shot-11.png, shot-14.png | Add unlock rows + in-match toast |
-| 2 | major | Title | NEXT UP says "Finish the 1-minute Practice" but the practice button is gone after the first match | shot-30.png, shot-31.png | Keep PRACTICE button until done / clickable NEXT UP |
-| 3 | major | Party Modes after a match | ESC from a Party match lands on FREE PLAY; /state mode reverted to "classic" for later matches | shot-14.png | Return to Party Modes, keep mode on rematch |
-| 4 | major | Gallery SHINY button | Costs 300 🪙 silently on click; no price on button, no confirm; preview shows no visible shiny change | shot-21.png, shot-22.png | Show cost + confirm + visible preview |
-| 5 | major | Win achievements | NORMAL-level wins only ~18% in my sample; "Win 10/25/50", streak achievements need many matches at ~36 s each | shot-17.png | Clarify bot level used; tuning options |
-| 6 | minor | Records | "Tables visited 18/18" vs Free Play "ALL 15 · 3 more to unlock" | shot-17.png, shot-7.png | Make counters agree |
-| 7 | minor | Records | "Next rank" value crowds into its label ("SOUS CHEF AT 24 PTS (YOU: 19)") | shot-17.png | Shorten text or right-align on separate line |
-| 8 | minor | Records | 3rd page has one achievement; "PAGE ▶" has no page number | shot-4.png | "PAGE 1/3", or fit 37 on 2 pages |
-| 9 | minor | Records | Pinned card keeps blue outline after it completes (First Bite shows gold unlocked + blue outline) | shot-17.png | Auto-unpin on completion |
-| 10 | minor | Records | No achievement unlock dates, no sort/filter, no "close to done" list | shot-3.png | Add filters |
-| 11 | minor | Pantry | Weekly orders show ✔ complete but I never saw the 40 🪙 paid; token total moved 887 to 912 without explanation | shot-19.png | Receipt line "Order done +40" |
-| 12 | minor | Pantry | Locked/owned shop items fine, but no shiny/mastery info or total remaining | shot-20.png | Add "bought 2/8" |
-| 13 | minor | Settings | KID MODE description says only "Story: easier rivals..." though it now also affects Free Play/Party/Daily | shot-18.png | Update description |
-| 14 | minor | Pause menu | "TAP QUIT AGAIN TO REALLY END IT" is dark red on dark, at the bottom edge far from the button, not in /look text | shot-29.png | Put it on the button ("TAP AGAIN TO QUIT"), higher contrast |
-| 15 | minor | Pause menu | Free Play pause says "QUIT (ends the Cup / run)" even outside a Cup | shot-28.png | Context-aware label |
-| 16 | minor | Gauntlet perk screen | Giant Gobzilla art overlaps the right edge of the "Ghost Start" card | shot-26.png | Draw kaiju behind cards or move |
-| 17 | minor | Gauntlet game over | Digit1 after GAUNTLET OVER silently starts a new run (1-heart "GAUNTLET ❤ WAVE 1" state seen) without confirming | shot-27.png | Show RETRY / MENU buttons explicitly |
-| 18 | minor | Result screen | Duplicate kaiju names with "(YOU)" on only one ("NORIGON (YOU)" vs "NORIGON") | shot-9.png | Add P1 badges / colour tag on result list |
-| 19 | minor | Result screen (Crumb Rush) | Ranking shows rounds, while header shows crumbs; winner CHOCOMUNCH 24 crumbs vs my 16, but "Crumb Monster: GOBZILLA (153 crumbs)" confuses what wins | shot-15.png | Show mode-specific win condition |
-| 20 | minor | Result receipt | Bottom-left receipt overlaps part of the arena art and a stray white fork/knife icon box appears at [222,484] | shot-9.png | Clean stray icon |
-| 21 | minor | Chapter CLEAR banner (in match) | No stars shown on the in-match banner; stars only appear on the map panel (shot-43) | shot-39.png | Show ★ earned |
-| 22 | minor | Story chapter 2 | Chat auto-started; Space skipped one line but unclear whether S skips all | shot-40.png | Consistent skip |
-| 23 | minor | Story | After DEFEATED, Digit1 is not RETRY (nothing happens); Retry only by click | shot-38.png | Bind Enter to the focused button |
-| 24 | minor | Story Log | Lots of empty space, small text; only 2 lines | shot-44.png | Larger text, icons per chapter |
-| 25 | polish | Title top buttons | SETTINGS/HELP/KAIJU/RECORDS/PANTRY/WORKSHOP labels are tiny (~10 px) | shot-6.png | Larger labels |
-| 26 | polish | Party Modes setup | Bottom hint "🏆 Party Cup = 6 games..." sits ~8 px above KEYS / HOUSE RULES buttons; very cramped | shot-13.png | Add spacing |
-| 27 | polish | Party Modes | FIRST TO button cycles 3 to 5 with no 1 or 2; I accidentally made a 5-round match | shot-13.png | Offer 1/2/3 and show cycle |
-| 28 | polish | Gallery | Mastery line "Mastery ★★★★★★★ Lv 3 Sous Chef (69/160 XP) · next: Gold name in matches" wraps tight to the bottom edge of the panel | shot-21.png | More padding |
-| 29 | polish | Gallery | Locked kaiju silhouettes show "???" with no hint until clicked; no unlock list overview | shot-21.png | Show hint line on hover |
-| 30 | polish | Gallery | "Matches: 5 · Wins: 0" for Gobzilla while I won a Story chapter with Gobzilla (Gallery stats not updated live or only counts Free Play) | shot-21.png | Check counters |
-| 31 | polish | Challenges panel | Locked course cards only say "clear wave 4", "wave 8", "wave 12"; fine, but Gauntlet Runner (5 waves) and these thresholds are not linked | shot-24.png | Link to achievements |
-| 32 | polish | Defeated panel | Large empty gap between title and body | shot-38.png | Tighten |
+| 1 | major | Practice | Step stays at "PRACTICE 6/8 👉 SWIPE up close F / X / SWIPE" even with a rival nearby and F pressed repeatedly; goal "Finish the 1-minute Practice (+20 🪙)" can't be completed (brief says SWIPE step was fixed; it may be a harness input limit, but a real player would also see no feedback) | shot-15, shot-16 | Count any swipe; add skip step button after 20 s |
+| 2 | major | Gallery | Locked colour swatches in "YOUR COLOUR" show only 🔒 with no requirement text; clicking one gives nothing | shot-35 | Tooltip / detail text with requirement + progress |
+| 3 | major | Records | After pinning Crumb Muncher, footer "👉 Next up: First Bite (0%)" ignores the pin | shot-5 | Pinned goal first in the footer |
+| 4 | minor | Records | Footer later says "Next up: Forked Up (40%)" while the pinned goal and other goals are closer or equal | n/a (look text) | Sort by closeness and show pinned |
+| 5 | major | Match end | 3 achievements earned in one match (Crumb Muncher, Size Matters, World Tour) but only one toast "🏆 Crumb Muncher! +30" shown top-right | shot-19 | Stack up to 3 toasts |
+| 6 | minor | Match end | Earlier match: First Bite and Clean Sweep both earned, toast shows only "Clean Sweep! +30" | shot-11 | Same as #5 |
+| 7 | major | Records | "Clean Sweep: Win a first-to-3+ match without losing a round" earned in my very first 1-bot match | shot-11 | Require 3+ rivals or Normal+ |
+| 8 | major | Records | "World Tour: Play on 12 different tables" unlocked after 5 matches (12/18 tables visited), because Free Play rotates a new table every round | shot-20, shot-19 | Count tables won on, or only the match's first table |
+| 9 | minor | Records | Page 3 holds a single achievement (Dinner Party Animal) and there is no "1/3" page indicator; PAGE button just wraps | shot-4 | Show "Page 3/3" and use 19 per page or rebalance |
+| 10 | minor | Records | No hint text for "Cup Champion", "Plot Twist", "Table Maker" beyond one line; "Smoothie Operator: Shove a rival into the blender" doesn't say which table has the blender | shot-3 | Add table name / mode hint |
+| 11 | minor | Records | Grind goals (1,000 crumbs, 250 KOs) have no time estimate | shot-2 | Show average-per-match and ETA |
+| 12 | minor | Records | "Chef Rank: Dishwasher; Next rank: Prep Cook · 0/6" and "Rank pts: 2 per achievement + 1 per Mastery level" are cramped at the bottom of the stats panel (tiny grey text) | shot-2 | Larger text, put rank on its own row |
+| 13 | polish | Records | Stats panel values are right-aligned but the numbers sit lower than their labels (e.g. "Matches played" at y=161 vs "0" at y=167) | shot-2 | Align baselines |
+| 14 | major | Title | "NEXT UP · FIRST SERVICE 4/6" shows only 3 lines; hides the other 2 goals, and Practice stays listed even though it is blocked by #1 | shot-37 | Tap to expand the full list |
+| 15 | minor | Match end | Kaiju name inconsistent: top bar "GOBZILLA", banner "GOBZILLA JR. RULES THE TABLE", Gallery grid "GOBZILLA" and detail "GOBZILLA JR." | shot-11, shot-35 | Pick one name |
+| 16 | minor | Match end | "How and when YOU went out" not visible as a banner line; only "Knocked out by: 🦖 a KAIJU x4, 🍴 cutlery" in the small panel, no times | shot-12, shot-42 | Add a banner line with round and time |
+| 17 | minor | Match end | Bottom-left THIS MATCH panel (up to 8 lines) nearly touches the SHARE button and covers a table corner | shot-19, shot-42 | Move panel up or scroll |
+| 18 | minor | Match end | The bottom awards strip ("🍴 Most KOs … 🛡️ Survivor") runs through the table's border line and the full line was cut off in /look at 4 awards | shot-12 | Wrap onto two lines or use a darker strip |
+| 19 | polish | Match end | The 😂 emote sticks over the banner area on a stale frame | shot-12 | Clear emotes at match end |
+| 20 | major | Free Play / Autoplay | `/autoplay` after starting a Story chapter ran a 4-player Free Play match, and my seat's kaiju changed each match (Gobzilla, Dumplord, Pizzaraptor, …) | shot-13, shot-19 | Keep the picked kaiju and mode |
+| 21 | minor | Free Play | Setup text "12/20 kaiju (play & Story unlock more)" and "TABLE: ALL 13 · 5 more to unlock" are small and crammed at y=424-452; unlock goals are not named | shot-7 | Show the next unlock ("Win 1 match → Lime") |
+| 22 | minor | Free Play | Bot level explanation only appears at the bottom line ("🤖 NORMAL: fair aim, dodges sometimes") in 11-px text after a seat is clicked | shot-7 | Larger text near the BOT LEVEL pill |
+| 23 | minor | Story | Opening cutscene plays automatically the first time I open Story, with only a small SKIP ▶▶ at top right, and its caption "THE GRAND FEAST" sits low over the strawberry's face | shot-17 | Fine, but make skip bigger |
+| 24 | minor | Story map | SCENE button at (1172,560) extends past the right panel border (right edge 1248 vs panel 1250), and sits right next to "Not cleared yet" | shot-18 | Add margin |
+| 25 | minor | Story map | Title strip says "Story 2% complete · ★ 0/36 · 🌶️ 0/12 · 🎁 2/13" in 14-px text that is hard to read against the busy background | shot-18 | Add a darker plate |
+| 26 | polish | Story map | Locked chapter 4/8/12 boss tiles have red outlines but no crown hint until you read the name | shot-18 | Fine; label "BOSS" |
+| 27 | minor | Story pre-match | Squidgeon's dialogue panel covers the map and the right-hand "PLAY" button; the speaker's art overlaps chapter tile 7/8 text | shot-24 | Dim the map more |
+| 28 | minor | Defeat card | Large empty gap between the "DEFEATED" title and the text (y=140-270) | shot-27 | Put the rival art or stars there |
+| 29 | polish | Chapter Clear | Reward line "UNLOCKED: SLOBA" icon is tiny next to the New Kaiju reveal that already appeared | shot-31 | Fine; add "see in Gallery" |
+| 30 | polish | NEW KAIJU reveal | Chapter Clear card is still visible dimmed behind the reveal (shows "NEXT / REPLAY / MAP" ghosted behind SLOBA's art) | shot-30 | Fade the card fully before the reveal |
+| 31 | minor | Pantry | Lifeline shows "🪙 245 🏷 −30% today" but never the original price, so the discount is unverifiable | shot-34 | Show the strike-through price |
+| 32 | minor | Pantry | Weekly orders: "New orders every Monday" but no countdown ("resets in 3 days") | shot-32 | Add timer |
+| 33 | minor | Pantry | Buying Toffee colour gave no Chef Rank progress and no toast; the shop doesn't say colours are cosmetic only | shot-34 | Show a "+1 colour" toast |
+| 34 | polish | Pantry | "✔ OWNED" card loses its description and swatch preview | shot-34 | Keep the preview |
+| 35 | polish | Pantry | Chef Rank text at left bottom uses the heading font at small size, harder to read than the rest | shot-32 | Use body font |
+| 36 | major | Gallery | Mastery reward ladder is only icons: "Rewards: ✔✨ 🔒⭐ 🔒🪙 🔒🍽 🔒👑 🔒✨" with no level numbers or names, so I can't tell what Lv 3 or Lv 5 give | shot-35 | Label each rung with level and reward |
+| 37 | minor | Gallery | "Matches: 4 · Wins: 3" for Gobzilla but Records showed 5 played; per-kaiju counts exclude Practice and Free Play seat changes without saying so | shot-35 | Footnote |
+| 38 | minor | Gallery | Collection line "Collection 59% 🐉 15/20 · 🍽 14/18 · 🎨 6/21" is tiny and top-right (small font at 1250,52) | shot-35 | Larger |
+| 39 | minor | Gallery | After clicking a locked kaiju the colour row still shows classic swatch (wearing) for the "???" kaiju | shot-36 | Hide colour row for locked kaiju |
+| 40 | minor | Daily | Starting Daily jumps straight into the match; no countdown screen listing the rivals' levels was visible beyond the in-match banner "3 rivals (normal, easy, easy)" | shot-38 | Add the intro screen |
+| 41 | minor | Daily | In-match intro banner "📅 DAILY · 3 rivals … Picnic Blanket" is white text on the red-checked table and overlaps the spawn pad on the left | shot-38 | Add a dark backing plate |
+| 42 | major | Daily | Hot Dumpling Daily lasted 6+ rounds (my harness time about 40 s); "best 1 round · tries 1 · win streak 0 days" | shot-42 | First to 2 |
+| 43 | minor | Daily result | "🥉 Bronze daily medal (for playing today: win for 🥈)" wraps awkwardly, medal emoji on one line, "win for 🥈 )" with a stray space | shot-42 | Reword |
+| 44 | minor | Title | "NEW HERE? 1-MINUTE PRACTICE ▶" button overlaps the middle kaiju art and sits very close to the big six mode buttons | shot-1 | Move higher |
+| 45 | polish | Title | Top-right buttons (SETTINGS, HELP, KAIJU, RECORDS, PANTRY, WORKSHOP) use 11-px text | shot-1 | Bigger |
+| 46 | polish | Title | After Challenges popup closes, background is dimmed and the NEXT UP box is cut behind the popup | shot-37 | Fine |
+| 47 | polish | Pause | Pause menu "QUIT" went straight to title with no confirmation in Practice (brief mentions the quit confirmation) | shot-16 | Check confirmation exists in all modes |
+| 48 | minor | Records | Pin has no way to un-pin that is visible (no tooltip) and the pinned row looks like a hover highlight (blue outline) | shot-5 | Show "📌 pinned" label |
 
-## 🔠 Text and layout check (do this on EVERY screen you visit)
-- Title: OK, but top nav labels are very small (shot-6). NEXT UP card text fits.
-- Records page 1/2/3: OK; minor crowding on "Next rank" row (shot-17).
-- Free Play setup: OK (shot-7).
-- Party Modes setup: hint text close to bottom buttons (shot-13).
-- Settings: OK, all text fits (shot-18).
-- Pantry: OK (shot-19, shot-20).
-- Gallery: OK, bottom panel text tight (shot-21, shot-23).
-- Challenges panel: OK (shot-24).
-- In match HUD / countdown: OK (shot-8).
-- Match results (Free Play, Crumb Rush, Gauntlet): receipt overlaps arena art; stray icon in shot-9; Giant kaiju overlaps a perk card in shot-26.
-- Pause menu: low-contrast confirm text (shot-29).
-- Story map, chapter panel, defeat panel, clear panel, Story Log: OK (shot-35, 38, 43, 44).
-- Help (Practice): OK; Practice complete panel OK (shot-33).
-- Not checked: Daily, Workshop, Online, Spicy, Trials.
+## 🔠 Text and layout check
+- **Title**: OK, but the NEXT UP box is tight and 11-px top buttons (shot-1). Practice button sits close to the mode buttons.
+- **Records pages 1 / 2 / 3**: OK, no overlap; the footer wraps to two lines but stays inside; page 3 mostly empty (shot-2, shot-3, shot-4, shot-5).
+- **Free Play setup**: OK; the unlock text is small (shot-7).
+- **In-match (Picnic Blanket, Sunday Roast)**: OK; countdown tip text sits over the table (shot-8). Daily banner overlaps spawn pad (shot-38).
+- **Match end (1v1, 4-player, Daily)**: no overlap, but the THIS MATCH panel is crammed against SHARE and the awards strip runs through the table border (shot-11, shot-12, shot-19, shot-42).
+- **Pause menu**: OK (shot-16).
+- **Story map**: SCENE button touches the panel edge (shot-18); dialogue overlay covers the map (shot-24).
+- **Chapter Clear / Defeated cards**: OK; empty gap on Defeated (shot-23, shot-27, shot-31).
+- **NEW KAIJU reveal**: ghosted card behind (shot-30).
+- **Pantry**: OK (shot-32, shot-34).
+- **Gallery**: OK; reward ladder is icon-only, collection line small (shot-35, shot-36).
+- **Challenges popup**: OK (shot-37).
+- **Cutscene**: caption small (shot-17).
+- No text overlapping other text, no stacked buttons found.
 
 ## The single biggest structural problem
-Achievements are not a *felt* system. I unlocked 9 without a single moment of celebration, the receipts do not mention them, and the requirements that matter (win counts, streaks, each Party mode) are slow to farm: autoplay costs ~36 s per match with an 18% win rate at NORMAL, and Party matches do not keep their mode between rematches. The achiever loop needs: do thing, see banner, see reward, see next goal, all within seconds.
+Achievements are a good system on paper, but the player can't plan around them. Colour rewards are hidden in the Gallery, grind goals give no ETA, and the main grind tool (autoplay) is slow and loses my mode and kaiju. A few achievements are too easy (Clean Sweep, World Tour) and so feel meaningless, while others are huge with no pacing. Add a blocked starter goal (Practice step 6) and the new-save "NEXT UP" list feels broken at its start.
 
-## Big change proposals (2–3, most important first)
-### Proposal 1: Achievement toasts + "Trophy Receipt"
-- **Problem it solves:** silent unlocks, unexplained token jumps.
-- **How it would work:** whenever an achievement completes, a gold banner slides from the top for 3 s ("🏆 CRUMB MUNCHER · +30 🪙 · 🎨 Lime colour"), the receipt gets a "🏆 Achievements" section with the same lines, and the Records card flashes NEW on next visit. Multiple unlocks queue. A "Next up" pin shows progress ("Win 10 matches 4/10 (+1)") on every receipt even when nothing unlocked.
-- **Example moment:** I win my 10th match; the banner says "🏆 REGULAR DINER +30 🪙 · 🎨 Ocean unlocked", the receipt lists it, and "Next: House Favourite 10/25".
-- **Rewards / progression hooks:** shows rank points gained; "2 pts: Sous Chef in 9 pts".
-- **Risks and edge cases:** banner overlapping HUD (place under top bar), many unlocks at once (queue max 3 and collapse).
-- **Size:** S
+## Big change proposals (2-3, most important first)
+### Proposal 1: Achievement Planner
+- **Problem it solves:** I can't see what to chase, how long it takes, or what colour I'm earning.
+- **How it would work (detailed design):** Records gets a "PLAN" tab. Rows are grouped Easy (under 3 matches), Medium (3-10), Grind (10+), each with estimated matches from my own averages. Pins allow 3 goals. Each row shows the colour swatch it unlocks. Post-match panel shows deltas ("+49 crumbs"). Gallery swatches link back to the row.
+- **Example moment:** I finish a match, the panel says "Crumb Muncher 71/100 (+49) · about 1 match left" and the Gallery swatch for Lime shows "Win a match 0/1".
+- **Rewards / progression hooks:** Completing 3 pinned goals in a day gives a bonus 50 🪙 "Planner" order in Pantry.
+- **Risks and edge cases:** Estimates need an average of at least 3 matches.
+- **Size:** M
 - **Score impact for me:** +1.0
 
-### Proposal 2: "GO" shortcuts and a Goals tab
-- **Problem it solves:** achiever must figure out which mode satisfies each requirement; Practice button vanishes; party mode resets.
-- **How it would work:** Records gets a "GOALS" tab sorted by closest to done; every card has GO which opens the right setup screen with mode/bot level preset (e.g. "Win a Hot Dumpling match" opens Party Modes with Hot Dumpling selected). Party rematch keeps mode. Pinned goal also gets a title button.
-- **Example moment:** I pin "Speed Eater", press GO, land on Party Modes with CRUMB RUSH selected, press PLAY.
-- **Rewards / progression hooks:** completing all in a category gives a bonus colour.
-- **Risks and edge cases:** locked modes; show lock reason.
-- **Size:** M
-- **Score impact for me:** +0.8
-
-### Proposal 3: Farming helpers (Quick Match / Achievement Mode)
-- **Problem it solves:** hours of 36 s matches at an 18% win rate for streak and win-count achievements.
-- **How it would work:** "QUICK MATCH" preset: First to 1 round, EASY or KID bots, 1 rival; count toward win/streak achievements at full weight (or announce clearly that it counts). Records shows "est. matches to go".
-- **Example moment:** "Too Hot to Handle: 3/5, ~2 minutes with Quick Match".
-- **Rewards / progression hooks:** none extra, just time saved.
-- **Risks and edge cases:** devalues achievements; limit knockouts/KAIJU counts to normal weight.
+### Proposal 2: Grind Mode (Fast bot match)
+- **Problem it solves:** Autoplay takes 40-55 s per match and changes the setup.
+- **How it would work (detailed design):** A "⏩ GRIND" toggle on Free Play and Story setup runs matches at ×3 with a bot in your seat, same kaiju and mode, then shows one summary ("5 matches, 3 wins, +212 🪙, 2 achievements"). Caps at 10 matches per run; Daily and Gauntlet are excluded so skill still matters there.
+- **Example moment:** I pin Bottomless Belly (0/1000), press GRIND ×10, come back to a summary with 380 crumbs and a toast row.
+- **Rewards / progression hooks:** Grind matches pay 50% tokens to keep real play valuable.
+- **Risks and edge cases:** Needs to be blocked from Online; half pay avoids exploit.
 - **Size:** M
 - **Score impact for me:** +0.6
 
+### Proposal 3: Achievement tiers and fixes
+- **Problem it solves:** Some achievements are trivial and the others have no mid-way rewards.
+- **How it would work (detailed design):** Make Clean Sweep and World Tour harder as above, then give every numeric goal Bronze / Silver / Gold steps (e.g. crumbs 100 / 400 / 1,000 already exist as separate rows, so fold them into one row with 3 ticks). Gold gives the colour.
+- **Example moment:** One Crumb row, one bar with three notches, the third gives Lava.
+- **Rewards / progression hooks:** 10 / 30 / 60 🪙 per tier.
+- **Risks and edge cases:** Existing saves need migrating to tiers.
+- **Size:** L
+- **Score impact for me:** +0.5
+
 ## How this round's new features felt
-- **Shiny forms:** Mastery Lv 3 + 300 🪙 purchase works but is silent and nothing visibly changes in the Gallery preview or on my Gobzilla in matches (shot-22, shot-26). No price on the button. This is the least clear new feature for an achiever.
-- **Party Cup ON/OFF:** the switch exists (shot-13) and the hint line explains it clearly, but I could not play a full Cup in my budget.
-- **Quit asks twice:** works (shot-28, 29) but the confirm text is hard to see.
-- **Story Log / locked tabs:** "clear chapter 6 to open" and "finish the Grand Feast" are clear (shot-35); Log works but sparse (shot-44).
-- **Kid Mode settings text:** stale (Story-only wording).
-- **Receipts carry achievements and First Service:** First Service yes ("Clear Story chapter 1 ✔ +25 🪙", shot-39), but achievements do not appear in receipts at all.
-- **Tough/Hard bots:** autoplay NORMAL lost 82% of matches; auto:hard won Story chapters 1 and 2 reliably, so the labels may not match difficulty feel (I can't confirm the in-game TOUGH level).
-- **Tiny Practice:** needed SWIPE (key F) to finish step 8; there is no hint that the harness's /act cannot swipe, but in-game prompt "SWIPE up close F / X / SWIPE" is clear (shot-33).
-- **Not touched:** Giant Hand dodge, Workshop UNDO, TWIST picker, phone layout.
+- **🏆 Achievement toasts:** the toast is fast and readable ("🏆 Clean Sweep! +30 🪙", top right, not overlapping), but only one is shown per match even when 3 were earned. The panel lists all, which is good. Feels 7/10.
+- **🎁 NEW KAIJU toast:** the reveal is lovely; a ghosted Chapter Clear card behind it is the only blemish.
+- **🌱 4 kaiju / 2 tables locked:** works. The Gallery shows exact requirements for kaiju ("Win 5 matches in any mode (you have 3/5)"), and Free Play says "12/20 kaiju" and "5 more to unlock". For an achiever this is the best-explained part of the game. Unlocks came quick (Sloba after ch2). The locked tables don't say how to unlock.
+- **Pantry orders show payout:** yes ("Knock out 20 rivals · 40 🪙", "✔ ... +40 🪙 paid"). Weekly timer missing.
+- **SHINY / Pantry second tap:** works and shows price; I did not hit a refusal message (I had enough tokens). The Gallery SHINY button says "300 🪙 · needs Lv 3" which is a clear refusal reason.
+- **Fairness: bots don't attack first 1.4 s, round-end banner:** the banner says nothing about when I went out on screen; only the panel line "Knocked out by: …". Partial.
+- **Daily rivals' levels:** the in-match banner names them ("normal, easy, easy"), good, but the Daily is too long.
+- **Gallery power reach/cooldown:** shown ("reach 207 · every 1.6 s"). Mastery ladder is icon-only.
+- **Practice SWIPE step:** blocked for me at 6/8.
+- **At most 3 pop-ups:** I never saw more than 1.
 
 ## Bugs that block play
-- None blocking. Possible: Party Modes mode not kept on rematch/after ESC (to confirm outside the harness), and title NEXT UP asks for Practice after the title button disappears (workaround exists via HELP > PRACTICE).
+- Practice step 6/8 "SWIPE up close" does not complete, so the "Finish the 1-minute Practice (+20 🪙)" goal on the title can't be finished (shot-15). Could be harness-specific, but there was no visible feedback on what was missing.
+- `/autoplay` after starting a Story chapter ran a different mode and kaiju (shot-13, shot-19).

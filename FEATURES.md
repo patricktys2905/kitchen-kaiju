@@ -932,3 +932,35 @@ From the 10 Sonnet playtester reports in `playtest-reports/`.
    
    Unlocks earned by playing pop up as a "🎁 NEW KAIJU / NEW TABLE" toast after the match. The Gallery, NEXT UP and setup screens show the progress.
 - Party setup: PLAY is a little smaller and the hint sits clear of it. The Cup route uses short mode names.
+
+## 71. Round 9 fixes
+- **Story Rewards:** the panel switches to 3 columns when there are more than 8 rewards, and CLOSE sits at the top, so every reward fits on a 720 px screen.
+- **Quit confirm:** every match except Practice and Move Lab asks "tap again to quit". The prompt resets when you resume and expires after 4 s.
+- **Practice:** a step stuck for 30 s is skipped, so Practice always finishes.
+- **Chapter Clear card:** the achievement line flows below the unlock line instead of on top of it.
+- **SECOND HELPINGS:** the map button turns live ("now open!") as soon as the campaign unlocks.
+- **Unlocks:**
+  - Listed on the match receipt as well as in toasts.
+  - Toasts now last 4 s.
+- **Comic panels:** they can't be skipped in their first 2 s.
+- **Bots:**
+  - They don't STOMP in the first 4 s of a round (`RULES.botStompGrace`).
+  - Story ch3 Leftovers is first to 2 rounds.
+- **Phone:**
+  - The Cup pill shows ON/OFF.
+  - The TWIST pill shows the short double-twist name.
+  - Party setup has a 📱 PHONES AS PADS pill.
+  - The bot-level explainer shows in the info line.
+- **Setup:**
+  - The bot explainer stays alongside a twist blurb.
+  - Kid Mode's bot level reads "EASY 🧸".
+  - Perks are labelled "1 · name".
+  - The first match uses owned tables.
+  - Daily's countdown names its rival levels.
+- **HUD:**
+  - The YOU marker hides while the STOMP coach shows.
+  - Free-for-all text moved to y 168.
+  - At most 3 pop-ups, kept below the HUD.
+- **Gallery:** mastery rewards are listed in words: "Rewards (Lv 2-6): ✔ sparkles · 🔒 HUD star · … · 🔒 Shiny".
+- **Couch lobby:** a smaller QR code (150 px) and a compact panel.
+- **Text audit:** now includes the Story Rewards panel.

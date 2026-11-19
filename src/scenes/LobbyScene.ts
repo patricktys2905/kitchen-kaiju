@@ -57,7 +57,9 @@ const CSS = `
 
 #lobby .coderow { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
 #lobby .qr { display: flex; align-items: center; gap: 12px; }
-#lobby.couch .qr img { width: 170px; height: 170px; }
+#lobby.couch .qr img { width: 150px; height: 150px; }
+#lobby.couch .panel { padding: 14px 24px; font-size: 14px; max-height: 88vh; }
+#lobby.couch button { padding-top: 6px; padding-bottom: 6px; }
 #lobby .qr img { width: 96px; height: 96px; image-rendering: pixelated; border-radius: 8px; background: #fff; }
 #lobby .qr span { font-size: 15px; opacity: 0.85; max-width: 180px; text-align: left; }
 `;

@@ -143,7 +143,7 @@ export class StoryScene extends Phaser.Scene {
     // 🍰 Dessert Course: post-game, after the ending
     // campaign switch: The Grand Feast ⇄ Second Helpings
     if (this.main && secondsUnlocked()) this.buttons.push(new Button(this, 1135, 50, { w: 260, h: 44, label: '🍽 SECOND HELPINGS ▶', size: 16, accent: 0x8dff6a, onClick: () => { if (this.mode === 'map') { sfx.go(); this.scene.restart({ campaign: 'seconds' }); } } }, 6));
-    if (this.main && !secondsUnlocked()) this.buttons.push(new Button(this, 1135, 50, { w: 260, h: 44, label: '🔒 SECOND HELPINGS', sub: 'clear chapter 6 to open', size: 15, accent: 0x6a5a4a, disabled: true, onClick: () => {} }, 6));
+    if (this.main && !secondsUnlocked()) { const sh = new Button(this, 1135, 50, { w: 260, h: 44, label: '🔒 SECOND HELPINGS', sub: 'clear chapter 6 to open', size: 15, accent: 0x6a5a4a, onClick: () => { if (secondsUnlocked() && this.mode === 'map') { sfx.go(); this.scene.restart({ campaign: 'seconds' }); } else sfx.thwock(); } }, 6); this.buttons.push(sh); this.time.addEvent({ delay: 500, loop: true, callback: () => { if (secondsUnlocked()) sh.setText('🍽 SECOND HELPINGS ▶', 'now open!'); } }); }
     if (this.main && !this.save.endingSeen) this.buttons.push(new Button(this, 910, 50, { w: 165, h: 44, label: '🔒 DESSERT', sub: 'finish the Grand Feast', size: 15, accent: 0x6a5a4a, disabled: true, onClick: () => {} }, 6));
     if (!this.main) this.buttons.push(new Button(this, 1135, 50, { w: 260, h: 44, label: '◀ THE GRAND FEAST', size: 16, accent: 0xffcf8a, onClick: () => { if (this.mode === 'map') { sfx.go(); this.scene.restart({ campaign: 'main' }); } } }, 6));
     if (this.main && this.save.endingSeen) {
@@ -472,6 +472,7 @@ Next course: ${nextCh.title}. ${nextRival} is already sharpening the cutlery…`
       this.overlay.push(chef);
       y += chef.height + 10;
       if (r.receipt?.length && y + 22 < BTN_Y - 44) { const rc = this.add.text(640, y, r.receipt.join('   ·   '), body(14, '#cdb9a3', 800)).setOrigin(0.5, 0).setDepth(31); this.overlay.push(rc); y += rc.height + 6; }
+      if (gotAch.length) { const at = this.add.text(640, y, `🏆 ${gotAch.map(a => a.name).join(', ')}!`, body(17, '#ffd24a', 900)).setOrigin(0.5, 0).setDepth(31); this.overlay.push(at); y += at.height + 6; }
       // never under the buttons: squeeze everything above them if a big unlock made the card too tall
       const over = y - (BTN_Y - 44);
       if (over > 0) for (const o of this.overlay) { const tt = o as Phaser.GameObjects.Text & { y: number }; if (typeof tt.y === 'number' && tt.y > CARD.y + 120) tt.y -= over * ((tt.y - CARD.y - 120) / Math.max(1, y - CARD.y - 120)); }
@@ -486,7 +487,7 @@ Next course: ${nextCh.title}. ${nextRival} is already sharpening the cutlery…`
       if (r.receipt?.length) this.overlay.push(this.add.text(640, BTN_Y - 52, r.receipt.join('   ·   '), body(13, '#cdb9a3', 800)).setOrigin(0.5).setDepth(31)); // losses still pay tokens + mastery
     }
     const btns: { label: string; act: () => void; accent?: number }[] = [];
-    if (gotAch.length) this.overlay.push(this.add.text(640, Math.min(y, BTN_Y - 66), `🏆 ${gotAch.map(a => a.name).join(', ')}!`, body(18, '#ffd24a', 900)).setOrigin(0.5, 0).setDepth(31));
+    if (gotAch.length && !r.won) this.overlay.push(this.add.text(640, Math.min(y, BTN_Y - 66), `🏆 ${gotAch.map(a => a.name).join(', ')}!`, body(18, '#ffd24a', 900)).setOrigin(0.5, 0).setDepth(31));
     if (r.won && last && !this.save.endingSeen) btns.push({ label: 'THE ENDING ▶', act: () => this.showEnding(), accent: 0xffd24a });
     else if (r.won && !last) btns.push({ label: 'NEXT ▶', act: () => { this.clearOverlay(); this.mode = 'map'; this.select(r.chapter + 1); this.play(); }, accent: 0xff9a3c });
     btns.push({ label: r.won ? 'REPLAY' : 'RETRY', act: () => { this.clearOverlay(); this.mode = 'map'; this.sel = r.chapter; this.helping = false; this.play(); }, accent: r.won ? undefined : 0xff9a3c });
@@ -541,22 +542,23 @@ Next course: ${nextCh.title}. ${nextRival} is already sharpening the cutlery…`
     this.overlay.push(withShadow(this.add.text(640, 112, '🎁 STORY REWARDS', display(40, '#ffd24a', { strokeThickness: 7 })).setOrigin(0.5).setDepth(31), 4));
     this.overlay.push(this.add.text(640, 152, 'Earn new kaiju and tables for Free Play and Online by playing Story mode.', body(16, '#e9dccb', 800)).setOrigin(0.5).setDepth(31));
     UNLOCKS.forEach((u, k) => {
-      const col = k % 2, row = Math.floor(k / 2), x = 240 + col * 420, y = 200 + row * 102;
+      // 3 columns once there are many rewards (new saves have 13), so every card fits inside the panel
+      const cols = UNLOCKS.length > 8 ? 3 : 2, cw = cols === 3 ? 282 : 400, ch = cols === 3 ? 84 : 90, col = k % cols, row = Math.floor(k / cols), x = 205 + col * (cw + 12), y = 180 + row * (ch + 8);
       const got = isEarned(u, this.save);
       const card = this.add.graphics().setDepth(31);
-      card.fillStyle(got ? 0x3a2412 : 0x1c1714, 1); card.fillRoundedRect(x, y, 400, 90, 14);
-      card.lineStyle(3, got ? 0xffd24a : 0x4a3e34, 1); card.strokeRoundedRect(x, y, 400, 90, 14);
+      card.fillStyle(got ? 0x3a2412 : 0x1c1714, 1); card.fillRoundedRect(x, y, cw, ch, 14);
+      card.lineStyle(3, got ? 0xffd24a : 0x4a3e34, 1); card.strokeRoundedRect(x, y, cw, ch, 14);
       this.overlay.push(card);
       const key = u.kind === 'kaiju' ? `kaiju-${u.index}` : LAYOUTS[u.index].table;
       if (hasArt(key)) {
-        const img = this.add.image(x + 50, y + 45, key).setDepth(32);
-        if (u.kind === 'kaiju') fitInside(img, 76, 76); else img.setDisplaySize(84, 48);
+        const img = this.add.image(x + 40, y + ch / 2, key).setDepth(32);
+        if (u.kind === 'kaiju') fitInside(img, 64, 64); else img.setDisplaySize(68, 40);
         if (!got) img.setTint(0x1a1410); // locked: a dark silhouette
         this.overlay.push(img);
       }
       const name = got ? unlockName(u) : u.kind === 'kaiju' ? '??? (mystery kaiju)' : `${unlockName(u)} (table)`;
-      this.overlay.push(this.add.text(x + 100, y + 18, (got ? '✓ ' : '🔒 ') + name, display(19, got ? (u.kind === 'kaiju' ? SPECIES[u.index].css : '#ffe9c7') : '#a89680', { strokeThickness: 3 })).setDepth(32));
-      this.overlay.push(this.add.text(x + 100, y + 50, got ? (u.kind === 'kaiju' ? `Playable now · ${SPECIES[u.index].food}` : 'Playable now in Free Play and Online') : needText(u), body(14, got ? '#8dff6a' : '#e9dccb', 800, { wordWrap: { width: 290 } })).setDepth(32));
+      this.overlay.push(this.add.text(x + 82, y + 10, (got ? '✓ ' : '🔒 ') + name, display(cols === 3 ? 15 : 19, got ? (u.kind === 'kaiju' ? SPECIES[u.index].css : '#ffe9c7') : '#a89680', { strokeThickness: 3 })).setDepth(32));
+      this.overlay.push(this.add.text(x + 82, y + 36, got ? (u.kind === 'kaiju' ? `Playable now · ${SPECIES[u.index].food}` : 'Playable now in Free Play and Online') : needText(u), body(cols === 3 ? 11 : 14, got ? '#8dff6a' : '#e9dccb', 800, { wordWrap: { width: cw - 92 } })).setDepth(32));
     });
     this.overlayButtons.push(new Button(this, 990, 112, { w: 150, h: 48, label: '✖ CLOSE', size: 20, onClick: () => { this.clearOverlay(); this.mode = 'map'; } }, 33));
     this.overlayFocus = 0;
@@ -717,7 +719,7 @@ Next course: ${nextCh.title}. ${nextRival} is already sharpening the cutlery…`
       const shown = Math.max(0, Math.floor((this.cutT - 0.8) * 40));
       this.cutCaption?.setText(text.slice(0, shown));
       this.overlayButtons.forEach(b => b.update(dt));
-      if (this.cutT > this.cutLen || ((go || back) && this.cutT > 0.4)) this.endCut();
+      if (this.cutT > this.cutLen || ((go || back) && this.cutT > (this.cut?.noVideo ? 2 : 0.4))) this.endCut(); // stills (comic panels) stay long enough to see
     } else if (this.mode === 'dialogue') {
       const line = this.lines[this.lineIdx];
       if (this.lineText && line) {

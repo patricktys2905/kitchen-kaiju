@@ -1,4 +1,4 @@
-# Playtest brief (round 8): read this fully before playing
+# Playtest brief (round 9): read this fully before playing
 
 You are an AI playtester for **Kitchen Kaiju**, a couch party brawler. Food kaiju throw cutlery, shove each other off a table,
 eat crumbs to fill their belly, then STOMP to go giant (KAIJU mode, with a per-kaiju power).
@@ -20,34 +20,32 @@ You play the REAL built game through a local HTTP harness. The game is frozen be
 - **Budget: 90–130 harness commands.** Play like your profile would, but cover a lot: this is the most thorough round yet.
 - Do NOT edit any game files and do NOT stop or restart the server. Only write your report file.
 
-## New since the last round (round 8: judge these in depth where your profile would touch them)
-1. **Difficulty and fairness:**
-   - New **TOUGH** bot level between NORMAL and HARD.
-   - The **Giant Hand can be dodged**: DASH just as it reaches you.
-   - Hand KOs now count for whoever hit you last.
-   - **Kid Mode** gives easy bots in Free Play, Party and the Daily.
-2. **✨ Shiny forms:** 300 🪙 each and Mastery Lv 3. Buy them in the Gallery panel; they show in matches. There are also new in-between grind achievements.
-3. **Party Cup:**
-   - The 🏆 PARTY CUP button is an **ON/OFF switch**; PLAY starts the Cup when it's ON.
-   - Quitting a Cup or Gauntlet asks twice.
-   - The final is first-to-2 and worth ×2.
-4. **Story:**
-   - **📜 STORY LOG** on the map.
-   - Locked Second Helpings and Dessert tabs say how to open them.
-   - Boss **PHASE 2** shows on the boss's HUD card with a red aura.
-   - The chapter 4 boss is gentler.
-5. **Tinkering:**
-   - The **TWIST** button opens a picker with every single and ⚡⚡ double twist.
-   - Workshop **UNDO**, and the surface and hazard show on the preview.
-6. **Phone:** in matches the table sits at the left edge, so the on-screen buttons have their own space on the right.
-7. **From last round, still worth judging:**
-   - YOU marker.
-   - Tap wording on phones.
-   - Plates behind result text.
-   - Receipts carry achievements and First Service.
-   - Move Lab: Esc leaves.
-   - BRUTAL retuned.
-   - Mastery cosmetics, Trials, Move Lab, Pantry.
+## New since the last round (round 9: judge these in depth where your profile would touch them)
+1. **Fairness:**
+   - Bots don't attack for the first 1.4 s of a round.
+   - The round-end banner says how and when YOU went out.
+   - Free Play setup explains each BOT LEVEL.
+   - The Daily countdown names its rivals' levels.
+   - Daily bots are gentler.
+   - Story ch3 is gentler.
+   - A KAIJU can't be flicked by the Giant Hand. DASH as the hand arrives to dodge it.
+2. **Feedback:**
+   - 🏆 Achievement toasts (top right) after matches.
+   - 🎁 NEW KAIJU / NEW TABLE toasts.
+   - Pantry orders show their payout.
+   - SHINY and Pantry buys ask for a second tap, show a price, and say why they're refused.
+3. **🌱 New saves start with 4 kaiju and 2 tables locked** behind early goals (win 1, play 3, clear ch2, win 5, clear ch3, play 8). You're a new save, so judge whether this feels good.
+4. **🗯 Story comic panels** after the ch4 and ch8 bosses (and Second Helpings ch4). Also a big PHASE 2 banner, and Kid Mode gives calm starts in Story.
+5. **📱 PHONES AS PADS** (Party Modes setup, last button): opens a couch room with a big QR code so phones become controllers. The 🏆 PARTY CUP switch is ON/OFF.
+6. **Gallery:** each power shows its reach and cooldown, and a full Mastery reward ladder (✔/🔒) including ✨Shiny.
+7. **Fixes from last round:**
+   - The quit confirmation resets when you resume.
+   - Double twists are kept after a match.
+   - Kid Mode bots are always easy.
+   - The Practice SWIPE step works.
+   - The phone TWIST button opens the picker.
+   - At most 3 pop-ups on screen at once.
+   - Team Feast results are grouped by team.
 8. **Text and layout:** audited on desktop AND phone again. **Prove us wrong:** report any overlap, cut-off text or stacked buttons with the screenshot path.
 
 ## What we want from you: EXTREME, SPECIFIC feedback aimed at 9/10

@@ -320,7 +320,8 @@ export class BotBrain {
       out.throw = true;
     }
     if (this.parryAim) { out.aimX = this.parryAim.x; out.aimY = this.parryAim.y; this.parryAim = null; }
-    if (w.roundT < RULES.botGrace) { out.throw = false; out.swipe = false; out.dash = false; out.stomp = false; } // a fair start
+    if (w.roundT < RULES.botGrace) { out.throw = false; out.swipe = false; out.dash = false; } // a fair start
+    if (w.roundT < RULES.botStompGrace) out.stomp = false;
     return out;
   }
 }

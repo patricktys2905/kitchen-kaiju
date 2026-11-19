@@ -54,7 +54,7 @@ export const CHAPTERS: Chapter[] = [
     win: { speaker: 0, text: 'Ink-credible… We\'ll be back. Probably wobblier.' },
   },
   {
-    title: 'Leftovers', table: 2, rounds: 3,
+    title: 'Leftovers', table: 2, rounds: 2,
     rivals: [{ species: 5, level: 'easy' }, { species: 4, level: 'easy' }],
     intro: [
       { speaker: 0, text: 'Yawn… you woke me up. Bad idea.' },
