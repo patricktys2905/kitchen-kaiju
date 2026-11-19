@@ -1,0 +1,29 @@
+[
+  {
+    "name": "comic-ch4",
+    "newChat": true,
+    "refs": [
+      "art-src/cut-refs/comic-ch4.png",
+      "art-src/cut-refs/bg-sushi.png"
+    ],
+    "prompt": "Generate an image. The first attached picture shows characters from my game Kitchen Kaiju. The second shows the table they are on. Keep this EXACT art style and these EXACT character designs: bold chunky cartoon, thick dark-brown outlines, flat bright colours with soft cel shading, funny expressions. The characters are tiny food monsters (\"kaiju\") from my party game. Every kaiju has exactly the body, limbs and face shown in the reference: no extra arms or legs, and NO nose (only the eyes and mouth as drawn). Draw a WIDE 16:9 LANDSCAPE cartoon scene, like one big panel from a funny comic: a sushi bar after a big fight: the SUSHI-ROLL DRAGON boss sits dazed on the conveyor belt with little cartoon stars circling its head, its small gold crown has fallen off and lies on a plate beside it; the SALMON fish kaiju stands next to it with its mouth open in shock; both faces fully visible. Bright comic lighting, a clear readable composition with space at the bottom. No text, no letters, no logos, no speech bubbles. Landscape 16:9. IMPORTANT: each kaiju appears ONLY ONCE (no extra small copies anywhere), there are NO people or hands, and the kaiju are BIG and clear: each one is about a third of the picture height, in the foreground, apart from each other with nothing in front of their faces."
+  },
+  {
+    "name": "comic-ch8",
+    "newChat": true,
+    "refs": [
+      "art-src/cut-refs/comic-ch8.png",
+      "art-src/cut-refs/bg-parlour.png"
+    ],
+    "prompt": "Generate an image. The first attached picture shows characters from my game Kitchen Kaiju. The second shows the table they are on. Keep this EXACT art style and these EXACT character designs: bold chunky cartoon, thick dark-brown outlines, flat bright colours with soft cel shading, funny expressions. The characters are tiny food monsters (\"kaiju\") from my party game. Every kaiju has exactly the body, limbs and face shown in the reference: no extra arms or legs, and NO nose (only the eyes and mouth as drawn). Draw a WIDE 16:9 LANDSCAPE cartoon scene, like one big panel from a funny comic: an ice cream parlour counter after a big fight: the lime-JELLY BLOB boss (one smooth rounded jelly dome, whipped cream, cherry and a lime slice on top, no arms) sits sulking with a little frown, its small gold crown tipped sideways on its cream; the purple marshmallow MOTH kaiju hovers beside it patting its cream gently to comfort it; both faces fully visible. Bright comic lighting, a clear readable composition with space at the bottom. No text, no letters, no logos, no speech bubbles. Landscape 16:9. IMPORTANT: each kaiju appears ONLY ONCE (no extra small copies anywhere), there are NO people or hands, and the kaiju are BIG and clear: each one is about a third of the picture height, in the foreground, apart from each other with nothing in front of their faces."
+  },
+  {
+    "name": "comic-s4",
+    "newChat": true,
+    "refs": [
+      "art-src/cut-refs/comic-s4.png",
+      "art-src/cut-refs/bg-freezer.png"
+    ],
+    "prompt": "Generate an image. The first attached picture shows characters from my game Kitchen Kaiju. The second shows the table they are on. Keep this EXACT art style and these EXACT character designs: bold chunky cartoon, thick dark-brown outlines, flat bright colours with soft cel shading, funny expressions. The characters are tiny food monsters (\"kaiju\") from my party game. Every kaiju has exactly the body, limbs and face shown in the reference: no extra arms or legs, and NO nose (only the eyes and mouth as drawn). Draw a WIDE 16:9 LANDSCAPE cartoon scene, like one big panel from a funny comic: an icy freezer shelf after a big fight: the cookies-and-cream PENGUIN boss has slipped and sits on the ice with its flippers out, dizzy, its small gold crown sliding away across the ice; the mint-choc-chip TURTLE kaiju (mint ice cream scoop shell in a waffle-cone bowl, dark teal body) offers it a flipper to help it up; both faces fully visible. Bright comic lighting, a clear readable composition with space at the bottom. No text, no letters, no logos, no speech bubbles. Landscape 16:9. IMPORTANT: each kaiju appears ONLY ONCE (no extra small copies anywhere), there are NO people or hands, and the kaiju are BIG and clear: each one is about a third of the picture height, in the foreground, apart from each other with nothing in front of their faces."
+  }
+]

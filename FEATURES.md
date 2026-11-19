@@ -913,3 +913,22 @@ From the 10 Sonnet playtester reports in `playtest-reports/`.
   - The Help twist list is at least 13 px.
   - Title links are 13 px.
   - The setup hint wraps inside the screen.
+
+## 70. The last three pieces
+1. **📱 PHONES AS PADS** (Party Modes setup, last button):
+   - Opens a room straight away in couch mode with your current mode and Cup setting.
+   - Shows a **big QR code**: everyone on the couch scans it with their phone camera and the phone becomes their controller. The host plays on the TV/computer too, and TV mode can still be switched on.
+   - The lobby no longer says "You (host) (you)".
+2. **🗯 Comic panels:** a funny "after the fight" still shows once after you beat each mid-campaign boss: Norigon (ch4), Bloblin (ch8) and Pengwhip (Second Helpings ch4).
+   - The art is generated with Gemini from the real sprites (`scripts/make-comic-jobs.mjs`) and checked for faces and limbs.
+   - Captions live in `COMICS` in `src/story/cutscenes.ts`. The two final bosses already have ending cutscenes.
+3. **🌱 More to earn for new players** (new saves only: a save that already has stats or Story progress keeps everything, using the `kk-fresh-start` flag):
+   - Chocomunch: win a match.
+   - Bubblegumbo: play 3 matches.
+   - Sloba: clear Story ch2.
+   - Avocadrake: win 5 matches.
+   - Smoothie Bar: clear Story ch3.
+   - Fondue Night: play 8 matches.
+   
+   Unlocks earned by playing pop up as a "🎁 NEW KAIJU / NEW TABLE" toast after the match. The Gallery, NEXT UP and setup screens show the progress.
+- Party setup: PLAY is a little smaller and the hint sits clear of it. The Cup route uses short mode names.

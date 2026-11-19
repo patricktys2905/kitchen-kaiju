@@ -29,6 +29,7 @@ import { owned } from '../story/unlocks';
 import { currentHat, HAT_FIT, HAT_SCALE, hatArtKey, HATS, HATS_ENABLED } from '../hats';
 import { COLOURS, currentColour, parseLook, seatColours } from '../colours';
 import { KITS, powerCooldown } from '../sim/powers';
+import { LAYOUTS } from '../sim/layouts';
 import { PRACTICE, PRACTICE_STEPS } from '../practice';
 import { DAILY, dailySetup, loadDaily, recordDaily } from '../daily';
 import { REPLAY, ReplayBuffer } from '../replay';
@@ -184,6 +185,7 @@ export class GameScene extends Phaser.Scene {
   private toastText: Phaser.GameObjects.Text | null = null;
   private toastG: Phaser.GameObjects.Graphics | null = null;
   private toastT = 0;
+  private ownedAtStart: { kaiju: number[]; tables: number[] } | null = null;
   private bannerPlate!: Phaser.GameObjects.Graphics;
   /** 'YOU' marker over the human kaiju for the first seconds of each round (one person playing). */
   private youText: Phaser.GameObjects.Text | null = null;
@@ -248,6 +250,7 @@ export class GameScene extends Phaser.Scene {
     this.firstServiceLines = [];
     this.roundOut = null;
     this.toastQ = []; this.toastText = null; this.toastG = null; this.toastT = 0;
+    this.ownedAtStart = owned();
     this.coachStomp = (this.story?.chapter ?? 99) <= 2 || loadStats().kaijuForms < STOMP_COACH_UNTIL;
     clearTaps();
     this.baseG = this.add.graphics().setDepth(-2.5);
@@ -1201,6 +1204,12 @@ export class GameScene extends Phaser.Scene {
       }
     }
     if (e.type === 'matchEnd' || e.type === 'roundEnd') saveStats(st);
+    if (e.type === 'matchEnd' && this.ownedAtStart) { // 🎁 kaiju / tables earned by playing (new saves): celebrate them here
+      const now = owned();
+      for (const k of now.kaiju) if (!this.ownedAtStart.kaiju.includes(k)) this.toastQ.push(`🎁 NEW KAIJU: ${SPECIES[k].full}!`);
+      for (const t of now.tables) if (!this.ownedAtStart.tables.includes(t)) this.toastQ.push(`🎁 NEW TABLE: ${LAYOUTS[t].name}!`);
+      this.ownedAtStart = now;
+    }
   }
 
   private tallyEvent(e: GameEvent): void {

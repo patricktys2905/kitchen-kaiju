@@ -18,7 +18,7 @@ import { KITS } from '../sim/powers';
 import { getSettings } from '../settings';
 import { COURSES, dessertBest } from '../story/dessert';
 import { GameScene } from './GameScene';
-import { seenId, type Cutscene } from '../story/cutscenes';
+import { seenId, type Cutscene, COMICS } from '../story/cutscenes';
 import { isEarned, needText, newlyEarned, owned, unlockName, UNLOCKS } from '../story/unlocks';
 
 export interface StoryResult {
@@ -159,7 +159,12 @@ export class StoryScene extends Phaser.Scene {
     this.drawPanel(); // fills in the SPICY button label
     this.buttons.push(new Button(this, 1172, 560, { w: 150, h: 38, label: '🎬 SCENE', size: 16, onClick: () => this.watchScene() }, 6));
 
-    if (this.pendingResult) this.showResult(this.pendingResult);
+    if (this.pendingResult) {
+      // 🗯 beat a mid-campaign boss for the first time: a comic panel first, then the result card
+      const r = this.pendingResult, comic = r.won && !r.spicy ? COMICS[`${this.camp.id}:${r.chapter}`] : undefined;
+      if (comic && hasArt(comic.key) && !this.save.cuts.includes(seenId(comic))) this.playCut(comic, () => this.showResult(r));
+      else this.showResult(r);
+    }
     else if (!this.save.cuts.includes(seenId(this.camp.opening))) this.time.delayedCall(250, () => this.playCut(this.camp.opening, () => {}));
   }
 

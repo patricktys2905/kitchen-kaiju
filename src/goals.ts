@@ -6,7 +6,7 @@ import { LAYOUTS } from './sim/layouts';
 import { ACHIEVEMENTS, loadStats } from './stats';
 import { CHAPTERS } from './story/chapters';
 import { loadStory, totalStars } from './story/save';
-import { isEarned, UNLOCKS } from './story/unlocks';
+import { isEarned, needText, UNLOCKS } from './story/unlocks';
 import { FIRST_SERVICE, nextStep, pinnedAchievement, stepsDone } from './meta';
 
 export function nextGoals(): string[] {
@@ -20,7 +20,7 @@ export function nextGoals(): string[] {
     const u = UNLOCKS.filter(x => !isEarned(x, story)).sort((a, b) => ('chapter' in a.need ? a.need.chapter : 99) - ('chapter' in b.need ? b.need.chapter : 99))[0];
     if (u) {
       const prize = u.kind === 'kaiju' ? `🐉 ${SPECIES[u.index].full}` : `🍽 ${LAYOUTS[u.index].name}`;
-      out.push('chapter' in u.need ? `Clear Story ch ${u.need.chapter + 1} (${CHAPTERS[u.need.chapter].title}) → ${prize}` : `${u.need.stars - totalStars(story)} more Story ★ → ${prize}`);
+      out.push('chapter' in u.need ? `Clear Story ch ${u.need.chapter + 1} (${CHAPTERS[u.need.chapter].title}) → ${prize}` : 'stars' in u.need ? `${u.need.stars - totalStars(story)} more Story ★ → ${prize}` : `${needText(u)} → ${prize}`);
     }
     const col = COLOURS.filter(c => c.unlock && !st.achieved.includes(c.unlock)).map(c => ({ c, a: ACHIEVEMENTS.find(a => a.id === c.unlock) })).filter(x => x.a)
       .map(x => ({ ...x, k: x.a!.progress ? Math.min(0.99, x.a!.progress(st)[0] / x.a!.progress(st)[1]) : 0 })).sort((p, q) => q.k - p.k)[0];

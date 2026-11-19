@@ -1326,3 +1326,30 @@ describe('round 8 additions', () => {
     delete (globalThis as Record<string, unknown>).localStorage;
   });
 });
+
+describe('fresh saves and comics', () => {
+  it('a brand-new save gets the early unlock goals; an old save keeps everything', async () => {
+    const vi = await import('vitest');
+    for (const fresh of [true, false]) {
+      vi.vi.resetModules();
+      const store: Record<string, string> = fresh ? {} : { 'kk-stats-v1': JSON.stringify({ matches: 4 }) };
+      (globalThis as Record<string, unknown>).localStorage = { getItem: (k: string) => store[k] ?? null, setItem: (k: string, v: string) => { store[k] = v; }, removeItem: (k: string) => { delete store[k]; } };
+      const { owned, UNLOCKS } = await import('../src/story/unlocks');
+      expect(owned().kaiju.includes(8)).toBe(!fresh); // Chocomunch: locked for new players until a win
+      expect(UNLOCKS.some(u => 'wins' in u.need)).toBe(fresh);
+    }
+    delete (globalThis as Record<string, unknown>).localStorage;
+    vi.vi.resetModules();
+  });
+
+  it('every comic panel points at a mid-campaign boss chapter', async () => {
+    const { COMICS } = await import('../src/story/cutscenes');
+    const { CHAPTERS } = await import('../src/story/chapters');
+    const { SECONDS_CHAPTERS } = await import('../src/story/seconds');
+    for (const id of Object.keys(COMICS)) {
+      const [camp, n] = id.split(':');
+      const ch = (camp === 'main' ? CHAPTERS : SECONDS_CHAPTERS)[Number(n)];
+      expect(ch?.boss).toBe(true);
+    }
+  });
+});

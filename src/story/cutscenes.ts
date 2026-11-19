@@ -46,3 +46,11 @@ export const CHAPTER_CUTS: Cutscene[] = [
 ];
 
 export const ALL_CUTS: Cutscene[] = [OPENING, ...CHAPTER_CUTS, ENDING_CUT];
+
+/** 🗯 Comic panels: a funny "after the boss fight" still, shown once after you beat each mid-campaign boss.
+ * Art: public/art/comic-*.webp (scripts/make-comic-jobs.mjs). EASY TO CUSTOMISE: captions here. */
+export const COMICS: Record<string, Cutscene> = {
+  'main:3': { key: 'comic-ch4', noVideo: true, heading: 'MEANWHILE, ON THE CONVEYOR BELT…', caption: 'Norigon is on a roll. Downhill. Salmonster can\'t believe its eyes.' },
+  'main:7': { key: 'comic-ch8', noVideo: true, heading: 'LATER, AT THE PARLOUR…', caption: 'Bloblin is NOT sulking. Bloblin is just… setting. Mothball brings comfort.' },
+  'seconds:3': { key: 'comic-s4', noVideo: true, heading: 'MEANWHILE, IN THE FREEZER…', caption: 'The ice queen slipped. Minturtle offers a flipper. The crown keeps sliding.' },
+};

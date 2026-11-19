@@ -57,6 +57,7 @@ const CSS = `
 
 #lobby .coderow { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
 #lobby .qr { display: flex; align-items: center; gap: 12px; }
+#lobby.couch .qr img { width: 170px; height: 170px; }
 #lobby .qr img { width: 96px; height: 96px; image-rendering: pixelated; border-radius: 8px; background: #fff; }
 #lobby .qr span { font-size: 15px; opacity: 0.85; max-width: 180px; text-align: left; }
 `;
@@ -87,7 +88,12 @@ export class LobbyScene extends Phaser.Scene {
     super('lobby');
   }
 
-  init(data: { difficulty?: Difficulty; rounds?: number }): void {
+  /** 📱 opened from Party Modes → PHONES AS PADS: host right away, everyone else scans the QR with their phone. */
+  private couch = false;
+  init(data: { difficulty?: Difficulty; rounds?: number; couch?: boolean; mode?: GameMode; cup?: boolean }): void {
+    this.couch = !!data.couch;
+    if (data.mode) this.mode = data.mode;
+    if (data.cup !== undefined) this.cup = data.cup;
     this.difficulty = data.difficulty ?? 'normal';
     this.rounds = data.rounds ?? DEFAULT_ROUNDS;
     this.own = owned();
@@ -115,9 +121,11 @@ export class LobbyScene extends Phaser.Scene {
     }
     this.root = document.createElement('div');
     this.root.id = 'lobby';
+    if (this.couch) this.root.className = 'couch';
     document.body.appendChild(this.root);
     this.events.once('shutdown', () => { this.root?.remove(); this.root = null; });
     this.render();
+    if (this.couch) this.startHosting();
     // opened from a QR code / join link: go straight into the room
     const join = new URLSearchParams(location.search).get('join');
     if (join && /^[A-Za-z]{4}$/.test(join) && !this.registry.get('joinedFromLink')) {
@@ -239,7 +247,7 @@ export class LobbyScene extends Phaser.Scene {
       const img = `art/kaiju-${s.species}.webp`;
       return `<div class="seat" style="border-color:${sp.css}">
         <img src="${img}" alt="">
-        <div class="k" style="color:${sp.css}">${sp.full}<div class="who">${esc(s.name)}${mine ? ' (you)' : ''}${this.tvMode && s.who === 'host' ? ' · 📺 watching, not playing' : ''}${s.route === 'backup' ? ' · backup route (slower)' : s.route === 'direct' ? ' · direct link' : ''}</div></div>
+        <div class="k" style="color:${sp.css}">${sp.full}<div class="who">${esc(s.name)}${mine && s.who !== 'host' ? ' (you)' : ''}${this.tvMode && s.who === 'host' ? ' · 📺 watching, not playing' : ''}${s.route === 'backup' ? ' · backup route (slower)' : s.route === 'direct' ? ' · direct link' : ''}</div></div>
         ${mine ? `<button data-pick="-1">◀</button><button data-pick="1">▶</button>` : ''}
       </div>`;
     }).join('');
@@ -253,7 +261,7 @@ export class LobbyScene extends Phaser.Scene {
       const tl = this.table < 0 ? `All ${this.own.tables.length} (rotate)` : LAYOUTS[this.table].name;
       const guests = this.seats.filter(s => s.who === 'guest').length;
       html = `<h1>Your room</h1>
-        <div class="coderow"><div class="code">${this.host?.code || '····'}</div>${this.host?.code ? `<div class="qr"><img alt="QR code to join" src="${qrDataUrl(joinLink(this.host.code))}"><span>Scan with a phone camera to join</span></div>` : ''}</div>
+        <div class="coderow"><div class="code">${this.host?.code || '····'}</div>${this.host?.code ? `<div class="qr"><img alt="QR code to join" src="${qrDataUrl(joinLink(this.host.code))}"><span>${this.couch ? '📱 Everyone on the couch: scan with your phone camera, your phone becomes your controller' : 'Scan with a phone camera to join'}</span></div>` : ''}</div>
         <p class="muted">Friends tap ONLINE → Join a game and type this code. Up to ${MAX_GUESTS} friends.</p>
         ${seatsHtml}
         <div class="row">
