@@ -2,10 +2,13 @@
 // (so they work offline). Every text in the game should use these helpers.
 import type * as Phaser from 'phaser';
 import { getSettings } from '../settings';
+import { isTouchDevice } from '../touch';
 
-/** 🧸 Kid Mode: small body text grows (EASY TO CUSTOMISE: KID_MIN is the smallest body size in Kid Mode). */
+/** 🧸 Kid Mode / 📱 phones: small body text grows (EASY TO CUSTOMISE: the smallest body size in Kid Mode and on phones).
+ *  A phone shows the 1280-wide game at about 0.78×, so 16 here is about 12.5 css px. */
 export const KID_MIN = 18;
-const kidSize = (size: number): number => (size < KID_MIN && getSettings().kidMode ? Math.min(KID_MIN, size + 5) : size);
+export const PHONE_MIN = 16;
+const kidSize = (size: number): number => { const min = getSettings().kidMode ? KID_MIN : isTouchDevice ? PHONE_MIN : 0; return size < min ? Math.min(min, size + 5) : size; };
 
 export const DISPLAY = '"Luckiest Guy", "Arial Black", Impact, sans-serif';
 export const BODY = 'Nunito, "Segoe UI", Arial, sans-serif';

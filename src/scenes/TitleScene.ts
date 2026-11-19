@@ -12,14 +12,14 @@ import { CHAPTERS } from '../story/chapters';
 import { secondsUnlocked } from '../story/campaigns';
 import { isTouchDevice, setTouchMode } from '../touch';
 import { playMusic } from '../music';
-import { GAUNTLET, gauntletBest } from '../gauntlet';
+import { GAUNTLET, gauntletBest, weeklyBest } from '../gauntlet';
 import { totalTrialStars, TRIALS } from '../trials';
 import { chefsPass, chefsPassText } from '../challengePass';
 import { dailyMedalLine, stepsDone } from '../meta';
 import { getSettings } from '../settings';
 import { SPECIES } from '../sim/constants';
 import { LAYOUTS } from '../sim/layouts';
-import { DAILY, dailySetup, loadDaily, todayKey } from '../daily';
+import { DAILY, dailySetup, loadDaily, spicyWonToday, todayKey } from '../daily';
 import { modeDef } from '../sim/modes';
 import { GameScene } from './GameScene';
 import { owned } from '../story/unlocks';
@@ -125,9 +125,10 @@ export class TitleScene extends Phaser.Scene {
     const info = this.add.text(640, 238, lines.join('\n\n'), body(16, '#f1e4d2', 800, { align: 'center', wordWrap: { width: 720 }, lineSpacing: 2 })).setOrigin(0.5, 0).setDepth(31);
     this.challengeUi.push(g, t, info);
     this.challengeUi.push(this.add.zone(640, 360, 1280, 720).setInteractive().setDepth(30)); // swallows clicks behind the card
-    const start = new Button(this, 540, 528, { w: 220, h: 60, label: '▶ START', size: 24, accent: 0x8dff6a, onClick: () => { sfx.go(); this.scene.start('game', GameScene.dailyData()); } }, 31);
-    const back = new Button(this, 760, 528, { w: 180, h: 60, label: '✖ BACK', size: 22, onClick: () => this.challenges(0) }, 31);
-    this.challengeUi.push(start, back); this.extraBtns.push(start, back);
+    const start = new Button(this, 440, 528, { w: 220, h: 60, label: '▶ START', size: 24, accent: 0x8dff6a, onClick: () => { sfx.go(); this.scene.start('game', GameScene.dailyData()); } }, 31);
+    const spicy = new Button(this, 670, 528, { w: 220, h: 60, label: '🌶️ SPICY', sub: spicyWonToday(d.date) ? 'beaten today ✔' : `HARD rivals · +${DAILY.spicyTokens} 🪙`, size: 20, accent: 0xff5a1a, onClick: () => { sfx.go(); this.scene.start('game', GameScene.dailyData(true)); } }, 31);
+    const back = new Button(this, 880, 528, { w: 170, h: 60, label: '✖ BACK', size: 22, onClick: () => this.challenges(0) }, 31);
+    this.challengeUi.push(start, spicy, back); this.extraBtns.push(start, spicy, back);
   }
 
   /** 🏁 CHALLENGES: start the Gauntlet (from any course you've reached = checkpoints) or open the Trials. */
@@ -138,7 +139,7 @@ export class TitleScene extends Phaser.Scene {
     const g = this.add.graphics().setDepth(30);
     g.fillStyle(0x000000, 0.6).fillRect(0, 0, 1280, 720).fillStyle(0x140b05, 1).fillRoundedRect(190, 150, 900, 480, 22).lineStyle(3, 0xff5a7a, 1).strokeRoundedRect(190, 150, 900, 480, 22);
     const t = withShadow(this.add.text(640, 186, '🏁 CHALLENGES', display(34, '#ffcf8a', { strokeThickness: 6 })).setOrigin(0.5).setDepth(31), 3);
-    const info = this.add.text(640, 548, `Checkpoints: clear a course's boss wave once, and later runs can start at the next course.   Best wave: ${gauntletBest()}`, body(14, '#cdb9a3', 800)).setOrigin(0.5).setDepth(31);
+    const info = this.add.text(640, 548, `Checkpoints: clear a course's boss wave once, and later runs can start at the next course.\nBest wave: ${gauntletBest()}   ·   🗓 This week: ${weeklyBest()} (beat it: +${GAUNTLET.weeklyTokens} 🪙)   ·   👑 boss waves: +${GAUNTLET.bossTokens} 🪙 and a ❤`, body(14, '#cdb9a3', 800)).setOrigin(0.5).setDepth(31);
     const pass = this.add.text(640, 594, chefsPassText(), body(14, chefsPass() ? '#8dff6a' : '#ffcf8a', 900, { align: 'center', wordWrap: { width: 840 } })).setOrigin(0.5).setDepth(31);
     this.challengeUi.push(g, t, info, pass);
     this.challengeUi.push(this.add.zone(640, 360, 1280, 720).setInteractive().setDepth(30)); // swallows clicks between the buttons

@@ -13,6 +13,8 @@ export const GAUNTLET = {
   grades: [[1500, 'S'], [1000, 'A'], [650, 'B'], [350, 'C'], [0, 'D']] as [number, string][], // run score → grade
   lives: 3, // ❤ per run: losing a wave costs one and retries the same wave
   maxLives: 5,
+  bossTokens: 30, // 🪙 bonus for clearing a boss wave
+  weeklyTokens: 25, // 🪙 for beating this week's best wave
   bossHeart: true, // ❤ +1 life (up to maxLives) for clearing each boss wave (4, 8, 12 …)
 };
 
@@ -27,11 +29,11 @@ export const OPENING_WAVES: Difficulty[][] = [
   ['easy'], // 1: warm-up
   ['normal'], // 2: a fair duel
   ['normal', 'easy'], // 3: first two-on-one
-  ['tough', 'easy'], // 4: 👑 boss (end of Starters)
-  ['tough', 'normal'], // 5
-  ['tough', 'normal', 'easy'], // 6
+  ['tough', 'normal'], // 4: 👑 boss (end of Starters): the hardest wave so far
+  ['tough', 'normal', 'easy'], // 5
+  ['hard', 'normal', 'easy'], // 6
   ['hard', 'tough', 'normal'], // 7: first twist
-  ['hard', 'tough', 'normal'], // 8: 👑 boss (end of Mains)
+  ['hard', 'hard', 'tough'], // 8: 👑 boss (end of Mains)
 ];
 
 /** Wave 1: one easy bot (warm-up) … a gentle ramp through OPENING_WAVES, then more and tougher bots (max 5 rivals). */
@@ -85,4 +87,15 @@ export function checkpointWave(): number {
   let k = 0;
   while (k + 1 < GAUNTLET.courses.length && best >= (k + 1) * GAUNTLET.bossEvery) k++;
   return 1 + k * GAUNTLET.bossEvery;
+}
+
+/** 🗓 This week's Gauntlet best (resets every Monday). Beating it pays GAUNTLET.weeklyTokens. */
+const WEEK_KEY = 'kk-gauntlet-week';
+function weekId(d = new Date()): string { const t = new Date(d); t.setHours(0, 0, 0, 0); t.setDate(t.getDate() - ((t.getDay() + 6) % 7)); return t.toISOString().slice(0, 10); }
+export function weeklyBest(): number { try { const r = JSON.parse(localStorage.getItem(WEEK_KEY) ?? '{}') as { week?: string; best?: number }; return r.week === weekId() ? r.best ?? 0 : 0; } catch { return 0; } }
+/** Saves a run; returns true if it beat this week's best. */
+export function saveWeeklyBest(reached: number): boolean {
+  if (reached <= weeklyBest()) return false;
+  try { localStorage.setItem(WEEK_KEY, JSON.stringify({ week: weekId(), best: reached })); } catch { /* blocked */ }
+  return true;
 }

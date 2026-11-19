@@ -23,13 +23,13 @@ export const P = {
   bumpForce: 600,
   fallSpeed: 160, // knockback speed above which you can be pushed off the table
   crumbValue: 10, // meter gained per crumb (10 crumbs = full)
-  kaijuTime: 6,
+  kaijuTime: 7,
   kaijuSpeed: 0.65,
   stompEvery: 0.6,
   stompRadius: 150,
   stompForce: 560,
   shrinkInvuln: 0, // no safety after KAIJU ends…
-  shrinkDizzy: 0.75, // …instead the shrunk kaiju is dizzy for a moment: rivals' chance to punish
+  shrinkDizzy: 0.5, // …instead the shrunk kaiju is dizzy for a moment: rivals' chance to punish
 };
 
 export const RULES = {
@@ -89,6 +89,10 @@ export const RULES = {
   iceGrip: 3,
   // Candy Shop: gumdrop bumper kick
   bumperForce: 760,
+  // 🛠 Workshop props (custom tables only): see PROP_KINDS in src/custom.ts
+  syrupGrip: 0.55, // 🥞 PANCAKES: speed kept each step while touching the syrup stack
+  bakeEvery: 7, // 🧁 CUPCAKE: seconds between crumbs it drops next to itself
+  splatForce: 420, // 🍅 TOMATO: a softer bumper
   // Breakfast Rush: toasters
   toasterFirst: 4,
   toasterInterval: [3, 4.5] as [number, number],

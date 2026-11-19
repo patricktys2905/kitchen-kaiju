@@ -154,6 +154,7 @@ await pg.evaluate(() => { const w = window.__game.scene.getScene('game').world; 
 // challenges chooser on the title
 await start('title', {}, 1500); await pg.evaluate(() => { const t = window.__game.scene.getScene('title'); t.challenges(0); }); await audit('challenges chooser');
 await start('title', {}, 1500); await pg.evaluate(() => { window.__game.scene.getScene('title').dailyCard(); }); await wait(300); await audit('daily preview card');
+await start('records', {}, 2500); await pg.evaluate(() => { window.__game.scene.getScene('records').toggleGoals(); }); await wait(800); await audit('records goals board');
 // trial result + move lab + cup final
 await pg.evaluate(() => { const g = window.__game; for (const s of g.scene.getScenes(true)) s.scene.stop(); const GS = g.scene.getScene('game').constructor; g.scene.start('game', GS.trialData('crowd')); }); await wait(3500); await audit('trial countdown');
 await pg.evaluate(() => { const w = window.__game.scene.getScene('game').world; w.players[0].score = w.opts.target - 1; w.endRound([w.players[0]]); }); await wait(4000); await audit('trial result');

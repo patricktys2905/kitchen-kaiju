@@ -10,6 +10,8 @@ export const DAILY = {
   modes: ['classic', 'classic', 'crumbRush', 'hotDumpling', 'teams'] as GameMode[], // picked by the date (classic twice as likely)
   rivals: 3,
   levels: ['normal', 'easy', 'easy'] as Difficulty[],
+  spicyLevels: ['hard', 'tough', 'normal'] as Difficulty[], // 🌶️ SPICY DAILY: the same match, tougher rivals
+  spicyTokens: 40, // 🪙 for winning the Spicy Daily (once a day)
   rounds: 3,
   powerups: true,
 };
@@ -55,3 +57,7 @@ export function recordDaily(rounds: number, won: boolean, date = todayKey()): Da
   try { localStorage.setItem(KEY, JSON.stringify(r)); } catch { /* blocked */ }
   return r;
 }
+
+/** 🌶️ Spicy Daily: won today? (its 🪙 pays once a day) */
+export const spicyWonToday = (date = todayKey()): boolean => { try { return localStorage.getItem('kk-daily-spicy') === date; } catch { return false; } };
+export function markSpicyWin(date = todayKey()): void { try { localStorage.setItem('kk-daily-spicy', date); } catch { /* blocked */ } }

@@ -63,7 +63,11 @@ export class WorkshopScene extends Phaser.Scene {
     btn(310, 548, 180, '⚠ HAZARD ▶', () => this.cycleHazard(), 0xff8a7a);
     btn(65, 604, 88, '↶ UNDO', () => { const c = this.cur(); if (c.props.length) { c.props.pop(); sfx.pickup(); } else sfx.thwock(); this.redraw(); });
     btn(157, 604, 88, '🗑 CLEAR', () => { this.cur().props = []; sfx.thwock(); this.redraw(); });
-    btn(310, 604, 180, '📂 NEXT SLOT', () => { this.slot = (this.slot + 1) % MAX_CUSTOM; sfx.pickup(); this.redraw(); });
+    btn(265, 604, 90, '📂 SLOT ▶', () => { this.slot = (this.slot + 1) % MAX_CUSTOM; sfx.pickup(); this.redraw(); });
+    btn(357, 604, 88, '✏ NAME', () => { // ✏ rename this table (SAVE to keep it)
+      const n = window.prompt('Name this table (up to 18 letters):', this.cur().name)?.trim().slice(0, 18);
+      if (n) { this.cur().name = n; sfx.pickup(); this.redraw('Renamed! Press 💾 SAVE to keep it.'); } else sfx.thwock();
+    });
     btn(110, 660, 180, '💾 SAVE', () => this.save(), 0x8dff6a);
     btn(310, 660, 180, '▶ PLAY IT', () => this.playIt(), 0xffd24a);
     // 📋 share codes: copy this table as a code, or load a friend's (then SAVE to keep it)

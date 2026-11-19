@@ -16,9 +16,11 @@ import { CUTLERY, RARE_KINDS, type CutleryKind } from '../sim/cutlery';
 import { LAYOUTS } from '../sim/layouts';
 import { enabledModes } from '../sim/modes';
 import { enabledMutators } from '../sim/mutators';
+import { POWER_DEFS } from '../sim/powerups';
+import { HAZARD_INFO } from '../custom';
 import { ACHIEVEMENTS, loadStats } from '../stats';
 import { loadStory, totalStars } from '../story/save';
-import { needText, owned, UNLOCKS, tableCount } from '../story/unlocks';
+import { isEarned, needText, owned, UNLOCKS, tableCount } from '../story/unlocks';
 import { isTouchDevice, setTouchMode } from '../touch';
 import { currentHat, HAT_FIT, HAT_SCALE, hatArtKey, hatUnlocked, HATS, HATS_ENABLED, setHat } from '../hats';
 import { colourUnlocked, COLOURS, currentColour, setColour } from '../colours';
@@ -200,7 +202,7 @@ export class ControlsScene extends PanelScene {
 }
 
 // ------------------------------------------------------------------ How to play
-type HelpPage = 'controls' | 'cutlery' | 'tables' | 'modes';
+type HelpPage = 'controls' | 'cutlery' | 'tables' | 'modes' | 'extras';
 
 export class HelpScene extends PanelScene {
   protected title = '❓ HOW TO PLAY';
@@ -209,8 +211,8 @@ export class HelpScene extends PanelScene {
   constructor() { super('help'); }
 
   protected build(): void {
-    const tabs: [HelpPage, string][] = [['controls', 'BASICS'], ['cutlery', 'CUTLERY'], ['tables', 'TABLES'], ['modes', 'MODES']];
-    tabs.forEach(([id, name], i) => this.buttons.push(new Button(this, 340 + i * 200, 118, { w: 180, h: 50, label: name, size: 20, onClick: () => { this.nav.index = i; this.show(id); } }, 6)));
+    const tabs: [HelpPage, string][] = [['controls', 'BASICS'], ['cutlery', 'CUTLERY'], ['tables', 'TABLES'], ['modes', 'MODES'], ['extras', 'EXTRAS']];
+    tabs.forEach(([id, name], i) => this.buttons.push(new Button(this, 300 + i * 150, 118, { w: 140, h: 50, label: name, size: 20, onClick: () => { this.nav.index = i; this.show(id); } }, 6)));
     this.buttons.push(new Button(this, 1140, 118, { w: 210, h: 50, label: '▶ PRACTICE', size: 20, accent: 0x8dff6a, onClick: () => { sfx.go(); this.scene.start('game', GameScene.practiceData(loadStory().pick)); } }, 6));
     this.show('controls');
   }
@@ -224,25 +226,33 @@ export class HelpScene extends PanelScene {
     const head = (x: number, y: number, s: string, color = '#ffd24a') =>
       this.content.push(withShadow(this.add.text(x, y, s, display(22, color, { strokeThickness: 4 })).setDepth(5), 2));
     if (p === 'controls') {
-      head(90, 170, 'THE GOAL');
-      txt(90, 204, 'Be the last kaiju standing on the dinner table. Win rounds to win the match.');
-      head(90, 250, 'MOVES');
-      txt(90, 284, [
-        'THROW: hold to charge, let go to fling your cutlery. A miss STICKS where it lands, so go and grab it (or steal it!).',
-        'SWIPE: a close-range smack. It also knocks flying cutlery out of the air.',
-        'DASH: a quick dodge. Dash into a rival to shove them; dash into incoming cutlery to catch it.',
-        'STOMP: eat crumbs to fill your belly, then STOMP to go KAIJU: giant, unstoppable, squashes everyone. While KAIJU, THROW or SWIPE fires your kaiju\'s own power (see the Gallery).',
-        'PARRY: SWIPE just as cutlery reaches you to send it back. A dotted line shows a charging throw. The Giant Hand grabs the FULLEST belly: STOMP first, or DASH just as it reaches you to slip under it.',
-        'Shove rivals off the edge, and watch out for each table\'s hazard!',
-      ].join('\n'));
-      { const mv = this.content[this.content.length - 1] as Phaser.GameObjects.Text; for (let f = 18; mv.y + mv.height > 462 && f > 14;) mv.setFontSize(--f); } // the moves list always ends above CONTROLS
+      txt(90, 158, '🎯 Be the LAST kaiju on the table. Shove, throw and squash rivals off the edge!', 18, '#ffd24a');
+      // five picture cards: one move each, one short line
+      const CARDS: [string, string, string][] = [
+        ['🍴', 'THROW', 'Hold, then let go to fling your cutlery. Go grab it back!'],
+        ['👋', 'SWIPE', 'Smack up close. Swipe a flying fork to send it back!'],
+        ['💨', 'DASH', 'Zoom! Dodge, or shove a rival.'],
+        ['🍪', 'EAT', 'Crumbs fill your belly.'],
+        ['🦖', 'STOMP', 'Belly full? Go GIANT and squash everyone!'],
+      ];
+      const g = this.add.graphics().setDepth(4); this.content.push(g);
+      CARDS.forEach(([icon, name, line], k) => {
+        const x = 90 + k * 222, y = 196;
+        g.fillStyle(0x2a1408, 0.95).fillRoundedRect(x, y, 206, 200, 18).lineStyle(3, 0xffb347, 1).strokeRoundedRect(x, y, 206, 200, 18);
+        this.content.push(this.add.text(x + 103, y + 42, icon, body(48, '#ffffff', 900)).setOrigin(0.5).setDepth(5));
+        this.content.push(withShadow(this.add.text(x + 103, y + 92, name, display(24, '#ffd24a', { strokeThickness: 4 })).setOrigin(0.5).setDepth(5), 2));
+        const t = this.add.text(x + 103, y + 116, line, body(15, '#f1e4d2', 800, { align: 'center', wordWrap: { width: 186 } })).setOrigin(0.5, 0).setDepth(5);
+        for (let f = Number(String(t.style.fontSize).replace('px', '')); t.height > 78 && f > 11;) t.setFontSize(--f);
+        this.content.push(t);
+      });
+      txt(90, 410, '✋ The Giant Hand grabs the fullest belly: STOMP first, or DASH as it arrives.   ·   🔴 A red ring = a KAIJU growing: get clear!', 15, '#cdb9a3');
       head(90, 470, 'CONTROLS');
-      txt(90, 504, [
+      txt(90, 504, (isTouchDevice ? ['📱 Drag the LEFT side to move', '🍴 Hold THROW (drag to aim), let go to throw', '👋 SWIPE · 💨 DASH · 🦖 STOMP: tap the buttons on the right', '😜 EMOTE: the little face button'] : [
         `Keyboard left:  ${keyHint(0)}`,
         `Keyboard right: ${keyHint(1)}`,
         'Gamepad: left stick move · right stick aim · A throw · X swipe · B dash · Y stomp · LT/BACK emote',
         'Phone: drag the left side to move · hold THROW and drag to aim · SWIPE / DASH / STOMP buttons · 😜 EMOTE',
-      ].join('\n'), 16, '#e9dccb');
+      ]).join('\n'), 16, '#e9dccb');
     } else if (p === 'cutlery') {
       (Object.keys(CUTLERY) as CutleryKind[]).forEach((k, i) => {
         const d = CUTLERY[k], x = 110 + (i % 2) * 560, y = 172 + Math.floor(i / 2) * 128;
@@ -276,6 +286,16 @@ export class HelpScene extends PanelScene {
         txt(x + 76, y + 26, locked && u ? needText(u) : l.blurb, 13, locked ? '#a89680' : '#e9dccb', 315);
         { const d = this.content[this.content.length - 1] as Phaser.GameObjects.Text; for (let f = 13; d.height > 50 && f > 10;) d.setFontSize(--f); } // max 2 lines per table
       });
+    } else if (p === 'extras') {
+      // ⚡ power-ups, twists and hazards, each in one line
+      head(60, 160, '🎁 POWER-UPS (switch on in setup)');
+      txt(60, 194, Object.values(POWER_DEFS).filter(d => d.enabled).map(d => `${d.short} ${d.name}: ${d.desc}`).join('\n'), 15, '#f1e4d2', 560);
+      head(60, 360, '⚠ HAZARDS (one per table)');
+      txt(60, 394, ['hand', 'wind', 'cleaver', 'cheese', 'spatula'].map(h => HAZARD_INFO[h]).join('\n'), 14, '#f1e4d2', 560);
+      head(660, 160, '⚡ TWISTS (one wacky rule; ⚡⚡ = two)');
+      txt(660, 194, enabledMutators().filter(m => m.id !== 'none').map(m => `${m.name}: ${m.blurb}`).join('\n'), 14, '#f1e4d2', 560);
+      { const last = this.content[this.content.length - 1] as Phaser.GameObjects.Text; for (let f = 14; last.y + last.height > 690 && f > 10;) last.setFontSize(--f); }
+      { const hz = this.content[this.content.length - 3] as Phaser.GameObjects.Text; for (let f = 14; hz.y + hz.height > 690 && f > 10;) hz.setFontSize(--f); }
     } else {
       // flows top to bottom; if it would run off the screen, everything is laid out again a size smaller
       for (let size = 17; size >= 11; size--) {
@@ -504,7 +524,7 @@ export class GalleryScene extends PanelScene {
     this.detail.push(withShadow(this.add.text(600, 470, got ? sp.full.toUpperCase() : '??? (LOCKED)', display(36, got ? sp.css : '#a89680', { strokeThickness: 6 })).setDepth(6), 3));
     const u = UNLOCKS.find(q => q.kind === 'kaiju' && q.index === i);
     const lines = got
-      ? [`A ${sp.food}.`, `🌟 KAIJU power: ${KITS[i].power} — ${KITS[i].blurb} (reach ${Math.round(powerReach(KITS[i]))} · every ${powerCooldown(KITS[i]).toFixed(1)} s)`, `Trait: ${KITS[i].trait}`, `Matches: ${st.kaijuPlays[i] ?? 0}  ·  Wins: ${st.kaijuWins[i] ?? 0}${u ? `  ·  🎁 ${needText(u)}` : ''}`, (() => { const mi = masteryInfo(loadMeta().xp[i] ?? 0); const words = ['sparkles', 'HUD star', 'gold name', 'gold frame', 'crown']; const ladder = words.map((r, k) => `${k + 2 <= mi.level ? '✔' : '🔒'}${r}`).join(' · '); return `Mastery Lv ${mi.level} ${mi.title}${mi.need ? ` (${mi.into}/${mi.need} XP)` : ' MAX'}\nRewards (Lv 2-6): ${ladder} · ${isShiny(i) ? '✔' : '🔒'}Shiny`; })()]
+      ? [`A ${sp.food}.`, `🌟 KAIJU power: ${KITS[i].power} — ${KITS[i].blurb} (reach ${Math.round(powerReach(KITS[i]))} · every ${powerCooldown(KITS[i]).toFixed(1)} s)`, `Trait: ${KITS[i].trait}`, `Matches: ${st.kaijuPlays[i] ?? 0}  ·  Wins: ${st.kaijuWins[i] ?? 0}${st.vs?.[i] ? `  ·  📊 You vs it: ${st.vs[i][0]}–${st.vs[i][1] - st.vs[i][0]}` : ''}${u ? `  ·  🎁 ${needText(u)}` : ''}`, (() => { const mi = masteryInfo(loadMeta().xp[i] ?? 0); const words = ['sparkles', 'HUD star', 'gold name', 'gold frame', 'crown']; const ladder = words.map((r, k) => `${k + 2 <= mi.level ? '✔' : '🔒'}${r}`).join(' · '); const fill = mi.need ? Math.round(8 * mi.into / mi.need) : 8; return `Mastery Lv ${mi.level} ${mi.title} ${'▰'.repeat(fill)}${'▱'.repeat(8 - fill)}${mi.need ? ` (${mi.into}/${mi.need} XP)` : ' MAX'}\nRewards (Lv 2-6): ${ladder} · ${isShiny(i) ? '✔' : '🔒'}Shiny`; })()]
       : [u ? `Unlock: ${needText(u)}` : 'Locked', '', 'Left: normal look · right: KAIJU MODE'];
     // fit inside the panel (x 600..1115, y 518..680): wrap to the width, then shrink the font until it fits
     const W = 355, H = 160; // right side of the panel holds MOVE LAB + SHINY
@@ -542,7 +562,7 @@ export class RecordsScene extends PanelScene {
       ['Gauntlet best wave', s.gauntlet ?? 0],
       ['Trial stars', `★ ${totalTrialStars()}/${TRIALS.length * 3}`],
       ['Party Cups won', s.cups ?? 0],
-      ['Tables visited', `${s.tables.filter(i => !LAYOUTS[i]?.custom).length}/${LAYOUTS.filter(l => !l.custom).length}`],
+      ['Tables played on', `${s.tables.filter(i => !LAYOUTS[i]?.custom).length}/${LAYOUTS.filter(l => !l.custom).length}`],
       ['Story stars', `★ ${totalStars(story)}`],
       ['Chef Rank', chefRank(s.achieved.length).title],
       ['Next rank', (() => { const r = chefRank(s.achieved.length); return r.next ? `${r.next} · ${r.rank}/${r.need}` : 'MAX'; })()],
@@ -558,7 +578,52 @@ export class RecordsScene extends PanelScene {
     const done = ACHIEVEMENTS.filter(a => s.achieved.includes(a.id)).length;
     withShadow(this.add.text(500, 108, `ACHIEVEMENTS ${done}/${ACHIEVEMENTS.length}`, display(24, '#ffd24a', { strokeThickness: 4 })).setDepth(5), 2);
     this.drawAch(s, 0);
+    this.buttons.push(new Button(this, 975, 108, { w: 190, h: 40, label: '🎯 GOALS', size: 16, accent: 0x8dff6a, onClick: () => this.toggleGoals() }, 6));
     if (PAGES > 1) { const pb: Button = new Button(this, 1170, 108, { w: 170, h: 40, label: `PAGE 1/${PAGES} ▶`, size: 16, onClick: () => { this.page = (this.page + 1) % PAGES; sfx.pickup(); pb.setText(`PAGE ${this.page + 1}/${PAGES} ▶`); this.drawAch(s, this.page); } }, 6); this.buttons.push(pb); }
+  }
+
+  /** 🎯 GOALS board: the path to 100% (what's left in each collection, and the next step), plus the 3 closest achievements. */
+  private goalsUi: (Button | Phaser.GameObjects.GameObject)[] = [];
+  private toggleGoals(): void {
+    if (this.goalsUi.length) { for (const u of this.goalsUi) { if (u instanceof Button) { u.g.destroy(); u.label.destroy(); u.sub?.destroy(); u.zone.destroy(); } else u.destroy(); } this.goalsUi = []; this.buttons.splice(0, this.buttons.length, ...this.buttons.filter(b => b.zone.active)); return; }
+    sfx.pickup();
+    const s = loadStats(), story = loadStory(), m = loadMeta(), own = owned(), tc = tableCount();
+    const g = this.add.graphics().setDepth(30);
+    g.fillStyle(0x000000, 0.65).fillRect(0, 0, 1280, 720).fillStyle(0x140b05, 1).fillRoundedRect(100, 110, 1080, 570, 22).lineStyle(3, 0x8dff6a, 1).strokeRoundedRect(100, 110, 1080, 570, 22);
+    const add = <T extends Phaser.GameObjects.GameObject>(o: T): T => { this.goalsUi.push(o); return o; };
+    this.goalsUi.push(g, this.add.zone(640, 360, 1280, 720).setInteractive().setDepth(30));
+    add(withShadow(this.add.text(640, 140, '🎯 GOALS: your path to 100%', display(30, '#8dff6a', { strokeThickness: 5 })).setOrigin(0.5).setDepth(31), 3));
+    const bar = (x: number, y: number, w: number, k: number, col: number) => { g.fillStyle(0x3a2a1e, 1).fillRoundedRect(x, y, w, 10, 5); if (k > 0) g.fillStyle(col, 1).fillRoundedRect(x, y, Math.max(10, w * Math.min(1, k)), 10, 5); };
+    const nextLocked = (kind: 'kaiju' | 'table') => UNLOCKS.find(u => u.kind === kind && !isEarned(u, story));
+    const colHave = COLOURS.filter(colourUnlocked).length, shinies = (m.shiny ?? []).length, achN = s.achieved.length;
+    const rows: [string, number, number, string][] = [
+      ['🐉 Kaiju', own.kaiju.length, SPECIES.length, (() => { const u = nextLocked('kaiju'); return u ? `next: ${needText(u)}` : 'all found!'; })()],
+      ['🍽 Tables', tc.own, tc.all, (() => { const u = nextLocked('table'); return u ? `next: ${needText(u)}` : 'all found!'; })()],
+      ['🎨 Colours', colHave, COLOURS.length, 'from achievements and the 🛒 Pantry'],
+      ['✨ Shinies', shinies, SPECIES.length, `Mastery Lv ${SHINY.level} + ${SHINY.cost} 🪙 each (Gallery)`],
+      ['🏆 Achievements', achN, ACHIEVEMENTS.length, 'see the closest ones on the right'],
+      ['🎯 Trial stars', totalTrialStars(), TRIALS.length * 3, 'CHALLENGES → TRIALS'],
+      ['📖 Story stars', totalStars(story), 36, '★★★ = win without losing a round'],
+    ];
+    add(this.add.text(140, 178, 'COLLECTIONS', display(20, '#ffd24a', { strokeThickness: 3 })).setDepth(31));
+    rows.forEach(([name, have, all, hint], k) => {
+      const y = 214 + k * 64;
+      add(this.add.text(140, y, `${name}  ${have}/${all}`, body(17, have >= all ? '#8dff6a' : '#f1e4d2', 900)).setDepth(31));
+      bar(140, y + 26, 420, have / Math.max(1, all), have >= all ? 0x8dff6a : 0xffb347);
+      const h = add(this.add.text(140, y + 40, hint, body(13, '#cdb9a3', 800)).setDepth(31)); if (h.width > 440) h.setScale(440 / h.width);
+    });
+    add(this.add.text(640, 178, 'CLOSEST ACHIEVEMENTS', display(20, '#ffd24a', { strokeThickness: 3 })).setDepth(31));
+    const close = ACHIEVEMENTS.filter(a => !s.achieved.includes(a.id) && a.progress).map(a => ({ a, p: a.progress!(s) })).sort((x, y) => y.p[0] / y.p[1] - x.p[0] / x.p[1]).slice(0, 4);
+    close.forEach(({ a, p }, k) => {
+      const y = 214 + k * 108;
+      add(this.add.text(640, y, `${a.icon} ${a.name}  ${Math.min(p[0], p[1])}/${p[1]}`, body(18, '#f1e4d2', 900)).setDepth(31));
+      bar(640, y + 28, 390, p[0] / p[1], 0x8dd8ff);
+      add(this.add.text(640, y + 44, a.desc, body(14, '#cdb9a3', 800, { wordWrap: { width: 500 } })).setDepth(31));
+      const pin = new Button(this, 1100, y + 12, { w: 100, h: 34, label: pinnedAchievement() === a.id ? '📌 PINNED' : '📌 PIN', size: 13, accent: 0x8dd8ff, onClick: () => { pinAchievement(a.id); sfx.pickup(); this.toggleGoals(); this.toggleGoals(); } }, 31);
+      this.goalsUi.push(pin); this.buttons.push(pin);
+    });
+    const x = new Button(this, 1130, 140, { w: 60, h: 44, label: '✖', size: 20, onClick: () => this.toggleGoals() }, 31);
+    this.goalsUi.push(x); this.buttons.push(x);
   }
 
   private page = 0;

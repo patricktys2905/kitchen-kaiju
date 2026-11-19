@@ -30,6 +30,7 @@ export interface Chapter {
   boss?: boolean;
   mutator?: Mutator; // a twist for this chapter (Second Helpings)
   bossBelly?: number; // boss belly at the start of each round (default 100 = goes KAIJU straight away)
+  meanwhile?: string; // 📜 a one-line story beat shown after you clear this chapter (the running mystery)
 }
 
 export const CHAPTERS: Chapter[] = [
@@ -42,6 +43,7 @@ export const CHAPTERS: Chapter[] = [
     ],
     tip: 'Hold THROW to charge, let go to fling. Missed cutlery sticks where it lands, so go and grab it!',
     win: { speaker: 0, text: 'Snip… not bad. The next table won\'t be so polite.' },
+    meanwhile: "Meanwhile, a bamboo steamer lid lifts an inch… then quietly settles again.",
   },
   {
     title: 'Dinner for Four', table: 1, rounds: 2,
@@ -52,6 +54,7 @@ export const CHAPTERS: Chapter[] = [
     ],
     tip: 'DASH into a rival near the edge to shove them right off the table.',
     win: { speaker: 0, text: 'Ink-credible… We\'ll be back. Probably wobblier.' },
+    meanwhile: "Meanwhile, a whisper goes round the kitchen: \"a newcomer is clearing tables.\"",
   },
   {
     title: 'Leftovers', table: 2, rounds: 2,
@@ -62,6 +65,7 @@ export const CHAPTERS: Chapter[] = [
     ],
     tip: 'Eat crumbs to fill your belly, then STOMP to go KAIJU: huge, and immune to cutlery!',
     win: { speaker: 1, text: 'Fine… but the boss of the Sushi Bar eats newcomers for breakfast.' },
+    meanwhile: "Meanwhile, someone has left a single dumpling crumb on every table you've cleared. Odd.",
   },
   {
     title: 'Boss of the Belt', table: 3, rounds: 2, boss: true, bossBelly: 70,
@@ -73,6 +77,7 @@ export const CHAPTERS: Chapter[] = [
     ],
     tip: 'BOSS: Norigon starts every round ready to go KAIJU. Keep moving, and use the conveyor to escape!',
     win: { speaker: 0, text: '…Impossible. Take your win. The feast is only getting hotter.' },
+    meanwhile: "Meanwhile, the steamer hisses. A note slides out: \"Impressive. Keep going.\" It's unsigned.",
   },
   {
     title: 'Party Crashers', table: 4, rounds: 3,
@@ -83,6 +88,7 @@ export const CHAPTERS: Chapter[] = [
     ],
     tip: 'Watch for the wind arrows: walk INTO the gust, or get blown off the table.',
     win: { speaker: 0, text: 'Worst. Birthday. Ever. *pop*' },
+    meanwhile: "Meanwhile, the party guests swear they saw a round shadow watching from the top shelf.",
   },
   {
     title: 'On the Chopping Block', table: 5, rounds: 3,
@@ -93,6 +99,7 @@ export const CHAPTERS: Chapter[] = [
     ],
     tip: 'Get out of the red lane before the cleaver falls!',
     win: { speaker: 1, text: 'Guac… and roll. You\'re sharper than you look.' },
+    meanwhile: "Meanwhile, the cleaver marks on the board spell something. Is that… a \"D\"?",
   },
   {
     title: 'Short Order Showdown', table: 6, rounds: 3,
@@ -104,6 +111,7 @@ export const CHAPTERS: Chapter[] = [
     ],
     tip: 'Burners glow before they FLARE. Step off before they go!',
     win: { speaker: 0, text: 'Hmph. Ninety seconds and you\'re still not cooked.' },
+    meanwhile: "Meanwhile, the diner cook mutters: \"The quiet one booked the Grand Feast table weeks ago.\"",
   },
   {
     title: 'The Big Melt', table: 7, rounds: 3, boss: true,
@@ -115,6 +123,7 @@ export const CHAPTERS: Chapter[] = [
     ],
     tip: 'BOSS: Bloblin starts every round ready to go KAIJU. Melted puddles are slippery: stay off them!',
     win: { speaker: 0, text: '…I\'m just going to sit in the freezer for a while.' },
+    meanwhile: "Meanwhile, the freezer door creaks open by itself. The cold air smells faintly of dumplings.",
   },
   {
     title: 'Picnic Panic', table: 8, rounds: 3,
@@ -126,6 +135,7 @@ export const CHAPTERS: Chapter[] = [
     ],
     tip: 'The ant trail carries everything down the blanket: use it to sneak, or to steal dropped cutlery.',
     win: { speaker: 0, text: 'Too… much… effort. You win. I\'ll be hanging off my straw.' },
+    meanwhile: "Meanwhile, the ants march a tiny golden spoon across the picnic blanket… towards the steamer.",
   },
   {
     title: 'Proving the Dough', table: 9, rounds: 3,
@@ -137,6 +147,7 @@ export const CHAPTERS: Chapter[] = [
     ],
     tip: 'Sticky dough slows you to a crawl: rivals on it are easy targets. So are you.',
     win: { speaker: 0, text: 'Rise and fall… This isn\'t over. See you at the banquet.' },
+    meanwhile: "Meanwhile, the bakery dough rises in the shape of a crown. Somebody is expecting you.",
   },
   {
     title: 'Round and Round', table: 10, rounds: 3,
@@ -148,6 +159,7 @@ export const CHAPTERS: Chapter[] = [
     ],
     tip: 'The turntable carries you round in circles. Ride it to dodge, or get flung into a throw.',
     win: { speaker: 0, text: 'Dizzy… and to be frank, a bit sick. The Grand Feast awaits you. Good luck with HIM.' },
+    meanwhile: "Meanwhile, the Lazy Susan stops spinning. Every plate now points to the head of the banquet table.",
   },
   {
     title: 'The Grand Feast', table: 11, rounds: 3, boss: true,

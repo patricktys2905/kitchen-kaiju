@@ -167,6 +167,14 @@ export class MenuScene extends Phaser.Scene {
   private party = false;
   private tagline!: Phaser.GameObjects.Text;
 
+  /** ⏱ A rough match length for the setup screen (EASY TO TUNE: seconds per round grows with the crowd). */
+  private estMinutes(): number {
+    const n = Math.max(2, this.slots.length), perRound = 22 + 5 * n; // seconds
+    const roundsFor = (target: number) => Math.min(target * 2.4, target * (1 + 0.3 * (n - 2))); // more players: more rounds won by others
+    const secs = this.party && MenuScene.cupOn ? cupGames(Math.max(3, n)).reduce((a, g) => a + roundsFor(g.rounds) * perRound + 10, 0) : roundsFor(this.rounds) * perRound;
+    return Math.max(1, Math.round(secs / 60));
+  }
+
   private cycleMode(): void {
     if (!this.party) return;
     if (MenuScene.cupOn) { sfx.thwock(); return; } // the Cup picks the modes
@@ -563,7 +571,7 @@ export class MenuScene extends Phaser.Scene {
     const seats = this.slots.map((_, i) => i % 2), red = seats.filter(t => t === 0).length, blue = seats.length - red;
     if (this.party && MenuScene.cupOn) this.tagline.setText('🏆 Party Cup: a different mode every game, points for every place'); else this.tagline.setText(this.mode === 'teams' ? `${md.blurb}   ·   RED ${red}  vs  BLUE ${blue}${red !== blue ? '  (add a player or bot to even it up)' : ''}` : this.party ? md.blurb : 'Tiny monsters. Giant dinner.');
     this.modeText.setText(`${this.party ? (MenuScene.cupOn ? `🏆 PARTY CUP: ${cupGames(Math.max(3, this.slots.length)).length} GAMES` : `◀ ${md.name} ▶`) : 'CLASSIC'}   ·   POWER-UPS: ${this.powerups ? 'ON' : 'OFF'}   ·   HAZARDS: ${this.hazards ? 'ON' : 'OFF'}${this.mutator !== 'none' ? `   ·   ⚡ ${twistName(this.mutator, this.mutator2)}` : ''}`);
-    this.infoText.setScale(1).setText(`${isTouchDevice ? `🤖 ${BOT_INFO[this.difficulty]}   ·   ` : ''}Bot difficulty: ${this.difficulty.toUpperCase()}   ·   Up to ${MAX_PLAYERS} players   ·   ${this.party && MenuScene.cupOn ? 'The Cup sets the rounds' : `First to ${this.rounds} round${this.rounds === 1 ? '' : 's'}`}   ·   ${this.own.kaiju.length < SPECIES.length ? `${this.own.kaiju.length}/${SPECIES.length} kaiju (play & Story unlock more)` : `${SPECIES.length} kaiju`}`);
+    this.infoText.setScale(1).setText(`${isTouchDevice ? `🤖 ${BOT_INFO[this.difficulty]}   ·   ` : ''}Bot difficulty: ${this.difficulty.toUpperCase()}   ·   Up to ${MAX_PLAYERS} players   ·   ${this.party && MenuScene.cupOn ? 'The Cup sets the rounds' : `First to ${this.rounds} round${this.rounds === 1 ? '' : 's'}`}   ·   ⏱ ≈ ${this.estMinutes()} min   ·   ${this.own.kaiju.length < SPECIES.length ? `${this.own.kaiju.length}/${SPECIES.length} kaiju (play & Story unlock more)` : `${SPECIES.length} kaiju`}`);
     if (this.infoText.width > 1240) this.infoText.setScale(1240 / this.infoText.width); // phones add the bot explainer: keep it on screen
     const tl = this.table < 0 ? null : LAYOUTS[this.table];
     this.tableText.setText(tl ? `TABLE: ${tl.name.toUpperCase()}  —  ${tl.blurb}` : `TABLE: ALL ${tableCount().own}${this.own.tables.length > tableCount().own ? ` + ${this.own.tables.length - tableCount().own} WORKSHOP` : ''} (a different one every round)${tableCount().own < tableCount().all ? ` · ${tableCount().all - tableCount().own} more to unlock` : ''}`);

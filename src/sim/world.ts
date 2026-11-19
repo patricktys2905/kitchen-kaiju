@@ -294,6 +294,7 @@ export class World {
   private blenderTimer = 0;
   turnAngle = 0; // Lazy Susan rotation, for drawing
   layout: Layout = LAYOUTS[0];
+  private bakeTimer = 0; // 🧁 Workshop cupcakes
   layoutIndex = 0;
   phase: Phase = 'countdown';
   phaseT = 0;
@@ -379,6 +380,7 @@ export class World {
     this.frenzy = false;
     this.spoon = null;
     this.spatula = null;
+    this.bakeTimer = RULES.bakeEvery;
     this.spatulaTimer = RULES.spatulaFirst + this.calm;
     this.cheeseTimer = RULES.cheeseFirst + this.calm;
     this.crumbTimer = 0;
@@ -645,6 +647,8 @@ export class World {
       if (h) {
         p.x += h.nx * h.pen;
         p.y += h.ny * h.pen;
+        if (this.layout.custom && o.style === 'pancakes') { p.vx *= RULES.syrupGrip; p.vy *= RULES.syrupGrip; } // 🥞 sticky syrup
+        if (this.layout.custom && o.style === 'tomato' && p.bumpT <= 0) { p.kx += h.nx * RULES.splatForce; p.ky += h.ny * RULES.splatForce; p.bumpT = 0.3; this.emit({ type: 'bumper', x: o.x, y: o.y }); } // 🍅 a soft splat
         if (o.style === 'gumdrop' && p.bumpT <= 0) {
           p.kx += h.nx * RULES.bumperForce;
           p.ky += h.ny * RULES.bumperForce;
@@ -1242,6 +1246,13 @@ export class World {
 
   private spawnTimers(dt: number): void {
     this.updateItems(dt);
+    if (this.layout.custom && this.opts.crumbSpawns) { // 🧁 Workshop cupcakes bake a crumb now and then
+      this.bakeTimer -= dt;
+      if (this.bakeTimer <= 0) {
+        this.bakeTimer = RULES.bakeEvery;
+        for (const o of this.layout.obstacles) if (o.style === 'cupcake' && this.crumbs.length < RULES.maxCrumbs + 4) { const a = this.rng.next() * Math.PI * 2, d = (o.shape === 'circle' ? o.r : 30) + 22; this.addCrumb(o.x + Math.cos(a) * d, o.y + Math.sin(a) * d); }
+      }
+    }
     if (this.opts.crumbSpawns) {
       this.crumbTimer -= dt;
       if (this.crumbTimer <= 0) {

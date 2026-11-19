@@ -1026,3 +1026,37 @@ The full list is in `playtest-reports/round10/SUMMARY.md` ("Fixed straight after
 - **Records:** `PAGES` and `PER` even paging.
 - **Pantry:** `disarm()`.
 - **Lobby:** takes `powerups` / `hazards` / `mutator`; a couch room can start with bots.
+
+## 74. Round 10 "gaps to 9" (build all)
+- **🥊 Fighter:**
+  - KAIJU lasts 7 s (was 6), and the after-daze is 0.5 s (was 0.75).
+  - 📊 Your win/loss record against each rival kaiju (`Stats.vs`, solo matches vs bots) shows in its Gallery card.
+- **🏁 Challenge Seeker:**
+  - Boss waves are the hardest wave of their course (`OPENING_WAVES` 4 and 8).
+  - Clearing a boss wave pays +30 🪙 (`GAUNTLET.bossTokens`).
+  - 🗓 This week's best wave resets on Mondays; beating it pays +25 🪙 (`weeklyBest` / `saveWeeklyBest`). It shows in CHALLENGES.
+  - 🌶️ SPICY DAILY on the Daily card: the same match vs HARD / TOUGH / NORMAL rivals, +40 🪙 once a day (`DAILY.spicyLevels`, `spicyTokens`).
+- **📱 Phone / 🧸 Kid / 🎓 First-timer:**
+  - Phones get a minimum body text size (`PHONE_MIN` 16 in `src/render/fonts.ts`, about 12.5 css px).
+  - Help ▸ BASICS is five picture cards (THROW, SWIPE, DASH, EAT, STOMP), with phone-only controls on phones.
+- **📖 Story Fan:**
+  - Each Grand Feast chapter has a `meanwhile` line: a running mystery about the quiet one in the steamer, shown on the Chapter Clear card.
+  - The Head Chef no longer repeats the chapter tip before every fight (it's on the chapter card).
+  - The progress line reads "Chapters 6/12 · 35% of everything".
+- **🏆 Collector / Achiever:**
+  - The 🎯 GOALS board in Records shows each collection with a bar and its next step, plus the 4 closest achievements with 📌 PIN buttons.
+  - The Gallery mastery line has a ▰▰▱ progress bar.
+  - "Tables played on" in Records (it was "visited").
+- **🎉 Party Host:**
+  - Setup shows ⏱ ≈ N min (`estMinutes`, including the whole Cup).
+  - Results show crumbs eaten (Crumb Rush) and spoon seconds (Golden Spoon).
+  - Team Feast shows "🔴 RED 1 – 0 BLUE 🔵" during play.
+- **🛠 Tinkerer:**
+  - Workshop props with behaviours (Workshop tables only, so the built-in tables are unchanged):
+    - 🥞 PANCAKES: sticky syrup.
+    - 🧁 CUPCAKE: bakes crumbs.
+    - 🍅 TOMATO: a soft bumper.
+    - Gumdrop: the BUMPER.
+  - 6 Workshop slots (was 3).
+  - ✏ NAME a table.
+  - Help ▸ EXTRAS explains every power-up, twist and hazard.

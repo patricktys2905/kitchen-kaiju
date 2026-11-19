@@ -22,6 +22,7 @@ export interface Stats {
   modeWins: Partial<Record<GameMode, number>>;
   kaijuWins: Record<number, number>; // species -> match wins
   kaijuPlays: Record<number, number>; // species -> matches played
+  vs?: Record<number, [number, number]>; // 📊 rival species -> [your match wins, matches] against it
   tables: number[]; // table indices played on
   achieved: string[]; // achievement ids
 }

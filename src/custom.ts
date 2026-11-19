@@ -3,7 +3,7 @@
 // EASY TO CUSTOMISE: PROPS (what can be placed), HAZARD_CHOICES, MAX_CUSTOM.
 import { LAYOUTS, type HazardKind, type Layout, type ObstacleStyle } from './sim/layouts';
 
-export const MAX_CUSTOM = 3;
+export const MAX_CUSTOM = 6;
 export const MAX_PROPS = 12;
 /** Props you can place: [style, radius]. 'gumdrop' is a bouncy bumper. */
 export const PROPS: [ObstacleStyle, number][] = [
@@ -24,6 +24,9 @@ export const HAZARD_INFO: Record<string, string> = {
 /** 💬 What a prop does when you pick it. Every prop is a solid block; size changes how much cover it gives. */
 export function propInfo(style: string, r: number): string {
   if (style === 'gumdrop') return 'BUMPER: kicks any kaiju that touches it away hard (great near edges)';
+  if (style === 'pancakes') return '🥞 SYRUP STACK: sticky! Kaiju touching it slow right down';
+  if (style === 'cupcake') return '🧁 CUPCAKE: bakes a crumb next to itself every few seconds';
+  if (style === 'tomato') return '🍅 TOMATO: a soft bumper that splats kaiju back a little';
   return `${style.toUpperCase()}: a solid ${r <= 28 ? 'small' : r <= 36 ? 'medium' : 'big'} block. Cutlery and kaiju bounce off it, so it's cover from throws`;
 }
 

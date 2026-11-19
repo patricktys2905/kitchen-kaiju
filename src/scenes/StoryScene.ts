@@ -200,8 +200,8 @@ export class StoryScene extends Phaser.Scene {
     const n = this.camp.chapters.length;
     const pct = this.main ? Math.round(100 * (cleared / n * 0.35 + stars / (n * 3) * 0.25 + spicyN / n * 0.2 + dessertN / COURSES.length * 0.1 + rewardsN / UNLOCKS.length * 0.1))
       : Math.round(100 * (cleared / n * 0.5 + stars / (n * 3) * 0.3 + spicyN / n * 0.2));
-    if (!this.main) { this.progressText.setText(`${this.camp.tagline}  ·  ${pct}% complete  ·  ★ ${stars}/${n * 3}  ·  🌶️ ${spicyN}/${n}`); return; }
-    this.progressText.setText(`Story ${pct}% complete  ·  ★ ${stars}/${this.camp.chapters.length * 3}  ·  🌶️ ${spicyN}/${this.camp.chapters.length}${this.save.endingSeen ? `  ·  🍰 ${dessertN}/${COURSES.length}` : ''}  ·  🎁 ${rewardsN}/${UNLOCKS.length}`);
+    if (!this.main) { this.progressText.setText(`${this.camp.tagline}  ·  Chapters ${cleared}/${n} (${pct}%)  ·  ★ ${stars}/${n * 3}  ·  🌶️ ${spicyN}/${n}`); return; }
+    this.progressText.setText(`Chapters ${cleared}/${n}  ·  ${pct}% of everything  ·  ★ ${stars}/${this.camp.chapters.length * 3}  ·  🌶️ ${spicyN}/${this.camp.chapters.length}${this.save.endingSeen ? `  ·  🍰 ${dessertN}/${COURSES.length}` : ''}  ·  🎁 ${rewardsN}/${UNLOCKS.length}`);
   }
 
   // ---------------------------------------------------------------- map
@@ -314,7 +314,7 @@ export class StoryScene extends Phaser.Scene {
     if (this.mode !== 'map' || this.sel >= this.save.unlocked) return;
     sfx.go();
     const ch = this.camp.chapters[this.sel], rivals = chapterRivals(ch, this.save.pick);
-    this.lines = getSettings().kidMode ? [ch.intro[0]] : [...ch.intro, { speaker: 'chef', text: ch.tip }]; // 🧸 Kid Mode: one line
+    this.lines = getSettings().kidMode ? [ch.intro[0]] : [...ch.intro]; // 🧸 Kid Mode: one line (the tip is already on the chapter card)
     // retries skip the chat: you've heard it already this session
     const key = `${this.camp.id}:${this.sel}`;
     if (StoryScene.talked.has(key)) { this.launch(); return; }
@@ -472,7 +472,7 @@ export class StoryScene extends Phaser.Scene {
       const unlockLine = unlockedNew && !last ? `
 ✅ Chapter ${r.chapter + 2} unlocked: ${nextCh?.title ?? ''}. ${nextRival} is already sharpening the cutlery…` : nextCh ? `
 Next course: ${nextCh.title}. ${nextRival} is already sharpening the cutlery…` : '';
-      const chef = this.add.text(640, y, `👨‍🍳 ${praise}${unlockLine}`, body(15, '#ffd9a0', 800, { align: 'center', wordWrap: { width: 640 } })).setOrigin(0.5, 0).setDepth(31);
+      const mw = this.camp.chapters[r.chapter]?.meanwhile, chef = this.add.text(640, y, `👨‍🍳 ${praise}${unlockLine}${mw && !getSettings().kidMode ? `\n📜 ${mw}` : ''}`, body(15, '#ffd9a0', 800, { align: 'center', wordWrap: { width: 640 } })).setOrigin(0.5, 0).setDepth(31);
       this.overlay.push(chef);
       y += chef.height + 10;
       if (r.receipt?.length && y + 22 < BTN_Y - 44) { const rc = this.add.text(640, y, r.receipt.join('   ·   '), body(14, '#cdb9a3', 800)).setOrigin(0.5, 0).setDepth(31); this.overlay.push(rc); y += rc.height + 6; }

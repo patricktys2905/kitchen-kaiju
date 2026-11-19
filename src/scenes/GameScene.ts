@@ -21,7 +21,7 @@ import { NO_INPUT, World, type GameEvent, type PlayerInput } from '../sim/world'
 import { chapterRivals, starsFor } from '../story/chapters';
 import { COURSES, saveDessert } from '../story/dessert';
 import { addToShelf, cupRules, cupShelf, FINAL_MULTIPLIER, cupGames, placePoints, RANKED_BY } from '../cup';
-import { GAUNTLET, GAUNTLET_PERKS, gauntletBest, gauntletTables, runGrade, runScore, saveGauntletBest, waveCourse, wavePreview, waveSetup, checkpointWave } from '../gauntlet';
+import { GAUNTLET, GAUNTLET_PERKS, gauntletBest, gauntletTables, runGrade, runScore, saveGauntletBest, waveCourse, wavePreview, waveSetup, checkpointWave, saveWeeklyBest } from '../gauntlet';
 import { shopOwned } from '../meta';
 import { recordTrial, TRIAL_TOKENS, TRIALS } from '../trials';
 import { enabledMutators } from '../sim/mutators';
@@ -31,7 +31,7 @@ import { COLOURS, currentColour, parseLook, seatColours } from '../colours';
 import { KITS, powerCooldown } from '../sim/powers';
 import { LAYOUTS } from '../sim/layouts';
 import { PRACTICE, PRACTICE_STEPS } from '../practice';
-import { DAILY, dailySetup, loadDaily, recordDaily } from '../daily';
+import { DAILY, dailySetup, loadDaily, recordDaily, markSpicyWin, spicyWonToday } from '../daily';
 import { REPLAY, ReplayBuffer } from '../replay';
 import { randomTip } from '../tips';
 import { CALLOUTS } from '../callouts';
@@ -75,7 +75,7 @@ export interface GameData {
   hats?: string[]; // online: each seat's hat id ('' = none)
   gauntlet?: { wave: number; bosses: number[]; perks?: string[]; lives?: number; kos?: number; startBest?: number }; // startBest = best wave before this run (for NEW BEST) // kos = knockouts earlier in the run (for the score) // Gauntlet: seat 0 is you, one round per wave; perks picked between waves
   from?: string; // scene to go back to (practice: 'help' or 'gallery')
-  daily?: { date: string }; // Daily Challenge: seat 0 is you
+  daily?: { date: string; spicy?: boolean }; // Daily Challenge: seat 0 is you
   party?: boolean; // started from the PARTY MODES setup (go back there afterwards)
   attract?: boolean; // title-screen demo: any input goes back to the title
   dessert?: { course: number; bosses: number[] }; // 🍰 Dessert Course (index into COURSES)
@@ -1101,11 +1101,11 @@ export class GameScene extends Phaser.Scene {
     return { ...d, lab: true, from: 'gallery' };
   }
 
-  static dailyData(): GameData {
+  static dailyData(spicy = false): GameData {
     const d = dailySetup();
     return {
       slots: [{ kind: 'local', index: 0 }, ...d.rivals.map((): Slot => ({ kind: 'bot', index: 0 }))], difficulty: 'normal',
-      species: [d.you, ...d.rivals], tables: [d.table], rounds: DAILY.rounds, botLevels: [null, ...DAILY.levels.map(l => (getSettings().kidMode ? 'easy' : l))], mode: d.mode, powerups: DAILY.powerups, daily: { date: d.date },
+      species: [d.you, ...d.rivals], tables: [d.table], rounds: DAILY.rounds, botLevels: [null, ...(spicy ? DAILY.spicyLevels : DAILY.levels).map(l => (getSettings().kidMode && !spicy ? 'easy' : l))], mode: d.mode, powerups: DAILY.powerups, daily: { date: d.date, spicy },
     };
   }
 
@@ -1184,12 +1184,18 @@ export class GameScene extends Phaser.Scene {
       if (gained) addTokens(gained * TRIAL_TOKENS);
       this.trialResult = { stars, gained };
     }
-    if (e.type === 'matchEnd' && this.initData.daily) recordDaily(this.world.players[0].score, this.humanWon(e.winner), this.initData.daily.date);
+    if (e.type === 'matchEnd' && this.initData.daily) {
+      recordDaily(this.world.players[0].score, this.humanWon(e.winner), this.initData.daily.date);
+      if (this.initData.daily.spicy && this.humanWon(e.winner) && !spicyWonToday(this.initData.daily.date)) { markSpicyWin(this.initData.daily.date); addTokens(DAILY.spicyTokens); this.achEarned.lines.push(`🌶️ SPICY DAILY beaten! +${DAILY.spicyTokens} 🪙`); this.achEarned.tokens += DAILY.spicyTokens; this.mergeAch(); }
+    }
     if (e.type === 'matchEnd' && this.initData.dessert && e.winner === 0) saveDessert(this.initData.dessert.course + 1);
     if (e.type === 'roundStart' && this.initData.dessert && e.round === 1) { const q = COURSES[this.initData.dessert.course].quip; this.time.delayedCall(200, () => this.popup(VIEW.w / 2, 150, q, '#ffd9a0', 18)); }
     if (e.type === 'matchEnd' && this.initData.gauntlet) {
       const reached = this.initData.gauntlet.wave - (e.winner === 0 ? 0 : 1);
       saveGauntletBest(reached);
+      const gw0 = this.initData.gauntlet;
+      if (e.winner === 0 && gw0.wave % GAUNTLET.bossEvery === 0) { addTokens(GAUNTLET.bossTokens); this.achEarned.lines.push(`👑 Boss wave cleared! +${GAUNTLET.bossTokens} 🪙`); this.achEarned.tokens += GAUNTLET.bossTokens; this.mergeAch(); }
+      if (e.winner !== 0 && saveWeeklyBest(reached)) { addTokens(GAUNTLET.weeklyTokens); this.achEarned.lines.push(`🗓 New best this week: wave ${reached}! +${GAUNTLET.weeklyTokens} 🪙`); this.achEarned.tokens += GAUNTLET.weeklyTokens; this.mergeAch(); }
       if (e.winner !== 0 && reached > (this.initData.gauntlet.startBest ?? 0) && (this.initData.gauntlet.lives ?? GAUNTLET.lives) <= 1) this.time.delayedCall(600, () => sfx.matchWin());
     }
     if (this.net?.role === 'guest' || !this.slots.some((_, i) => this.isHuman(i))) return;
@@ -1206,6 +1212,10 @@ export class GameScene extends Phaser.Scene {
         st.matches++;
         if (this.initData.cup && this.initData.cup.game + 1 >= cupGames(this.slots.length).length) { const tot = this.cupTotals(), best = Math.max(...tot); if (tot.some((v, i) => v === best && this.isHuman(i))) st.cups = (st.cups ?? 0) + 1; }
         this.slots.forEach((_, i) => { if (this.isHuman(i)) st.kaijuPlays[this.species[i]] = (st.kaijuPlays[this.species[i]] ?? 0) + 1; });
+        if (this.slots.filter((_, i) => this.isHuman(i)).length === 1 && this.mode !== 'teams') { // 📊 solo vs bots: a record against each rival kaiju
+          const won = this.humanWon(e.winner); st.vs ??= {};
+          this.slots.forEach((_, i) => { if (!this.isHuman(i)) { const r = st.vs![this.species[i]] ?? [0, 0]; st.vs![this.species[i]] = [r[0] + (won ? 1 : 0), r[1] + 1]; } });
+        }
         if (this.humanWon(e.winner)) {
           if (w.opts.target >= 3 && e.winner !== null && w.players[e.winner].score === w.round) st.flawless = (st.flawless ?? 0) + 1;
           st.wins++;
@@ -1646,6 +1656,7 @@ export class GameScene extends Phaser.Scene {
     const left = w.timeLeft();
     let mt = '';
     if (left !== null && (w.phase === 'play' || w.phase === 'countdown')) mt = `⏱ ${Math.ceil(left)}`;
+    if (w.mode === 'teams' && (w.phase === 'play' || w.phase === 'countdown')) { const ts = (t: number) => Math.max(0, ...w.players.filter(p => p.team === t).map(p => p.score)); mt = `🔴 ${MODE_RULES.teams.names[0]} ${ts(0)}  –  ${ts(1)} ${MODE_RULES.teams.names[1]} 🔵${left !== null ? `   ⏱ ${Math.ceil(left)}` : ''}`; }
     if (w.mode === 'hotDumpling' && w.hot && w.phase === 'play') mt = `🥟 ${w.players[w.hot.id].name} HAS THE HOT DUMPLING`;
     if (w.mode === 'goldenSpoon' && w.spoon && w.phase === 'play') mt = w.spoon.holder !== null ? `⏱ ${Math.ceil(left ?? 0)} · 🥄 ${w.players[w.spoon.holder].name} HAS THE GOLDEN SPOON` : `⏱ ${Math.ceil(left ?? 0)} · 🥄 GRAB THE GOLDEN SPOON!`;
     this.modeText.setText(this.replay ? '' : mt).setColor(left !== null && left < 10 ? '#ff8a7a' : '#ffe9c7'); // hidden under the INSTANT REPLAY label
@@ -1675,7 +1686,7 @@ export class GameScene extends Phaser.Scene {
       sub = `${w.mode !== 'classic' ? modeDef(w.mode).name + ' · ' : ''}${w.mutator !== 'none' ? '⚡ ' + twistName(w.mutator, w.mutator2) + ' · ' : ''}Round ${w.round} · ${w.layout.name}`;
       if (this.initData.cup) { const n = cupGames(w.players.length).length, fin = this.initData.cup.game + 1 >= n; sub = `🏆 PARTY CUP · GAME ${this.initData.cup.game + 1}/${n}${fin ? ` · FINAL: ×${FINAL_MULTIPLIER} POINTS` : ''} · ${modeDef(w.mode).name} · ${w.layout.name}`; }
       if (this.initData.dessert) { const c = COURSES[this.initData.dessert.course]; sub = `🍰 DESSERT COURSE ${this.initData.dessert.course + 1}/${COURSES.length} · ${c.title.toUpperCase()} · ${w.layout.name}`; }
-      if (this.initData.daily) sub = `📅 DAILY · ${w.players.length - 1} rivals (${(this.initData.botLevels ?? []).filter(Boolean).join(', ')}) · win to keep your 🔥 streak · ${w.layout.name}\n${dailyMedalLine(this.initData.daily.date)}`;
+      if (this.initData.daily) sub = `${this.initData.daily.spicy ? '🌶️ SPICY DAILY' : '📅 DAILY'} · ${w.players.length - 1} rivals (${(this.initData.botLevels ?? []).filter(Boolean).join(', ')}) · win to keep your 🔥 streak · ${w.layout.name}\n${dailyMedalLine(this.initData.daily.date)}`;
       if (this.initData.gauntlet) sub = `GAUNTLET · ${waveCourse(this.initData.gauntlet.wave)} · WAVE ${this.initData.gauntlet.wave}${this.initData.gauntlet.wave % GAUNTLET.bossEvery === 0 ? ' (COURSE BOSS)' : ''} · ❤ ${this.initData.gauntlet.lives ?? GAUNTLET.lives} · ${w.players.length - 1} rival${w.players.length > 2 ? 's' : ''}${this.bossSeats().length ? ' + 👑 BOSS' : ''} · ${w.layout.name}`;
       if (w.mutator !== 'none') sub += `\n⚡ TWIST: ${twistName(w.mutator, w.mutator2)} — ${twistBlurb(w.mutator, w.mutator2)}`;
       if (this.tip) sub += `\n\n💡 ${this.tip}`;
@@ -1738,7 +1749,7 @@ export class GameScene extends Phaser.Scene {
       if (w.mode === 'teams') { const tm = w.players[w.winner].team; main = `TEAM ${MODE_RULES.teams.names[tm]}\nRULES THE TABLE`; color = MODE_RULES.teams.css[tm]; }
       const ranked = w.mode === 'teams' ? w.players.slice().sort((a, b) => (a.team - b.team) || b.kos - a.kos) : w.players.slice().sort((a, b) => b.score - a.score || b.kos - a.kos);
       const solo = this.slots.filter(sl => sl.kind !== 'bot').length === 1; // one person playing: mark them as YOU
-      const lines = ranked.map((p, i) => `${w.mode === 'teams' ? `${MODE_RULES.teams.names[p.team]} · ` : `${i + 1}. `}${p.name}${solo && this.isHuman(p.id) ? ' (YOU)' : ''}  —  ${p.score} round${p.score === 1 ? '' : 's'} · ${p.kos} KO${p.kos === 1 ? '' : 's'}`);
+      const lines = ranked.map((p, i) => `${w.mode === 'teams' ? `${MODE_RULES.teams.names[p.team]} · ` : `${i + 1}. `}${p.name}${solo && this.isHuman(p.id) ? ' (YOU)' : ''}  —  ${p.score} round${p.score === 1 ? '' : 's'} · ${p.kos} KO${p.kos === 1 ? '' : 's'}${w.mode === 'crumbRush' ? ` · 🍪 ${this.tally.crumbs[p.id] ?? 0} eaten` : w.mode === 'goldenSpoon' ? ` · 🥄 ${Math.floor(p.pts)}s held` : ''}`);
       // one column (two columns of centred text ran into each other); the font shrinks for 5–6 players
       let table = lines.join('\n');
       if (this.initData.daily) {

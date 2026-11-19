@@ -688,7 +688,7 @@ describe('kaiju counterplay', () => {
     p.kaijuT = 0.05; p.stepT = 5;
     run(w, 0.1);
     expect(p.kaijuT).toBe(0);
-    expect(p.stunT).toBeGreaterThan(0.5);
+    expect(p.stunT).toBeGreaterThan(0.3); // RULES.shrinkDizzy (0.5)
     expect(p.invT).toBeLessThanOrEqual(0);
   });
 });
@@ -1386,5 +1386,19 @@ describe('round 10 fairness + clarity', () => {
     }
     expect(waveSetup(4).boss).toBe(true);
     expect(wavePreview(4)).toContain('BOSS');
+  });
+});
+
+describe('round 11 build', () => {
+  it('boss waves are the hardest wave of their course so far', async () => {
+    const { waveSetup } = await import('../src/gauntlet');
+    const order = ['easy', 'normal', 'tough', 'hard', 'brutal'];
+    const power = (n: number) => waveSetup(n).levels.reduce((a, l) => a + order.indexOf(l) + 1, 0);
+    for (const b of [4, 8]) for (let n = b - 3; n < b; n++) expect(power(b)).toBeGreaterThanOrEqual(power(n));
+  });
+
+  it('every Grand Feast chapter but the last has a "meanwhile" story beat', async () => {
+    const { CHAPTERS } = await import('../src/story/chapters');
+    expect(CHAPTERS.slice(0, -1).every(c => !!c.meanwhile)).toBe(true);
   });
 });
