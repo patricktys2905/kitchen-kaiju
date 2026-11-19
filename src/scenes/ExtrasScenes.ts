@@ -26,7 +26,7 @@ import { GameScene } from './GameScene';
 import { exportSave, importSave } from '../backup';
 import { totalTrialStars, TRIAL_TOKENS, TRIALS, trialStars } from '../trials';
 import { chefsPass, chefsPassText } from '../challengePass';
-import { buy, buyShiny, isShiny, SHINY, chefRank, completeStep, dailyDeal, loadMeta, MASTERY, masteryInfo, pinAchievement, pinnedAchievement, priceOf, SHOP, weeklyOrders, type OrderStat } from '../meta';
+import { buy, buyShiny, shinyBlock, isShiny, SHINY, chefRank, completeStep, dailyDeal, loadMeta, MASTERY, masteryInfo, pinAchievement, pinnedAchievement, priceOf, SHOP, weeklyOrders, type OrderStat } from '../meta';
 import { ACTIONS, bind, keyFor, keyHint, keyLabel, RESERVED, resetKeybinds, type Action } from '../keybinds';
 
 /** Shared backdrop, title, BACK button and keyboard/pad focus handling. */
@@ -136,7 +136,7 @@ export class SettingsScene extends PanelScene {
 
   private cycle(key: keyof Settings, kind: 'level' | 'toggle'): void {
     const v = getSettings()[key];
-    if (kind === 'toggle') setSetting(key, !v as never);
+    if (kind === 'toggle') { setSetting(key, !v as never); if (key === 'kidMode') { sfx.pickup(); this.scene.restart(); return; } } // 🧸 redraw so the bigger text shows straight away
     else {
       // nearest level, so odd saved values still step up instead of jumping to OFF
       let i = 0;
@@ -262,8 +262,9 @@ export class HelpScene extends PanelScene {
     } else if (p === 'tables') {
       const own = owned().tables, tc = tableCount();
       this.content.push(this.add.text(40, 690, `🍽 You own ${tc.own}/${tc.all} tables (Workshop tables are extra)`, body(15, '#ffd24a', 900)).setOrigin(0, 0.5).setDepth(5));
-      LAYOUTS.forEach((l, i) => {
-        const per = Math.ceil(LAYOUTS.length / 3), col = Math.floor(i / per), row = i % per, x = 40 + col * 410, y = 168 + row * 84;
+      const built = LAYOUTS.map((l, i) => ({ l, i })).filter(q => !q.l.custom); // Workshop tables live in the Workshop (they'd add a row that runs off screen)
+      built.forEach(({ l, i }, n) => {
+        const per = Math.ceil(built.length / 3), col = Math.floor(n / per), row = n % per, x = 40 + col * 410, y = 168 + row * 84;
         const locked = !own.includes(i);
         if (hasArt(l.table)) {
           const img = this.add.image(x + 34, y + 24, l.table).setDisplaySize(64, 36).setDepth(5);
@@ -317,6 +318,7 @@ export class GalleryScene extends PanelScene {
   constructor() { super('gallery'); }
 
   protected build(): void {
+    this.shown = -1; this.detail = []; // the scene is reused: forget the last visit, or the detail panel never redraws (it showed blank)
     const own = owned().kaiju;
     // collection progress: kaiju, tables and colour styles
     const { all: tAll, own: tOwn } = tableCount(), cOwn = COLOURS.filter(colourUnlocked).length;
@@ -330,7 +332,7 @@ export class GalleryScene extends PanelScene {
         const img = fitInside(this.add.image(x, y - 6, `kaiju-${i}`), 86, 80).setDepth(8);
         if (!own.includes(i)) img.setTint(0x1a1410);
       }
-      this.add.text(x, y + 44, own.includes(i) ? `${isShiny(i) ? '✨' : ''}${sp.name}` : '???', body(11, own.includes(i) ? sp.css : '#a89680', 900)).setOrigin(0.5).setDepth(8);
+      { const t = this.add.text(x, y + 44, own.includes(i) ? `${isShiny(i) ? '✨' : ''}${sp.name}` : '???', body(11, own.includes(i) ? sp.css : '#a89680', 900)).setOrigin(0.5).setDepth(8); if (t.width > 100) t.setScale(100 / t.width); } // long names (and Kid Mode text) stay on the tile
     });
     if (!HATS_ENABLED) { this.buildColours(); this.addLabBtn(); return; }
     // hat picker (cosmetic rewards from achievements)
@@ -399,6 +401,8 @@ export class GalleryScene extends PanelScene {
     this.buttons.push(this.shinyBtn = new Button(this, 1045, 640, { w: 150, h: 46, label: '✨ SHINY', sub: `${SHINY.cost} 🪙 · needs Lv ${SHINY.level}`, size: 15, accent: 0xffe27a, onClick: () => {
       const sp = this.shown < 0 ? 0 : this.shown;
       if (isShiny(sp)) { sfx.thwock(); return; }
+      const why = shinyBlock(sp); // say why up front, instead of asking to confirm a buy that can't happen
+      if (why !== 'ok') { sfx.thwock(); this.shinyBtn?.setText('✨ SHINY', why === 'level' ? `needs Mastery Lv ${SHINY.level} first` : `need ${SHINY.cost - loadMeta().tokens} more 🪙`); return; }
       if (this.shinyArm !== sp) { this.shinyArm = sp; sfx.pickup(); this.shinyBtn?.setText('✨ BUY SHINY?', `tap again: ${SHINY.cost} 🪙`); return; } // a second tap confirms
       this.shinyArm = -1;
       const r = buyShiny(sp);
@@ -480,11 +484,11 @@ export class GalleryScene extends PanelScene {
 
   private showDetail(i: number, click: boolean): void {
     this.labBtn?.setVisible(i < SPECIES.length && owned().kaiju.includes(i)); // 🥋 only for kaiju you own
-    if (this.shinyBtn && i < SPECIES.length) { const own = owned().kaiju.includes(i), sh = isShiny(i); this.shinyBtn.setVisible(own); this.shinyBtn.setText(sh ? '✨ SHINY ✔' : '✨ SHINY', sh ? 'on in matches' : `${SHINY.cost} 🪙 · needs Lv ${SHINY.level}`); this.shinyArm = -1; if (sh) this.detail.push(withShadow(this.add.text(600, 444, '✨ SHINY', display(16, '#ffe27a', { strokeThickness: 4 })).setDepth(7), 2)); }
     if (click) sfx.pickup();
     this.shown = i;
     for (const o of this.detail) o.destroy();
     this.detail = [];
+    if (this.shinyBtn && i < SPECIES.length) { const own = owned().kaiju.includes(i), sh = isShiny(i); this.shinyBtn.setVisible(own); this.shinyBtn.setText(sh ? '✨ SHINY ✔' : '✨ SHINY', sh ? 'on in matches' : `${SHINY.cost} 🪙 · needs Lv ${SHINY.level}`); this.shinyArm = -1; if (sh) this.detail.push(withShadow(this.add.text(600, 444, '✨ SHINY', display(16, '#ffe27a', { strokeThickness: 4 })).setDepth(7), 2)); }
     const sp = SPECIES[i], got = owned().kaiju.includes(i), st = loadStats();
     const g = this.add.graphics().setDepth(5);
     g.fillStyle(0x2a1408, 0.95); g.fillRoundedRect(140, 440, 1000, 250, 24);
@@ -500,7 +504,7 @@ export class GalleryScene extends PanelScene {
     this.detail.push(withShadow(this.add.text(600, 470, got ? sp.full.toUpperCase() : '??? (LOCKED)', display(36, got ? sp.css : '#a89680', { strokeThickness: 6 })).setDepth(6), 3));
     const u = UNLOCKS.find(q => q.kind === 'kaiju' && q.index === i);
     const lines = got
-      ? [`A ${sp.food}.`, `🌟 KAIJU power: ${KITS[i].power} — ${KITS[i].blurb} (reach ${Math.round(powerReach(KITS[i]))} · every ${powerCooldown(KITS[i]).toFixed(1)} s)`, `Trait: ${KITS[i].trait}`, `Matches: ${st.kaijuPlays[i] ?? 0}  ·  Wins: ${st.kaijuWins[i] ?? 0}${u ? '  ·  🎁 Story reward' : ''}`, (() => { const mi = masteryInfo(loadMeta().xp[i] ?? 0); const words = ['sparkles', 'HUD star', 'gold name', 'gold frame', 'crown']; const ladder = words.map((r, k) => `${k + 2 <= mi.level ? '✔' : '🔒'}${r}`).join(' · '); return `Mastery Lv ${mi.level} ${mi.title}${mi.need ? ` (${mi.into}/${mi.need} XP)` : ' MAX'}\nRewards (Lv 2-6): ${ladder} · ${isShiny(i) ? '✔' : '🔒'}Shiny`; })()]
+      ? [`A ${sp.food}.`, `🌟 KAIJU power: ${KITS[i].power} — ${KITS[i].blurb} (reach ${Math.round(powerReach(KITS[i]))} · every ${powerCooldown(KITS[i]).toFixed(1)} s)`, `Trait: ${KITS[i].trait}`, `Matches: ${st.kaijuPlays[i] ?? 0}  ·  Wins: ${st.kaijuWins[i] ?? 0}${u ? `  ·  🎁 ${needText(u)}` : ''}`, (() => { const mi = masteryInfo(loadMeta().xp[i] ?? 0); const words = ['sparkles', 'HUD star', 'gold name', 'gold frame', 'crown']; const ladder = words.map((r, k) => `${k + 2 <= mi.level ? '✔' : '🔒'}${r}`).join(' · '); return `Mastery Lv ${mi.level} ${mi.title}${mi.need ? ` (${mi.into}/${mi.need} XP)` : ' MAX'}\nRewards (Lv 2-6): ${ladder} · ${isShiny(i) ? '✔' : '🔒'}Shiny`; })()]
       : [u ? `Unlock: ${needText(u)}` : 'Locked', '', 'Left: normal look · right: KAIJU MODE'];
     // fit inside the panel (x 600..1115, y 518..680): wrap to the width, then shrink the font until it fits
     const W = 355, H = 160; // right side of the panel holds MOVE LAB + SHINY
@@ -513,7 +517,9 @@ export class GalleryScene extends PanelScene {
 
 
 // ------------------------------------------------------------------ Records + achievements
-const PER_PAGE = 18; // achievements per page (2 columns)
+const PER_PAGE = 18; // most achievements per page (2 columns)
+const PAGES = Math.ceil(ACHIEVEMENTS.length / PER_PAGE);
+const PER = Math.ceil(ACHIEVEMENTS.length / PAGES); // spread evenly, so no page is nearly empty
 
 export class RecordsScene extends PanelScene {
   protected title = '🏆 RECORDS';
@@ -552,7 +558,7 @@ export class RecordsScene extends PanelScene {
     const done = ACHIEVEMENTS.filter(a => s.achieved.includes(a.id)).length;
     withShadow(this.add.text(500, 108, `ACHIEVEMENTS ${done}/${ACHIEVEMENTS.length}`, display(24, '#ffd24a', { strokeThickness: 4 })).setDepth(5), 2);
     this.drawAch(s, 0);
-    if (ACHIEVEMENTS.length > PER_PAGE) this.buttons.push(new Button(this, 1170, 108, { w: 170, h: 40, label: 'PAGE ▶', size: 16, onClick: () => { this.page = (this.page + 1) % Math.ceil(ACHIEVEMENTS.length / PER_PAGE); sfx.pickup(); this.drawAch(s, this.page); } }, 6));
+    if (PAGES > 1) { const pb: Button = new Button(this, 1170, 108, { w: 170, h: 40, label: `PAGE 1/${PAGES} ▶`, size: 16, onClick: () => { this.page = (this.page + 1) % PAGES; sfx.pickup(); pb.setText(`PAGE ${this.page + 1}/${PAGES} ▶`); this.drawAch(s, this.page); } }, 6); this.buttons.push(pb); }
   }
 
   private page = 0;
@@ -569,7 +575,7 @@ export class RecordsScene extends PanelScene {
     const next = pin ? { a: pin, k: pin.progress ? Math.min(1, pin.progress(s)[0] / pin.progress(s)[1]) : 0 } : ACHIEVEMENTS.filter(a => !s.achieved.includes(a.id) && a.progress).map(a => ({ a, k: a.progress!(s)[0] / a.progress!(s)[1] })).sort((p, q) => q.k - p.k)[0];
     this.nextText?.destroy();
     this.nextText = next ? this.add.text(500, 642, `${pin ? '📌 Pinned' : '👉 Next up'}: ${next.a.name} (${Math.round(next.k * 100)}%) — ${next.a.desc}   ·   ${isTouchDevice ? "Tap" : "Click"} any locked one to 📌 pin it (shown on the title + after matches). Each achievement pays 30 🪙.`, body(13, '#ffcf8a', 900, { wordWrap: { width: 740 } })).setOrigin(0, 0).setDepth(5) : null;
-    ACHIEVEMENTS.slice(page * PER_PAGE, (page + 1) * PER_PAGE).forEach((a, i) => {
+    ACHIEVEMENTS.slice(page * PER, (page + 1) * PER).forEach((a, i) => {
       const col = i % 2, row = Math.floor(i / 2), x = 500 + col * 380, y = 146 + row * 54;
       const got = s.achieved.includes(a.id), pinned = pinnedAchievement() === a.id;
       g.fillStyle(got ? 0x3a2412 : pinned ? 0x2a2a12 : 0x1c1714, 0.95); g.fillRoundedRect(x, y, 365, 48, 12);
@@ -603,10 +609,11 @@ export class PantryScene extends PanelScene {
   constructor() { super('pantry'); }
   private objs: Phaser.GameObjects.GameObject[] = [];
   private armed = '';
+  private disarm: (() => void) | null = null; // puts the previously asked item's label back
 
   protected build(): void {
     const step = completeStep('pantry');
-    if (step) this.time.delayedCall(300, () => { sfx.meterFull(); this.drawShop(); });
+    if (step) this.time.delayedCall(300, () => { sfx.meterFull(); this.drawShop(); const t = withShadow(this.add.text(640, 360, `🍽 FIRST SERVICE ✔ ${step.text}: +${step.reward} 🪙`, display(24, '#8dff6a', { strokeThickness: 5 })).setOrigin(0.5).setDepth(40), 3); popIn(this, t, 1.6, 360); this.tweens.add({ targets: t, alpha: 0, delay: 3500, duration: 500, onComplete: () => t.destroy() }); }); // say where the tokens came from
     const m = loadMeta();
     const g = this.add.graphics().setDepth(4);
     g.fillStyle(0x2a1408, 0.92).fillRoundedRect(40, 100, 470, 590, 22).lineStyle(3, 0xffb347, 1).strokeRoundedRect(40, 100, 470, 590, 22);
@@ -620,7 +627,8 @@ export class PantryScene extends PanelScene {
       g.fillStyle(0x000000, 0.5).fillRoundedRect(84, y + 56, 300, 12, 6).fillStyle(done ? 0x8dff6a : 0xffb347, 1).fillRoundedRect(84, y + 56, Math.max(10, 300 * have / o.goal), 12, 6);
       this.add.text(400, y + 50, `${have}/${o.goal}`, body(16, '#ffcf8a', 900)).setDepth(5);
     });
-    this.add.text(70, 520, 'Earn 🪙 Chef Tokens from every match: playing, winning, knockouts, going KAIJU, Gauntlet waves, Daily medals, orders and kaiju Mastery levels.', body(14, '#e9dccb', 800, { wordWrap: { width: 420 }, lineSpacing: 4 })).setDepth(5);
+    this.add.text(70, 520, 'Earn 🪙 Chef Tokens from every match: playing, winning, knockouts, going KAIJU, Gauntlet waves, Daily medals, orders and kaiju Mastery levels.', body(14, '#e9dccb', 800, { wordWrap: { width: 420 }, lineSpacing: 4 })).setDepth(5).setData('fit', 80);
+    { const t = this.children.list[this.children.list.length - 1] as Phaser.GameObjects.Text; for (let f = Number(t.style.fontSize.toString().replace('px', '')); t.height > 80 && f > 11;) t.setFontSize(--f); } // max ~3 lines, so it never runs into Chef Rank
     { const r = chefRank(loadStats().achieved.length); this.add.text(70, 606, `Chef Rank: ${r.title}${r.next ? `\nNext: ${r.next} at ${r.need} pts (you have ${r.rank})
 (2 pts per achievement, 1 per Mastery level)` : ''}`, display(16, '#ffcf8a', { strokeThickness: 3, lineSpacing: 2 })).setDepth(5); }
     this.drawShop();
@@ -631,14 +639,16 @@ export class PantryScene extends PanelScene {
     this.objs = [];
     for (const b of this.buttons) { b.g.destroy(); b.label.destroy(); b.sub?.destroy(); b.zone.destroy(); }
     this.buttons.length = 0;
+    this.disarm = null; this.armed = '';
     const m = loadMeta();
     this.objs.push(withShadow(this.add.text(560, 118, `SHOP · you have 🪙 ${m.tokens}`, display(24, '#ffd24a', { strokeThickness: 4 })).setDepth(5), 2));
     SHOP.forEach((it, k) => {
       const x = 720 + (k % 2) * 360, y = 206 + Math.floor(k / 2) * 112, own = m.owned.includes(it.id), cost = priceOf(it.id), deal = dailyDeal()?.id === it.id, afford = m.tokens >= cost;
-      const b = new Button(this, x, y, { w: 340, h: 100, label: `${it.name}`, sub: own ? '✔ OWNED' : `${it.desc}\n🪙 ${cost}${deal ? `  🏷 −30% today` : ''}${afford ? '' : '  (not enough yet)'}`, size: 18, accent: own ? 0x8dff6a : deal ? 0x8dd8ff : afford ? 0xffd24a : 0x6a5a4a, onClick: () => {
+      const sub = own ? '✔ OWNED' : `${it.desc}\n🪙 ${cost}${deal ? `  🏷 −30% today` : ''}${afford ? '' : '  (not enough yet)'}`;
+      const b = new Button(this, x, y, { w: 340, h: 100, label: `${it.name}`, sub, size: 18, accent: own ? 0x8dff6a : deal ? 0x8dd8ff : afford ? 0xffd24a : 0x6a5a4a, onClick: () => {
         if (own) { sfx.thwock(); return; }
         if (m.tokens < cost) { sfx.thwock(); b.setText(it.name, `need ${cost - m.tokens} more 🪙`); return; }
-        if (this.armed !== it.id) { this.armed = it.id; sfx.pickup(); b.setText(`${it.name}?`, `tap again to buy for ${cost} 🪙`); return; }
+        if (this.armed !== it.id) { this.disarm?.(); this.armed = it.id; sfx.pickup(); b.setText(`${it.name}?`, `tap again to buy for ${cost} 🪙`); this.disarm = () => b.setText(it.name, sub); return; } // only one item asks at a time
         this.armed = '';
         if (buy(it.id)) { sfx.matchWin(); this.drawShop(); } else sfx.thwock();
       } }, 6);

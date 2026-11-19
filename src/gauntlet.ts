@@ -13,6 +13,7 @@ export const GAUNTLET = {
   grades: [[1500, 'S'], [1000, 'A'], [650, 'B'], [350, 'C'], [0, 'D']] as [number, string][], // run score → grade
   lives: 3, // ❤ per run: losing a wave costs one and retries the same wave
   maxLives: 5,
+  bossHeart: true, // ❤ +1 life (up to maxLives) for clearing each boss wave (4, 8, 12 …)
 };
 
 export interface WaveSetup {
@@ -76,4 +77,12 @@ export function saveGauntletBest(wave: number): boolean {
   if (wave <= gauntletBest()) return false;
   try { localStorage.setItem(KEY, String(wave)); } catch { /* blocked */ }
   return true;
+}
+
+/** The furthest course start you've unlocked (a boss wave cleared once = the next course is a checkpoint). */
+export function checkpointWave(): number {
+  const best = gauntletBest();
+  let k = 0;
+  while (k + 1 < GAUNTLET.courses.length && best >= (k + 1) * GAUNTLET.bossEvery) k++;
+  return 1 + k * GAUNTLET.bossEvery;
 }

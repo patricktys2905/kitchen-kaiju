@@ -169,6 +169,7 @@ export class MenuScene extends Phaser.Scene {
 
   private cycleMode(): void {
     if (!this.party) return;
+    if (MenuScene.cupOn) { sfx.thwock(); return; } // the Cup picks the modes
     const list = enabledModes().map(m => m.id);
     this.mode = list[(list.indexOf(this.mode) + 1) % list.length] ?? 'classic';
     sfx.pickup();
@@ -314,7 +315,8 @@ export class MenuScene extends Phaser.Scene {
     const tryTwist = (a: Mutator, b: Mutator) => {
       const you = this.picks[0] ?? this.own.kaiju[0] ?? 0, rival = this.own.kaiju.find(k => k !== you) ?? (you + 1) % SPECIES.length;
       sfx.go();
-      this.scene.start('game', { slots: [{ kind: 'local', index: 0 }, { kind: 'bot', index: 0 }], difficulty: 'easy', botLevels: [null, 'easy'], species: [you, rival], tables: [this.own.tables[0] ?? 0], rounds: 1, mode: 'classic', powerups: true, hazards: true, mutator: a, mutator2: b });
+      const back = { slots: this.slots, species: this.picks, difficulty: this.difficulty, botLevels: this.botLevels, party: this.party, mode: this.mode, rounds: this.rounds, mutator: this.mutator, mutator2: this.mutator2, powerups: this.powerups, hazards: this.hazards, tables: this.table >= 0 ? [this.table] : null };
+      this.scene.start('game', { slots: [{ kind: 'local', index: 0 }, { kind: 'bot', index: 0 }], difficulty: 'easy', botLevels: [null, 'easy'], species: [you, rival], tables: [this.own.tables[0] ?? 0], rounds: 1, mode: 'classic', powerups: true, hazards: true, mutator: a, mutator2: b, tryout: back });
     };
     const all = twistChoices();
     all.forEach(([a, b], k) => {
@@ -402,6 +404,7 @@ export class MenuScene extends Phaser.Scene {
     // Bot difficulty: '2' on a keyboard (D is the left player's "next kaiju"), or the BOTS button on touch.
     if (consumeTap('Digit2') || consumeTap('TouchDiff')) { this.difficulty = DIFFICULTIES[(DIFFICULTIES.indexOf(this.difficulty) + 1) % DIFFICULTIES.length]; this.botLevels = []; sfx.pickup(); }
     if (consumeTap('KeyM')) this.cycleTable();
+    if (this.party && MenuScene.cupOn && (consumeTap('KeyR') || consumeTap('TouchRounds'))) sfx.thwock(); // the Cup sets the rounds
     if (consumeTap('KeyR') || consumeTap('TouchRounds')) {
       this.rounds = ROUND_CHOICES[(ROUND_CHOICES.indexOf(this.rounds) + 1) % ROUND_CHOICES.length] ?? DEFAULT_ROUNDS;
       sfx.pickup();
@@ -412,7 +415,7 @@ export class MenuScene extends Phaser.Scene {
     if (consumeTap('TouchMutator')) { this.toggleTwists(); return; }
     if (consumeTap('KeyX')) { const l = twistChoices(), k = l.findIndex(([a, b]) => a === this.mutator && b === this.mutator2); [this.mutator, this.mutator2] = l[(k + 1) % l.length] ?? ['none', 'none']; sfx.pickup(); }
     // 📱 couch party with phones as controllers: opens a room straight away with a big QR code
-    if (this.party && consumeTap('TouchPhones')) { this.scene.start('lobby', { difficulty: this.difficulty, rounds: this.rounds, couch: true, mode: this.mode, cup: MenuScene.cupOn }); return; }
+    if (this.party && consumeTap('TouchPhones')) { this.scene.start('lobby', { difficulty: this.difficulty, rounds: this.rounds, couch: true, mode: this.mode, cup: MenuScene.cupOn, powerups: this.powerups, hazards: this.hazards, mutator: this.mutator }); return; }
     if (consumeTap('KeyO') || consumeTap('TouchOnline')) { this.scene.start('lobby', { difficulty: this.difficulty, rounds: this.rounds }); return; }
     if (consumeTap('TouchJoin')) {
       const j = this.slots.findIndex(s => s.kind === 'touch');
@@ -520,7 +523,7 @@ export class MenuScene extends Phaser.Scene {
         if (hasArt(key)) {
           g.fillStyle(0x000000, 0.35); g.fillEllipse(x, 312, 96, 16);
           img.setTexture(kaijuKey(this, sp, seatColours(this.slots.map((_, j) => this.picks[j]), this.slots.map(q => (q.kind === 'bot' ? undefined : currentColour().id)))[i])).setVisible(true);
-          fitInside(img, 116 * pop, 112 * pop).setOrigin(0.5, 1).setPosition(x, 316 - Math.abs(Math.sin(t * 3 + i)) * 6);
+          fitInside(img, 116 * pop, (this.party && this.mode === 'teams' && !MenuScene.cupOn ? 96 : 112) * pop).setOrigin(0.5, 1).setPosition(x, 316 - Math.abs(Math.sin(t * 3 + i)) * 6);
         } else {
           img.setVisible(false);
           drawKaiju(g, { x, y: 266 + Math.sin(t * 4 + i) * 4, r: 38 * pop, aim: Math.sin(t * 1.5 + i) * 0.8 + Math.PI / 2, kaiju: false, species: sp, color: col }, t);
@@ -558,11 +561,12 @@ export class MenuScene extends Phaser.Scene {
     const md = modeDef(this.mode);
     this.modeText.setFontSize(this.party ? 18 : 16).setY(143);
     const seats = this.slots.map((_, i) => i % 2), red = seats.filter(t => t === 0).length, blue = seats.length - red;
-    this.tagline.setText(this.mode === 'teams' ? `${md.blurb}   ·   RED ${red}  vs  BLUE ${blue}${red !== blue ? '  (add a player or bot to even it up)' : ''}` : this.party ? md.blurb : 'Tiny monsters. Giant dinner.');
+    if (this.party && MenuScene.cupOn) this.tagline.setText('🏆 Party Cup: a different mode every game, points for every place'); else this.tagline.setText(this.mode === 'teams' ? `${md.blurb}   ·   RED ${red}  vs  BLUE ${blue}${red !== blue ? '  (add a player or bot to even it up)' : ''}` : this.party ? md.blurb : 'Tiny monsters. Giant dinner.');
     this.modeText.setText(`${this.party ? (MenuScene.cupOn ? `🏆 PARTY CUP: ${cupGames(Math.max(3, this.slots.length)).length} GAMES` : `◀ ${md.name} ▶`) : 'CLASSIC'}   ·   POWER-UPS: ${this.powerups ? 'ON' : 'OFF'}   ·   HAZARDS: ${this.hazards ? 'ON' : 'OFF'}${this.mutator !== 'none' ? `   ·   ⚡ ${twistName(this.mutator, this.mutator2)}` : ''}`);
-    this.infoText.setText(`${isTouchDevice ? `🤖 ${BOT_INFO[this.difficulty]}   ·   ` : ''}Bot difficulty: ${this.difficulty.toUpperCase()}   ·   Up to ${MAX_PLAYERS} players   ·   First to ${this.rounds} round${this.rounds === 1 ? '' : 's'}   ·   ${this.own.kaiju.length < SPECIES.length ? `${this.own.kaiju.length}/${SPECIES.length} kaiju (play & Story unlock more)` : `${SPECIES.length} kaiju`}`);
+    this.infoText.setScale(1).setText(`${isTouchDevice ? `🤖 ${BOT_INFO[this.difficulty]}   ·   ` : ''}Bot difficulty: ${this.difficulty.toUpperCase()}   ·   Up to ${MAX_PLAYERS} players   ·   ${this.party && MenuScene.cupOn ? 'The Cup sets the rounds' : `First to ${this.rounds} round${this.rounds === 1 ? '' : 's'}`}   ·   ${this.own.kaiju.length < SPECIES.length ? `${this.own.kaiju.length}/${SPECIES.length} kaiju (play & Story unlock more)` : `${SPECIES.length} kaiju`}`);
+    if (this.infoText.width > 1240) this.infoText.setScale(1240 / this.infoText.width); // phones add the bot explainer: keep it on screen
     const tl = this.table < 0 ? null : LAYOUTS[this.table];
-    this.tableText.setText(tl ? `TABLE: ${tl.name.toUpperCase()}  —  ${tl.blurb}` : `TABLE: ALL ${this.own.tables.length} (a different one every round)${tableCount().own < tableCount().all ? ` · tables owned ${tableCount().own}/${tableCount().all}` : ''}`);
+    this.tableText.setText(tl ? `TABLE: ${tl.name.toUpperCase()}  —  ${tl.blurb}` : `TABLE: ALL ${tableCount().own}${this.own.tables.length > tableCount().own ? ` + ${this.own.tables.length - tableCount().own} WORKSHOP` : ''} (a different one every round)${tableCount().own < tableCount().all ? ` · ${tableCount().all - tableCount().own} more to unlock` : ''}`);
     // small preview of the chosen table surface
     const key = tl ? tl.table : null;
     if (key && hasArt(key)) {

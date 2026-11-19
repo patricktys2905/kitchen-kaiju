@@ -30,7 +30,7 @@ export const cupGames = (players: number, len: CupLength = cupLength()) => {
 export const FINAL_MULTIPLIER = 2;
 
 /** One line that explains Cup scoring (shown on every standings screen). */
-export const cupRules = (): string => `Points per game: ${CUP.points.filter(v => v > 0).map((v, k) => `${['1st', '2nd', '3rd', '4th', '5th'][k]} +${v}`).join(' · ')} · final ×${FINAL_MULTIPLIER} · Team Feast: every teammate gets the team's place`;
+export const cupRules = (teams = false): string => `Points: ${CUP.points.filter(v => v > 0).map((v, k) => `${['1st', '2nd', '3rd', '4th', '5th'][k]} +${v}`).join(' · ')} · ties share the better place · final ×${FINAL_MULTIPLIER}${teams ? ' · teammates share their team\'s place' : ''}`;
 
 /** What a game mode ranks you by (shown under Cup standings so the points make sense). */
 export const RANKED_BY: Partial<Record<GameMode, string>> = {

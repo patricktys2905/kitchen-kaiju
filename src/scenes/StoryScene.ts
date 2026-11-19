@@ -561,8 +561,9 @@ Next course: ${nextCh.title}. ${nextRival} is already sharpening the cutlery…`
         this.overlay.push(img);
       }
       const name = got ? unlockName(u) : u.kind === 'kaiju' ? '??? (mystery kaiju)' : `${unlockName(u)} (table)`;
-      this.overlay.push(this.add.text(x + 82, y + 10, (got ? '✓ ' : '🔒 ') + name, display(cols === 3 ? 15 : 19, got ? (u.kind === 'kaiju' ? SPECIES[u.index].css : '#ffe9c7') : '#a89680', { strokeThickness: 3 })).setDepth(32));
+      { const t = this.add.text(x + 82, y + 10, (got ? '✓ ' : '🔒 ') + name, display(cols === 3 ? 15 : 19, got ? (u.kind === 'kaiju' ? SPECIES[u.index].css : '#ffe9c7') : '#a89680', { strokeThickness: 3 })).setDepth(32); if (t.width > cw - 96) t.setScale((cw - 96) / t.width); this.overlay.push(t); } // long names stay inside the card
       this.overlay.push(this.add.text(x + 82, y + 36, got ? (u.kind === 'kaiju' ? `Playable now · ${SPECIES[u.index].food}` : 'Playable now in Free Play and Online') : needText(u), body(cols === 3 ? 11 : 14, got ? '#8dff6a' : '#e9dccb', 800, { wordWrap: { width: cw - 92 } })).setDepth(32));
+      { const t = this.overlay[this.overlay.length - 1] as Phaser.GameObjects.Text; for (let f = Number(String(t.style.fontSize).replace('px', '')); t.y + t.height > y + ch - 4 && f > 9;) t.setFontSize(--f); } // stays inside its card
     });
     this.overlayButtons.push(new Button(this, 990, 112, { w: 150, h: 48, label: '✖ CLOSE', size: 20, onClick: () => { this.clearOverlay(); this.mode = 'map'; } }, 33));
     this.overlayFocus = 0;

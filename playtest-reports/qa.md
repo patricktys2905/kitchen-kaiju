@@ -1,153 +1,145 @@
-# Playtest evaluation — The QA Tester
+# Playtest evaluation — The QA Tester (profile 10, round 10, port 7110)
 
-**Fun score: 7.0 / 10** (stable, zero JS errors, charming and very readable; but Story Rewards overflows its frame, Quit has no confirmation, and a few overlaps/inconsistencies stop it feeling fully polished)
-
-> Screenshot folder: `C:\Users\Pat\kitchen-kaiju\art-src\.playtest\r9-7110\` (files `shot-N.png`; the harness prints them as relative `art-src/.playtest/r9-7110/shot-N.png`).
+**Fun score: 7.0 / 10** (stable, no JS errors anywhere, but several real layout overlaps, a few state/number inconsistencies, and some rewards-exploit and dead-end edge cases a QA pass keeps tripping over)
 
 ## What I did
-- About 120 harness commands, roughly 25 minutes of play. `/errors` checked at start, middle and end: **"none" every time** (no JS errors at all, even after fast screen switching and Escape mid-match).
-- Screens visited: Title, Challenges modal (Gauntlet starters/locked courses + Trials button), Trials list, Pantry (+ refused-buy message), Settings (all 13 toggles listed), Keyboard Controls, Back up / Move save modal, Help (all 4 tabs: Basics, Cutlery, Tables, Modes), Gallery (grid, locked kaiju, Shiny confirm + refusal, Move Lab), Records (3 pages), Table Workshop (props, hazard, surface, undo, clear, copy code, save, Play It), Free Play setup (Bot level, Table, First to, Twist picker incl. a double, Power-ups, Hazards, Random, Online), Online modal (Host/Join, empty code error), Party Modes setup (mode, Party Cup ON, Cup Length, PHONES AS PADS room with QR), Daily, Story map, Story Log, Story Rewards, opening cutscene, chapter 1 cutscene, chapter 1 match, Chapter Clear.
-- Matches: Move Lab (practice), Workshop "Play It" custom table (quit), Team Feast (1v1, quit at 2-1), Daily Hot Dumpling (won, 3 rounds), Story ch1 (cleared, 2 stars). 0 to 1 wins before the Daily, so I judged the new-save experience.
-- Odd sequences tried: Escape from Trials, Escape twice from Challenges, clicking buttons behind an open modal (Story Log), clicking Quit via mouse and via keyboard (ArrowUp+Enter), clicking Play with zero players seated in Party Modes, clicking Play It on an empty Workshop table, joining an online room with an empty code.
-- Did NOT test: phone mode (harness is desktop), Gauntlet run itself, Trials fights, Spicy, Dessert, Second Helpings (locked), Story comic panels (need ch4/ch8), Online host with a real friend.
+- About 56 shell invocations containing roughly 190 individual HTTP harness requests (I over-ran the 90-130 budget by batching several curls per shell call). `/errors` checked at start, middle, end and after the Cup: always `none`.
+- Screens visited: Title, Story chapter select (via Enter), Online overlay, Table Workshop, Free Play setup, Twist picker (TRY IT), Gallery (+ Move Lab), Records (2 pages), Pantry, Settings, Keyboard Controls, Help (Basics / Tables / Modes), 1-minute Practice, Party Modes setup, Party Cup (3-game cup played start to finish), Challenges overlay, Daily.
+- Matches: Workshop table 4-player match (partial, Escape/Pause/Restart/Quit tested), TRY IT Turbo 1v1 (won), Move Lab, Practice (complete), Team Feast 1v1 (partial), Party Cup 3 games (won, 20 pts), Daily (started only).
+- QA tricks tried: Escape on title / sub-menus / mid-match, P twice, Pause > RESTART, Pause > QUIT double-tap, 7 rapid toggles on a Settings button, 3 rapid taps on a Pantry buy button, 14 rapid taps filling the Workshop past the 12-prop cap, hazard cycling, key rebind with a conflicting key, PLAY with zero joined players, clicking a greyed MODE button with Party Cup ON, clicking locked Gallery colours / locked kaiju / Shiny button, clicking where there are no buttons on the Cup final screen.
 
 ## What worked for me
-- **Stability is excellent.** Zero JS errors, no soft-locks, every Escape returned somewhere sensible, nothing double-fired when I spammed clicks.
-- Refusal messages are clear: Pantry "need 15 more 🪙", Shiny "needs Mastery Lv 3", Join "Room codes are 4 letters."
-- Shiny two-tap confirm works ("BUY SHINY? tap again: 300 🪙").
-- Free Play setup now explains each bot level in a single line at the bottom ("HARD: leads its throws, dodges and parries").
-- Daily countdown names rival levels ("3 rivals (normal, easy, easy)").
-- Results/Chapter-Clear screens are information-rich (tokens, mastery, achievements, medals) and mostly well laid out.
-- Twist picker is clear and the double-twist labels explain themselves in the footer line after selection.
-- Party Cup / Phones-as-Pads flow is quick and the QR room is easy to understand.
-- Workshop is simple, fun to poke, and saving it awarded an achievement toast ("Table Maker unlocked!").
-- Gallery power info now shows reach and cooldown ("reach 207 · every 1.6 s").
+- Zero JavaScript errors across the whole session including rapid toggles, rapid buys, Pause/Restart/Quit and Escape mid-match.
+- Double-tap-to-confirm QUIT is clear ("Tap QUIT again to leave this match"); Restart resets cleanly; Escape in Move Lab leaves without a pause menu (as the banner says).
+- Pantry buy is safe against spam: 3 taps on Toffee charged 40 once (144 -> 104) and then showed "OWNED".
+- Workshop: prop cap message "That's the most props (12). Tap one to remove it." is clear; every hazard cycle shows a real explanation ("Hot cheese: blobs drop near kaiju; a growing shadow shows where..."); picking a prop explains it.
+- Keyboard rebinding: conflicting key swaps ("A key already in use swaps over") and RESET TO DEFAULT works.
+- Party Cup standings now show per-game points (G1 +5, G2 +5, G3 +10), a points-table line, and the Golden Spoon placing line. Spoon seconds clearly beat KOs (Crabbage 12 s ranked above Pizzaraptor 0 s / 1 KO).
+- Practice HUD shows the current step with its keys and the next one; it advances quickly and the end card (FIRST MATCH / STORY / MENU) is good.
+- Records footer follows the pinned achievement ("Pinned: Too Hot to Handle (20%)").
+- Gallery header shows the coin balance; locked colour shows how to earn it ("Grape: 'Forked Up': Score 25 knockouts (2/25)").
+- Fast-forward banner ("FAST FORWARD x3, only bots left") when I was KO'd; good.
 
 ## 🧾 Exactly what would make this a 9/10 for me
-1. **Fix Story Rewards overflow** (Story map → 🎁 REWARDS). What: the modal has 13 entries but only ~10 fit; the bottom rows spill outside the modal frame and off-screen. Where: Story Rewards modal. How: make the list scroll (mouse wheel, touch drag, Up/Down keys) inside a fixed-height frame, or use 2 pages with PAGE ▶; keep the frame bottom padding at 24 px. Score impact **+0.6**.
-2. **Make QUIT ask for confirmation** (Pause → ✖ QUIT). What: one click or Up+Enter drops a match in progress straight to the setup menu, with no confirm, in Free Play/Party/Workshop matches. The brief says a quit confirmation exists. How: first tap turns the button into "QUIT? tap again" (reset when resuming or after 3 s); same for Restart. Score impact **+0.5**.
-3. **Fix the Story pre-match cutscene SKIP**. What: pressing SKIP ▶▶ on the chapter-1 intro dumped me back to the story map, so I had to press PLAY again (the match then started with Enter). How: SKIP should skip straight into the match. Score impact **+0.3**.
-4. **Fix remaining overlaps** (see issue table #4–#12): Results "THIS MATCH" panel over the ranking box, Story "SCENE" button over the panel border and "Not cleared yet", Workshop hazard/surface chips over start-spot circles, Party Modes ribbon over the seated kaiju heads, Your Room panel touching top and bottom of the screen. Score impact **+0.5**.
-5. **Make the "FIRST SERVICE" counter honest** (Title). It rose from 0/6 to 1/6 after I only opened Settings/Back-up and never did anything the list names; the three lines shown ("Finish the Practice", "Clear ch2", "Win a match") don't say which goal moved. How: show the 6 goals as ticks or tell the player what was just completed with a toast. Score impact **+0.3**.
-6. **Keep the bot-level explanation visible when a twist is chosen** (Free Play). It is replaced by the twist text, so the new BOT LEVEL explanation disappears exactly when a tinkerer is changing options. How: show both lines or put the twist text above. Score impact **+0.2**.
-7. **Make locked content consistent**: Sloba (a kaiju locked behind Story ch2) appears as a Daily rival, which reveals the lock and contradicts "Clear Story ch 2 → Sloba" on the title. Table counts differ (Party Modes "ALL 14", Online room "ALL 13"), and the empty "My Table 1" sits in the "ALL" rotation. Score impact **+0.3**.
-8. **Reduce font-size jitter and tiny text**: twist picker descriptions shrink to ~10 px on Fists Only / Mirror Moves; Help → Modes twist paragraph is ~11 px; Gallery rewards ladder is only tiny icons with no ✔/legend; Setup button labels like "MY TABLE 1" are small. How: use a consistent minimum of 14 px, wrap rather than shrink. Score impact **+0.3**.
-9. **Make the Gallery Mastery ladder readable**: show each reward as icon plus label (e.g. "Lv2 ✨ Spark colour") with ✔/🔒 and the level number beneath. Score impact **+0.2**.
-10. **Add a toast when a party/Cup option is silently overridden**: with Party Cup ON, the MODE button still reads TEAM FEAST but the Cup plays Classic → Golden → Classic. How: grey the Mode button and label it "Cup picks modes". Score impact **+0.2**.
+1. **Fix the post-match panel overlap in Party Cup standings (and any result screen with a long standings box).** Where: Party Cup game-over screen (`shot-46.png`). The "THIS MATCH" reward panel (bottom-left, up to 8 lines) sits on top of the standings text, hiding the start of "Points per game...", "Golden Spoon places...", and "Next: CLASSIC (FINAL x2 POINTS)". Behaviour: when the reward panel has more than 4 lines, move it into a collapsible chip ("🧾 +85 🪙  tap for details") or push the standings box up/right so the two never share pixels; keep the mascot art behind the text at <= 50 % opacity or move it out of the text column. +0.5
+2. **Fix the Help > TABLES tab footer collision and clipping.** Where: Help, tab TABLES (`shot-37.png`). The yellow footer "Shown 13/18 tables (Workshop tables are extra)" is drawn on top of the "Diner Griddle" row, and the last rows (Diner Griddle description, Candy Shop) run off the bottom. Make the list 2 pages or reduce row height so all 18 + My Table fit above y=690, and put the footer in its own reserved strip. +0.4
+3. **Make Kid Mode text genuinely bigger on every screen, or stop claiming it.** Where: Settings, Help, title top bar. With Kid Mode ON the Settings descriptions, Help body text and the title's top-bar buttons (SETTINGS / HELP / KAIJU... about 10 px) look identical in size to normal. Behaviour: Kid Mode multiplies body text 1.3x, top-bar button labels at least 14 px, Help body at least 20 px with scrolling pages. +0.4
+4. **Stop TRY IT matches paying full rewards and unlocking achievements.** Where: Twist picker > TRY IT. One 1-round Turbo match vs EASY bot gave +79 Chef Tokens, First Bite, "Plot Twist" ("Win a match with a twist on"), a Lime colour, a NEW KAIJU (Chocomunch), and counted as a Gobzilla Mastery win. Behaviour: TRY IT = practice: label the result "TRY IT: no rewards", 0 tokens/XP/achievements/unlocks. +0.4
+5. **Fix the Shiny buy button lying.** Where: Gallery, kaiju card. At Mastery Lv 1 with 119 coins, tapping "SHINY 300 coins . needs Lv 3" first changes to "BUY SHINY? tap again: 300" (`shot-19.png`), then a second tap says "needs Mastery Lv 3". Behaviour: when locked or unaffordable, the first tap should immediately say "Needs Mastery Lv 3 (you are Lv 1)" / "Need 181 more coins" and never arm a confirm. +0.3
+6. **Make coin and table numbers agree across screens.** Gallery/Records showed 🪙 119 while the Pantry showed 🪙 144 at the same moment (`shot-27.png`); Weekly order "Knock out 20 rivals 1/20" while Records says Knockouts 2; Records "Tables visited 1/18" vs World Tour "2/12"; Party Modes says "TABLE: ALL 14 ... tables owned 13/18". Behaviour: one source of truth, one definition per label (owned vs visited vs pool). +0.4
+7. **Give the Party Cup final screen mouse/touch buttons.** Where: Party Cup end (`shot-49.png`): only "1 / START: a new Cup . Esc menu" text; no clickable NEW CUP / MENU buttons (clicking did nothing). Add buttons like every other result screen. +0.3
+8. **Make the greyed Party Cup controls inert and consistent.** Where: Party Modes with Cup ON. MODE is greyed "CUP PICKS" but clicking it still changes the hidden mode and the subtitle (it flipped from "Red vs Blue, no friendly fire" to "Eat the most crumbs before time runs out" while the Cup was ON). Also the seats still show RED TEAM / BLUE TEAM labels and "RED 1 vs BLUE 1" even though game 1 is Classic (`shot-44.png`). Behaviour: greyed = no response; with Cup ON show neutral seat labels and a subtitle "Party Cup: 3 games". +0.3
+9. **Explain Party Cup tie points.** Standings show "4. CRABBAGE 2 pts (G1 +2)" directly under a rule line saying 4th = +1 (`shot-45.png`). Show "(tied 3rd)" or fix the number. +0.2
+10. **Make the Quit-from-Workshop flow return to the Workshop (or tell the player).** Playing from the Workshop and Pause > QUIT drops into Free Play setup, not the Workshop; the table is still selected but the route is surprising. +0.15
+11. **Remove ghost overlap text on Practice Complete.** `shot-41.png`: the fading "STOMP TO GO KAIJU AND SQUASH THE DUMMY / KAIJU! / THROW / SWIPE: SEED SPRAY" prompt is rendered underneath the "PRACTICE COMPLETE!" banner. Clear step text when the banner shows. +0.1
+12. **Make the Online overlay readable to tools / screen readers.** `/look` returned `texts: []` on the Play Online overlay (visible only as a screenshot); Challenges overlay also hides the title buttons in `/look`. If it is a DOM overlay without text exposure, QA/accessibility cannot verify it. +0.15
+13. **Enlarge the twist picker small print.** `shot-13.png`: "FISTS ONLY" and "MIRROR MOVES" captions shrink to ~9 px; double-twist tiles have no description at all. Give all tiles the same caption size (2 lines) and add one-line text for the doubles. +0.15
 
 ## 🔍 Every issue I saw (exhaustive)
+
 | # | Severity | Screen | What's wrong (exact text/element) | Screenshot | Suggested fix |
 |---|---|---|---|---|---|
-| 1 | **major** | Story → 🎁 REWARDS | "STORY REWARDS" modal overflows: the last two rows (Play 3 matches / Beat chapter 2, and more below) hang outside the modal frame and are cut off by the screen bottom; 13 rewards cannot all be seen, no scroll. | art-src/.playtest/r9-7110/shot-102.png | Scrollable list or paging; increase frame height. |
-| 2 | **major** | Pause menu → ✖ QUIT | Quit takes effect on the first click/Enter with no confirmation (tried mouse and ArrowUp+Enter, in Workshop match and Team Feast round 4 at 2-1). Contradicts "quit confirmation resets when you resume". | art-src/.playtest/r9-7110/shot-49.png (pause), shot-80.png (landed on Party menu) | Two-step "QUIT? tap again". |
-| 3 | **minor** | Story chapter intro | SKIP ▶▶ on the chapter-1 cutscene returned to the map instead of starting the match; needed a second PLAY. | art-src/.playtest/r9-7110/shot-106.png | Skip into the match. |
-| 4 | **minor** | Daily results ("DAILY CHALLENGE COMPLETE!") | Bottom-left "📋 THIS MATCH" panel (x 24–320) overlaps the left edge of the ranking text box (x from ~306). The panel is also 14 lines tall in the corner and crowds the SHARE button. | art-src/.playtest/r9-7110/shot-94.png | Move the panel left/lower, or shrink the ranking box. |
-| 5 | **minor** | Story map, chapter panel | "🎬 SCENE" button (x ~1097–1247) touches/overlaps the panel's right border and sits on the same row as "Not cleared yet", crowding the "★★★ no rounds lost" legend directly below it. | art-src/.playtest/r9-7110/shot-98.png | Put SCENE under the rival list, or reduce its width. |
-| 6 | **minor** | Workshop | Hazard chip ("✋ Giant hand", top right) covers the top-right white start-spot circle; the bottom-left surface label ("🍽 Sunday Roast") covers the bottom-left start spot; the middle-left/right start spots are half under the tablecloth edge. | art-src/.playtest/r9-7110/shot-41.png | Move chips outside the table rectangle. |
-| 7 | **minor** | Party Modes with seats filled | The "BLUE TEAM" pill overlaps the top of the seated kaiju's head (Dumplord, Gobzilla ears). | art-src/.playtest/r9-7110/shot-86.png | Lower the sprite 10 px or shrink the pill. |
-| 8 | **minor** | PHONES AS PADS → "YOUR ROOM" | The panel runs to y=3 at the top and y=716 at the bottom (touching screen edges); "Waiting for at least one friend to join..." is 4 px from the bottom edge. TV mode has no explanation. | art-src/.playtest/r9-7110/shot-88.png | Reduce vertical padding or shrink the QR/code row; add a one-line TV mode hint. |
-| 9 | **minor** | Free Play setup, twist chosen | The BOT LEVEL explanation line is replaced by the twist text, so the new fairness explainer disappears. | art-src/.playtest/r9-7110/shot-61.png | Show both lines. |
-| 10 | **minor** | Twist picker | Card text sizes jump: "FISTS ONLY" and "MIRROR MOVES" descriptions shrink to ~10 px while neighbours are ~14 px; big dead space below the grid. Double names like "⚡⚡ KAIJU + CASTLE" abbreviate the real combo (Mini Kaiju + Bouncy Castle) and the same short label shows on the setup button ("KAIJU + CASTLE"), which reads as "Kaiju Frenzy"? | art-src/.playtest/r9-7110/shot-57.png | Fixed font size with wrapping; use full names. |
-| 11 | **minor** | In-match intro text | The tip line ("💡 The Ladle and Rolling Pin keep going…" / "In Team Feast your cutlery passes…") and the Daily line sit on top of cups, ice-cream cups and the watermelon; text still readable thanks to its outline but visually noisy; in the Daily the countdown "2" overlaps the ant trail. | art-src/.playtest/r9-7110/shot-31.png, shot-74.png, shot-90.png | Put intro text in a dark strip. |
-| 12 | **minor** | Round end (Team Feast round 2) | "⏪ INSTANT REPLAY" banner overlaps a toaster at top; "REVENGE IS SWEET!" popup is pinned to x=25 (left screen edge) and sits next to a faded "DUMPLORD skewered YOU" ghost line, so two messages overlap in the same band. | art-src/.playtest/r9-7110/shot-78.png | Stack popups, limit to one per band. |
-| 13 | **minor** | Title "NEXT UP" | "FIRST SERVICE 1/6" moved from 0/6 after I only opened Settings → Back up, never starting Practice; the goal shown doesn't reveal which of the 6 goals moved. Box also overlaps the fork art. | art-src/.playtest/r9-7110/shot-15.png (title after) | Show tick list / toast. |
-| 14 | **minor** | Daily | Sloba, a kaiju locked behind Story ch2 ("Clear Story ch 2 → Sloba" on the title), appears as a Daily rival. | art-src/.playtest/r9-7110/shot-90.png | Don't field locked kaiju, or call it a preview. |
-| 15 | **minor** | Party Modes / Online room | Table counts disagree: "TABLE: ALL 14" vs online room "TABLE: ALL 13 (ROTATE)". The empty custom "My Table 1" was picked in the rotation for round 4 of Team Feast. | art-src/.playtest/r9-7110/shot-73.png, shot-88.png | Exclude empty workshop tables from ALL, make counts match. |
-| 16 | **minor** | Party Modes | With Party Cup ON, the MODE button/header still says TEAM FEAST although the Cup plays CLASSIC → GOLDEN → CLASSIC. Cup length default flips between 6 and 3 games with no reason (6 shown with Cup OFF, "3 games" after enabling). | art-src/.playtest/r9-7110/shot-86.png | Grey the Mode button while Cup is ON. |
-| 17 | **minor** | Party Modes | Pressing PLAY with nobody seated auto-adds P1 plus one bot (a 1v1 "Team Feast"); no warning that a team mode is only 1v1. | art-src/.playtest/r9-7110/shot-74.png | Prompt "Add more players?" |
-| 18 | **polish** | Party Modes / Free Play | Back button says "◀ MODES" even when reached from the Free Play card or after Quit from a Workshop match; Closing the PHONES AS PADS room sends you to the title, not back to setup, losing the setup context. | art-src/.playtest/r9-7110/shot-56.png | Return to previous screen. |
-| 19 | **polish** | Story modals | While Story Log is open, clicking the REWARDS button behind it moves the focus ring to that background button (visible in the screenshot) even though the modal stays. | art-src/.playtest/r9-7110/shot-100.png | Block focus/pointer behind modals. |
-| 20 | **polish** | Settings | Two columns are very tight: left column last row (NAME TAGS) bottom edge is ~4 px from the KEYBOARD CONTROLS / BACK UP buttons; 13 toggles in one grid is dense. | art-src/.playtest/r9-7110/shot-9.png | Group into Audio / Gameplay / Accessibility sections. |
-| 21 | **polish** | Trials | The focused first card draws a larger outline than the others so the left column looks mis-aligned. 8 cards leave empty space at the bottom while the star rule line at the top is tiny (~13 px). | art-src/.playtest/r9-7110/shot-3.png | Equal focus ring; larger rule text. |
-| 22 | **polish** | Records | Last page contains a single achievement ("Dinner Party Animal"); stat values in the left panel sit lower and bigger than their labels (baseline mismatch); all 18 per page cards identical size for 37 items so page 3 is almost empty. | art-src/.playtest/r9-7110/shot-36.png | 19 per page or 12 per page; align baselines. |
-| 23 | **polish** | Gallery | Mastery rewards ladder is a row of tiny emoji with locks and no labels or ✔ marks (brief said ✔/🔒); can't tell what Lv3 gives other than Shiny. | art-src/.playtest/r9-7110/shot-24.png | Labelled steps. |
-| 24 | **polish** | Gallery colours row | 21 colour swatches in one row; locked ones are identical padlocks, so you can't tell which colour is which. | art-src/.playtest/r9-7110/shot-24.png | Show faint swatch colour and name on hover. |
-| 25 | **polish** | Help → Basics | The MOVES block is a dense 8-line paragraph at ~13 px with no icons. Help → Modes twist paragraph is ~11 px. | art-src/.playtest/r9-7110/shot-16.png, shot-22.png | Split into cards. |
-| 26 | **polish** | Help → Tables | Locked tables' descriptions wrap to 2 lines at ~13 px grey on dark; low contrast. | art-src/.playtest/r9-7110/shot-21.png | Brighter text. |
-| 27 | **polish** | Move Lab | The Move Lab "tryable power" hint events log the KAIJU power twice ("YOU used a KAIJU power" ×2 in one 2 s window); Escape returns to Gallery without remembering the selected kaiju's position. | (harness log of /act power; screenshot art-src/.playtest/r9-7110/shot-30.png) | De-duplicate event. |
-| 28 | **polish** | Harness / accessibility | `/look` returns an empty `texts` list for Online/Join lobby and for the Back up modal, so screen readers/automated checks can't read them. | art-src/.playtest/r9-7110/shot-67.png | Expose DOM text. |
-| 29 | **polish** | Chapter Clear | The "✅ Chapter 2 unlocked…" line is centered as a block but the check emoji pushes the first line off-centre vs. the "A hard-fought plate" line above. | art-src/.playtest/r9-7110/shot-111.png | Centre both lines. |
-| 30 | **polish** | New-save pacing | Daily win gave +175 🪙 and 3 achievement payouts in one match (coins 25 → 245) while the shop's first item costs 40: first win shows huge rewards, then Story ch1 only +22. Reward scale is inconsistent. | art-src/.playtest/r9-7110/shot-94.png, shot-111.png | Smooth the reward curve. |
+| 1 | major | Party Cup game-over | "THIS MATCH" panel overlaps standings text; "Points per game...", "Golden Spoon places: rounds won, then seconds holding the spoon", "Next: CLASSIC (FINAL x2 POINTS)" partly hidden; mascot art overlaps right side of text | art-src/.playtest/r10-7110/shot-46.png | Reflow: reward panel collapses or standings box shifts; text column clear of mascot |
+| 2 | major | Help > TABLES | Footer "Shown 13/18 tables (Workshop tables are extra)" drawn over "Diner Griddle" row; bottom rows cut off ("Beat Story chapter 10: Proving the...", Diner Griddle description) | art-src/.playtest/r10-7110/shot-37.png | Paginate or shrink rows; reserve footer strip |
+| 3 | major | Settings / Help / title (Kid Mode ON) | Kid Mode on but text sizes look the same: Settings captions, Help paragraphs, title top-bar buttons (~10 px) | shot-30.png, shot-34.png, shot-35.png | Real scale factor on all screens; min 14 px buttons |
+| 4 | major | Twist picker TRY IT / results | TRY IT win paid +79 tokens, First Bite, Plot Twist achievement, Lime colour, NEW KAIJU Chocomunch, mastery win | art-src/.playtest/r10-7110/shot-16.png | No rewards in TRY IT; label as practice |
+| 5 | major | Gallery Shiny | "BUY SHINY? tap again: 300" shown while locked (needs Lv 3) and unaffordable (119 coins); second tap reveals "needs Mastery Lv 3" | art-src/.playtest/r10-7110/shot-19.png | Show the blocker on the first tap; never arm confirm |
+| 6 | major | Pantry vs Gallery/Records | Coins 144 in Pantry while Gallery and Records show 119 | art-src/.playtest/r10-7110/shot-27.png (vs shot-17.png / shot-24.png) | Single balance source; refresh on screen enter |
+| 7 | major | Party Cup final | No clickable buttons (NEW CUP / MENU); only text "1 / START: a new Cup . Esc menu"; click at the text did nothing | art-src/.playtest/r10-7110/shot-49.png | Add buttons like other result screens |
+| 8 | minor | Party Modes (Cup ON) | Greyed MODE still cycles hidden mode; subtitle changed to Crumb Rush text while Cup ON | art-src/.playtest/r10-7110/shot-44.png | Disable click; keep subtitle "Party Cup" |
+| 9 | minor | Party Modes (Cup ON) | Seats still labelled RED TEAM / BLUE TEAM and header "RED 1 vs BLUE 1" while game 1 is Classic | shot-44.png | Neutral seat labels with Cup ON |
+| 10 | minor | Party Modes | "TABLE: ALL 14 (a different one every round) . tables owned 13/18" (14 vs 13, brief promised agreement) | shot-42.png | Say "13 tables + My Table" or make both numbers equal |
+| 11 | minor | Records vs Pantry vs World Tour | Records "Tables visited 1/18" while World Tour achievement shows 2/12; Pantry order "Knock out 20 rivals 1/20" while Records Knockouts = 2 | shot-24.png, shot-26.png, shot-27.png | Reconcile counters (what counts as a visit / KO) |
+| 12 | minor | Party Cup standings | "4. CRABBAGE 2 pts (G1 +2)" while rule text says 4th = +1 and 3rd = +2; tie not explained | art-src/.playtest/r10-7110/shot-45.png | Show "T-3rd" or the rule used |
+| 13 | minor | Records | "ACHIEVEMENTS 3/37" but page 1 shows only 1 unlocked; Plot Twist and Table Maker (page 2) unlocked without me pressing SAVE; confusing for first look | shot-24.png, shot-26.png | Add "unlocked on page 2" badge; unlock Table Maker only on explicit SAVE |
+| 14 | minor | Practice complete | Ghost prompt text "STOMP TO GO KAIJU AND SQUASH THE DUMMY / KAIJU! / THROW / SWIPE: SEED SPRAY" visible behind the banner | art-src/.playtest/r10-7110/shot-41.png | Clear step prompts on completion |
+| 15 | minor | Online overlay | `/look` returns `texts: []`; overlay only visible by screenshot | art-src/.playtest/r10-7110/shot-3.png | Expose overlay text in the scene list |
+| 16 | minor | Title keyboard nav | Enter on title selected the wrong card after Escape (Escape on title is a no-op, Enter went to Story; ArrowLeft+Enter wrapped to WORKSHOP and ArrowRight x2+Enter opened ONLINE): selection state not shown after returning from submenus | shot-1.png | Persist/show focus ring on the last-used card |
+| 17 | minor | Twist picker | "FISTS ONLY" and "MIRROR MOVES" captions are much smaller than neighbours; double-twist tiles have no explanation | art-src/.playtest/r10-7110/shot-13.png | Uniform caption size; add one-line doubles text |
+| 18 | minor | Pause menu from Workshop match | QUIT lands on Free Play setup instead of the Workshop | art-src/.playtest/r10-7110/shot-12.png | Return to origin screen |
+| 19 | minor | Team Feast (Party Modes with zero joined) | PLAY with no seats joined silently adds YOU plus 1 bot (1v1 "Team Feast"); no message that it auto-joined | art-src/.playtest/r10-7110/shot-43.png | Toast "Added you + a bot", or require 2+ |
+| 20 | minor | Team Feast spawn | Both teams' mats are at top-left/top-middle, ~60 px apart, on Diner Griddle: first-second encounter is a free shove | shot-43.png | Spawn teams on opposite sides |
+| 21 | polish | KAIJU banner in-match | "STOMP READY! / KAIJU! / FIRST BITE!" stacked text sits directly on the Squidgeon kaiju sprite and ring | art-src/.playtest/r10-7110/shot-10.png | Offset banner above sprite / smaller |
+| 22 | polish | Title screen | Top-bar buttons (SETTINGS...WORKSHOP) have ~10 px labels, tiny next to the big bottom row | art-src/.playtest/r10-7110/shot-34.png | Bigger labels or icons only |
+| 23 | polish | Title | NEXT UP box is a dense 4-line block and the pink elephant art reveals a "???" kaiju silhouette (Gallery slot) | shot-34.png | Limit to 2 lines; hide locked art |
+| 24 | polish | Pantry | Footer "Colours you buy appear in the KAIJU Gallery..." is dark grey on dark brown, low contrast; ranking text bottom-left is also small | art-src/.playtest/r10-7110/shot-27.png | Lighten text |
+| 25 | polish | Party Cup standings | White text on busy semi-transparent panel; the table art shows through | shot-45.png | Panel opacity 0.9 |
+| 26 | polish | Practice HUD | Bottom-left objective box starts at x=10 and sits on the table border; two-line wrap is cramped | art-src/.playtest/r10-7110/shot-39.png | Move to a top-centre strip |
+| 27 | polish | Match HUD (Workshop table) | Table at 4 players shows "Ladle . KOs 0" etc. but no "YOU" tag in the top bar; YOU only appears as a ▼ marker at countdown | shot-6.png | Add 👤 to own HUD card |
+| 28 | polish | Settings | Sound-effects row is taller than others, giving uneven row rhythm; SOUND EFFECTS bar uses squares that are hard to tell apart (■■■■□) | art-src/.playtest/r10-7110/shot-29.png | Even row height; slider |
+| 29 | polish | Workshop | CLEAR has no confirm and no undo-after-clear (cleared 12 props instantly) | shot-5.png | Confirm or allow UNDO to restore |
+| 30 | polish | Challenges overlay | Escape closes the overlay and the next click on the Daily card starts a Daily match immediately with no preview/confirm | art-src/.playtest/r10-7110/shot-51.png | Add a Daily briefing screen |
 
-## 🔠 Text and layout check (do this on EVERY screen you visit)
-| Screen | Result | Screenshot |
-|---|---|---|
-| Title | OK (NEXT UP box overlaps fork art but no text overlap) | shot-1.png, shot-15.png |
-| Challenges modal | OK | shot-2.png |
-| Trials | OK (focus ring size difference only) | shot-3.png |
-| Pantry | OK, refusal text OK | shot-6.png, shot-7.png |
-| Settings | OK but very tight bottom rows | shot-9.png |
-| Keyboard Controls | OK | shot-10.png |
-| Back up / Move save | OK | shot-12.png |
-| Help Basics | OK, small text | shot-16.png |
-| Help Cutlery | OK | shot-20.png |
-| Help Tables | OK, low contrast locked text | shot-21.png |
-| Help Modes | OK, twist paragraph tiny | shot-22.png |
-| Gallery (unlocked kaiju) | OK; ladder icons tiny | shot-24.png |
-| Gallery Shiny confirm / refusal | OK | shot-25.png, shot-29.png |
-| Gallery locked kaiju | OK | shot-26.png |
-| Move Lab | Tip text over table props | shot-30.png, shot-31.png |
-| Records (pages 1-3) | OK, last page nearly empty | shot-34.png, shot-36.png |
-| Workshop | Chips over start spots (#6) | shot-38.png, shot-41.png, shot-45.png, shot-46.png |
-| Pause menu | OK | shot-49.png |
-| Free Play setup | OK; bot explainer replaced by twist text | shot-56.png, shot-59.png, shot-61.png, shot-66.png |
-| Twist picker | Font-size jitter, tiny text (#10) | shot-57.png |
-| Online modal / Join modal | OK | shot-67.png, shot-68.png, shot-70.png |
-| Party Modes setup | Ribbon over heads when seated (#7) | shot-73.png, shot-86.png |
-| Phones as Pads room | Panel touches top/bottom edges (#8) | shot-88.png |
-| Team Feast round | Intro text over props | shot-74.png |
-| Round end popups | Overlapping banners (#12) | shot-78.png |
-| Daily countdown | Text over table props | shot-90.png |
-| Daily results | THIS MATCH panel overlaps ranking box (#4) | shot-94.png |
-| Story map | SCENE button crowding (#5) | shot-98.png |
-| Story Log | OK (empty state friendly) | shot-99.png |
-| Story Rewards | **CUT OFF / overflow (#1)** | shot-102.png |
-| Opening cutscene | Caption small but OK | shot-96.png |
-| Chapter 1 cutscene | OK | shot-105.png |
-| Chapter Clear | OK | shot-111.png |
+## 🔠 Text and layout check
+- **Title (Kid Mode ON):** top-bar labels tiny (~10 px), NEXT UP box dense but not overlapping. Problem noted; `shot-34.png`.
+- **Online overlay:** OK visually (`shot-3.png`), but no text in `/look`.
+- **Story chapter select:** not screenshotted; `/look` text positions showed no overlaps; "🔒 SECOND HELPINGS / clear chapter 6 to open" stacked at the top-right looked compact; text-only check (not visually verified).
+- **Table Workshop:** OK, all buttons separate, hint line fits (`shot-4.png`, `shot-5.png`).
+- **Match HUD (4p, 2p, Cup):** top bar OK; kaiju announcement text sits on the sprite (`shot-10.png`); countdown text OK (`shot-6.png`).
+- **Pause menu:** OK in text; not shot.
+- **Free Play setup:** OK (`shot-12.png`); the two-line text under the PLAY button is small but readable.
+- **Twist picker:** small/shrunk captions on FISTS ONLY and MIRROR MOVES (`shot-13.png`).
+- **Match end (Free Play):** OK, THIS MATCH panel clear of buttons (`shot-16.png`).
+- **Gallery:** OK, header fits two lines at top-right (`shot-17.png`, `shot-18.png`, `shot-19.png`).
+- **Move Lab:** OK (`shot-23.png`).
+- **Records:** OK both pages (`shot-24.png`, `shot-26.png`).
+- **Pantry:** OK; low-contrast footer (`shot-27.png`, `shot-28.png`).
+- **Settings / Keyboard Controls:** OK (`shot-29.png`, `shot-30.png`, `shot-31.png`).
+- **Help BASICS:** OK but a wall of ~10 lines of small text (`shot-35.png`). **MODES:** OK (`shot-38.png`). **TABLES:** footer overlaps a row and rows are cut off at bottom (`shot-37.png`). CUTLERY tab: opened via click (`shot-36.png`) but I did not Read it, so unverified.
+- **Practice:** HUD OK (`shot-39.png`); completion ghost text overlap (`shot-41.png`).
+- **Party Modes setup:** OK physically (`shot-42.png`, `shot-44.png`) but wrong labels with Cup ON.
+- **Party Cup standings:** overlap between the reward panel and standings text (`shot-46.png`); game 1 is acceptable (`shot-45.png`, mild low contrast).
+- **Party Cup final:** OK text layout, no buttons (`shot-49.png`).
+- **Challenges overlay:** OK, no overlap; the bottom two-line Chef's Pass line fits (`shot-50.png`).
+- **Daily intro:** text lines only (not visually verified beyond `shot-51.png` being taken; I did not open it with Read).
+- Screenshots I took but did not open: shot-1, shot-2 (title / Story first looks), shot-36, shot-40, shot-47, shot-48, shot-51; shot-20 to shot-22, shot-25, shot-32 to shot-33 reviewed only through text. These are listed honestly as not visually verified.
 
 ## The single biggest structural problem
-There is no consistent "modal/panel container" system: several screens place content by absolute coordinates and the content simply grows past its frame (Story Rewards overflow, THIS MATCH panel over the ranking box, SCENE button on the panel border, Your Room touching the screen edges, Workshop chips over start spots). Every new feature (a new reward, a longer achievement list, a new chip) risks the same breakage, and I found five instances in one session. Alongside that, destructive actions are not guarded consistently (Quit has no confirm) and feedback about progress ("FIRST SERVICE 1/6") isn't tied to a visible cause.
+Information is stored and shown in too many places with different definitions: coin balance (119 vs 144), tables owned / visited / pooled (13/18, 14, 1/18, 2/12), knockouts (2 vs 1/20 weekly), and a TRY IT / Practice that grants real rewards. For a QA mind it means I can never be sure which number is true, and I found an economy exploit (practice twist matches grant full rewards and achievements) just by playing normally. A 9 needs a single stats model that every screen reads, and a clear split between "counts" and "doesn't count".
 
-A shared container with padding, scrolling/paging and focus trapping would fix the whole family at once, and the QA bar of 9.0 would then be defensible.
+The second structural gap is result-screen layout: every end-of-match view stacks a mascot, a standings box, a reward panel and a toast over a busy table, with no collision management; the Cup screens (the most text-heavy) are where it breaks.
 
 ## Big change proposals (2–3, most important first)
-### Proposal 1: Shared scrollable panel component
-- **Problem it solves:** Story Rewards overflow (#1), results panel overlap (#4), Your Room edges (#8), Records near-empty last page (#22).
-- **How it would work (detailed design):** One `Panel` with fixed padding of 24 px, header, a scroll body (wheel, touch drag, Up/Down, PgUp/PgDn) and a footer bar. Body items measured at layout time; if the content exceeds the body height show a thin scrollbar and a "▼ more" hint. Focus is trapped: while a panel is open, nothing behind it can take focus or clicks. Use it for Story Rewards, Story Log, Records, Your Room, Results side-panels.
-- **Example moment:** Open Story → REWARDS: 13 cards with a scrollbar; scroll with arrow keys; Close is always visible at the bottom.
-- **Rewards / progression hooks:** none; pure polish, but collection screens feel complete.
-- **Risks and edge cases:** gamepad/phone scrolling; make sure /look exposes the text.
+### Proposal 1: One Stats Ledger + "Counts / Doesn't count" flag
+- **Problem it solves:** inconsistent coins/tables/KO counters between Gallery, Records, Pantry, Party Modes; TRY IT paying full rewards; Quit/Restart edge cases changing stats unpredictably.
+- **How it would work (detailed design):** a single `ledger` object (tokens, matches, wins, KOs, crumbs, tables visited set, achievements) with `commit(matchResult, {counts: true|false})`. Every screen reads from it on enter. Matches carry a `rewardClass`: `full` (Free Play, Story, Party, Daily, Gauntlet), `none` (TRY IT, Move Lab, Practice). Practice keeps its one-time +20. Result screen for `none` shows a grey chip "PRACTICE: nothing saved". Tables: define "owned" (unlocked), "visited" (played at least once); Party Modes line reads "13 of 18 tables unlocked (+ your Workshop tables)".
+- **Example moment:** I try Turbo with TRY IT, win, and the result says "TRY IT: no rewards" with a Play for real button.
+- **Rewards / progression hooks:** none lost; the Plot Twist achievement requires a real match.
+- **Risks and edge cases:** migrating saves with already-awarded rewards; keep them.
 - **Size:** M
-- **Score impact for me:** +0.8
+- **Score impact for me:** +0.7
 
-### Proposal 2: Guarded destructive actions with a "tap again" pattern
-- **Problem it solves:** Quit with no confirm (#2), Restart, Shiny/Pantry already do it right.
-- **How it would work:** Reuse the Shiny "tap again" button: first tap changes the label to "QUIT? tap again" (amber), second tap within 3 s confirms, anything else (Resume, 3 s, Escape) resets it. Apply to Quit, Restart, "Close room" (online/party), Workshop CLEAR, Workshop NEXT SLOT when unsaved.
-- **Example moment:** Mid-match at 2-1, I press Esc → Quit by accident; the button turns amber and I back out.
-- **Rewards / progression hooks:** protects Story/Gauntlet progress and Party Cup runs.
-- **Risks and edge cases:** keyboard users need Enter-Enter; phone users need a larger hit area.
-- **Size:** S
+### Proposal 2: Result-screen layout system (slots instead of free-floating panels)
+- **Problem it solves:** overlap in Party Cup standings, mascot over text, toast + reward panel + standings collisions.
+- **How it would work (detailed design):** result screen has three fixed slots: header (title, y 90-250), standings (y 250-540, max 5 lines, auto-shrinks to 18 px min), footer strip (y 560-700). The THIS MATCH reward list becomes a one-line chip ("🪙 +85 . Lv 2 . 2 achievements") that expands into a modal on click/press. Mascot art becomes a low-opacity backdrop on the left/right gutters only. Same slot grid reused for Cup standings, Cup final, Story result, Daily result.
+- **Example moment:** Cup game 2 shows the full 3-line rules text, a single reward chip, and NEXT/MENU buttons with nothing hidden.
+- **Rewards / progression hooks:** more readable payoff means more feel of reward.
+- **Risks and edge cases:** 6-player standings need 6 lines + tie text: need auto font shrink or two columns.
+- **Size:** M
+- **Score impact for me:** +0.6
+
+### Proposal 3: Real Kid/Big-text scale mode with a layout audit script
+- **Problem it solves:** Kid Mode claims "bigger text" but Settings, Help and the title bar look unchanged; Help TABLES already overflows at normal size.
+- **How it would work (detailed design):** a global `uiScale` (1.0 normal, 1.3 Kid) applied to all text draw calls; every screen declares a safe rect; a dev-only `/layout` harness command measures every text against its container and reports overflow/overlap so each screen is checked automatically in normal, phone and Kid modes. Help gets pages (Basics 1/2, 2/2) so large text still fits.
+- **Example moment:** Kid toggles on, Help text grows, and "Page 2/3 ▶" appears instead of text cut off.
+- **Rewards / progression hooks:** none; pure polish and accessibility.
+- **Risks and edge cases:** more pages; button grids (setup rows) need wrapping.
+- **Size:** L
 - **Score impact for me:** +0.5
 
-### Proposal 3: "What just changed" progress toasts and a goal checklist
-- **Problem it solves:** the unexplained FIRST SERVICE 0/6 → 1/6 (#13), huge reward spike (#30), hidden unlocks.
-- **How it would work:** On the title, replace the 3-line NEXT UP box with a 6-item checklist (✔ done, ○ pending) that tooltips the reward. Any time a goal completes, show a top-right toast "FIRST SERVICE 1/6 — Visited Settings (+10 🪙)". Smooth rewards: first match +60, later matches +20–40.
-- **Example moment:** After I close the Back up modal: "✔ Backed up your save · FIRST SERVICE 1/6".
-- **Rewards / progression hooks:** adds a gentle tutorial path and a sense of progress for new saves.
-- **Risks and edge cases:** toast cap of 3 on screen must still apply.
-- **Size:** M
-- **Score impact for me:** +0.4
-
 ## How this round's new features felt
-- **Fairness (1.4 s bot grace, bot-level explainers, Daily rivals):** Bot-level explainer in Free Play is clear and easy to find (bottom line), but disappears when a twist is active. Daily countdown line showing rival levels works but the line is very long and sits over table props. I could not verify the 1.4 s grace precisely via polling. No round-end "how you went out" banner appeared on the Daily/Team Feast screens I inspected (only the "DUMPLORD skewered GOBZILLA" caption), so it may only show in some modes.
-- **Feedback (toasts, pantry payouts, second-tap buys):** Pantry orders show "· 40 🪙" payouts, buy messages are great. I saw achievement lines inside the results panel (First Bite +30, Not It! +30, Daily Special +30) but did not catch the top-right toasts because the game is frozen between commands.
-- **New-save locks (4 kaiju, 2 tables):** Gallery shows 12/20 kaiju and 13/18 tables with clear "Unlock: Win 1 match in any mode (you have 0/1)" text. It feels good and gives goals. I also noticed Daily still fields a locked kaiju (Sloba).
-- **Story comic panels / Phase 2 banner / Kid Mode:** Not reached (they need ch4/ch8).
-- **PHONES AS PADS:** Fast and clear, big QR, code, "Everyone on the couch: scan with your phone camera". Layout is cramped at the screen top and bottom (#8); TV mode toggle lacks explanation. Party Cup toggle ON/OFF works, hint line updates ("Party Cup = 3 games: CLASSIC → GOLDEN → CLASSIC · final ×2 · ON: PLAY starts the Cup").
-- **Gallery reach/cooldown + Mastery ladder:** Reach and cooldown are shown ("reach 207 · every 1.6 s"). The ladder is only icons, no ✔ in a fresh save; unclear and tiny.
-- **Fixes from last round:** "Quit confirmation resets when you resume" could not be validated because there is no confirmation at all (#2). Kid mode, practice swipe and phone twist button not touched. "At most 3 pop-ups" held in the round-end I saw (2 pop-ups + replay banner but overlapping, #12). Team Feast results grouped by team: not reached (quit before the results).
-- **Text/layout audit:** Desktop is mostly clean, but I found the overlaps in the table above that the audit missed.
+- **KAIJU warning (growth + red ring):** I saw the kaiju ring on both Gobzilla and Squidgeon (`shot-10.png`, `shot-11.png`); the ring and rival kaiju are readable. The "STOMP READY! KAIJU! FIRST BITE!" call-out sits on top of the rival sprite (polish). I did not time the 0.5 s squash lock with a stopwatch; no obvious stall.
+- **Gauntlet:** only the Challenges overlay was seen (checkpoint explanation, Chef's Pass progress line "0/12 Trial ★ or Gauntlet wave 0/8"). Layout clean (`shot-50.png`). Did not play waves.
+- **Chef's Pass:** progress is shown in CHALLENGES; good. Not testable to completion here.
+- **Party Cup:** Points per game are visible and the mode's own score decides places (Golden Spoon seconds beat KOs). The cup played through 3 games with no errors. Issues: overlap (shot-46), tie label, greyed MODE still responds, team-labelled seats, final screen has no buttons. "FIRST TO: CUP SETS IT" greying works.
+- **Kid Mode:** failed my check: text on Settings/Help/title did not look bigger. Bot level pill got a 🧸 on setup, which is nice.
+- **Gallery:** 🪙 balance in header works; locked colour now shows exact earn text (good). Shiny confirm is misleading (see issues). I did not afford a Shiny so the banner and sparkles are untested.
+- **Records footer follows pin:** works exactly.
+- **First-timer:** "▼ YOU" marker shows at countdown and Setup shows "👤 YOU . Keys left . A / D". Practice shows current step with keys plus next. Table counts do NOT agree everywhere (14 vs 13/18 vs 1/18). Fast key taps: Escape/P pause toggles and quick actions did not drop or error.
+- **Twist picker TRY IT:** works as a 1-round vs EASY bot, but pays full rewards (exploit).
+- **Workshop:** picking a prop and cycling the hazard both explain themselves in the hint line. Good.
+- **Daily medals:** the Daily countdown line listed "Medals: 🥉 play +10 🪙 . 🥈 win +20 🪙 . 🥇 win without..." (truncated by the harness text cap); I did not verify the "still open today" state.
+- **Text and layout audit claim:** "audited on desktop, phone and Kid Mode" does not hold up: Help TABLES overlaps and Cup standings overlap are present on desktop.
 
 ## Bugs that block play
-- None block play. Highest-impact bugs: Story Rewards overflow (cannot see all rewards), Quit with no confirmation (can lose a match or Cup progress by accident), and Story chapter intro SKIP returning to the map.
+- None blocked play and `/errors` stayed `none`. Closest to blockers: Party Cup final has no mouse/touch buttons (Escape works), and Cup standings text is partially unreadable when a reward panel is open.

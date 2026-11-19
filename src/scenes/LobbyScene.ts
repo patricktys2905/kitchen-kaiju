@@ -92,8 +92,11 @@ export class LobbyScene extends Phaser.Scene {
 
   /** 📱 opened from Party Modes → PHONES AS PADS: host right away, everyone else scans the QR with their phone. */
   private couch = false;
-  init(data: { difficulty?: Difficulty; rounds?: number; couch?: boolean; mode?: GameMode; cup?: boolean }): void {
+  init(data: { difficulty?: Difficulty; rounds?: number; couch?: boolean; mode?: GameMode; cup?: boolean; powerups?: boolean; hazards?: boolean; mutator?: Mutator }): void {
     this.couch = !!data.couch;
+    if (data.powerups !== undefined) this.powerups = data.powerups; // 📱 Phones as Pads keeps the setup's switches
+    if (data.hazards !== undefined) this.hazards = data.hazards;
+    if (data.mutator !== undefined) this.mutator = data.mutator;
     if (data.mode) this.mode = data.mode;
     if (data.cup !== undefined) this.cup = data.cup;
     this.difficulty = data.difficulty ?? 'normal';
@@ -279,7 +282,7 @@ export class LobbyScene extends Phaser.Scene {
           <button data-act="tv">${this.tvMode ? '📺 TV mode: ON (you just watch)' : '📺 TV mode: OFF (you play too)'}</button>
         </div>
         <p class="muted">${esc(modeDef(this.mode).blurb)}</p>
-        <div class="row"><button class="go" data-act="start" ${guests ? '' : 'disabled'}>Start match</button><button data-act="back">Close room</button></div>
+        <div class="row"><button class="go" data-act="start" ${guests || this.couch ? '' : 'disabled'}>${guests ? 'Start match' : 'Start (bots fill the seats)'}</button><button data-act="back">Close room</button></div>
         ${guests ? '' : '<p class="muted">Waiting for at least one friend to join…</p>'}
         ${statusHtml}`;
     } else {

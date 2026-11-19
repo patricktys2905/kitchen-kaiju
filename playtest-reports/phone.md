@@ -1,213 +1,199 @@
-# Playtest evaluation — The Phone Player
+# Playtest evaluation — The Phone Player (profile 11 "phone", port 7111, landscape 1000x462 touch)
 
-**Fun score: 7.5 / 10** (a whole phone session works with no keyboard and nearly every screen is readable and tappable. Three things hold it back. The on-screen STOMP tap never put me into KAIJU. The twist, mode and Cup pills hide state. The Free Play setup has no bot-level explanation.)
+**Fun score: 7.0 / 10** (the core loop and nearly every menu work without a keyboard and look good; the party/cup setup misbehaves, hint text still speaks keyboard, and a lot of secondary text is too small for a real phone)
 
-> Screenshots are in `C:\Users\Pat\kitchen-kaiju\art-src\.playtest\r9-7111\` as `shot-N.png`. Below I write just `shot-N`.
+All screenshots are in `C:\Users\Pat\kitchen-kaiju\art-src\.playtest\r10-7111\` (shot-N.png).
 
 ## What I did
-- About 118 harness commands, all in phone mode (landscape, touch, 2000x924 screenshots). `/errors` reported "none" at the start, the middle and the end.
-- **Title** (shot-1): tapped FULL SCREEN and EXIT FULL SCREEN, which work.
-- **Story** (shot-3): opened ch1. Played the opening cutscene (shot-2) and the pre-match chat (shot-5), then skipped them. Played ch1 vs Crabbage and won 2-1 for 2 stars (shots 6-14). Got the "Chapter Clear" panel with NEXT, REPLAY and MAP.
-- **Free Play setup** (shots 16-22): added a bot and cycled BOTS (easy, normal, tough, brutal), ROUNDS and TWIST. Opened the twist picker, picked ICE RINK, then a double twist (MINI KAIJU + KAIJU FRENZY).
-- **Free Play match** with the double twist (shots 23-27): lost 0-3. Results screen shown with REMATCH and MENU.
-- **Party Modes setup** (shots 29, 30, 41): Team Feast, Crumb Rush, CUP ON/OFF. Played the first game of a Party Cup (shot-39 shows "GAME 1/6: GOBZILLA WINS!" with standings), 4 players, won.
-- **Pantry** (shots 43-45): did the two-tap buy on Toffee colour. **Gallery** (shots 46-48): opened a locked "???" kaiju. **Move Lab** (shots 49-50).
-- **Challenges** popup (shot-52), **Trials** (shot-53), **Records** (shot-54), **Settings** (shot-55), **Daily** (shot-56).
-- Matches played: 1 Story, 1 Free Play, 1 Party Cup game, plus a Move Lab practice round and a Daily start. Won 2, lost 1.
-- I never tried the Online lobby, Help, Workshop or Practice.
+About 130 harness commands, 40 screenshots, every screenshot opened.
+- Title (shot-1), then the 1-Minute Practice (shots 2-6): reached step 7/8 and left through PAUSE → QUIT. Saw the "tap QUIT again" confirm.
+- Story: opening cutscene, chapter-1 intro cutscene and dialogue, played chapter 1 (lost one round, won the match), CHAPTER CLEAR panel with token, colour and kaiju rewards (shots 8-13).
+- Party Modes setup (shots 14-16): joined, added a bot, toggled CUP, tried MODE and ROUNDS while the Cup was ON, opened the twist picker (shot 17).
+- Twist picker with 🧪 TRY IT: ON → TURBO, played the 1-round match, lost (shots 18-21).
+- Party Cup: played Game 1 (Classic, won) and Game 2 (Crumb Rush, 3rd) and read both standings screens (shots 22-25).
+- CHALLENGES (shot 26): Gauntlet Starters, waves 1-2, perk pick, preview of the next wave, GAUNTLET OVER (shots 27-29).
+- Gallery: shiny purchase and a locked colour tapped (shots 31-33).
+- Pantry (34), Records plus pinning an achievement (35-36), Daily Hot Dumpling (37), Settings (39), Table Workshop (40). Help and Kid Mode were not opened (budget).
+- 3 matches played to a result by seat bot (chapter 1 won, free-play twist lost, Cup game 1 won); 2 more matches unfinished (Cup game 2 finished, Gauntlet finished, Daily abandoned in round 4).
+- Phone note: the STOMP, THROW (hold) and SWIPE `/tap` calls did not register while `/act stomp` did. I treat that as a harness limit (the game is frozen during a tap), not a game bug. The on-screen buttons themselves look correct: STOMP lights red with "BELLY FULL! TAP STOMP → KAIJU" (shot-3).
 
 ## What worked for me
-- The in-match phone layout is good (shots 6, 7, 10, 23, 33, 34). The pad sits to the right of the table.
-  - THROW, SWIPE, DASH and STOMP form a thumb cluster.
-  - PAUSE, MENU, EMOTE and FULL SCREEN form a column top-right.
-  - "DRAG HERE TO MOVE" sits bottom-left.
-  - The controls never cover the table, the HUD or the round text, and the buttons are big enough.
-- The STOMP button turns red when the belly is full. That is a clear, glanceable cue.
-- The setup pill bars (Free Play and Party) are large with good contrast. Every setting is reachable by thumb, and the 🎲 randomiser is there too.
-- The twist picker (shot-18) fits fully above the pills and has a clear ✖. Single and double twists are readable. A double twist survives going back to setup (a fix from last round, confirmed).
-- The new round-end line works: "You went out at 4s: a KAIJU stomp (TOASTBAT)". It is concrete and fair.
-- The 🏆 First Bite +30 toast (top right, shot-12) and the "THIS MATCH" panel (tokens, mastery XP, achievements, unlock) are clear and not overcrowded.
-- Pantry shows payouts on orders ("Each one pays 40"). The two-tap buy shows "tap again to buy for 40" (shot-44).
-- Gallery shows the unlock reason for locked kaiju ("Beat Story chapter 2... (1/2 cleared)", shot-47). It also shows reach and cooldown ("reach 207 · every 1.6 s") and a Mastery reward ladder.
-- Settings has a **BIG TOUCH BUTTONS** option. The Trials descriptions (stars, KO goals) are clear.
-- The Story chapter panel is readable. The Chapter Clear panel (shot-14) is well laid out.
+- Landscape phone layout of the match is clean: top HUD cards, right-hand column PAUSE/MENU/EMOTE/FULL SCREEN, bottom-right THROW (big) / SWIPE / DASH / STOMP. Nothing covers the table's playable area (shot-2, 18).
+- STOMP greys out until the belly is full and turns red when ready, with a big on-table prompt. It teaches itself (shot-3).
+- The 🦖 KAIJU warning is easy to read: a pulsing ring around the grown kaiju shows its reach (shot-4).
+- "▼ YOU" marker appears over my kaiju in play (shot-18) and the setup card says "👤 YOU · Touch · KAIJU ▶".
+- Pause menu is big, tappable and has a quit confirmation (shot-6, 38).
+- Story map, chapter card and dialogue boxes are readable; dialogue has SKIP CHAT and every cutscene has SKIP ▶▶ (shots 9, 11).
+- CHAPTER CLEAR panel lists every reward on one card (shot-12). Gauntlet wave clear previews the next wave ("Next: wave 2 · 1 rival (NORMAL) · ❤❤") and offers a three-perk pick (shot-28).
+- Party Cup standings show per-game points "(G1 +5, G2 +2)", the points table, how the mode places you, and what comes next ("Next: HOT DUMPLING · tap ▶ continue") (shots 23-24).
+- Gallery header now shows 🪙 balance, the shiny banner appears, and a locked colour shows how to earn it (shots 32-33). Records footer follows the pinned achievement (shot-36).
+- Everything in a whole session (title → Story → Party → Challenges → Gallery → Pantry → Records → Daily → Settings → Workshop) was reachable by tapping, with no keyboard.
 
 ## 🧾 Exactly what would make this a 9/10 for me
-1. **Make the on-screen STOMP actually go KAIJU, and confirm it on a real phone.**
-   - **What:** Tapping STOMP (via `/tap?label=STOMP`, plain and with hold=0.3, 0.4, 0.5 and 1) never triggered KAIJU. I tried it in Story, Free Play, Party and Move Lab. The belly was 100, the HUD said "STOMP READY!" and the button was lit red, but `kaijuSecs` stayed 0.
-   - **Control test:** `/act?cmd=stomp` worked every time ("YOU went KAIJU", kaijuSecs 5.2).
-   - **Uncertainty:** this may be a harness artifact, because the game is frozen between commands and a synthetic tap may not span a frame. It could also be a real touch-handler bug. Either way, verify on a real device and add an automated phone-STOMP test.
-   - **Behaviour:** a single tap on STOMP with a full belly starts KAIJU within one frame. Show a brief press flash on the button.
-   - **Where:** all match screens in phone mode.
-   - **Score impact:** +0.8 if it is a real bug, +0.0 if only the harness.
-2. **Show state on the setup pills.**
-   - **What:** the Party pill reads "🏆 CUP ON/OFF" with no state, so I could not tell if the Cup was on. It auto-started "GAME 1/6" and a Cup standings flow I never opted into knowingly (shots 29, 41).
-   - **Behaviour:** the pill should read "CUP: ON" or "CUP: OFF" and be highlighted when on. A subtitle line should say "Party Cup: 6 games" when on. Use the same style for the other pills.
-   - **Where:** Party Modes setup.
-   - **Score impact:** +0.4.
-3. **Show the whole twist on the TWIST pill.**
-   - **What:** with a double twist the subtitle shows "MINI KAIJU + KAIJU FRENZY" but the pill says only "TWIST: MINI KAIJU" (shot-22).
-   - **Behaviour:** the pill should read "TWIST: ⚡⚡ MINI + FRENZY" or "TWIST: 2 ⚡".
-   - **Where:** Free Play and Party setup.
-   - **Score impact:** +0.2.
-4. **Explain each BOT LEVEL on the phone setup (the brief says this shipped).**
-   - **What:** when I cycled BOTS I saw only "Bot difficulty: TOUGH · Up to 6 players · First to 3 rounds · 13/20 kaiju" (shots 17, 19). There is no sentence on what TOUGH or BRUTAL means.
-   - **Behaviour:** add one line under the bot line, such as "TOUGH: dodges, uses powers, steals your cutlery". Show it for the selected level.
-   - **Where:** Free Play and Party setup, phone layout.
-   - **Score impact:** +0.3.
-5. **Move the Daily intro text and the "BELLY FULL! TAP STOMP" hint out of the table, or cap their width.**
-   - **What:** during the countdown, "DAILY · 3 rivals (normal, easy, easy)..." sits right on top of the spawn mats and kaiju (shot-56). The hint pops over the bot lanes and the YOU marker (shots 23, 24, 33).
-   - **Behaviour:** use a compact pill in the bottom-centre safe zone, under the table, and keep it off the spawn mats.
-   - **Where:** Daily, Party and Story countdowns.
-   - **Score impact:** +0.3.
-6. **Fix the "DRAG HERE TO MOVE" contrast.**
-   - **What:** the text is light grey on the cream or yellow tablecloth in Breakfast Rush and Sushi Bar (shots 24, 26). It almost disappears. It also overlaps the table's bottom-left corner.
-   - **Behaviour:** give it a dark pill background. Fade it after 5 seconds of play.
-   - **Where:** in-match.
-   - **Score impact:** +0.2.
-7. **Make the party/phone flow discoverable.**
-   - **What:** the brief says "PHONES AS PADS" is the last button on Party setup. I did not see it on the phone layout (shot-29 and `phoneControls`). On a phone it may be intentionally hidden, but nothing says so.
-   - **Behaviour:** either show it, or show a one-line note ("Use a bigger screen for Phones-as-pads").
-   - **Score impact:** +0.1.
-8. **Raise the tap size for tiny elements.**
-   - **What:** the Gallery colour swatches (~35 game px, shot-46), the kaiju portrait tiles and the Rewards ladder icons are small for a thumb.
-   - **Behaviour:** make swatches at least 48 px. Label the ladder icons. Let a long-press show the tooltip.
-   - **Where:** Gallery.
-   - **Score impact:** +0.2.
-9. **Tighten the FULL SCREEN pill.**
-   - **What:** it floats top-left on the title, over the game's left letterbox edge (shot-1), and covers ~60 px of the game area on Free Play and Gallery screens.
-   - **Behaviour:** pin it to the dark side margin only, or move it into the Settings menu.
-   - **Where:** all menu screens.
-   - **Score impact:** +0.1.
-10. **Add match-start guidance for touch.**
-    - **What:** I never saw a "tap STOMP" tutorial until the belly was full, and that hint then overlapped the table.
-    - **Behaviour:** one-time arrows from THROW, SWIPE, DASH and STOMP to a caption in the first match.
-    - **Score impact:** +0.2.
+1. **Make the Party Cup actually lock MODE / ROUNDS (FIRST TO) when ON.**
+   - what: with 🏆 CUP: ON the MODE and ROUNDS pills must grey out and ignore taps. Today they still work.
+   - where: Party Modes setup (shots 15-16).
+   - how: the pill is dimmed with a 🔒, tapping it flashes "Cup picks the modes: 6 games, each mode once", the subtitle line always says "PARTY CUP: 6 GAMES · each mode once", and the "First to N rounds" line becomes "Rounds set per game by the Cup".
+   - impact: +0.5
+2. **Remove all keyboard wording from phone play.**
+   - what: practice steps read "SPACE / A / THROW", "F / X / SWIPE", "WASD / stick / drag left side"; the Gauntlet perk screen says "PICK A PERK FOR THE NEXT WAVE (1 / 2 / 3)"; the setup screen shows a keyboard-style legend; Settings has "⌨ KEYBOARD CONTROLS".
+   - where: Practice banner (shot-3, 4, 6), Gauntlet perk (shot-28), setup legend (shot-14).
+   - how: detect touch and show only "THROW", "SWIPE", "tap a card". Hide the keys entirely on phones.
+   - impact: +0.4
+3. **Raise the smallest text to a phone-safe floor (about 14 css px, ~28 px in my 2x screenshots).**
+   - what: sub-lines under the title buttons, DESSERT/SECOND HELPINGS pills, Spicy pill, "★★★ no rounds lost..." line, the end-of-match ticker, Workshop prop names, locked-colour hint, Gallery details, twist picker descriptions, Challenges footer lines.
+   - where: Story (shot-9), twist picker (shot-17), Workshop (shot-40), Gallery (shot-31), end screens (shot-23/24), Challenges (shot-26).
+   - how: one shared "phone min size" token; wrap rather than shrink; move the ticker to two lines or a tap-to-expand strip.
+   - impact: +0.5
+4. **Make the colour dots and other tiny taps finger-sized.**
+   - what: the 21 colour dots in the Gallery are ~25 css px, below a safe 44 px tap target. The twist cards, Workshop prop tiles and UNDO/CLEAR are also small and close together.
+   - where: Gallery (shot-31), Workshop (shot-40).
+   - how: horizontal scrolling strip of 44 px dots with a bigger selection ring, or 2 rows of 11; add 8 px gaps between UNDO and CLEAR.
+   - impact: +0.3
+5. **Fix the setup bleed after TRY IT.**
+   - what: after TRY IT I landed on the Free Play setup with BOTS: EASY, ROUNDS: 1, TABLE: SUNDAY ROAST and TWIST: TURBO, not on the screen I came from (shot-21).
+   - how: TRY IT should snapshot and restore the previous setup, and return to the screen it was launched from.
+   - impact: +0.3
+6. **Make MENU/return paths consistent.**
+   - what: finishing a Gauntlet run from CHALLENGES and pressing MENU drops me on the Party Modes setup (Cup ON, no joined seat) rather than the title or CHALLENGES. A first tap on MENU right after Cup game 2 did nothing and needed a second tap.
+   - how: MENU always returns to where the match was launched from; buttons active the instant the panel appears.
+   - impact: +0.3
+7. **Fix the 🪙 totals so every screen agrees.**
+   - what: Gallery header said 🪙 9 after the shiny (309 - 300), Pantry and Records say 34.
+   - how: one balance source, refreshed on screen open; or show the +25 pending reward on the match-end card.
+   - impact: +0.2
+8. **Make the Cup standings text mode-aware and unobscured.**
+   - what: the "Points per game" line always includes "Team Feast: every teammate gets the team's place" even in non-team games; the winning kaiju mascot sits on top of the last lines (shot-24).
+   - how: show only the line for the mode just played; keep the mascot behind the panel or move it to the corner.
+   - impact: +0.2
+9. **Give the twist and Hot Dumpling rounds real context.**
+   - what: the Daily countdown tip is "The giant hand goes for whoever has the fullest belly", which says nothing about Hot Dumpling (shot-37); the TRY IT twist match never says "EASY bot, 1 round".
+   - how: mode-specific tips in the countdown; a small "TRY IT · EASY · 1 round" chip.
+   - impact: +0.2
+10. **Show the active twist in play at a readable size.** "⚡ TURBO" is a 9 px label at the bottom right next to DASH/THROW (shot-18). Put it under the round title at the top.
+   - impact: +0.1
+11. **Practice step order and feedback.** The 8-step practice does not progress in the order it names (a swipe or dash counted when it was asking for THROW, step 3/8 appeared after crumbs only). Show a ✓ per step and check off the real action.
+   - impact: +0.2
 
 ## 🔍 Every issue I saw (exhaustive)
 
 | # | Severity | Screen | What's wrong (exact text/element) | Screenshot | Suggested fix |
 |---|---|---|---|---|---|
-| 1 | major | All matches (phone) | The STOMP pad tap did not trigger KAIJU in 5 attempts (hold 0 to 1 s) while the belly was 100 and "STOMP READY!" showed. `/act stomp` works. Might be harness only. | shot-34, shot-50 | Verify on a real device. Add a touch-handler test. |
-| 2 | major | Party Modes setup | "🏆 CUP ON/OFF" pill shows no state. I got a Cup ("GAME 1/6") without knowing, and "Rounds" jumped from 3 to 2 on the next visit. | shot-29, shot-41 | Show "CUP: ON/OFF" and the game count. |
-| 3 | minor | Free Play / Party setup | TWIST pill shows only the first twist of a double ("TWIST: MINI KAIJU") while the subtitle shows both. | shot-22 | Show both names or a ⚡⚡ marker. |
-| 4 | major | Free Play / Party setup | No explanation of what each BOT LEVEL means. Only "Bot difficulty: TOUGH · ..." is shown. | shot-17, shot-19 | Add a one-line description per level. |
-| 5 | minor | Free Play setup | The pill bar grows and runs to the screen edge when labels get longer ("BOTS: BRUTAL", "TWIST: ICE RINK"). The PLAY pill ends 15 px from the screen edge and LEAVE starts 12 px in. A long double-twist name would overflow. | shot-19, shot-22 | Shorten labels or split into two rows (Party already does). |
-| 6 | minor | Party setup | The pill bar wraps to two rows with PLAY on the second row, alone with CUP. Primary action is not in a consistent place. | shot-29 | Keep PLAY at the same corner on every setup. |
-| 7 | polish | Party setup | "PHONES AS PADS" (brief says last button) is not on the phone layout. | shot-29 | Show it or explain why not. |
-| 8 | minor | Match countdown | "DAILY · 3 rivals (normal, easy, easy) · win to keep your 🔥 streak" is drawn over the spawn mats and kaiju. | shot-56 | Move to the bottom-centre safe zone. |
-| 9 | minor | Match countdown | "💡 KAIJU mode makes you immune..." and other quick tips sit on cups and the gravy boat. | shot-6, shot-8 | Add a dark pill background and avoid mid-table. |
-| 10 | minor | In match | "BELLY FULL! TAP STOMP → KAIJU" floats at your kaiju and overlaps the "▼ YOU" marker. It runs ~480 px wide, partly across the nearest mat, and also covers cups. | shot-23, shot-24, shot-33 | Put it near the STOMP pad (right edge) instead. |
-| 11 | minor | In match | "DRAG HERE TO MOVE" is grey on cream or yellow and nearly invisible. It overlaps the table corner. | shot-24, shot-26 | Dark pill or fade out. |
-| 12 | polish | In match, Move Lab | The bottom hint ("MOVE LAB: Gobzilla Jr.: STOMP to go KAIJU...") overlaps the table's bottom edge and is a long single line. | shot-50 | Two shorter lines above the pad. |
-| 13 | minor | Round-end banner | The "★ ☆ ☆" score line renders filled and empty stars almost identically in the banner ("GOBZILLA ★★ CRABBAGE ★★" in the screenshot while the text says ★☆). I could not read the score from the banner. | shot-10 | Use filled and empty stars with a clear style, or numbers. |
-| 14 | polish | Round-end banner / results | The Party result footer ("Most KOs ... Crumb Monster ... Survivor ... Condiment Hoarder") is tiny (~13 px) and spans nearly the full width. | shot-39 | Show 1 or 2 awards per line or paginate. |
-| 15 | minor | Results (Free Play) | "THIS MATCH" panel overlaps the table plates at the bottom-left. Results text is dense. REMATCH and MENU overlay the table (shot-27). | shot-27 | Clear background or move to the right margin. |
-| 16 | minor | Results | Result buttons ignored my first tap while the banner was animating (Party MENU needed two taps and a frame). | shot-40, shot-41 | Accept taps during the banner or show a "tap to continue" prompt. |
-| 17 | polish | Results | The big kaiju portrait on result screens covers the playing area to the right (the winner art, ~300 px). OK for flair, but it hides the final table. | shot-12, shot-27, shot-39 | Slide it in from the pad column or lower the size. |
-| 18 | minor | Story chapter panel | The "★★★ no rounds lost · ★★ lost one · ★ any win" caption is tiny (~11 px) and touches the panel border. SCENE overlaps the panel border. | shot-3 | Raise the font and spacing. |
-| 19 | polish | Story map | "Seed Spray" sits against the right arrow ▶ at the bottom-left kaiju card. | shot-3 | Add padding. |
-| 20 | minor | Story map | Unlock chains show 🔒 for ch2 to ch12 with a dark tint. It is hard to tell what the next goal is (the ch1 box is the only lit one). | shot-3 | Show "Next" label. |
-| 21 | minor | Story opening | The pre-match dialogue types out slowly with a "SKIP CHAT" link (small) and a "▶ tap" prompt. Text typed to "GOLDEN SP" before I could read. The skip target is small. | shot-5 | Bigger skip pill. |
-| 22 | polish | Story opening cutscene | First cutscene frame is almost completely black with just "THE GRAND FEAST". | shot-2 | Fade in faster. |
-| 23 | minor | Title | FULL SCREEN pill overlaps the game's left edge and sits on top of the letterbox. | shot-1 | Keep in the margin. |
-| 24 | polish | Title | "NEXT UP" box text is small and cut in the harness ("...Lime c") and wraps to 3 lines. | shot-1 | Truncate gracefully. |
-| 25 | minor | Gallery | Colour swatches are small (~35 px) for a thumb and mostly show 🔒 with no price or unlock rule on the swatch. | shot-46 | Bigger, with an unlock caption on tap. |
-| 26 | polish | Gallery | The Mastery "Rewards" ladder is tiny icons only (✔ ✨ 🔒 ⭐ 🪙 ...). Meaning is unclear without text. | shot-46 | Label each step. |
-| 27 | polish | Gallery | Info box text is long and small ("reach 207 · every 1.6 s"). | shot-46 | Break into stat chips. |
-| 28 | polish | Pantry | The footer note and the Chef Rank block are small and tight. Chef Rank lines are cramped. Rank uses a different font. | shot-43 | Add spacing. |
-| 29 | polish | Pantry | "−30% today" tag on Lifeline is hard to see (small, next to "not enough yet"). | shot-43 | Highlight the discount. |
-| 30 | polish | Trials | Cards are misaligned: left column cards at different widths because the focus ring is larger. Description text small. | shot-53 | Make equal widths. |
-| 31 | polish | Records | The pin hint at the bottom wraps across two columns and its text is tiny. | shot-54 | Shorten. |
-| 32 | polish | Challenges popup | "Checkpoints: clear a course's boss wave once..." is a long, tiny line. | shot-52 | Wrap to two lines. |
-| 33 | minor | Daily | Daily starts straight from the title with no setup/intro screen, so I could not see my kaiju or rivals first. My own kaiju was not obvious in the first frame (no "YOU" marker before the countdown). | shot-56 | Show a short intro card with a Start button. |
-| 34 | polish | Free Play setup | "Touch · KAIJU ▶" on the player card and the pill "KAIJU ▶" duplicate. Helper legend (LEFT SIDE drag...) is accurate and good. | shot-16 | Remove the duplicate. |
-| 35 | polish | Free Play setup | Info lines ("Bot difficulty ... 13/20 kaiju") over the busy kaiju background are readable but low contrast. | shot-17 | Add a panel behind. |
-| 36 | polish | Twist picker | Some descriptions use smaller font (Fists Only, Mirror Moves) than their neighbours. | shot-18 | Normalise. |
-| 37 | polish | Twist picker | After picking a double I got the new twist but the picker closes with no confirmation (only the pill changed). Hard to tell whether a double applied. | shot-22 | Toast "⚡⚡ applied". |
-| 38 | polish | Free Play match | A very harsh start for new players: with KAIJU FRENZY an Easy bot squashed me in 4 seconds. Easy bots did well against the human, which makes "Easy" feel too hard under a twist. | shot-23, shot-24 | Show a warning label on twists or reduce bot aggression under Frenzy. |
-| 39 | polish | In match | With the pad on screen, the thumb zone for MOVE ("drag here") has no on-screen indicator once play begins. There is no joystick bubble. | shot-7 | Show a faint joystick ring while dragging. |
+| 1 | major | Party setup, Cup ON | MODE: CRUMB RUSH and ROUNDS: 5 still change when tapped with 🏆 CUP: ON, and they look un-greyed; brief says they should be greyed | shot-16 | Disable and dim both pills while the Cup is on |
+| 2 | major | Party setup, Cup ON | Subtitle says "Eat the most crumbs before time runs out" (the single-mode description), and the info line says "First to 5 rounds", while the header says "PARTY CUP: 6 GAMES" | shot-16 | Cup-specific description and rules line |
+| 3 | major | Free Play setup after TRY IT | Setup left on TWIST: TURBO, BOTS: EASY, ROUNDS: 1, TABLE: SUNDAY ROAST; returned to Free Play instead of Party Modes where TRY IT was opened | shot-21 | Restore previous setup and screen |
+| 4 | major | Practice | Hints show keyboard keys on a phone: "SPACE / A / THROW", "F / X / SWIPE", "WASD / stick / drag left side" | shot-3, 6 | Touch-only wording on phones |
+| 5 | major | Gauntlet perk screen | "PICK A PERK FOR THE NEXT WAVE (1 / 2 / 3)" is a keyboard instruction | shot-28 | "Tap a perk" |
+| 6 | major | Gallery colour dots | 21 colour dots are about 25 css px each; hard to hit with a thumb | shot-31 | 44 px targets or a scroll strip |
+| 7 | minor | Story chapter card | DESSERT pill is three lines of tiny text ("finish the Feast or 🎟 Chef's Pass"); SECOND HELPINGS sub-line is tiny | shot-9 | Larger text, shorter wording ("Locked: finish ch 12 or Chef's Pass") |
+| 8 | minor | Story chapter card | The "★★★ no rounds lost · ★★ lost one · ★ any win" line is cramped between the SCENE button and the panel border; SCENE button touches the card's bottom border | shot-9 | Add 10 px spacing, move the legend into the star row |
+| 9 | minor | Story chapter card | "🌶️ SPICY: clear it (or 🎟 Chef's Pass)" pill text is small | shot-9 | Bigger pill, two lines |
+| 10 | minor | Twist picker | Card descriptions are very small (e.g. "No cutlery at all: swipe, shove and stomp", "Left is right and up is down (players only)") | shot-17 | Shorten descriptions, bigger type |
+| 11 | minor | Twist picker | Panel's bottom border runs behind the setup pill row (TWIST/CUP/PHONES AS PADS buttons overlap the frame) | shot-17 | Shrink the panel or hide the pills while open |
+| 12 | minor | Party setup | "TWIST: NONE" pill still says NONE while the picker is open on top; with TRY IT the twist never appears in the Party pill | shot-17 | Update pill on select |
+| 13 | minor | In match, TURBO | "⚡ TURBO" label is tiny and at the bottom right, hidden near THROW/DASH | shot-18 | Move under round title, larger |
+| 14 | minor | Match end panel | Bottom ticker "Most KOs / Crumb Monster / Kaiju Lover / Butterfingers" is about 9 px and runs almost the full width | shot-23, 24 | Two-line or rotating ticker, bigger |
+| 15 | minor | Cup standings | "Points per game" line mentions "Team Feast: every teammate gets the team's place" in a Classic game and Crumb Rush game | shot-23, 24 | Mode-aware line |
+| 16 | minor | Cup standings | The Dumplord mascot overlaps the last standings lines ("teammate gets the", "a knockout drops half") | shot-24 | Draw mascot behind panel or smaller |
+| 17 | minor | Cup standings | I tied on 7 pts with Dumplord yet was listed 1st; no tie-break explanation | shot-24 | Show the tie-break ("most KOs") |
+| 18 | minor | Match end (all) | Persistent 📷 SHARE button is jammed in the bottom-left corner next to the THIS MATCH card, and the THIS MATCH card sits on top of table props | shot-12, 20, 23 | Place SHARE inside the card |
+| 19 | minor | Match end | First tap on ☰ MENU after Cup game 2 did nothing and a second tap was needed (could be harness, noting it) | n/a | Make buttons live instantly |
+| 20 | minor | Gauntlet over → MENU | MENU returns to Party Modes setup (Cup ON, my seat empty, "RED 0 vs BLUE 0") instead of CHALLENGES or the title | shot-30 | Return to launch screen |
+| 21 | minor | Coin totals | Gallery header 🪙 9 vs Pantry/Records 🪙 34 after buying the shiny | shot-33, 34, 35 | One source of truth |
+| 22 | minor | Daily countdown | Two lines of medals text sit on the busy red-white picnic cloth with only an outline; hard to read | shot-37 | Dark backing plate |
+| 23 | minor | Daily countdown | Tip "The giant hand goes for whoever has the fullest belly" is generic, not about Hot Dumpling | shot-37 | Mode tips |
+| 24 | minor | Daily countdown | Medals text does not mark which medals are still open vs done | shot-37 | ✓ / open markers |
+| 25 | minor | Practice | Steps named in the banner and the real count do not match the action (swipe/dash advanced "THROW your cutlery" step); STOMP step is not listed in the visible two lines | shot-3, 4 | Per-step ✓ list |
+| 26 | minor | Practice | The banner box (top-left) covers the top-left of the table, partly hiding a grown kaiju at the top edge | shot-4 | Move to top centre |
+| 27 | minor | Gallery | Locked-colour hint is 3 tiny lines in the right corner ("🔒 Bubblegum: \"Better Together\": Win a Team Feast match"), the selected lock is only faintly highlighted | shot-32 | Larger, put under the dot row |
+| 28 | minor | Gallery | Shiny banner "✨ SHINY GOBZILLA!" covers the second roster row | shot-33 | Put it over the detail panel |
+| 29 | minor | Gallery | Shiny button says "300 🪙 · needs Lv 3" while I already am Lv 3; reads like a blocker | shot-32 | "Requires Lv 3 ✓" |
+| 30 | minor | Pantry | Weekly orders: nothing says whether an order is claimable or auto-pays | shot-34 | "Pays on completion" tag |
+| 31 | minor | Records | Page footer text ("Next up: ... Tap any locked one to pin it ...") is two lines of small text with an orphan wrap | shot-35, 36 | Shorter wording |
+| 32 | minor | Records | YOUR STATS heading crowds the first row ("Matches played") | shot-35 | Add spacing |
+| 33 | minor | Workshop | Prop names (CUP, BOWL, ...) are about 7 css px; UNDO and CLEAR touch | shot-40 | Larger labels, gap |
+| 34 | polish | Setup (Party/Free Play) | Control legend "LEFT SIDE drag to move · THROW hold, drag to aim..." is useful but small and sits over busy artwork | shot-14 | Dark backing strip |
+| 35 | polish | Setup | "📱 PHONES AS PADS" is shown on a phone that is already the controller; confusing | shot-14 | Hide on touch devices or relabel "Join from other phones" |
+| 36 | polish | Setup | Pill row is 11 pills across plus a second row with 3: very wide for one thumb, "LEAVE" sits at the far-left edge | shot-14 | Group into Players / Rules rows |
+| 37 | polish | Setup | Info lines (bot difficulty, rounds, kaiju count, table) are on the busy plate art and slightly low-contrast | shot-14 | Dark backing |
+| 38 | polish | Title | "🎯 NEXT UP" box is a 4-line paragraph at small size | shot-1 | Show only the first goal |
+| 39 | polish | Title | The 6 top-right pills have text of about 8 css px | shot-1 | Bigger icons with text below |
+| 40 | polish | Settings | Option descriptions are small, and "Saved on this device · tap to change" sits on the very bottom edge | shot-39 | Add bottom padding |
+| 41 | polish | Challenges | "Checkpoints..." and "CHEF'S PASS: 0/12 ..." lines are tiny and the Pass line spans almost the full width of the modal | shot-26 | Two lines, bigger |
+| 42 | polish | Pause menu | Match controls (STOMP/SWIPE/THROW) keep drawing on top of a paused game | shot-6 | Dim or hide them while paused |
+| 43 | polish | FULL SCREEN button | Sits at top-left on menus over the title/logo area and at the right column on matches; on Story/Gallery it overlaps nothing but is large | shot-1, 9 | Fine; move into a corner icon |
 
-## 🔠 Text and layout check (do this on EVERY screen you visit)
-- **Title (shot-1):** OK for text overlap. FULL SCREEN pill overlaps the game's left edge slightly (no text underneath). The NEXT UP text is smaller than the buttons but readable.
-- **Story map (shot-3):** OK, with problems. The caption "★★★ no rounds lost..." is tiny and touches the panel border. SCENE sits on the border. "Seed Spray" abuts the ▶ arrow.
-- **Story dialogue and cutscene (shots 2, 4, 5):** OK, with two problems. The dialogue text is cut by the typewriter effect. SKIP CHAT is small. The first cutscene frame is nearly black.
-- **Match HUD and controls, Story and Free Play (shots 6, 7, 10, 11, 12):**
-  - Controls do **not** cover any game text, HUD or mat. This is the main goal and it passes.
-  - The tip "💡 KAIJU mode makes you immune..." overlaps cups (minor).
-  - "DRAG HERE TO MOVE" is low contrast on light tables.
-- **Match HUD with 4 players (shots 31, 33, 34):** OK. Four player cards fit. The belly hint overlaps "▼ YOU".
-- **Round-end banner and Chapter Clear (shots 10, 12, 14):** OK. The ★/☆ score is hard to read in the banner. The kaiju art covers the right half of the table in shot-12.
-- **Free Play setup (shots 16-22):** OK for overlap. The pill bar reaches 12 to 15 px from the screen edge when labels get long (shot-19). A long double twist name could overflow.
-- **Twist picker (shot-18):** OK. Nothing is cut off. A few descriptions use a smaller font.
-- **Party Modes setup (shots 29, 30, 41):** OK, no overlap. The pills wrap to 2 rows. Cup state is invisible (not a layout problem, a content problem).
-- **Results (shots 27, 39):** Dense. "THIS MATCH" overlaps table art. The bottom awards line is tiny and nearly full-width. The buttons are not cut off.
-- **Pantry (shots 43, 44):** OK. Nothing overlaps or is cut off. Footer is small.
-- **Gallery (shots 46, 47):** OK, with problems. The swatches are small. The rewards ladder is icons only.
-- **Move Lab (shot-50):** OK. The bottom hint overlaps the table edge.
-- **Challenges popup (shot-52):** OK.
-- **Trials (shot-53):** OK. Uneven card widths and small text.
-- **Records (shot-54):** OK. Small pin hint and a bit of crowding in the bottom text.
-- **Settings (shot-55):** OK. Nothing overlaps. Every row reads well. The "Saved on this device" caption sits a few px from the bottom edge.
-- **Daily countdown (shot-56):** Problem. The DAILY intro text overlaps the spawn mats and kaiju.
-- **Not visited:** Online, Help, Workshop, Practice, Hot Dumpling gameplay, and the Phones-as-pads room.
+## 🔠 Text and layout check
+- **Title (shot-1):** OK. Pills small (#39), NEXT UP box dense (#38). No overlaps.
+- **Practice (shots 2-6):** banner overlaps the table corner (#26); keys shown (#4). No cut-offs.
+- **Pause menu (shot-6):** OK, big buttons.
+- **Story map + chapter card (shots 9, 11):** cramped bottom of chapter card (#8), tiny pills (#7, #9). Dialogue box (shot-11) OK.
+- **Cutscene (shot-10):** OK. Captions big, SKIP visible.
+- **Chapter clear (shot-12):** OK; SHARE button at corner (#18).
+- **Party Modes setup (shots 14-16):** no overlaps; wide pill row (#36); text on art (#37); Cup bug (#1-2).
+- **Twist picker (shot-17):** panel border behind pills (#11); tiny descriptions (#10).
+- **In match, turbo (shot-18):** TURBO label small (#13).
+- **Match end, Free Play (shot-20):** OK except SHARE/card placement (#18).
+- **Cup standings (shots 23, 24):** mascot over text (#16); long ticker (#14).
+- **Challenges modal (shot-26):** OK, small footers (#41).
+- **Gauntlet wave clear (shot-28):** perk text for card 3 nearly touches the card edge; mascot overlaps card 3's right edge slightly; keyboard hint (#5).
+- **Gauntlet over (shot-29):** OK.
+- **Gallery (shots 31-33):** dots small (#6), banner over roster (#28), hint small (#27).
+- **Pantry (shot-34):** OK. Readable, no overlap.
+- **Records (shots 35-36):** OK apart from #31, #32.
+- **Daily countdown (shot-37):** medals text hard to read on the cloth (#22).
+- **Settings (shot-39):** OK, small descriptions (#40).
+- **Workshop (shot-40):** tiny labels, tight buttons (#33).
+- **Not checked:** Help, Online, Spicy chapters, Dessert Course, Kid Mode.
 
 ## The single biggest structural problem
-For a phone-only player the core verb pair "fill belly then STOMP" depends on a single tap on the STOMP pad. In my run it never worked, and nothing on screen told me why. The hint says "BELLY FULL! TAP STOMP → KAIJU", but the tap silently did nothing. If this is a real touch bug, it breaks the central power moment for all phone players. If it is only a harness artifact, the team still needs an automated check and clear visual feedback (a press flash, a haptic and a sound) so the player can tell a tap registered.
+On a phone the game still behaves like a desktop game that was scaled down. The input is fully touch (that part is good), but the language is keyboard (SPACE / A, 1 / 2 / 3, KEYBOARD CONTROLS, PHONES AS PADS on a phone) and a lot of the secondary text is sized for a monitor. A phone player holds a 6-inch screen at arm's length, so text under about 14 css px is effectively invisible, and the game has many such lines (end-of-match ticker, twist descriptions, chapter pills, Gallery details, Workshop labels). There is no phone-specific text scale at all unless Kid Mode is switched on.
 
-The second structural problem is "invisible state" in the setup pills. The Cup, twist and bot level are all things a player has to guess, and a phone has no room for explanatory text. Every pill should state its state and every cycle should show a one-line explanation.
+The second thing capping my score is that the new Party Cup setup contradicts itself: the Cup banner says one thing while the MODE/ROUNDS pills (and subtitle) still act as if the Cup is off. For a host passing a phone around this is the screen where trust is won or lost.
 
-## Big change proposals (2–3, most important first)
-### Proposal 1: Guaranteed phone STOMP and tap feedback
-- **Problem it solves:** the STOMP tap did not work in my runs and gave no feedback.
-- **How it would work (detailed design):**
-  - Handle STOMP on `pointerdown` (not on release). Allow a 150 ms grace window so a tap that lands a frame before the belly fills still fires when it fills.
-  - Every pad button gets a 100 ms press flash, a tiny vibration (the RUMBLE setting) and a click sound.
-  - If STOMP is pressed with the belly not full, shake the button and show "belly 60/100".
-  - When STOMP is ready, pulse the button every 1.2 s and move the hint from the table to a caption just left of the STOMP pad.
-  - Add a debug overlay (`?touchdebug`) that shows the last pad event so QA can prove taps are received.
-- **Example moment:** the player's belly hits 100, STOMP pulses red, they tap it, and the screen flashes, the phone buzzes and KAIJU starts.
-- **Rewards / progression hooks:** none needed. This is core reliability.
-- **Risks and edge cases:** double fire on multi-touch; keep one-shot per press. Make sure a held STOMP does not repeat after KAIJU ends.
-- **Size:** S
-- **Score impact for me:** +0.8 (if the bug is real) to +0.3 (feedback only).
+## Big change proposals
 
-### Proposal 2: "Stateful pills" setup for phones
-- **Problem it solves:** hidden state (Cup, twist, bot level) and pill bars that grow to the screen edge.
-- **How it would work (detailed design):**
-  - Use a two-row pill dock with fixed order. Row 1 holds PLAYERS (JOIN, KAIJU, +BOT, −BOT, BOTS). Row 2 holds RULES (TABLE, ROUNDS, MODE, POWER-UPS, HAZARDS, TWIST, CUP) and PLAY, anchored bottom-right on every setup.
-  - Every pill shows its state with an on/off dot: "CUP ●", "HAZARDS ●". Pills with options show a short value: "TWIST: ⚡⚡ 2".
-  - Tapping BOTS, MODE or TWIST updates a single caption line above the dock. Examples: "BRUTAL: dodges, steals, uses every power" and "ICE RINK + TURBO: slippery and fast".
-  - If the dock would exceed the width, collapse to icon pills with a "MORE ▸" overflow.
-- **Example moment:** the player taps CUP and the dot turns green and the caption reads "Party Cup: 6 mini-games, points carry over". They tap BOTS and read what BRUTAL means.
-- **Rewards / progression hooks:** none, but it reduces wrong setups and quits.
-- **Risks and edge cases:** very long translated labels; test with Kid Mode's bigger text.
+### Proposal 1: Phone Text Scale + touch language pass
+- **Problem it solves:** tiny text and keyboard wording on phones (#3-#10, #13, #14, #27, #33, #34, #37).
+- **How it would work:** add one global "phone" layout flag (touch + short side under 600 px). When set: (a) minimum font 14 css px for any body or caption text, 11 px only for decorative labels; (b) all hints go through a `controlWord('throw')` helper that returns "THROW" on touch and "SPACE / A" on keyboard, so Practice, tips, Gauntlet perk cards ("Tap a perk"), and the setup legend are generated per input; (c) any line longer than ~60 characters is split into two lines or truncated with a tap-to-expand "i"; (d) text on art gets a dark rounded plate (50-70% black) behind it; (e) the end-of-match ticker becomes a rotating single line (3 s each).
+- **Example moment:** on the Gauntlet perk card I read "Tap a perk" and see three big cards with 16 px descriptions, instead of "1 / 2 / 3".
+- **Rewards / progression hooks:** none; this is readability.
+- **Risks and edge cases:** longer layouts could push buttons off screen on the 462 px height; test every screen at 1000x462 (including Kid Mode, which is already larger).
 - **Size:** M
-- **Score impact for me:** +0.6.
+- **Score impact for me:** +1.0
 
-### Proposal 3: Safe-zone captions (a "text lane" for phone matches)
-- **Problem it solves:** tips, daily info, belly hints and Move Lab text appear on the table and overlap mats, cups and the YOU marker.
-- **How it would work (detailed design):**
-  - Reserve a 36 px caption lane under the table (between the table edge and the screen bottom) and a hint slot beside the STOMP pad.
-  - Countdown tips, daily/mode info and Move Lab instructions go in the caption lane, on a dark pill, max two lines.
-  - The "BELLY FULL!" hint goes beside the STOMP pad, not at the player.
-  - Move "DRAG HERE TO MOVE" into a dark pill that fades after 5 s.
-- **Example moment:** the countdown shows "3 · Hot Dumpling: pass it on by touching a rival" in the lane under the table, so the mats and kaiju stay clear.
+### Proposal 2: One source of truth for setup (Cup, TRY IT, return paths)
+- **Problem it solves:** #1, #2, #3, #19, #20, #21.
+- **How it would work:** the setup screen keeps a single `setupState` per entry point (Free Play, Party, Cup, Challenges). The pills are generated from it and each pill has a `lockedBy` reason. With Cup on, MODE/ROUNDS are `lockedBy: "cup"`, drawn dim with a 🔒 and a toast on tap ("The Cup picks every mode: 6 games"). TRY IT saves a copy of the setup, plays, and restores it on return, going back to the screen it came from. Every match-end MENU button returns to the launching screen (title for Challenges, setup for Party, map for Story). The coin balance is read from one store and refreshed on each screen enter.
+- **Example moment:** I switch the Cup on, tap MODE by habit, and see "🔒 The Cup picks the modes" and the mode label does not change; I play a TRY IT twist and land back on my Cup setup with my seats still joined.
 - **Rewards / progression hooks:** none.
-- **Risks and edge cases:** Kid Mode's larger text needs the lane to scale. Landscape phones with short screens (360 px high) need the lane to share space with the table margin.
+- **Risks and edge cases:** saved seats and bot counts must survive; handle a player leaving during TRY IT; online lobbies must ignore it.
+- **Size:** M
+- **Score impact for me:** +0.7
+
+### Proposal 3: Thumb-first tap targets
+- **Problem it solves:** #6, #33, small pills and dots.
+- **How it would work:** all interactive items on touch get a min 44 css px hit-area, even if the art is smaller (invisible padding). Gallery colours become a 2-row grid (11 + 10) with 44 px dots; Workshop prop tiles get a name line at 12 px; UNDO and CLEAR get a 12 px gap; the title's top pills become icons with a caption below.
+- **Example moment:** I pick the 17th colour without hitting its neighbour.
+- **Risks and edge cases:** denser grids need scrolling; keep the selection ring clear.
 - **Size:** S-M
-- **Score impact for me:** +0.4.
+- **Score impact for me:** +0.4
 
 ## How this round's new features felt
-- **Fairness (1.4 s grace, round-end banner):** the banner "You went out at 4s: a KAIJU stomp (TOASTBAT)" was great. I never had to guess how I lost. I did not feel the 1.4 s grace, because under KAIJU FRENZY I was squashed in about 4 s. The Daily countdown does name its rivals' levels ("normal, easy, easy"), but the text sits over the mats (shot-56). The Free Play bot-level explanation is **not** on the phone setup (issue 4). I could not test the Giant Hand dodge.
-- **Feedback (toasts, orders, two-tap buys):** the 🏆 First Bite toast showed top right and did not hit the pad (shot-12). I did not trigger a NEW KAIJU toast. Pantry orders show "Each one pays 40". The two-tap buy works and states the price (shot-44). I did not try buying with too few tokens.
-- **New-save locks:** the Gallery unlock hints are clear (shot-47), and the "NEXT UP" box on the title gives a goal. After one story win I had 14/20 kaiju, so progression felt quick. The Story map, in contrast, stays dark and locked, so it could make the next goal clearer.
-- **Story comic panels / PHASE 2:** not reached (I only played ch1).
-- **Phones as pads:** I could not find the button on the phone layout. The brief says it is the last Party button, but the phone shows "CUP ON/OFF" and "PLAY" there instead (shot-29).
-- **Gallery reach/cooldown + Mastery ladder:** present ("reach 207 · every 1.6 s", plus the ✔/🔒 ladder with ✨ Shiny and the SHINY button "300 🪙 · needs Lv 3"), but small for a phone.
-- **Fixes from last round:** double twists are kept after a match (confirmed). The phone TWIST button opens the picker (confirmed). Kid Mode, quit-confirmation and Practice SWIPE were not tested. Team Feast grouped results were not tested (I played Cup game 1, a classic-style match). Pop-ups never exceeded 3.
-- **Text and layout:** on phone the layouts are in good shape. The main problems are overlay text on the table (tips, Daily, hints) and tiny captions on a few menus. See the check above.
+1. **🦖 KAIJU warning:** works and is easy to read. The red reach ring and the growing sprite are obvious on a phone (shot-4). I could not time a real squash because the harness freezes the game, but the ring is large enough to dodge visually. The bot 1.8 s wait was not measurable. Positive.
+2. **🏁 Gauntlet:** waves 1 and 2 were one rival each (NORMAL), no twist; the "Next: wave 2 · 1 rival (NORMAL) · ❤❤" preview after a clear is excellent and readable (shot-28). Heart count shown in the header ("GAUNTLET ❤❤ WAVE 2"). I lost 2 hearts across 2 waves to single rivals, which feels fair but not gentle. Perk pick is nice; fix the keyboard wording.
+3. **🎟 Chef's Pass:** the progress line "CHEF'S PASS: 0/12 Trial ★ or Gauntlet wave 0/8 → opens 🌶️ Spicy on any reached chapter + the 🍰 Dessert Course early" is clear but tiny on the Challenges card (shot-26). It also shows on the Story pills, which is good. Not unlocked this session (best wave 1/8).
+4. **🏆 Party Cup:** standings with per-game points and the next-mode line are very good (shots 23, 24). However, the setup does not grey out MODE / FIRST TO as promised (shot-16, bug #1), and the standings "Points per game" line still mentions Team Feast in non-team games. The mode's own score does place you (my 7 crumbs in Crumb Rush earned 3rd place, +2); this reads correctly. The tied standings had no tie-break wording.
+5. **🧸 Kid Mode:** not tested this round; Settings describes "bigger text" (shot-39). As a phone player I would want that as a "BIG TEXT" setting without the easy bots.
+6. **📖 Gallery:** 🪙 balance in the header is there; buying a Shiny shows the banner and a ✔ state (shot-33); tapping a locked colour shows the requirement (shot-32) but the text is small and the selected lock barely stands out. Coin total then disagrees with Pantry/Records (#21).
+7. **🏅 Records:** pinning "Too Hot to Handle" changed the footer to "📌 Pinned: Too Hot to Handle (20%) — Win 5 matches in a row" (shot-36). Works.
+8. **🎓 First-timer:** "▼ YOU" shows over my kaiju during play and on the setup card. Practice shows current step with keys and the next one, but keys are keyboard keys (#4); step order is loose (#25). Quick taps via the harness were not reliable, so I cannot judge that.
+9. **⚡ Twist picker / TRY IT:** the picker is a good idea and fast to use (2 taps to a match, shot-17/18), but its text is small, the panel overlaps the setup pills, and returning from it overwrote the Free Play setup (#3, #11).
+10. **🛠 Workshop:** picking a prop explains it ("CUP: a solid medium block. Cutlery and kaiju bounce off it, so it's cover from throws · tap the table to place it...", shot-40). Clear and useful. I did not cycle the hazard.
+11. **📅 Daily:** the countdown card lists "Medals: 🥉 play +10 🪙 · 🥈 win +20 🪙 · 🥇 win without losing a round +40" (shot-37). It is hard to read on the cloth and does not mark which are open (#22, #24).
+12. **Text and layout:** no hard overlaps of two buttons found, no cut-off text at the screen edge. The recurring problems are small text and text on busy art (see table).
 
 ## Bugs that block play
-- None blocked play outright, and `/errors` stayed "none".
-- **Possible blocker for real phone play:** the on-screen STOMP tap never started KAIJU in this harness (issue 1). Please verify on a real device. If the tap does not register there either, a phone player can never use KAIJU mode.
+- None found that stop a full session. `/errors` returned "none" at the start, middle (after Cup) and end (after Workshop).
+- Not blocking but worth knowing: with 🏆 CUP: ON the MODE and ROUNDS pills still change (#1); and TRY IT overwrites the Free Play setup (#3).
+- Harness limit (not counted as a game bug): STOMP, hold-THROW and SWIPE via `/tap` did not register in frozen time; `/act` actions did.

@@ -4,8 +4,8 @@ import type * as Phaser from 'phaser';
 import { getSettings } from '../settings';
 
 /** 🧸 Kid Mode: small body text grows (EASY TO CUSTOMISE: KID_MIN is the smallest body size in Kid Mode). */
-export const KID_MIN = 16;
-const kidSize = (size: number): number => (size < KID_MIN && getSettings().kidMode ? Math.min(KID_MIN, size + 3) : size);
+export const KID_MIN = 18;
+const kidSize = (size: number): number => (size < KID_MIN && getSettings().kidMode ? Math.min(KID_MIN, size + 5) : size);
 
 export const DISPLAY = '"Luckiest Guy", "Arial Black", Impact, sans-serif';
 export const BODY = 'Nunito, "Segoe UI", Arial, sans-serif';

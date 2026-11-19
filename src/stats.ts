@@ -79,7 +79,7 @@ export const ACHIEVEMENTS: Achievement[] = [
   { id: 'dessert', icon: '🍰', name: 'Clean Plate', desc: 'Finish the whole Dessert Course', test: () => { try { return Number(localStorage.getItem('kk-dessert-v1') ?? 0) >= 4; } catch { return false; } } },
   { id: 'cup', icon: '🏆', name: 'Cup Champion', desc: 'Win a Party Cup', test: s => (s.cups ?? 0) >= 1 },
   { id: 'blend', icon: '🥤', name: 'Smoothie Operator', desc: 'Shove a rival into the blender', test: s => (s.blends ?? 0) >= 1 },
-  { id: 'workshop', icon: '🛠', name: 'Table Maker', desc: 'Save a table in the Workshop', test: () => { try { return JSON.parse(localStorage.getItem('kk-custom-tables') ?? '[]').length > 0; } catch { return false; } } },
+  { id: 'workshop', icon: '🛠', name: 'Table Maker', desc: 'Save a Workshop table with at least one prop', test: () => { try { return JSON.parse(localStorage.getItem('kk-custom-tables') ?? '[]').some((t: { props?: unknown[] }) => (t.props?.length ?? 0) > 0); } catch { return false; } } },
   { id: 'twist', icon: '🌀', name: 'Plot Twist', desc: 'Win a match with a twist on', test: s => (s.twistWins ?? 0) >= 1 },
   { id: 'seconds-3', icon: '🍨', name: 'Room for More', desc: 'Clear chapter 3 of Second Helpings', test: () => safeSeconds() >= 3, progress: () => [safeSeconds(), 3] },
   { id: 'seconds-6', icon: '🥞', name: 'Second Helpings', desc: 'Finish the Second Helpings story', test: () => safeSeconds() >= 6, progress: () => [safeSeconds(), 6] },

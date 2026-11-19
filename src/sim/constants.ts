@@ -52,7 +52,7 @@ export const RULES = {
   handWidth: 170,
   handInterval: [8, 12] as [number, number],
   suddenDeathAt: 45,
-  spawnShield: 1.0, // seconds everyone is safe when a round starts
+  spawnShield: 1.4, // seconds everyone is safe when a round starts
   parrySpeed: 1.15, // a parried throw flies back this much faster
   maxRoundsPer: 2.4, // a match ends after target × this many rounds (leader wins), so 6-player matches don't drag on
   frenzyFill: 7,

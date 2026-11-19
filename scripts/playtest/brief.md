@@ -1,4 +1,4 @@
-# Playtest brief (round 9): read this fully before playing
+# Playtest brief (round 10): read this fully before playing
 
 You are an AI playtester for **Kitchen Kaiju**, a couch party brawler. Food kaiju throw cutlery, shove each other off a table,
 eat crumbs to fill their belly, then STOMP to go giant (KAIJU mode, with a per-kaiju power).
@@ -20,33 +20,29 @@ You play the REAL built game through a local HTTP harness. The game is frozen be
 - **Budget: 90–130 harness commands.** Play like your profile would, but cover a lot: this is the most thorough round yet.
 - Do NOT edit any game files and do NOT stop or restart the server. Only write your report file.
 
-## New since the last round (round 9: judge these in depth where your profile would touch them)
-1. **Fairness:**
-   - Bots don't attack for the first 1.4 s of a round.
-   - The round-end banner says how and when YOU went out.
-   - Free Play setup explains each BOT LEVEL.
-   - The Daily countdown names its rivals' levels.
-   - Daily bots are gentler.
-   - Story ch3 is gentler.
-   - A KAIJU can't be flicked by the Giant Hand. DASH as the hand arrives to dodge it.
-2. **Feedback:**
-   - 🏆 Achievement toasts (top right) after matches.
-   - 🎁 NEW KAIJU / NEW TABLE toasts.
-   - Pantry orders show their payout.
-   - SHINY and Pantry buys ask for a second tap, show a price, and say why they're refused.
-3. **🌱 New saves start with 4 kaiju and 2 tables locked** behind early goals (win 1, play 3, clear ch2, win 5, clear ch3, play 8). You're a new save, so judge whether this feels good.
-4. **🗯 Story comic panels** after the ch4 and ch8 bosses (and Second Helpings ch4). Also a big PHASE 2 banner, and Kid Mode gives calm starts in Story.
-5. **📱 PHONES AS PADS** (Party Modes setup, last button): opens a couch room with a big QR code so phones become controllers. The 🏆 PARTY CUP switch is ON/OFF.
-6. **Gallery:** each power shows its reach and cooldown, and a full Mastery reward ladder (✔/🔒) including ✨Shiny.
-7. **Fixes from last round:**
-   - The quit confirmation resets when you resume.
-   - Double twists are kept after a match.
-   - Kid Mode bots are always easy.
-   - The Practice SWIPE step works.
-   - The phone TWIST button opens the picker.
-   - At most 3 pop-ups on screen at once.
-   - Team Feast results are grouped by team.
-8. **Text and layout:** audited on desktop AND phone again. **Prove us wrong:** report any overlap, cut-off text or stacked buttons with the screenshot path.
+## New since the last round (round 10: judge these in depth where your profile would touch them)
+1. **🦖 KAIJU warning:** a kaiju that just went KAIJU grows for 0.5 s. A pulsing red ring shows its reach, and it can't squash until the ring fills. Bots also wait 1.8 s before attacking each round.
+2. **🏁 Gauntlet:** the first 8 waves ramp gently (one more bot or one level at a time). Twists start at wave 7. A cleared wave previews the next one.
+3. **🎟 Chef's Pass:** 12 Trial ★ OR reaching Gauntlet wave 8 opens 🌶️ Spicy on any reached chapter and the 🍰 Dessert Course early. Progress shows in CHALLENGES and Trials.
+4. **🏆 Party Cup:**
+   - Places now count the mode's own score (crumbs HELD, spoon seconds) before KOs.
+   - Standings show points per game (G1 +5, G2 +0 …), a points-table line and how the mode places you.
+   - With the Cup ON, setup greys out MODE / FIRST TO.
+5. **🧸 Kid Mode:** genuinely bigger text everywhere.
+6. **📖 Gallery:**
+   - 🪙 balance in the header.
+   - Buying a Shiny shows a banner and sparkles.
+   - Tapping a locked colour highlights how to earn it.
+7. **🏅 Records:** the footer follows your 📌 pinned achievement.
+8. **🎓 First-timer:**
+   - Your seat says 👤 YOU.
+   - Practice shows the current step with its keys, plus the next one.
+   - Table counts agree everywhere.
+   - Quick key taps never get lost.
+9. **⚡ Twist picker:** switch on 🧪 TRY IT, then tap a twist for 1 quick round vs an EASY bot.
+10. **🛠 Workshop:** picking a prop or cycling the hazard explains what it does.
+11. **📅 Daily:** shows which medals are still open today and what they pay.
+12. **Text and layout:** audited on desktop, phone AND Kid Mode. **Prove us wrong:** report any overlap, cut-off text or stacked buttons with the screenshot path.
 
 ## What we want from you: EXTREME, SPECIFIC feedback aimed at 9/10
 The goal is **9/10 from every profile**. Your report must make it obvious exactly what stands between the game and a 9 for you.

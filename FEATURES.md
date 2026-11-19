@@ -1001,3 +1001,28 @@ From the 10 Sonnet playtester reports in `playtest-reports/`.
 - **⚡ Twist TRY IT:** in the twist picker, switch on 🧪 TRY IT and tap a twist for 1 quick round against an EASY bot.
 - **🛠 Workshop:** picking a prop says what it does (size and cover, or bumper kick), and cycling the hazard explains it (`HAZARD_INFO`, `propInfo` in `src/custom.ts`).
 - **📅 Daily:** the countdown and result show the medals still open today, with their 🪙 (🥉 play · 🥈 win · 🥇 win without losing a round).
+
+## 73. Round 10 fixes
+The full list is in `playtest-reports/round10/SUMMARY.md` ("Fixed straight after round 10"). Key points:
+- **TRY IT** (`GameData.tryout`): holds the menu setup to return to; the match counts for nothing.
+- **Gallery:** `build()` resets `shown` and `detail`; the shiny tag is drawn after the reset; `shinyBlock()` in `src/meta.ts`.
+- **Receipt:** achievements and unlocks go through `achEarned` + `mergeAch()`, so they land on the right match's receipt.
+- **Gauntlet:**
+  - `startBest` is carried between waves.
+  - `GAUNTLET.bossHeart`.
+  - `checkpointWave()` for NEW RUN.
+- **Daily:** `TitleScene.dailyCard()` preview.
+- **Cup:**
+  - MODE and FIRST TO are locked while the Cup is ON.
+  - `cupRules(teams)`.
+  - No winner art or long receipt between games.
+- **Kid Mode:** `KID_MIN` 18.
+- **Rules:**
+  - `RULES.spawnShield` 1.4.
+  - Story ch0–2 calm start.
+  - The Hand warns every time.
+- **Move Lab:** the dummy is placed close by, and KAIJU is held.
+- **Practice:** `touch` wording per step.
+- **Records:** `PAGES` and `PER` even paging.
+- **Pantry:** `disarm()`.
+- **Lobby:** takes `powerups` / `hazards` / `mutator`; a couch room can start with bots.

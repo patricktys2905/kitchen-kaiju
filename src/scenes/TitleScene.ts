@@ -15,8 +15,11 @@ import { playMusic } from '../music';
 import { GAUNTLET, gauntletBest } from '../gauntlet';
 import { totalTrialStars, TRIALS } from '../trials';
 import { chefsPass, chefsPassText } from '../challengePass';
-import { stepsDone } from '../meta';
-import { dailySetup, loadDaily, todayKey } from '../daily';
+import { dailyMedalLine, stepsDone } from '../meta';
+import { getSettings } from '../settings';
+import { SPECIES } from '../sim/constants';
+import { LAYOUTS } from '../sim/layouts';
+import { DAILY, dailySetup, loadDaily, todayKey } from '../daily';
 import { modeDef } from '../sim/modes';
 import { GameScene } from './GameScene';
 import { owned } from '../story/unlocks';
@@ -69,13 +72,13 @@ export class TitleScene extends Phaser.Scene {
 
     const save = loadStory();
     const storySub = secondsUnlocked() ? `Ch ${Math.min(save.unlocked, CHAPTERS.length)}/${CHAPTERS.length} · 🍽 Seconds open!` : save.stars.some(s => s) ? `Ch ${Math.min(save.unlocked, CHAPTERS.length)}/${CHAPTERS.length} · ★ ${totalStars(save)}` : `${CHAPTERS.length} chapters`;
-    const go = (key: string, data: object = {}) => { if (key === 'challenges') { this.challenges(save.pick); return; } sfx.go(); this.time.delayedCall(80, () => this.scene.start(key, data)); };
+    const go = (key: string, data: object = {}) => { if (key === 'challenges') { this.challenges(save.pick); return; } if (key === 'daily') { this.dailyCard(); return; } sfx.go(); this.time.delayedCall(80, () => this.scene.start(key, data)); };
     const MODES: { label: string; sub: string; accent: number; scene?: string; disabled?: boolean; data?: object }[] = [
       { label: 'STORY', sub: storySub, accent: 0xff9a3c, scene: 'story' },
       { label: 'FREE PLAY', sub: 'Up to 6 · bots', accent: 0x4fd1ff, scene: 'menu' },
       { label: 'ONLINE', sub: 'Play with friends', accent: 0x8dff6a, scene: 'lobby' },
       { label: 'PARTY MODES', sub: '5 party games', accent: 0xffd24a, scene: 'menu', data: { mode: 'teams', party: true } },
-      { label: 'DAILY', sub: dailySub(), accent: 0x8dff6a, scene: 'game', data: GameScene.dailyData() },
+      { label: 'DAILY', sub: dailySub(), accent: 0x8dff6a, scene: 'daily' }, // 📅 opens a preview card first
       { label: 'CHALLENGES', sub: `Gauntlet${gauntletBest() ? ` (best ${gauntletBest()})` : ''} · 🎯 Trials ${totalTrialStars()}★`, accent: 0xff5a7a, scene: 'challenges' },
     ];
     const n = MODES.length, cw = Math.min(290, (1240 - (n - 1) * 14) / n);
@@ -102,6 +105,29 @@ export class TitleScene extends Phaser.Scene {
 
     // ?demo=N skips straight into a bot match (attract mode / tests)
     if (Number(new URLSearchParams(location.search).get('demo') ?? 0) >= 2 && !this.registry.get('demoStarted')) this.scene.start('menu');
+  }
+
+  /** 📅 DAILY preview: what today's match is, what the medals pay, then START or close. */
+  private dailyCard(): void {
+    if (this.challengeUi.length) { this.challenges(0); return; } // (shares the overlay list; closing works the same)
+    sfx.pickup();
+    const d = dailySetup(), md = modeDef(d.mode), rec = loadDaily(), kid = getSettings().kidMode;
+    const g = this.add.graphics().setDepth(30);
+    g.fillStyle(0x000000, 0.6).fillRect(0, 0, 1280, 720).fillStyle(0x140b05, 1).fillRoundedRect(240, 140, 800, 440, 22).lineStyle(3, 0x8dff6a, 1).strokeRoundedRect(240, 140, 800, 440, 22);
+    const t = withShadow(this.add.text(640, 178, '📅 DAILY CHALLENGE', display(34, '#8dff6a', { strokeThickness: 6 })).setOrigin(0.5).setDepth(31), 3);
+    const lines = [
+      `Today: ${md.name}: ${md.blurb}`,
+      `You play ${SPECIES[d.you].name} vs ${d.rivals.map((r, k) => `${SPECIES[r].name} (${kid ? 'easy' : DAILY.levels[k] ?? 'easy'})`).join(', ')}`,
+      `Table: ${LAYOUTS[d.table].name} · first to ${DAILY.rounds} rounds · the same match for everyone today`,
+      dailyMedalLine(d.date),
+      rec.date === d.date ? `Today so far: ${rec.won ? 'won ✔' : 'not won yet'} · tries ${rec.tries} · win streak ${rec.streak} 🔥` : `Win streak: ${rec.streak} 🔥 (win today to keep it)`,
+    ];
+    const info = this.add.text(640, 238, lines.join('\n\n'), body(16, '#f1e4d2', 800, { align: 'center', wordWrap: { width: 720 }, lineSpacing: 2 })).setOrigin(0.5, 0).setDepth(31);
+    this.challengeUi.push(g, t, info);
+    this.challengeUi.push(this.add.zone(640, 360, 1280, 720).setInteractive().setDepth(30)); // swallows clicks behind the card
+    const start = new Button(this, 540, 528, { w: 220, h: 60, label: '▶ START', size: 24, accent: 0x8dff6a, onClick: () => { sfx.go(); this.scene.start('game', GameScene.dailyData()); } }, 31);
+    const back = new Button(this, 760, 528, { w: 180, h: 60, label: '✖ BACK', size: 22, onClick: () => this.challenges(0) }, 31);
+    this.challengeUi.push(start, back); this.extraBtns.push(start, back);
   }
 
   /** 🏁 CHALLENGES: start the Gauntlet (from any course you've reached = checkpoints) or open the Trials. */

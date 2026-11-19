@@ -1,189 +1,170 @@
-# Playtest evaluation — The 9-Year-Old (profile "kid", port 7109, KID MODE ON)
+# Playtest evaluation: The 9-Year-Old (profile "kid", Kid Mode ON)
 
-**Fun score: 7.5 / 10** (the monsters, the sloth, the giant hand and the "NEW KAIJU!" pop-ups are great and I never got stuck losing, but there is still way too much small text, the Practice SWIPE step would not complete, and there are a few overlaps.)
+**Fun score: 7.0 / 10** (the matches, the sloth/salmon/strawberry cast and the big reward moments are properly fun, but Help, Pantry, Records, setup pills and the pre-match banners are still walls of small text, and one Gauntlet screen has overlapping UI)
 
-> Bar this round is 9/10 from every profile. Screenshot paths are relative to `C:\Users\Pat\kitchen-kaiju\` (folder `art-src\.playtest\r9-7109\`, files `shot-N.png`).
+> Screenshots are in `C:\Users\Pat\kitchen-kaiju\art-src\.playtest\r10-7109\` as `shot-N.png` (referred to below as shot-N).
 
 ## What I did
-- About 115 harness commands, roughly 40 minutes of game time. Turned **KID MODE: ON** in Settings first (shot-3), then checked the title (shot-4).
-- **Title**: read NEXT UP and the 1-minute Practice. Played Practice steps 1-4 of 8. It stuck at step 4 "SWIPE up close F / X / SWIPE" and would not advance (I pressed F, X, got close, used attack, tried 6 loops). Quit via Pause > QUIT (shot-8).
-- **Story**: skipped the Opening cutscene (shot-9/10), played **ch1** (won, 3 stars), **ch2** (won, 2 stars, got SLOBA), **ch3** (won, 1 star, got the Smoothie Bar table), **ch4 Boss of the Belt** (lost twice, used HELPING HAND once, won on try 3, got MINTURTLE), saw the **ch5** intro cutscene (shot-28). I never saw the ch4 comic panel (see "new features").
-- **Free Play**: 3 seats (me + 2 bots), bot level cycled to HARD with Kid Mode on, played a full match via act and one via /autoplay (won, 10 KOs). Saw the results screen and an achievement toast.
-- **Party Modes**: Team Feast setup, PHONES AS PADS (QR room), CRUMB RUSH, HOT DUMPLING (played ~9 seconds, saw the Giant Hand).
-- **Daily**: played via autoplay and lost (countdown named the rivals "easy, easy, easy").
-- **Gauntlet** Starters wave 1 (started, quit). **Challenges** panel.
-- **Gallery** (Gobzilla page, SHINY two-tap buy, MOVE LAB with STOMP + power), **Records**, **Pantry** (two-tap buy of Toffee colour, the "need 68 more" refusal), **How to Play**, **Table Workshop** (placed 5 props, PLAY IT).
-- `/errors` checked at start, middle and end: always `none`.
+About 105 harness commands, about 25 minutes of game time, 12 matches played by hand plus one 5-match /autoplay.
+- Title, then Settings: switched KID MODE ON (shot-2).
+- 1-minute Practice (all 8 steps; 2 skipped by the harness flow, the tutorial then offered FIRST MATCH).
+- First Match vs EASY bot (won 3-1), then Free Play setup screen, then the Twist picker with TRY IT ON, BOOMERANGS (lost the 1-round quick test).
+- Story: opening cutscene (skipped), Chapter 1 (3 stars) with pre-chapter cutscene and Head Chef dialogue, Chapter 2 (3 stars), unlocked SLOBA (NEW KAIJU screen, shot-18). Ch 3 was not played.
+- Gallery: opened, Move Lab (Seed Spray), tapped a locked colour, tapped a locked kaiju.
+- Pantry: bought Toffee colour (two-tap confirm).
+- Records: pinned an achievement.
+- Daily (Hot Dumpling): won with Silver medal after 3 lost rounds.
+- Party Modes: set Party Cup ON, 3 players, played Game 1/6 (lost, 3rd), saw standings; /autoplay of 5 matches after.
+- Challenges: Gauntlet Starters waves 1-3 (lost 1 life on wave 3), perk picker; Chef's Pass line seen.
+- Workshop: placed a prop, cycled hazard. Help (How to Play, Basics tab).
+- /errors checked at start, middle and end: none.
 
 ## What worked for me
-- **The monsters are the star.** Sloba the sloth on a boba straw (shot-18) and the NEW KAIJU / NEW TABLE pop-ups made me want to keep going. Winning ch2 and getting a pop-up with a picture is the best moment in the whole game.
-- **Kid-Mode cutscenes are the right length.** One-liners like "Not invited." over a confetti cake (shot-28) are funny and instant.
-- **Kid Mode bots are really gentle**, even when the setup screen said HARD I still won 5-1 and 10 KOs. The helpful HELPING HAND on the DEFEATED screen (belly starts at 100) is a lovely idea.
-- **Revenge popups** like "REVENGE IS SWEET!" and "HOT SAUCE!" are funny and big (shot-35, shot-34).
-- **Hot Dumpling + the Giant Hand** is silly and obvious (shot-41). "PIZZARAPTOR HAS THE HOT DUMPLING" is huge and readable.
-- **Pantry two-tap buy** works and tells me why: "tap again to buy for 40" and "need 68 more" (shot-48/49). Weekly orders show "+40 paid".
-- **Table Workshop** is simple and has big pictures, I could use it without reading (shot-57).
-- **Achievement toast** "Forked Up! +30" and "Crumb Muncher! +30" showed top right (shot-36/52) and did not block the action.
-- **Unlock pacing**: ch1 > ch2 gave a new kaiju in about 5 minutes. That feels good.
+- The cast is the hook: strawberry-lizard, jelly squid, pizza raptor, sloth on a bubble-tea straw, salmon. The NEW KAIJU screen for SLOBA (shot-18) is a proper "wow" moment.
+- "Chapter Clear" with 3 big stars, a talking Crabbage and "Chef's kiss" (shot-17) is exactly the right tone for a 9-year-old.
+- Matches are short (rounds end in 5-15 s), which suits a short attention span. Rematch/Continue buttons are big and obvious.
+- Kid Mode Story is genuinely easy: both chapters were 3-star first try.
+- Seat marker "YOU" appears in Free Play (shot-9) and the "▼ YOU" marker over my kaiju at round start.
+- Pantry two-tap buy ("tap again to buy for 40", shot-24) stops accidental spending.
+- Locked colour tap says exactly how to earn it: "Ocean: Regular Diner: Win 10 matches (3/10)" (shot-22).
+- Pinned achievement now shows in the post-match box ("Regular Diner: 4/10") and on the title NEXT UP box. Daily result shows which medal is still open ("still open: 🥇 win without losing a round +40").
+- Practice bottom bar names the current step with its keys and the next step (shot-4, shot-5).
+- Gauntlet ramp is gentle: wave 1 one EASY rival, wave 2 one NORMAL, wave 3 two rivals and 4 hearts; the "Next: ..." preview at wave clear is clear (shot-41).
+- Move Lab is a fun toybox: "STOMP to go KAIJU, then THROW / SWIPE for Seed Spray" (shot-21).
 
 ## 🧾 Exactly what would make this a 9/10 for me
-1. **Make Kid Mode text actually bigger and shorter everywhere** (+0.6)
-   - **what**: Settings says "bigger text" but Help, Records, Pantry, Gallery, the pre-match tips and the results "THIS MATCH" panel are all the same ~13-15 px text as without Kid Mode. A 9-year-old on a couch TV cannot read them.
-   - **where**: Help (shot-50), Records right-hand footer (shot-47), Pantry left panel (shot-48), Gallery "Rewards" line and power text (shot-42), results panel (shot-36/52), bottom tip line in matches.
-   - **how**: In Kid Mode, minimum body text 20 px on a 1280x720 canvas, max 2 lines per description, and replace the paragraph-style text with icons + 3-5 words. Help in Kid Mode becomes 5 picture cards (THROW, SWIPE, DASH, STOMP, KAIJU) with 1 line each.
-2. **Fix the Practice SWIPE step so it can be finished** (+0.5)
-   - **what**: Practice stuck at "4/8 SWIPE up close F / X / SWIPE" for me. Practice is the only guided thing for a new kid and "NEXT UP: Finish Practice" stays on the title forever (FIRST SERVICE shows 5/6 with Practice as the missing step).
-   - **how**: Accept a swipe when the rival is within ~120 px OR when the swipe animation plays at all. Show a green arrow pointing to the nearest rival. If a step is not done after 20 s, show "SKIP THIS STEP" button.
-3. **Make the results panel short and non-overlapping in Kid Mode** (+0.5)
-   - **what**: the "THIS MATCH" box lists up to 8 lines (tokens, mastery, 2-3 orders, achievement, colour, "Knocked out by: dumpling pop x3, fell off x2, a KAIJU") and overlaps the left edge of the standings box (shot-52) and the table art (shot-36).
-   - **how**: Kid Mode shows only 3 big icon rows: 🪙 +221, ⭐ new thing unlocked, 🎁 order done. Everything else goes behind a "MORE" button. Rename "1 / START rematch · Esc menu" to two big buttons: "AGAIN!" and "MENU".
-4. **Fix the overlap on the Chapter Clear card** (+0.2)
-   - **what**: "🏆 Leftovers Cleared!" is drawn on top of "✅ Chapter 4 unlocked: Boss of the Belt..." (shot-21).
-   - **how**: stack with 14 px spacing, or move the achievement line into a toast.
-5. **Stop truncating chat mid-sentence in Kid Mode** (+0.3)
-   - **what**: Opening dialogue shows "Tonight the Head Chef hosts the GRAND FEAST. Rule every table in the kitchen, and the legendary GOLDEN SPOON" and ends with no verb (shot-12). The in-chapter cutscene line is just "Crab" (ch1) and "Two's" (ch2, truncated from "Two's company..."?).
-   - **how**: Author a real 1-line version for every cutscene and dialogue in Kid Mode ("Rule every table. Win the GOLDEN SPOON!") instead of cutting the long text at N characters.
-6. **Soften "DEFEATED" and "DAILY CHALLENGE FAILED" for kids** (+0.3)
-   - **what**: big red DEFEATED / FAILED after a loss (shot-24, shot-52). Kid Mode already says "Tough one! Every rival can be beaten", but the title word is still harsh.
-   - **how**: Kid Mode headings: "SO CLOSE!" / "TRY AGAIN!" / "DAILY: NOT YET". Keep the HELPING HAND button but add one line under it: "Start with a full belly".
-7. **Say what the bot level really is in Kid Mode** (+0.2)
-   - **what**: In Kid Mode the Free Play button cycles EASY > NORMAL > TOUGH > HARD and the line says "HARD: leads its throws, dodges and parries" (shot-31), but the bots behave easy. It is confusing and a bit of a lie.
-   - **how**: In Kid Mode lock the button to "EASY (Kid Mode)" with a tap hint "Turn Kid Mode off in Settings for harder bots".
-8. **Explain unlock goals as pictures on the title** (+0.2)
-   - **what**: NEXT UP box on the title is 3 lines of 13 px text, and the third line is clipped on the title screen ("Win a match → 🎨 Lime c..." in /look, fine in shot-4 but tiny).
-   - **how**: show 3 big icon cards ("1 win = 🎨", "ch2 = 🐉") with a progress bar, in Kid Mode.
-9. **Unify "Chef" titles** (+0.1)
-   - **what**: Records says "Chef Rank: Prep Cook" while Gobzilla shows "Mastery Lv 4 Head Chef" and the match panel says "Mastery Lv 1 Rookie". Three ranking ladders, two with chef names. A kid cannot tell which matters.
-   - **how**: call the account one "CHEF RANK" and the per-kaiju one "BUDDY LEVEL", with different icons.
-10. **Gallery rewards row needs words or bigger icons** (+0.1)
-    - **what**: "Rewards: ✔✨ ✔⭐ ✔🪙 🔒🖼 🔒👑 🔒✨" is tiny and cryptic (shot-42). Also the button says "SHINY - 300 🪙 · needs Lv 3" when I am Lv 4, so "needs Lv 3" reads as a problem until you tap.
-    - **how**: show the ladder as 6 big badges with a label under each ("Lv 2: ⭐ star"), and show "READY!" in green when affordable.
+1. **Make Kid Mode text bigger EVERYWHERE, with a minimum font size (about 18 px at 1280x720).** Where: Help (shot-44), Pantry left panel (shot-24), Records achievement descriptions (shot-26), Gallery detail panel (shot-19), Party/Free Play pill buttons (shot-31), Twist picker subtitles (shot-10), Workshop hint line (shot-43), Settings sub-lines (shot-2). Behaviour: in Kid Mode, nothing under 16 px, body text 18-20 px, and long sentences get split into 1-line chunks or icons. Score impact: +0.6.
+2. **Fix the Gauntlet perk screen overlap.** Where: Gauntlet wave-clear (shot-41). The perk card "1 Mustard Coat" sits on top of the "THIS MATCH" reward box, hiding half of its text; the card row also sits across the kaiju. Behaviour: when perk cards show, hide the THIS MATCH box (or slide it to a tab), and keep cards inside the table area. Score impact: +0.2.
+3. **Replace the Help wall of text with a picture-first How to Play for Kid Mode.** Where: Help / Basics (shot-44): 11 lines of 12 px text. Behaviour: 6 icon cards (THROW, SWIPE, DASH, STOMP, EAT CRUMBS, DON'T FALL) each with a 2-second looping animation and at most 6 words; the key list hidden behind a "KEYS" button. Score impact: +0.5.
+4. **Shorten the pre-round banner.** Where: every countdown (shot-28 Daily is worst: 5 lines incl. "Medals: ... play +10, win +20, win without losing a round +40"). Behaviour: Kid Mode shows the round title plus ONE line, and puts the rules in a "?" or in a pause screen. Daily medals are shown on the Daily card, not over the countdown. Score impact: +0.3.
+5. **Stop kids losing rounds to KAIJU squashes they cannot read.** Where: Party Cup Game 1 (shot-36 then the squash that took me out), Free Play round 3 (SQUIDGEON went KAIJU and "flicked" me at 9 s). Behaviour: in Kid Mode, bots must wait longer (3 s, not 1.8 s) and the red ring should be a big filled circle with a "MOVE!" arrow for the player's kaiju when the ring is near me. Score impact: +0.4.
+6. **Make EASY bots in Daily/Party actually EASY.** In the Hot Dumpling Daily "easy, easy, easy" SLOBA scored 5 KOs and I dropped 3 of 6 rounds (shot-29, shot-30). Kid Mode says "Easy bots everywhere" but it did not feel like it. Behaviour: Kid Mode caps bot level at EASY-minus (slower throws, misses 50%), and bot KAIJU only after round 2. Score impact: +0.3.
+7. **Add "YOU" to every results list and every HUD.** Free Play says "GOBZILLA (YOU)", Daily says "SALMONSTER (YOU)", but the Party Cup standings (shot-37) say plain "GOBZILLA". Hot Dumpling gameplay (shot-29) has no "▼ YOU" marker once the round has started. Behaviour: keep a small ▼ YOU over my kaiju for the whole round in Kid Mode, and a YOU tag in every standing. Score impact: +0.2.
+8. **Add a small celebration for every Chef Token spend and every win** (sound, coin shower). The Pantry buy (shot-24 then 25) changes a number only. Score impact: +0.2.
+9. **Tutorial leftovers.** After Practice completes, the faded "SWIPE UP CLOSE" step text stays on screen over the kaiju (shot-6). Remove it. Score impact: +0.1.
+10. **Party Cup standings: one big line only.** Shot-37 has a very long "Points per game: 1st +5 · 2nd +3 ..." line; in Kid Mode show only the three names, points and a big "NEXT: CRUMB RUSH" button. Score impact: +0.2.
 
 ## 🔍 Every issue I saw (exhaustive)
-
 | # | Severity | Screen | What's wrong (exact text/element) | Screenshot | Suggested fix |
 |---|---|---|---|---|---|
-| 1 | major | Practice | Step 4/8 "SWIPE up close F / X / SWIPE" never completes (F, X, attack close-up, 6 loops). Practice can never finish, so NEXT UP "Finish the 1-minute Practice (+20 🪙)" stays at FIRST SERVICE 5/6. | shot-6, shot-7 | Accept any swipe within ~120 px; add a skip-step button after 20 s. |
-| 2 | major | Chapter Clear card (ch3) | "🏆 Leftovers Cleared!" overlaps the "✅ Chapter 4 unlocked: Boss of the Belt. Norigon is already sharpening the cutlery..." line, both unreadable where they cross. | shot-21 | Space the lines out or send the achievement to a toast. |
-| 3 | major | Kid Mode (all text screens) | "KID MODE: bigger text" is not visible: Help, Records, Pantry, Gallery, tips, results text stay small (13-15 px). | shot-50, shot-47, shot-48, shot-42 | Real Kid-Mode font scale (+30%) and 2-line max text. |
-| 4 | major | Story opening dialogue | Kid-Mode 1-line chat is cut mid-sentence: "…Rule every table in the kitchen, and the legendary GOLDEN SPOON" (no ending). The box is also 60% empty below it. | shot-12 | Hand-write 1-line versions; do not clip. |
-| 5 | minor | Chapter intro scenes | Subtitle shows only "Crab" (ch1) and "Two's" (ch2) as cut-off words. ch5 "Not invited." is fine. | shot-16 (title card), shot-28 | Same: authored kid lines. |
-| 6 | minor | Results panel "THIS MATCH" (Free Play, Daily) | Up to 8 lines in a box that overlaps the standings panel's left edge and the table art; wrapped words "XP", "colour!" and "win for 🥈)" sit alone on lines. | shot-36, shot-52 | Kid Mode: 3 icon rows + MORE; keep panel off the standings box. |
-| 7 | minor | Results screen | "1 / START rematch · Esc menu" is jargon for a kid ("1 / START"). No on-screen buttons for AGAIN / MENU on desktop. | shot-36 | Two big buttons "AGAIN!" and "MENU". |
-| 8 | minor | Defeat card | Big space in the middle, "DEFEATED" is harsh; "🍀 HELPING HAND" button has no explanation of what it does (it gives a full belly at start). | shot-24 | Add "start with a full belly" sub-line; friendlier title in Kid Mode. |
-| 9 | minor | Daily result | "DAILY CHALLENGE FAILED" red title for a 9-year-old, and "Bronze daily medal (for playing today: win for 🥈)" is confusing. | shot-52 | "DAILY: NOT YET". "Win to get 🥈". |
-| 10 | minor | Free Play setup | In Kid Mode the BOT LEVEL button still cycles up to HARD and says "HARD: leads its throws, dodges and parries" although bots are forced easy. | shot-31 | Lock to "EASY (Kid Mode)". |
-| 11 | minor | Free Play / Party setup | Empty seats are dark boxes with a grey circle and 12 px "click or THROW to join"; a kid does not know to click. | shot-29, shot-37 | Big "+" with "TAP TO JOIN" at 20 px, pulsing on first visit. |
-| 12 | minor | Free Play / Party setup | Two info lines at y=424/452 and a hint at y=652 are long, small, and say things like "(a different one every round) · 4 more to unlock". | shot-29 | Cut to icons: "6 players · 5 rounds · 🔒 4 tables". |
-| 13 | minor | Party Modes setup | 11 pills in one row with 2-line tiny labels ("CUP LENGTH 6 GAMES", "POWER-UPS ON") and a long grey footer about the Party Cup (CLASSIC → CRUMB → HOT → TEAM → GOLDEN → CLASSIC · final ×2). | shot-37 | Group into "GAME" and "RULES" rows, drop the footer into a "?" popover. |
-| 14 | minor | PHONES AS PADS room | Panel runs edge to edge, with the title at the very top and "Waiting for at least one friend to join..." touching the bottom edge. Eight pills, 4 lines of explanation. "Friends tap ONLINE → Join a game and type this code. Up to 5 friends." conflicts with "BOTS FILL UP TO 4 PLAYERS" in the same room. Not shown in /look (HTML overlay). | shot-38 | Scale the panel to 90% height; one sentence "Scan the code". Clarify 5 vs 4. |
-| 15 | minor | PHONES AS PADS room | "Close Room" returns to the title screen, not to Party Modes setup, so settings picked before are re-done. | shot-39 | Return to Party Modes setup. |
-| 16 | minor | Match HUD | Kaiju shows "GOBZILLA" in match, "GOBZILLA JR." in setup/Gallery/Story. | shot-6 vs shot-31, shot-42 | Use one name. |
-| 17 | minor | Match HUD | Cutlery name line ("Ladle · KOs 0", "unarmed · KOs 0") is ~12 px, hard to read on a couch TV; player-name text colour dims right after a KO. | shot-17, shot-33 | Larger HUD in Kid Mode; icons instead of cutlery words. |
-| 18 | minor | Practice / match hints | Bottom-left coaching box (e.g. "PRACTICE 4/8 👉 SWIPE up close F / X / SWIPE") is tiny and tucked into the corner. | shot-8 | Bigger and centred at the bottom in Kid Mode. |
-| 19 | minor | Pause menu in a Cup/Gauntlet | A faded "TAP QUIT AGAIN..." warning is drawn behind the menu in very low contrast and not readable in a screenshot. The first QUIT tap in Practice went straight to the title with no confirm, but in Gauntlet it needs two taps: inconsistent. | shot-56 | Make the warning appear on the QUIT button itself ("TAP AGAIN TO QUIT") everywhere. |
-| 20 | minor | Round banner (Free Play) | "MINTURTLE shoved GOBZILLA off the table" is a thin 14 px line at the bottom of the table; with INSTANT REPLAY title it competes for attention, and the "REVENGE IS SWEET!" sticker is drawn over the rival's face. | shot-35 | Larger, white banner with how you went out (icon + 4 words). |
-| 21 | minor | Records | Stat labels sit ~6 px above their values (e.g. "Matches played" vs "7") so rows look misaligned. Footer "Next up: Crumb Muncher (91%)... Click any locked one to 📌 pin it..." is two lines of 13 px. | shot-47 | Align baselines; shorten footer. |
-| 22 | minor | Records | Two ladders: "Chef Rank: Prep Cook" (account) vs "Mastery Lv 4 Head Chef" (kaiju). Confusing. | shot-47, shot-42 | Rename one. |
-| 23 | minor | Pantry | Bottom-left explanation ("Earn 🪙 Chef Tokens from every match: playing, winning...") plus the Chef Rank text are set in the heavy display font as a paragraph; hard to read. | shot-48 | Use body font; cut to "Win, play, KO and go KAIJU to earn 🪙". |
-| 24 | polish | Pantry | "Lifeline" has a blue border and "−30% today" but the other buy cards have no hint they're selectable; hover/selected styles mix (Toffee has a bright yellow ring because it is selected by default). | shot-48 | One consistent focus ring. |
-| 25 | polish | Gallery | "Rewards: ✔✨ ✔⭐ ✔🪙 🔒🖼 🔒👑 🔒✨" is cryptic; the SHINY pill says "needs Lv 3" while I was Lv 4 (it only changed to "BUY SHINY?" on tap). | shot-42, shot-43 | Show labelled badges; "READY" state. |
-| 26 | polish | Gallery | Power text ("Spits strawberry seeds that shove rivals in front (reach 207 · every 1.6 s)") has numbers a kid does not need. | shot-42 | Show reach/cooldown as two icons. |
-| 27 | polish | Gallery | Three "???" silhouette kaiju make a good teaser but do not say how to unlock them. | shot-42 | Tap a silhouette to see "Win 8 matches". |
-| 28 | polish | Title | The top-right menu pills (SETTINGS, HELP, KAIJU, RECORDS, PANTRY, WORKSHOP) have ~11 px labels; "KAIJU" for the Gallery is not obvious. Title NEXT UP box has 3 lines at 13 px. | shot-4 | Larger icons with labels under them in Kid Mode. |
-| 29 | polish | Title | After I quit Practice at 4/8, the big "NEW HERE? 1-MINUTE PRACTICE" button disappeared (replaced by nothing) after I won matches, so Practice cannot be retried even though NEXT UP asks for it. | shot-53 | Keep the button until Practice is finished. |
-| 30 | polish | Free Play setup | "Tiny monsters. Giant dinner." subtitle repeated on every setup screen; same tagline as the title takes space. | shot-29 | Show the mode name + 1 icon instead. |
-| 31 | polish | Daily countdown | 2 lines of text drawn over a busy red/white checkered table, in the middle of a seat; hard to read quickly: "DAILY · 3 rivals (easy, easy, easy) · win to keep your 🔥 streak · Picnic Blanket". | shot-51 | Put in a dark pill. |
-| 32 | polish | Daily | I (Gobzilla) was assigned Salmonster for Daily with no explanation; "3 rivals (easy, easy, easy)" is fair but I still lost, so the Daily felt a bit harsh for Kid Mode. | shot-51, shot-52 | Say "Daily kaiju: SALMONSTER" and make Kid-Mode Daily a gentler mix. |
-| 33 | polish | How to Play | Wall of text under BASICS: MOVES is a 9-line paragraph, CONTROLS lists 4 devices. | shot-50 | Pictures per move, tabs per device. |
-| 34 | polish | Story map | Chapter 1 card has a locked-padlock look on all others, fine, but "Story 0% complete · ★ 0/36 · 🌶️ 0/12 · 🎁 0/13" top line is dense. | shot-10 | Show just stars in Kid Mode. |
-| 35 | polish | Story map | Right-hand card quote ("Hold THROW to charge...") is italic 13 px. Small. | shot-10 | Bigger. |
-| 36 | polish | Harness note | `/look` did not list the PHONES AS PADS overlay or the Table Workshop tip text changes; tools reading it would miss those screens. | shot-38 | Include overlay texts in /look. |
-| 37 | polish | Match | Opening 2-second countdown tip line ("Round 1 · Sunday Roast 💡 Shove rivals off the table edge with a dash.") appears under the "2" in 14 px. | shot-8 area | OK but small. |
-| 38 | polish | Story | Ch4 clear: I expected the new ch4 comic panel but saw only the NEW KAIJU pop-up then the ch5 cutscene (see below). | shot-27, shot-28 | Check the comic trigger in Kid Mode. |
+| 1 | major | Gauntlet wave cleared | Perk card "1 · Mustard Coat" overlaps the "🧾 THIS MATCH" box; the box's text is hidden behind the card ("THIS MA..." cut off) | shot-41 | Hide the box while perks show, or move cards up |
+| 2 | major | Help / Basics | About 11 lines at about 12 px, no pictures; Kid Mode did not enlarge it | shot-44 | Picture cards, bigger text, split into tabs |
+| 3 | major | Kid Mode generally | "Genuinely bigger text everywhere" is not true on Settings sub-lines, Gallery detail, Records descriptions, Twist subtitles, Workshop hint, Party pills | shot-2, 10, 19, 26, 31, 43 | Min font size in Kid Mode |
+| 4 | major | Countdown banner (Daily) | 5 lines of text over the board: "DAILY · 3 rivals (easy, easy, easy) · win to keep your 🔥 streak · Picnic Blanket / Medals: ..." plus a tip line; covers watermelon and sandwich | shot-28 | One line in Kid Mode |
+| 5 | major | Daily / Party fairness | "easy, easy, easy" Hot Dumpling: I lost rounds 2, 4, 5; SLOBA got 5 KOs and 18 crumbs. Frustrating for a kid | shot-30 | Cap bot strength in Kid Mode |
+| 6 | major | Party Cup game 1 | I was KAIJU myself and still got squashed by Mothball KAIJU ("YOU knocked out by MOTHBALL (squash)") within 8 s; ended 3rd | shot-36, 37 | Longer bot KAIJU delay in Kid Mode; clearer "run!" cue |
+| 7 | minor | Free Play round 3 | SQUIDGEON went KAIJU and the Giant Hand flicked me inside 9 s; I had no time to react (the round-end text is the only explanation) | shot-7 (round 1), look text | Show a quick "GIANT HAND!" warning line |
+| 8 | minor | KAIJU mode overlay | "THROW / SWIPE: SEED SPRAY" hint and "GUST INCOMING!" (table hazard) stack tightly next to each other, and the giant head is clipped by the top HUD edge | shot-36 | Offset hazard banner to the top of the table; keep the kaiju inside the board |
+| 9 | minor | Practice complete | The ghost "SWIPE UP CLOSE" step text stays over the kaiju at top-right, and "Skipped this step: try it in a real match!" is faint | shot-6 | Clear step text on completion |
+| 10 | minor | Practice bottom bar | "THROW" wraps onto a second line, the box is cramped with 2 lines in Kid Mode ("PRACTICE 1/8 ... THROW / then: Pick your cutlery back up (+5 more)") | shot-4 | Wider box or shorter step text |
+| 11 | minor | Match end reward box | The "THIS MATCH" box is 6-8 lines tall and sits right on top of the SHARE button (almost touching) and covers part of the table | shot-8, 30, 37 | Collapse to 3 lines with a "more" tap |
+| 12 | minor | Party Cup standings | Long "Points per game ..." line plus "Team Feast: every teammate gets the team's place" is a lot of text; plus plain "GOBZILLA" with no "(YOU)" | shot-37 | Trim; show YOU |
+| 13 | minor | Hot Dumpling in play | No "▼ YOU" marker after countdown; only a blue ring, hard to tell which kaiju is mine among 4 | shot-29 | Keep the YOU arrow for the whole round |
+| 14 | minor | Settings | Kid Mode on: the settings text is still small (description lines about 12 px) | shot-2 | Bigger |
+| 15 | minor | Twist picker | "FISTS ONLY" and "MIRROR MOVES" sub-text is smaller than other cards because it is auto-shrunk; hard to read | shot-10 | Bigger cards, two-line text |
+| 16 | minor | Twist picker | TRY IT: OFF is a small pill; no explanation what it does until you press it. In my test the quick round was first-to-1 and I lost immediately without being told it is a test round | shot-10, 11 | Short label under the toggle; after the round show "Back to twists" button |
+| 17 | minor | Twist countdown | 3 lines: "BOOMERANGS · Round 1 · Sunday Roast / TWIST: BOOMERANGS — Every throw comes back to you / The giant hand goes for whoever has the fullest belly." | shot-11 | One line |
+| 18 | minor | Gallery header | "Collection 53% · 🪙 191 / 🐉 15/20 · 🍽 13/18 · 🎨 3/21" icons only and small; BUBBLEGUMBO name touches its card edge | shot-19 | Bigger header, shorter name or smaller font only for that card |
+| 19 | minor | Gallery locked colour | After tapping a locked colour the kaiju detail panel disappears entirely, leaving a lone 'MOVE LAB' and 'SHINY' button floating on the background | shot-22 | Keep the panel, show the unlock hint above it |
+| 20 | minor | Gallery coin count | Gallery header says 🪙 191 right after chapter 2, Pantry says 216 a moment later with no match in between (Move Lab only) | shot-19, 23 | Make sure both read the same live balance, or show a "+25" |
+| 21 | minor | Pantry | Left panel is a wall of text ("Earn 🪙 Chef Tokens from every match: playing, winning, knockouts...") in a small font; Chef Rank explanation "2 pts per achievement, 1 per Mastery level" is not kid-friendly | shot-23 | Icons, one line |
+| 22 | polish | Pantry | Buying has no celebration (no sparkle/sound); coin count just goes down | shot-24 | Add pop + "Toffee unlocked!" banner |
+| 23 | minor | Records | "Rank pts: 2 per achievement + 1 per kaiju Mastery level." footer overruns the left edge of the stats panel | shot-26 | Wrap or shrink |
+| 24 | minor | Records | Achievement descriptions "Win a Team Feast match · Bubblegum" and "Watch 10 Hot Dumplings pop on someone else" use smaller text than others | shot-26 | Uniform size |
+| 25 | minor | Records | "Times gone KAIJU: 0" although I went KAIJU in Practice, Move Lab, Daily (8 KOs as KAIJU: STOMP READY) and Party; unclear what counts, kid would think it is broken | shot-26 | Count matches only and say so, or count all |
+| 26 | minor | Story map | Locked chapter tiles are dark and the Chef's Pass/Dessert/Second Helpings buttons use about 9-10 px text | shot-14 | Bigger lock text |
+| 27 | polish | Story cutscene | Subtitle at the bottom is small ("CRABBAGE IS" appears word by word, hard to read at about 16 px) and the skip button is the only large control | shot-15 | Bigger caption |
+| 28 | polish | Story dialogue | "SKIP CHAT (S)" and "click / SPACE" prompts are good but small; dialogue box covers the chapter list entirely | shot-16 | OK, just bigger |
+| 29 | polish | Workshop | Cycling HAZARD only changes the "Giant hand" label in the slot line and a corner badge; the hint line still says "GIFT: a solid medium block..." and does not explain the hazard (brief says it should) | shot-43 | Update the hint line to "GIANT HAND: grabs the fullest belly" when hazard cycles |
+| 30 | polish | Workshop | The props hint is 2 lines at about 14 px; "white circles = start spots" is easy to miss | shot-42 | Bigger |
+| 31 | polish | Free Play setup | 8 pills with tiny text (about 11 px): "BOT LEVEL EASY 🧸", "TWIST NONE" ... a kid will not read them | shot-9 | Bigger pills and icon-only labels |
+| 32 | polish | Party setup | Empty team seats say "click or THROW to join" in tiny text; no big "ADD PLAYER" button | shot-31 | Big plus icon |
+| 33 | polish | Party setup | "1 at the table · click empty seats to add bots" - for Team Feast RED 1 vs BLUE 0 the explanation is in a long subtitle line | shot-32 | Show a warning icon on the unbalanced team |
+| 34 | polish | Title | After Kid Mode, the "NEXT UP" box is taller and its first line wraps; OK but covers part of the fork art | shot-3 | Fine |
+| 35 | polish | Title | Top-right menu icons (SETTINGS, HELP, KAIJU...) are about 11 px, tiny for Kid Mode | shot-1 | Bigger in Kid Mode |
+| 36 | polish | Match end | "NEW KAIJU" banner in the top right during Gauntlet ("Avocadrake!") appears over the HUD corner with no explanation how to play it | shot-41 | Tap-to-open |
+| 37 | polish | Gauntlet | Mustard Coat/Full Belly/Extra Life perk text is small (about 13 px), pick numbers 1/2/3 are great but a kid will tap | shot-41 | Bigger text |
+| 38 | polish | Challenges modal | Chef's Pass line is long, goes across 2 lines near the bottom edge of the modal and uses small text | shot-39 | Shorter: "12 stars or wave 8 = Spicy + Dessert!" |
 
-## 🔠 Text and layout check
-
+## 🔠 Text and layout check (do this on EVERY screen you visit)
 | Screen | Result | Screenshot |
 |---|---|---|
-| Title | OK, tiny menu pill labels and 3-line NEXT UP box (too small for a kid, no overlap) | shot-1, shot-4 |
-| Settings | OK, two columns, no overlap; labels small | /look list only, shot-2 taken |
-| Practice (match) | OK; bottom-left coaching box small | shot-6, shot-8 |
-| Pause menu | OK; Gauntlet pause warning too faint | shot-8, shot-56 |
-| Story map | OK | shot-10 |
-| Story opening dialogue | PROBLEM: sentence cut mid-way, huge empty space | shot-12 |
-| Chapter intro cutscene | OK image; word-fragment subtitles ("Crab", "Two's") | shot-16, shot-28 |
-| Chapter Clear (ch1) | OK | shot-15 |
-| NEW KAIJU pop-up | OK, great | shot-18 |
-| Chapter Clear (ch3) with NEW TABLE | PROBLEM: "🏆 Leftovers Cleared!" overlaps the "Chapter 4 unlocked" line | shot-21 |
-| Defeat card | OK, big empty centre; HELPING HAND unexplained | shot-24 |
-| Match view (Smoothie Bar, Chef's Board, Griddle) | OK | shot-33, shot-35 |
-| Match results (Free Play) | PROBLEM: THIS MATCH panel crowded, orphaned words, sits over art | shot-36 |
-| Free Play setup | OK, small text | shot-29, shot-31 |
-| Party Modes setup | OK but crowded (11 pills) | shot-37 |
-| PHONES AS PADS room | PROBLEM: panel touches top and bottom edges, dense | shot-38 |
-| Hot Dumpling match | OK | shot-41 |
-| Daily countdown | OK but text over busy cloth | shot-51 |
-| Daily result | PROBLEM: THIS MATCH panel overlaps the left of the standings box | shot-52 |
-| Gallery | OK; rewards row tiny | shot-42 |
-| Records | OK, row labels slightly off baseline | shot-47 |
-| Pantry | OK | shot-48 |
-| How to Play (Basics) | OK, no overlap, but far too much text | shot-50 |
-| Challenges panel | OK | shot-53 |
-| Gauntlet wave 1 | OK | shot-54 |
-| Table Workshop | OK, very clear | shot-57 |
+| Title | OK, a bit small top-right buttons | shot-1, shot-3 |
+| Settings (Kid Mode ON) | OK, no overlap; text smallish | shot-2 |
+| Practice in-match | OK; bottom step box cramped, "THROW" wraps | shot-4, shot-5 |
+| Practice complete | PROBLEM: faint "SWIPE UP CLOSE" text overlaps the kaiju | shot-6 |
+| Free Play round + replay | OK | shot-7 |
+| Match results (Free Play) | OK; THIS MATCH box crowded, near SHARE | shot-8 |
+| Free Play setup | OK; tiny pill text | shot-9 |
+| Twist picker | OK; small subtitles | shot-10 |
+| Twist countdown | OK, 3 lines of text | shot-11 |
+| Story map | OK; tiny lock-button text | shot-14 |
+| Story cutscene | OK; small caption | shot-15 |
+| Story dialogue | OK | shot-16 |
+| Chapter Clear | OK | shot-17 |
+| New Kaiju | OK | shot-18 |
+| Gallery | OK; BUBBLEGUMBO touches card edge | shot-19 |
+| Move Lab | OK; hint at bottom close to a throw message | shot-20, shot-21 |
+| Gallery locked colour | PROBLEM: kaiju panel vanishes | shot-22 |
+| Pantry | OK; dense text | shot-23, shot-24 |
+| Records | PROBLEM: footer "Rank pts..." overruns panel edge on the left | shot-26 |
+| Daily countdown | PROBLEM: 5-line banner over the board | shot-28 |
+| Hot Dumpling round | OK, no YOU marker | shot-29 |
+| Daily results | OK, text over basket but readable | shot-30 |
+| Party Modes setup | OK; tiny pills | shot-31, shot-32 |
+| Party Cup round (KAIJU) | PROBLEM: two bold banners stacked and head clipped by HUD | shot-36 |
+| Party Cup standings | OK but dense | shot-37 |
+| Challenges modal | OK | shot-39 |
+| Gauntlet wave clear + perks | PROBLEM: perk card overlaps THIS MATCH box | shot-41 |
+| Workshop | OK; hazard hint stale | shot-42, shot-43 |
+| Help / Basics | PROBLEM for a kid: wall of 12 px text, no pictures | shot-44 |
 
 ## The single biggest structural problem
-**Kid Mode changes the difficulty but not the reading load.** The game is lovely and the bots are finally gentle, but every menu, result, and tip still expects a confident reader: 8-line results panels, 9-line Help paragraphs, 13 px labels, "1 / START rematch". A 9-year-old on a couch gets joy from the monsters and then bounces off the text every time a screen changes. Because the other half of my score (frustration) is now fine, the reading burden is what keeps me from a 9.
+Kid Mode is a difficulty setting plus a half-hearted font bump, not a real kid experience. The matches themselves are fast and silly, but everything around them (Help, countdown banners, results boxes, setup pills, Pantry, Records) is written for an adult reading calmly. A 9-year-old skips all of it, then does not know why they lost a round or what a Party Cup is. That is the main thing that holds this at about 7.
 
-The second weakness is the new-player path: Practice cannot be finished (SWIPE step), and the title still nags about it. For a kid with no helper, that first guided minute is the make-or-break moment.
+The second half of the problem is that "easy" does not always feel easy: bot KAIJU forms and the Giant Hand end rounds in under 10 s with very little cue, so a kid who loses 3 of 6 rounds in a Daily (as I did) feels cheated, even though the game says EASY.
 
-## Big change proposals
-
-### Proposal 1: "Picture Mode" for Kid Mode
-- **Problem it solves:** Reading load (issues 3, 4, 6, 7, 9, 12, 13, 25, 33).
-- **How it would work:** When KID MODE is ON, every screen swaps its text for an icon-first layout.
-  - Title: the 6 mode buttons stay, NEXT UP becomes 3 big picture goals with progress bars.
-  - Results: big stars/coins row (🪙 +221, ⭐ x3, 🎁 new!), two big buttons AGAIN! / MENU. A small MORE button opens the detail list.
-  - Help: 5 swipeable picture cards (THROW, SWIPE, DASH, STOMP, KAIJU), each a 3-second looping image + one 5-word caption.
-  - Min font 20 px, max 2 lines per description.
-- **Example moment:** I win a match, a big "+221 🪙" and 3 stars pop, a sticker "NEW COLOUR!" appears, and I press AGAIN! without reading anything.
-- **Rewards / progression hooks:** Sticker book page per kaiju filled by wins, shown after each match.
-- **Risks and edge cases:** Needs authored short lines for ~60 strings; keep full text one tap away for parents.
+## Big change proposals (2-3, most important first)
+### Proposal 1: Real Kid Mode UI ("Big & Picture" mode)
+- **Problem it solves:** text walls and small pills across Help, setup, Pantry, Records and countdowns.
+- **How it would work (detailed design):** Kid Mode switches every screen to a "big" skin: min font 18 px, pills on setup screens become 120x120 px icon tiles with a one-word caption (BOTS, TABLE, TWIST...), tap to cycle with the current value shown as a big icon. Help becomes 6 picture cards that each play a 2 s loop (THROW, SWIPE, DASH, STOMP, EAT, DON'T FALL). Countdown banners are limited to the round title plus one 6-word tip. Pantry left panel becomes three big progress rings (no paragraph). Records shows achievements as big medal icons with a one-line caption; the full text only on tap.
+- **Example moment:** kid taps HELP, sees six cartoon cards, taps STOMP and sees Gobzilla eat crumbs, then a giant stomp. 10 seconds, zero reading.
+- **Rewards / progression hooks:** a "Tutorial Tot" medal for viewing all six cards; first match after viewing gives +20 tokens.
+- **Risks and edge cases:** layout budget on phones; localisation; keep Advanced text behind "More".
 - **Size:** L
 - **Score impact for me:** +1.0
 
-### Proposal 2: Guided first match that cannot get stuck
-- **Problem it solves:** Practice stuck at SWIPE (issues 1, 18, 29).
-- **How it would work:** Practice steps are driven by a big arrow and a character ("Sloba says: SWIPE!"). Each step has a 15 s timer, after which it auto-completes with "No worries, you can do it!" and the next step starts. After step 8, a confetti pop-up awards +20 🪙 and marks Practice done on the title; the Practice button remains until then.
-- **Example moment:** I swipe near the rival, hear a "bonk", the arrow turns green and the step ticks.
-- **Rewards / progression hooks:** The +20 🪙 and a "First Bite" sticker for finishing Practice.
-- **Risks and edge cases:** Skipped steps must not give the reward unless all 8 were truly completed or skipped by timer.
-- **Size:** S
+### Proposal 2: "Oops cam" kid-friendly loss feedback + gentler bot KAIJU
+- **Problem it solves:** getting squashed or flicked with no warning and no explanation; "easy" bots that still beat me.
+- **How it would work (detailed design):** in Kid Mode (a) bots may not go KAIJU in round 1 and must wait 3 s after growth; (b) when a KAIJU (bot or Giant Hand) targets me, a big arrow and a "RUN!" word appear next to my kaiju for 1 s; (c) after each lost round a 1-line card says "Squished by Mothball! Dash sideways next time" with a mini pictogram; (d) after 2 lost rounds in a row, my belly starts 30% fuller (comeback help, but visible: "Kitchen help! +belly").
+- **Example moment:** I lose to a KAIJU Squidgeon; the card shows a squid stomp with an arrow and "DASH sideways!" and the next round I try it.
+- **Rewards / progression hooks:** "Dodger" achievement: dodge 5 KAIJU squashes.
+- **Risks and edge cases:** do not make it feel patronising: only in Kid Mode; keep Free Play rules intact.
+- **Size:** M
+- **Score impact for me:** +0.6
+
+### Proposal 3: Sticker book for rewards instead of paragraphs
+- **Problem it solves:** the THIS MATCH box (6-8 lines) and Gallery/Pantry unlocks read like receipts.
+- **How it would work (detailed design):** after each match, up to three big stickers fly onto the screen (coins, achievement medal, new colour) one at a time with a sound; tap to collect into a sticker album (the Gallery). No paragraph at all; "NEW KAIJU" screens stay as they are (they are great).
+- **Example moment:** win Hot Dumpling, a "Not It!" sticker slaps onto the screen with sparkles, +30 coins fly to the counter, then "Sky colour!".
+- **Rewards / progression hooks:** album pages, 100% completion badge.
+- **Risks and edge cases:** keep a "details" view for parents.
+- **Size:** M
 - **Score impact for me:** +0.5
 
-### Proposal 3: Friendly "Try again" loop
-- **Problem it solves:** Harsh DEFEATED / FAILED words and the unexplained HELPING HAND (issues 8, 9).
-- **How it would work:** In Kid Mode, loss screens say "SO CLOSE!" with the rival waving. Three buttons with pictures: 🍀 "FULL BELLY START", ↻ "AGAIN", 🗺 "MAP". After 2 losses on the same chapter, the first button is pre-selected and pulses.
-- **Example moment:** I lose to Norigon twice, the full-belly button glows and I win on the third go.
-- **Rewards / progression hooks:** "Never give up!" achievement for winning after 3 losses.
-- **Risks and edge cases:** Boss stars should still require a clean run without helping hand.
-- **Size:** S
-- **Score impact for me:** +0.3
-
 ## How this round's new features felt
-- **Fairness (1.4 s grace, how you went out):** The round-end line "MINTURTLE shoved GOBZILLA off the table" helps. It is small (14 px) and easy to miss; the results also list "Knocked out by: dumpling pop x3, fell off x2, a KAIJU" which is neat but long. Bots did not hit me in the first seconds. Free Play now explains each BOT LEVEL, but Kid Mode still shows HARD while bots are easy (issue 10).
-- **Daily rivals named:** "3 rivals (easy, easy, easy)" is shown and helps, but I still lost the Daily. It does not feel "gentler" for a kid.
-- **Giant Hand / KAIJU can't be flicked:** I saw the hand in Hot Dumpling (shot-41). The tip "The giant hand goes for whoever has the fullest belly" is good; I did not manage to test dodge.
-- **Feedback (toasts):** 🏆 toasts top-right ("Forked Up! +30", "Crumb Muncher! +30") are clear and nice; they showed after matches. 🎁 NEW KAIJU / NEW TABLE are the best thing in the game (shot-18). Pantry orders show their payout ("+40 paid"). SHINY and Pantry buys ask for a second tap with price and say why they're refused ("need 68 more").
-- **New saves with locked kaiju/tables:** It felt good. Win 1 / clear ch2 / clear ch3 each gave something within about 15 minutes. I would add a visible "next unlock" strip in the Gallery.
-- **Story comic panels:** I did not see the ch4 comic panel after beating the boss (NEW KAIJU pop-up then straight to the ch5 cutscene). Could be Kid-Mode or my "tap through". Please verify. I also did not notice the PHASE 2 banner for Norigon.
-- **Kid Mode calm starts:** Story rounds did start calmly, and ch1-ch3 were easy wins. Boss ch4 took me three tries on easy, but HELPING HAND then helped.
-- **PHONES AS PADS:** Huge QR code is clear and the room code "RMRM" is big. Too much text and the panel crowds the edges (shot-38); closing it dumps you to the title. The PARTY CUP switch is easy to find (OFF by default).
-- **Gallery power + Mastery ladder:** Power reach/cooldown shown ("reach 207 · every 1.6 s"), ladder ✔/🔒 including ✨ Shiny is there but icons only. The Shiny two-tap buy worked ("BUY SHINY? tap again: 300 🪙" then "SHINY ✔"). MOVE LAB lets me STOMP then use the power: fun and quick.
-- **Fixes from last round:** The Practice SWIPE step did NOT work for me (issue 1). Quit confirmation in Gauntlet needs two taps (OK). Kid Mode bots are always easy (confirmed by play). At most 3 pop-ups: never more than 1-2 shown. Team Feast results grouped by team: not played.
-- **Text and layout:** Found 3 overlaps (ch3 Chapter Clear, THIS MATCH panel x2) and several too-small texts. See the table.
+- **🦖 KAIJU warning:** the yellow ring plus the red outer ring is visible and looks cool (shot-36), but with a 1.8 s bot wait I still lost a Party Cup game to a bot KAIJU. For a kid the ring needs a "RUN!" word and arrow. The KAIJU text hint ("THROW / SWIPE: SEED SPRAY") overlaps the hazard banner.
+- **🏁 Gauntlet:** the ramp is nice (wave 1 one EASY, wave 2 one NORMAL, wave 3 two rivals with 4 hearts). The wave-clear preview ("Next: wave 3 · 2 rivals (NORMAL, EASY) · ❤❤❤❤") is clear. The perk cards are great (1/2/3), but they overlap the THIS MATCH box. Lost a life on wave 3 to a KAIJU bot.
+- **🎟 Chef's Pass:** the line "12 Trial ★ or Gauntlet wave 0/8 → opens Spicy + Dessert early" is long and grown-up. Dessert also shows "finish the Feast or 🎟 Chef's Pass" on the Story map, which is a good cross-hint. Kids want a simple progress bar.
+- **🏆 Party Cup:** greying out MODE/FIRST TO works ("CUP PICKS", "CUP SETS IT"). Standings show "G1 +5", "G1 +3", "G1 +2" and the points-table line, but it is long and has no "(YOU)". Fun in theory, but a cup of six games is too long for a 9-year-old.
+- **🧸 Kid Mode:** the Story is very easy (good) and there is a "🧸" next to bot level. But "bigger text everywhere" was not what I saw: Help, Gallery, Records, Pantry, setup pills all still small.
+- **📖 Gallery:** the 🪙 balance in the header is visible; tapping a locked colour tells me how to earn it (Win 10 matches 3/10) which is brilliant, but the kaiju panel disappears while it shows. I did not buy a Shiny (300 🪙, needs Lv 3) so I did not see the banner.
+- **🏅 Records:** the footer follows my 📌 pinned achievement ("Pinned: Regular Diner (30%)") and the match boxes show "Regular Diner: 4/10". Works well.
+- **🎓 First-timer:** "👤 YOU" on my seat in Free Play and "▼ YOU" in-game both good; Practice shows the current step with keys and the next one; one cramped wrap. I did not see "table counts" disagree (Party: 15/20 kaiju, Gallery: 15/20, Free Play first said 13/20 before Sloba, after unlocking Sloba and Avocadrake the counts moved: consistent).
+- **⚡ Twist picker:** TRY IT is easy to find, one tap on BOOMERANGS starts a quick round. But it does not say "test round" at the start and my first-to-1 round ended in seconds.
+- **🛠 Workshop:** picking a prop explains it ("CUP: a solid medium block..."), but cycling the hazard only changes the label; the hint stays on the last prop.
+- **📅 Daily:** the results screen shows "Today's medal: 🥈 · still open: 🥇 win without losing a round +40 🪙"; excellent. The countdown banner listing all three medal rewards is too much text.
+- **Text and layout:** found the overlaps listed above (Gauntlet perk cards over THIS MATCH, Practice ghost text, Records footer, Party Cup hazard banner stacked).
 
 ## Bugs that block play
-- **Practice step 4/8 (SWIPE) cannot be completed** with the harness (F, X, attack at close range, shove then F). Practice therefore stays unfinished and the title keeps asking for it. (Could be harness-timing, but a real kid on a keyboard may hit the same wall; please verify.)
-- No JavaScript errors (`/errors` = none at start, middle, end). Nothing else blocked play.
+- None. /errors was empty at the start, middle and end. One hang risk: /autoplay of 5 matches took over 2 minutes in the harness (not a game bug).
