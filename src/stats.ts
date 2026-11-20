@@ -19,6 +19,8 @@ export interface Stats {
   twistWins: number; // matches won by a human with a twist (mutator) on
   flawless: number; // matches (first to 3+) won without losing a round
   bestRampage: number; // most rivals knocked out during one KAIJU form
+  parries?: number; // ⚔ throws parried back
+  brutalWins?: number; // matches won with a BRUTAL bot at the table
   modeWins: Partial<Record<GameMode, number>>;
   kaijuWins: Record<number, number>; // species -> match wins
   kaijuPlays: Record<number, number>; // species -> matches played
@@ -72,6 +74,8 @@ export const ACHIEVEMENTS: Achievement[] = [
   { id: 'pops-10', icon: '💥', name: 'Dumpling Dodger', desc: 'Watch 10 Hot Dumplings pop on someone else', test: s => s.pops >= 10, progress: s => [s.pops, 10] },
   { id: 'tables-all', icon: '🗺️', name: 'World Tour', desc: 'Play on 12 different tables', test: s => s.tables.length >= 12, progress: s => [s.tables.length, 12] },
   { id: 'kaiju-8', icon: '🎭', name: 'Mix It Up', desc: 'Win with 8 different kaiju', test: s => Object.keys(s.kaijuWins).length >= 8, progress: s => [Object.keys(s.kaijuWins).length, 8] },
+  { id: 'parry-10', icon: '⚔', name: 'Swatter', desc: 'Parry 10 throws (SWIPE just as cutlery reaches you)', test: s => (s.parries ?? 0) >= 10, progress: s => [s.parries ?? 0, 10] },
+  { id: 'brutal-win', icon: '💀', name: 'Bot Breaker', desc: 'Win a match against a BRUTAL bot', test: s => (s.brutalWins ?? 0) >= 1, progress: s => [s.brutalWins ?? 0, 1] },
   { id: 'gauntlet-5', icon: '⚔️', name: 'Gauntlet Runner', desc: 'Clear 5 Gauntlet waves', test: s => s.gauntlet >= 5, progress: s => [s.gauntlet ?? 0, 5] },
   { id: 'gauntlet-10', icon: '🏰', name: 'Gauntlet Master', desc: 'Clear 10 Gauntlet waves', test: s => s.gauntlet >= 10, progress: s => [s.gauntlet ?? 0, 10] },
   { id: 'daily', icon: '📅', name: 'Daily Special', desc: 'Win a Daily Challenge', test: () => { try { return JSON.parse(localStorage.getItem('kk-daily-v1') ?? '{}').won === true || !!JSON.parse(localStorage.getItem('kk-daily-v1') ?? '{}').lastWin; } catch { return false; } } },

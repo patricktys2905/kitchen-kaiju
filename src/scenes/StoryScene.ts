@@ -472,7 +472,7 @@ export class StoryScene extends Phaser.Scene {
       const unlockLine = unlockedNew && !last ? `
 ✅ Chapter ${r.chapter + 2} unlocked: ${nextCh?.title ?? ''}. ${nextRival} is already sharpening the cutlery…` : nextCh ? `
 Next course: ${nextCh.title}. ${nextRival} is already sharpening the cutlery…` : '';
-      const mw = this.camp.chapters[r.chapter]?.meanwhile, chef = this.add.text(640, y, `👨‍🍳 ${praise}${unlockLine}${mw && !getSettings().kidMode ? `\n📜 ${mw}` : ''}`, body(15, '#ffd9a0', 800, { align: 'center', wordWrap: { width: 640 } })).setOrigin(0.5, 0).setDepth(31);
+      const mw = this.camp.chapters[r.chapter]?.meanwhile, chef = this.add.text(640, y, `👨‍🍳 ${praise}${unlockLine}${mw ? `\n📜 ${mw}` : ''}`, body(15, '#ffd9a0', 800, { align: 'center', wordWrap: { width: 640 } })).setOrigin(0.5, 0).setDepth(31);
       this.overlay.push(chef);
       y += chef.height + 10;
       if (r.receipt?.length && y + 22 < BTN_Y - 44) { const rc = this.add.text(640, y, r.receipt.join('   ·   '), body(14, '#cdb9a3', 800)).setOrigin(0.5, 0).setDepth(31); this.overlay.push(rc); y += rc.height + 6; }
@@ -483,8 +483,8 @@ Next course: ${nextCh.title}. ${nextRival} is already sharpening the cutlery…`
     } else {
       const lostKey = `${this.camp.id}:${r.chapter}`;
       StoryScene.losses.set(lostKey, (StoryScene.losses.get(lostKey) ?? 0) + 1);
-      const head = (r.myRounds ?? 0) > 0 ? 'So close! You took a round off them.' : 'Tough one! Every rival can be beaten.';
-      const BEAT: Record<string, string> = { fall: 'You kept falling off the table. Stay near the middle and DASH back from the edge.', cutlery: 'Thrown cutlery got you. DASH sideways from a charge line, or SWIPE to parry it.', swipe: 'You were swiped up close. Keep your distance, or swipe first.', kaiju: 'A KAIJU flattened you. Step out of the ring before each stomp, then punish the dizzy shrink.', squash: 'A KAIJU flattened you. Step out of the ring before each stomp, then punish the dizzy shrink.', hand: 'The Giant Hand got you. It grabs the fullest belly: STOMP first, or DASH just as it arrives to slip under it.' };
+      const head = (r.myRounds ?? 0) > 0 ? `So close! You took ${r.myRounds} round${r.myRounds === 1 ? '' : 's'} off them.` : 'Tough one! Every rival can be beaten.';
+      const BEAT: Record<string, string> = { fall: 'You kept falling off the table. Stay near the middle and DASH back from the edge.', cutlery: 'Thrown cutlery got you. DASH sideways from a charge line, or SWIPE to parry it.', swipe: 'You were swiped up close. Keep your distance, or swipe first.', kaiju: 'Run from a red ring: that kaiju is growing into a KAIJU. Then hit it when it shrinks and gets dizzy.', squash: 'Run from a red ring: that kaiju is growing into a KAIJU. Then hit it when it shrinks and gets dizzy.', hand: 'The Giant Hand got you. It grabs the fullest belly: STOMP first, or DASH just as it arrives to slip under it.' };
       const beat = r.myOut ? BEAT[r.myOut] ?? 'Watch the table hazard: its warning shows before it strikes.' : '';
       const kid = getSettings().kidMode;
       this.overlay.push(this.add.text(640, (CARD.y + 150 + BTN_Y - 40) / 2, kid ? `${head}\n\n💡 ${(beat || ch.tip).split('. ')[0].replace(/\.$/, '')}!` : head + (beat ? '\n\n🔎 What beat you: ' + beat : '') + '\n\n“' + ch.tip + '”', body(kid ? 30 : 23, '#ffe9c7', 800, { align: 'center', wordWrap: { width: 620 }, lineSpacing: 6 })).setOrigin(0.5).setDepth(31));
@@ -505,7 +505,7 @@ Next course: ${nextCh.title}. ${nextRival} is already sharpening the cutlery…`
   private celebrate(rewards: ReturnType<typeof newlyEarned>): void {
     const objs: Phaser.GameObjects.GameObject[] = [];
     const g = this.add.graphics().setDepth(40);
-    g.fillStyle(0x0d0805, 0.97); g.fillRect(0, 0, 1280, 720);
+    g.fillStyle(0x0d0805, 1); g.fillRect(0, 0, 1280, 720); // fully opaque: nothing from the card behind shows through
     objs.push(g);
     const kaiju = rewards.some(u => u.kind === 'kaiju');
     const head = withShadow(this.add.text(640, 120, kaiju ? '🎉 NEW KAIJU!' : '🎉 NEW TABLE!', display(72, '#ffd24a', { strokeThickness: 10 })).setOrigin(0.5).setDepth(41), 6);
@@ -582,7 +582,7 @@ Next course: ${nextCh.title}. ${nextRival} is already sharpening the cutlery…`
     const done = this.camp.chapters.map((ch, i) => ({ ch, i })).filter(({ i }) => (this.save.stars[i] ?? 0) > 0);
     const lines = done.length ? done.map(({ ch, i }) => {
       const rv = chapterRivals(ch, this.save.pick), sp = rv[ch.win.speaker as number]?.species ?? rv[0].species;
-      return `${i + 1}. ${ch.title} ${'★'.repeat(this.save.stars[i] ?? 0)}: you beat ${rv.map(r => SPECIES[r.species].name).join(' & ')}. ${SPECIES[sp].name}: “${ch.win.text}”`;
+      return `${i + 1}. ${ch.title} ${'★'.repeat(this.save.stars[i] ?? 0)}: you beat ${rv.map(r => SPECIES[r.species].name).join(' & ')}. ${SPECIES[sp].name}: “${ch.win.text}”${ch.meanwhile ? `  📜 ${ch.meanwhile}` : ''}`;
     }) : ['Nothing yet! Clear chapter 1 and your story starts here.'];
     const next = this.camp.chapters[done.length];
     if (next && done.length) lines.push(`👉 Next: ${next.title}. ${SPECIES[next.rivals[0].species].full} is waiting…`);

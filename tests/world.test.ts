@@ -936,8 +936,8 @@ describe('party cup', () => {
     const { placePoints, cupGames, CUP } = await import('../src/cup');
     expect(placePoints([{ score: 2, kos: 5 }, { score: 0, kos: 1 }, { score: 1, kos: 0 }])).toEqual([CUP.points[0], CUP.points[2], CUP.points[1]]);
     expect(placePoints([{ score: 2, kos: 3 }, { score: 2, kos: 3 }])).toEqual([CUP.points[0], CUP.points[0]]);
-    expect(cupGames(2).some(g => g.mode === 'hotDumpling')).toBe(false);
-    expect(cupGames(4).length).toBe(CUP.games.length);
+    expect(cupGames(2, 'full').some(g => g.mode === 'hotDumpling')).toBe(false);
+    expect(cupGames(4, 'full').length).toBe(CUP.games.length);
   });
 });
 

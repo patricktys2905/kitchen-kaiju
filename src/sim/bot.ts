@@ -321,7 +321,7 @@ export class BotBrain {
     }
     if (this.parryAim) { out.aimX = this.parryAim.x; out.aimY = this.parryAim.y; this.parryAim = null; }
     if (w.roundT < RULES.botGrace) { out.throw = false; out.swipe = false; out.dash = false; } // a fair start
-    if (w.roundT < RULES.botStompGrace) out.stomp = false;
+    if (w.roundT < (w.opts.kid ? RULES.kidStompGrace : RULES.botStompGrace)) out.stomp = false;
     return out;
   }
 }

@@ -58,6 +58,7 @@ export const RULES = {
   frenzyFill: 7,
   botGrace: 1.8, // seconds at the start of each round before bots throw / swipe / shove (no instant deaths)
   botStompGrace: 4, // and they don't go KAIJU before this
+  kidStompGrace: 15, // 🧸 Kid Mode: bots don't go KAIJU for this long
   kaijuGrow: 0.5, // seconds a fresh KAIJU is still growing: it shoves but can't squash yet (the red ring is your warning)
   catchUpBelly: 20, // COMEBACK HELP: extra starting belly per round you are behind the leader (capped below full)
   // after suddenDeathAt (Classic + Team Feast): everyone's belly fills this much per second, so stand-offs end in KAIJU fights

@@ -169,9 +169,10 @@ export class MenuScene extends Phaser.Scene {
 
   /** ⏱ A rough match length for the setup screen (EASY TO TUNE: seconds per round grows with the crowd). */
   private estMinutes(): number {
-    const n = Math.max(2, this.slots.length), perRound = 22 + 5 * n; // seconds
-    const roundsFor = (target: number) => Math.min(target * 2.4, target * (1 + 0.3 * (n - 2))); // more players: more rounds won by others
-    const secs = this.party && MenuScene.cupOn ? cupGames(Math.max(3, n)).reduce((a, g) => a + roundsFor(g.rounds) * perRound + 10, 0) : roundsFor(this.rounds) * perRound;
+    const n = Math.max(2, this.slots.length);
+    const perRound = (m: GameMode) => (m === 'crumbRush' ? 45 : m === 'goldenSpoon' ? 50 : m === 'hotDumpling' ? 35 : 22 + 5 * n) + 8; // seconds, incl. the countdown and banner
+    const roundsFor = (target: number) => Math.min(target * 2.4, target * (1 + 0.45 * (n - 2))); // more players: more rounds won by others
+    const secs = this.party && MenuScene.cupOn ? cupGames(Math.max(3, n)).reduce((a, g) => a + roundsFor(g.rounds) * perRound(g.mode) + 15, 0) : roundsFor(this.rounds) * perRound(this.party ? this.mode : 'classic');
     return Math.max(1, Math.round(secs / 60));
   }
 
@@ -272,7 +273,7 @@ export class MenuScene extends Phaser.Scene {
         ? [['mode', 'KeyG'], ['cup', 'KeyC'], ['cuplen', 'KeyL'], ['bots', 'Digit2'], ['table', 'KeyM'], ['rounds', 'KeyR'], ['twist', 'KeyX'], ['power', 'KeyU'], ['haz', 'KeyH'], ['dice', 'KeyZ'], ['phones', 'TouchPhones']]
         : [['bots', 'Digit2'], ['table', 'KeyM'], ['rounds', 'KeyR'], ['twist', 'KeyX'], ['power', 'KeyU'], ['haz', 'KeyH'], ['dice', 'KeyZ'], ['online', 'KeyO']];
       const x0 = 640 - ((items.length - 1) * (W + 8)) / 2;
-      this.setBtns = items.map(([id, code], k) => { const b = new Button(this, x0 + k * (W + 8), 512, { w: W, h: 54, label: '', size: 14, onClick: () => { if (this.keysShown) return; if (id === 'twist') this.toggleTwists(); else injectTap(code); } }, 6); (b as Button & { id?: string }).id = id; b.label.setAlign('center').setLineSpacing(-2); return b; });
+      this.setBtns = items.map(([id, code], k) => { const b = new Button(this, x0 + k * (W + 8), 512, { w: W, h: 54, label: '', size: 14, onClick: () => { if (this.keysShown) return; if (id === 'twist') this.toggleTwists(); else if (id === 'bots') this.toggleBots(); else injectTap(code); } }, 6); (b as Button & { id?: string }).id = id; b.label.setAlign('center').setLineSpacing(-2); return b; });
       this.playBtn = new Button(this, 640, 590, { w: 320, h: 64, label: '▶ PLAY', size: 32, accent: 0xff9a3c, onClick: () => { if (!this.keysShown) injectTap('Digit1'); } }, 6);
       this.hintText = this.add.text(640, 652, '', { ...BODY, fontStyle: '800', fontSize: '13px', color: '#cdb9a3', align: 'center', wordWrap: { width: 1180 } }).setOrigin(0.5).setDepth(2);
       this.keysBtn = new Button(this, 92, 690, { w: 150, h: 40, label: '⌨ KEYS', size: 16, onClick: () => show(!this.keysShown) }, 21);
@@ -307,6 +308,21 @@ export class MenuScene extends Phaser.Scene {
   /** 🏆 Party Cup with the current seats (bots fill to 3 so every mode works). */
   /** ⚡ Twist picker: every single twist and every double, in one panel (tap one to pick it). */
   private twistUi: (Button | Phaser.GameObjects.GameObject)[] = [];
+  private botUi: (Button | Phaser.GameObjects.GameObject)[] = [];
+  /** 🤖 BOT LEVEL picker: every level in one tap, with what it means. */
+  private toggleBots(): void {
+    const close = () => { for (const u of this.botUi) { if (u instanceof Button) { u.g.destroy(); u.label.destroy(); u.sub?.destroy(); u.zone.destroy(); } else u.destroy(); } this.botUi = []; };
+    if (this.botUi.length) { close(); return; }
+    sfx.pickup();
+    const g = this.add.graphics().setDepth(30);
+    g.fillStyle(0x000000, 0.6).fillRect(0, 0, 1280, 720).fillStyle(0x0d0805, 1).fillRoundedRect(240, 120, 800, 500, 20).lineStyle(3, 0xffd24a, 1).strokeRoundedRect(240, 120, 800, 500, 20);
+    this.botUi.push(this.add.zone(640, 360, 1280, 720).setInteractive().setDepth(30), g, this.add.text(640, 156, '🤖 HOW TOUGH ARE THE BOTS?', body(22, '#ffd24a', 900)).setOrigin(0.5).setDepth(31));
+    DIFFICULTIES.forEach((d, k) => {
+      const on = d === this.difficulty, b = new Button(this, 640, 222 + k * 82, { w: 700, h: 72, label: `${on ? '✔ ' : ''}${d.toUpperCase()}`, sub: BOT_INFO[d], size: 20, accent: on ? 0x8dff6a : 0xffb347, onClick: () => { this.difficulty = d; this.botLevels = []; sfx.go(); close(); } }, 31);
+      this.botUi.push(b);
+    });
+    this.botUi.push(new Button(this, 1000, 156, { w: 56, h: 44, label: '✖', size: 20, onClick: () => close() }, 31));
+  }
   private toggleTwists(): void {
     const close = () => { for (const u of this.twistUi) { if (u instanceof Button) { u.g.destroy(); u.label.destroy(); u.sub?.destroy(); u.zone.destroy(); } else u.destroy(); } this.twistUi = []; };
     if (this.twistUi.length) { close(); return; }
@@ -402,6 +418,7 @@ export class MenuScene extends Phaser.Scene {
     for (const u of this.rulesUi) if (u instanceof Button) u.update(dt);
     for (const u of this.twistUi) if (u instanceof Button) u.update(dt);
     if (this.twistUi.length && consumeTap('Escape')) { this.toggleTwists(); clearTaps(); return; }
+    if (this.botUi.length && consumeTap('Escape')) { this.toggleBots(); clearTaps(); return; }
     if (this.rulesUi.length && consumeTap('Escape')) { this.toggleRules(); clearTaps(); return; }
     if (this.keysShown && consumeTap('Escape')) this.keysToggle?.(false);
     this.pollDevices();
@@ -410,7 +427,8 @@ export class MenuScene extends Phaser.Scene {
       for (let i = this.slots.length - 1; i >= 0; i--) if (this.slots[i].kind === 'bot') { this.removeSlot(i); break; }
     }
     // Bot difficulty: '2' on a keyboard (D is the left player's "next kaiju"), or the BOTS button on touch.
-    if (consumeTap('Digit2') || consumeTap('TouchDiff')) { this.difficulty = DIFFICULTIES[(DIFFICULTIES.indexOf(this.difficulty) + 1) % DIFFICULTIES.length]; this.botLevels = []; sfx.pickup(); }
+    if (consumeTap('TouchDiff')) this.toggleBots(); // 📱 the BOTS pill opens the picker too
+    if (consumeTap('Digit2')) { this.difficulty = DIFFICULTIES[(DIFFICULTIES.indexOf(this.difficulty) + 1) % DIFFICULTIES.length]; this.botLevels = []; sfx.pickup(); }
     if (consumeTap('KeyM')) this.cycleTable();
     if (this.party && MenuScene.cupOn && (consumeTap('KeyR') || consumeTap('TouchRounds'))) sfx.thwock(); // the Cup sets the rounds
     if (consumeTap('KeyR') || consumeTap('TouchRounds')) {
@@ -504,7 +522,7 @@ export class MenuScene extends Phaser.Scene {
     for (let i = 0; i < MAX_PLAYERS; i++) {
       const x = CARD_X(i), s = this.slots[i], img = this.cardImgs[i];
       const sp = s ? this.picks[i] : -1, col = sp >= 0 ? SPECIES[sp].color : 0x4a3a2e;
-      const team = this.mode === 'teams' ? i % 2 : -1, tcol = team >= 0 ? MODE_RULES.teams.colors[team] : 0;
+      const team = this.mode === 'teams' && !(this.party && MenuScene.cupOn) ? i % 2 : -1, tcol = team >= 0 ? MODE_RULES.teams.colors[team] : 0;
       g.fillStyle(0x000000, 0.5);
       g.fillRoundedRect(x - CARD_W / 2, 184, CARD_W, 216, 16);
       if (team >= 0) {
@@ -571,7 +589,7 @@ export class MenuScene extends Phaser.Scene {
     const seats = this.slots.map((_, i) => i % 2), red = seats.filter(t => t === 0).length, blue = seats.length - red;
     if (this.party && MenuScene.cupOn) this.tagline.setText('🏆 Party Cup: a different mode every game, points for every place'); else this.tagline.setText(this.mode === 'teams' ? `${md.blurb}   ·   RED ${red}  vs  BLUE ${blue}${red !== blue ? '  (add a player or bot to even it up)' : ''}` : this.party ? md.blurb : 'Tiny monsters. Giant dinner.');
     this.modeText.setText(`${this.party ? (MenuScene.cupOn ? `🏆 PARTY CUP: ${cupGames(Math.max(3, this.slots.length)).length} GAMES` : `◀ ${md.name} ▶`) : 'CLASSIC'}   ·   POWER-UPS: ${this.powerups ? 'ON' : 'OFF'}   ·   HAZARDS: ${this.hazards ? 'ON' : 'OFF'}${this.mutator !== 'none' ? `   ·   ⚡ ${twistName(this.mutator, this.mutator2)}` : ''}`);
-    this.infoText.setScale(1).setText(`${isTouchDevice ? `🤖 ${BOT_INFO[this.difficulty]}   ·   ` : ''}Bot difficulty: ${this.difficulty.toUpperCase()}   ·   Up to ${MAX_PLAYERS} players   ·   ${this.party && MenuScene.cupOn ? 'The Cup sets the rounds' : `First to ${this.rounds} round${this.rounds === 1 ? '' : 's'}`}   ·   ⏱ ≈ ${this.estMinutes()} min   ·   ${this.own.kaiju.length < SPECIES.length ? `${this.own.kaiju.length}/${SPECIES.length} kaiju (play & Story unlock more)` : `${SPECIES.length} kaiju`}`);
+    this.infoText.setScale(1).setText(`${isTouchDevice ? `🤖 ${BOT_INFO[this.difficulty]}   ·   ` : ''}Bot difficulty: ${this.difficulty.toUpperCase()}   ·   Up to ${MAX_PLAYERS} players   ·   ${this.party && MenuScene.cupOn ? 'The Cup sets the rounds' : `Win ${this.rounds} round${this.rounds === 1 ? '' : 's'} to win the match`}   ·   ⏱ ≈ ${this.estMinutes()} min   ·   ${this.own.kaiju.length < SPECIES.length ? `${this.own.kaiju.length}/${SPECIES.length} kaiju (play & Story unlock more)` : `${SPECIES.length} kaiju`}`);
     if (this.infoText.width > 1240) this.infoText.setScale(1240 / this.infoText.width); // phones add the bot explainer: keep it on screen
     const tl = this.table < 0 ? null : LAYOUTS[this.table];
     this.tableText.setText(tl ? `TABLE: ${tl.name.toUpperCase()}  —  ${tl.blurb}` : `TABLE: ALL ${tableCount().own}${this.own.tables.length > tableCount().own ? ` + ${this.own.tables.length - tableCount().own} WORKSHOP` : ''} (a different one every round)${tableCount().own < tableCount().all ? ` · ${tableCount().all - tableCount().own} more to unlock` : ''}`);

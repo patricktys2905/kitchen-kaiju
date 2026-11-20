@@ -17,7 +17,7 @@ export interface Settings {
   kaijuPowers: boolean; // each kaiju's own KAIJU power + small trait (off = Classic: all kaiju the same)
 }
 
-export const DEFAULTS: Settings = { volume: 0.75, music: 0.35, shake: true, reducedFx: false, nameTags: false, replays: true, badges: false, tips: true, bigButtons: false, rumble: true, kaijuPowers: true, catchUp: true, kidMode: false };
+export const DEFAULTS: Settings = { volume: 0.75, music: 0.35, shake: true, reducedFx: false, nameTags: false, replays: true, badges: false, tips: true, bigButtons: typeof window !== 'undefined' && ('ontouchstart' in window || navigator.maxTouchPoints > 0), rumble: true, kaijuPowers: true, catchUp: true, kidMode: false };
 
 const KEY = 'kk-settings-v1';
 let cache: Settings | null = null;

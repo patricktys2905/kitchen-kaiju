@@ -207,6 +207,7 @@ export interface WorldOptions {
   mutator?: Mutator; // one wacky rule twist (default none)
   mutator2?: Mutator; // ⚡⚡ a second twist stacked on top (default none)
   catchUp?: boolean; // comeback help: kaiju behind on rounds start with a fuller belly (RULES.catchUpBelly per round behind)
+  kid?: boolean; // 🧸 Kid Mode / early Story: bots wait longer before going KAIJU (RULES.kidStompGrace)
   calmStart?: number; // extra seconds before each table hazard first fires (gentler first Story chapters)
 }
 
@@ -316,6 +317,7 @@ export class World {
   constructor(o: WorldOptions) {
     this.opts = {
       seed: o.seed ?? 1,
+      kid: o.kid ?? false,
       target: o.target ?? 5,
       hazards: o.hazards ?? true,
       crumbSpawns: o.crumbSpawns ?? true,

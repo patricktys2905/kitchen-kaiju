@@ -1060,3 +1060,19 @@ The full list is in `playtest-reports/round10/SUMMARY.md` ("Fixed straight after
   - 6 Workshop slots (was 3).
   - ✏ NAME a table.
   - Help ▸ EXTRAS explains every power-up, twist and hazard.
+
+## 75. Round 11 fixes
+The full list is in `playtest-reports/round11/SUMMARY.md` ("Fixed straight after round 11"). Key points:
+- **Input:** `inputTick()` in `src/input.ts` holds a pressed key for one game update.
+- **Panels:** `PanelScene.closeTop()` closes an open overlay on Esc; `afterBuild()` / `init({show})` let the Gallery return to the same kaiju.
+- **Bots:**
+  - World option `kid` (Kid Mode, or Grand Feast ch1–6) means bots wait `RULES.kidStompGrace` (15 s) before going KAIJU.
+  - The first 3 matches ever use `STORY_CALM`.
+- **Setup:**
+  - `MenuScene.toggleBots()` is the BOT LEVEL picker.
+  - `estMinutes` uses per-mode round times.
+  - `cupLength()` defaults to short.
+- **Stats:** `parries` and `brutalWins` feed the achievements `parry-10` and `brutal-win`.
+- **Prices:** `SHINY.cost` is 200.
+- **Daily:** `DAILY.rounds` is 2.
+- **Gauntlet:** the perk screen gets an END RUN button; the weekly-best payout happens at the end of the run only.

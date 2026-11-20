@@ -12,7 +12,7 @@ export const DAILY = {
   levels: ['normal', 'easy', 'easy'] as Difficulty[],
   spicyLevels: ['hard', 'tough', 'normal'] as Difficulty[], // 🌶️ SPICY DAILY: the same match, tougher rivals
   spicyTokens: 40, // 🪙 for winning the Spicy Daily (once a day)
-  rounds: 3,
+  rounds: 2, // a short daily (timed modes can run long)
   powerups: true,
 };
 

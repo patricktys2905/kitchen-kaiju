@@ -34,9 +34,9 @@ import { enabledMutators, mutatorDef, type Mutator } from '../sim/mutators';
 
 const CSS = `
 #lobby { position: fixed; inset: 0; z-index: 15; display: flex; align-items: center; justify-content: center; font-family: Nunito, Arial, sans-serif; font-weight: 800; color: #f1e4d2; }
-#lobby .panel { background: #2a1408f2; border: 4px solid #ffcf8a; border-radius: 24px; padding: 22px 30px; width: min(720px, 92vw); max-height: 92vh; overflow: auto; box-shadow: 0 10px 0 #140b05; }
+#lobby .panel { background: #2a1408f2; border: 4px solid #ffcf8a; border-radius: 24px; padding: 22px 30px; width: min(720px, 92vw); max-height: 94vh; overflow: auto; box-sizing: border-box; box-shadow: 0 10px 0 #140b05; }
 #lobby h1 { font-family: 'Luckiest Guy', 'Arial Black', sans-serif; font-weight: 400; letter-spacing: 0.04em; color: #ffb347; margin: 0 0 6px; font-size: 40px; text-shadow: 0 4px 0 #140b05; }
-#lobby p { margin: 6px 0; line-height: 1.4; }
+#lobby p { margin: 4px 0; line-height: 1.3; }
 #lobby .muted { color: #cdb9a3; font-weight: 700; font-size: 15px; }
 #lobby .row { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 14px; align-items: center; }
 #lobby button { font-family: 'Luckiest Guy', 'Arial Black', sans-serif; font-weight: 400; letter-spacing: 0.04em; font-size: 18px; padding: 9px 16px; border-radius: 14px;
@@ -80,7 +80,7 @@ export class LobbyScene extends Phaser.Scene {
   private cup = false; // 🏆 play a Party Cup instead of one match
   private tvMode = false; // 📺 the host screen only shows the game; everyone plays on their own phone
   private own: Owned = { kaiju: [], tables: [] }; // the HOST's unlocks apply to the whole room
-  private fillTo: 0 | 4 | 6 = 4; // bots fill empty seats up to this many players (0 = no bots)
+  private fillTo: 0 | 4 | 6 = 6; // bots fill empty seats up to this many players (0 = no bots)
   private status = '';
   private statusOk = true;
   private view: 'choose' | 'host' | 'join' = 'choose';
@@ -283,7 +283,7 @@ export class LobbyScene extends Phaser.Scene {
         </div>
         <p class="muted">${esc(modeDef(this.mode).blurb)}</p>
         <div class="row"><button class="go" data-act="start" ${guests || this.couch ? '' : 'disabled'}>${guests ? 'Start match' : 'Start (bots fill the seats)'}</button><button data-act="back">Close room</button></div>
-        ${guests ? '' : '<p class="muted">Waiting for at least one friend to join…</p>'}
+        ${guests ? '' : `<p class="muted">${this.couch ? 'Scan the code to join from a phone, or start now and bots fill the seats.' : 'Waiting for at least one friend to join…'}</p>`}
         ${statusHtml}`;
     } else {
       const saved = localStorage.getItem('kk-name') ?? '';

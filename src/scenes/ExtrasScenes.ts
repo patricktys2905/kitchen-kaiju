@@ -54,17 +54,24 @@ abstract class PanelScene extends Phaser.Scene {
     const back = new Button(this, isTouchDevice ? 250 : 92, 46, { w: 150, h: 48, label: '◀ BACK', size: 20, onClick: () => this.back() }, 6);
     this.build();
     this.nav = new FocusNav([...this.buttons, back], this.cols);
+    this.afterBuild();
   }
+  protected afterBuild(): void { /* screens can pick a starting focus */ }
+  protected startData: { show?: number } = {};
+  init(data: { show?: number }): void { this.startData = data ?? {}; }
 
   protected back(): void {
     sfx.leave();
     this.scene.start('title');
   }
 
+  /** An open overlay on this screen closes first on Esc / BACK. Return true if one was closed. */
+  protected closeTop(): boolean { return false; }
+
   update(_t: number, delta: number): void {
     const dt = delta / 1000;
     this.t += dt;
-    if (this.nav.update(dt) === 'back') { this.back(); return; }
+    if (this.nav.update(dt) === 'back') { if (!this.closeTop()) this.back(); return; }
     this.tick(dt);
     clearTaps();
   }
@@ -226,7 +233,7 @@ export class HelpScene extends PanelScene {
     const head = (x: number, y: number, s: string, color = '#ffd24a') =>
       this.content.push(withShadow(this.add.text(x, y, s, display(22, color, { strokeThickness: 4 })).setDepth(5), 2));
     if (p === 'controls') {
-      txt(90, 158, '🎯 Be the LAST kaiju on the table. Shove, throw and squash rivals off the edge!', 18, '#ffd24a');
+      txt(90, 158, '🎯 Be the LAST kaiju on the table to win a ROUND. Win enough rounds ("first to 3") to win the MATCH!', 18, '#ffd24a');
       // five picture cards: one move each, one short line
       const CARDS: [string, string, string][] = [
         ['🍴', 'THROW', 'Hold, then let go to fling your cutlery. Go grab it back!'],
@@ -337,6 +344,7 @@ export class GalleryScene extends PanelScene {
   private previewH = 200;
   constructor() { super('gallery'); }
 
+  protected afterBuild(): void { const s = this.startData.show; if (s !== undefined && s >= 0 && s < SPECIES.length) this.nav.index = s; }
   protected build(): void {
     this.shown = -1; this.detail = []; // the scene is reused: forget the last visit, or the detail panel never redraws (it showed blank)
     const own = owned().kaiju;
@@ -422,7 +430,7 @@ export class GalleryScene extends PanelScene {
       const sp = this.shown < 0 ? 0 : this.shown;
       if (isShiny(sp)) { sfx.thwock(); return; }
       const why = shinyBlock(sp); // say why up front, instead of asking to confirm a buy that can't happen
-      if (why !== 'ok') { sfx.thwock(); this.shinyBtn?.setText('✨ SHINY', why === 'level' ? `needs Mastery Lv ${SHINY.level} first` : `need ${SHINY.cost - loadMeta().tokens} more 🪙`); return; }
+      if (why !== 'ok') { sfx.thwock(); this.shinyBtn?.setText('✨ SHINY', why === 'level' ? `Mastery Lv ${SHINY.level} first` : `${SHINY.cost - loadMeta().tokens} 🪙 short`); return; }
       if (this.shinyArm !== sp) { this.shinyArm = sp; sfx.pickup(); this.shinyBtn?.setText('✨ BUY SHINY?', `tap again: ${SHINY.cost} 🪙`); return; } // a second tap confirms
       this.shinyArm = -1;
       const r = buyShiny(sp);
@@ -435,7 +443,7 @@ export class GalleryScene extends PanelScene {
   /** ✨ a visible payoff for buying a Shiny: banner, sparkle burst, fresh balance. */
   private celebrateShiny(sp: number): void {
     this.balText?.setText(this.balText.text.replace(/🪙 \d+/, `🪙 ${loadMeta().tokens}`));
-    const t = withShadow(this.add.text(640, 300, `✨ SHINY ${SPECIES[sp].name.toUpperCase()}! ✨\nIt sparkles in every match now`, display(34, '#ffe27a', { align: 'center', strokeThickness: 6 })).setOrigin(0.5).setDepth(30), 4);
+    const t = withShadow(this.add.text(640, 560, `✨ SHINY ${SPECIES[sp].name.toUpperCase()}! ✨\nIt sparkles in every match now`, display(30, '#ffe27a', { align: 'center', strokeThickness: 6 })).setOrigin(0.5).setDepth(30), 4);
     popIn(this, t, 1.8, 420);
     this.tweens.add({ targets: t, alpha: 0, delay: 2200, duration: 500, onComplete: () => t.destroy() });
     for (let k = 0; k < 26; k++) {
@@ -524,13 +532,13 @@ export class GalleryScene extends PanelScene {
     this.detail.push(withShadow(this.add.text(600, 470, got ? sp.full.toUpperCase() : '??? (LOCKED)', display(36, got ? sp.css : '#a89680', { strokeThickness: 6 })).setDepth(6), 3));
     const u = UNLOCKS.find(q => q.kind === 'kaiju' && q.index === i);
     const lines = got
-      ? [`A ${sp.food}.`, `🌟 KAIJU power: ${KITS[i].power} — ${KITS[i].blurb} (reach ${Math.round(powerReach(KITS[i]))} · every ${powerCooldown(KITS[i]).toFixed(1)} s)`, `Trait: ${KITS[i].trait}`, `Matches: ${st.kaijuPlays[i] ?? 0}  ·  Wins: ${st.kaijuWins[i] ?? 0}${st.vs?.[i] ? `  ·  📊 You vs it: ${st.vs[i][0]}–${st.vs[i][1] - st.vs[i][0]}` : ''}${u ? `  ·  🎁 ${needText(u)}` : ''}`, (() => { const mi = masteryInfo(loadMeta().xp[i] ?? 0); const words = ['sparkles', 'HUD star', 'gold name', 'gold frame', 'crown']; const ladder = words.map((r, k) => `${k + 2 <= mi.level ? '✔' : '🔒'}${r}`).join(' · '); const fill = mi.need ? Math.round(8 * mi.into / mi.need) : 8; return `Mastery Lv ${mi.level} ${mi.title} ${'▰'.repeat(fill)}${'▱'.repeat(8 - fill)}${mi.need ? ` (${mi.into}/${mi.need} XP)` : ' MAX'}\nRewards (Lv 2-6): ${ladder} · ${isShiny(i) ? '✔' : '🔒'}Shiny`; })()]
+      ? [`A ${sp.food}.`, `🌟 KAIJU power: ${KITS[i].power} — ${KITS[i].blurb} (reach ${Math.round(powerReach(KITS[i]))} · every ${powerCooldown(KITS[i]).toFixed(1)} s)`, `Trait: ${KITS[i].trait}`, `Matches: ${st.kaijuPlays[i] ?? 0}  ·  Wins: ${st.kaijuWins[i] ?? 0}${st.vs?.[i] ? `  ·  📊 You vs it: ${st.vs[i][0]}–${st.vs[i][1] - st.vs[i][0]}` : ''}${u ? `  ·  🎁 ${got ? 'unlocked by playing' : needText(u)}` : ''}`, (() => { const mi = masteryInfo(loadMeta().xp[i] ?? 0); const words = ['sparkles', 'HUD star', 'gold name', 'gold frame', 'crown']; const ladder = words.map((r, k) => `${k + 2 <= mi.level ? '✔' : '🔒'}${r}`).join(' · '); const fill = mi.need ? Math.round(8 * mi.into / mi.need) : 8; return `Mastery Lv ${mi.level} ${mi.title} ${'▰'.repeat(fill)}${'▱'.repeat(8 - fill)}${mi.need ? ` (${mi.into}/${mi.need} XP)` : ' MAX'}\nRewards (Lv 2-6): ${ladder} · ${isShiny(i) ? '✔' : '🔒'}Shiny`; })()]
       : [u ? `Unlock: ${needText(u)}` : 'Locked', '', 'Left: normal look · right: KAIJU MODE'];
     // fit inside the panel (x 600..1115, y 518..680): wrap to the width, then shrink the font until it fits
-    const W = 355, H = 160; // right side of the panel holds MOVE LAB + SHINY
+    const W = 355, H = 156; // right side of the panel holds MOVE LAB + SHINY (a little margin above the border)
     let size = 19;
     const info = this.add.text(600, 518, lines.join('\n'), body(size, '#f1e4d2', 800, { lineSpacing: 5, wordWrap: { width: W } })).setDepth(6);
-    while (info.height > H && size > 12) { size--; info.setFontSize(size); }
+    while (info.height > H && size > 10) { size--; info.setFontSize(size); if (size <= 13) info.setLineSpacing(2); }
     this.detail.push(info);
   }
 }
@@ -573,17 +581,18 @@ export class RecordsScene extends PanelScene {
       this.add.text(70, 152 + i * 31, k, body(15, '#e9dccb', 800)).setDepth(5);
       this.add.text(430, 152 + i * 31, String(v), display(20, '#ffe9c7', { strokeThickness: 3 })).setOrigin(1, 0).setDepth(5);
     });
-    this.add.text(250, 670, 'Rank pts: 2 per achievement + 1 per kaiju Mastery level.', body(13, '#a89680', 800)).setOrigin(0.5, 1).setDepth(5);
+    { const t = this.add.text(250, 670, 'Rank pts: 2 per achievement + 1 per kaiju Mastery level.', body(13, '#a89680', 800)).setOrigin(0.5, 1).setDepth(5); if (t.width > 390) t.setScale(390 / t.width); } // inside the stats panel
 
     const done = ACHIEVEMENTS.filter(a => s.achieved.includes(a.id)).length;
     withShadow(this.add.text(500, 108, `ACHIEVEMENTS ${done}/${ACHIEVEMENTS.length}`, display(24, '#ffd24a', { strokeThickness: 4 })).setDepth(5), 2);
     this.drawAch(s, 0);
     this.buttons.push(new Button(this, 975, 108, { w: 190, h: 40, label: '🎯 GOALS', size: 16, accent: 0x8dff6a, onClick: () => this.toggleGoals() }, 6));
-    if (PAGES > 1) { const pb: Button = new Button(this, 1170, 108, { w: 170, h: 40, label: `PAGE 1/${PAGES} ▶`, size: 16, onClick: () => { this.page = (this.page + 1) % PAGES; sfx.pickup(); pb.setText(`PAGE ${this.page + 1}/${PAGES} ▶`); this.drawAch(s, this.page); } }, 6); this.buttons.push(pb); }
+    if (PAGES > 1) { const pb: Button = new Button(this, 1170, 108, { w: 170, h: 40, label: `PAGE 1/${PAGES} · NEXT ▶`, size: 16, onClick: () => { this.page = (this.page + 1) % PAGES; sfx.pickup(); pb.setText(`PAGE ${this.page + 1}/${PAGES} · NEXT ▶`); this.drawAch(s, this.page); } }, 6); this.buttons.push(pb); }
   }
 
   /** 🎯 GOALS board: the path to 100% (what's left in each collection, and the next step), plus the 3 closest achievements. */
   private goalsUi: (Button | Phaser.GameObjects.GameObject)[] = [];
+  protected closeTop(): boolean { if (!this.goalsUi.length) return false; this.toggleGoals(); return true; }
   private toggleGoals(): void {
     if (this.goalsUi.length) { for (const u of this.goalsUi) { if (u instanceof Button) { u.g.destroy(); u.label.destroy(); u.sub?.destroy(); u.zone.destroy(); } else u.destroy(); } this.goalsUi = []; this.buttons.splice(0, this.buttons.length, ...this.buttons.filter(b => b.zone.active)); return; }
     sfx.pickup();
@@ -678,7 +687,7 @@ export class PantryScene extends PanelScene {
 
   protected build(): void {
     const step = completeStep('pantry');
-    if (step) this.time.delayedCall(300, () => { sfx.meterFull(); this.drawShop(); const t = withShadow(this.add.text(640, 360, `🍽 FIRST SERVICE ✔ ${step.text}: +${step.reward} 🪙`, display(24, '#8dff6a', { strokeThickness: 5 })).setOrigin(0.5).setDepth(40), 3); popIn(this, t, 1.6, 360); this.tweens.add({ targets: t, alpha: 0, delay: 3500, duration: 500, onComplete: () => t.destroy() }); }); // say where the tokens came from
+    if (step) this.time.delayedCall(300, () => { sfx.meterFull(); this.drawShop(); const t = withShadow(this.add.text(640, 92, `🍽 FIRST SERVICE ✔ ${step.text}: +${step.reward} 🪙`, display(18, '#8dff6a', { strokeThickness: 4, backgroundColor: '#0d0805', padding: { x: 10, y: 4 } })).setOrigin(0.5).setDepth(40), 3); popIn(this, t, 1.6, 360); this.tweens.add({ targets: t, alpha: 0, delay: 3500, duration: 500, onComplete: () => t.destroy() }); }); // say where the tokens came from
     const m = loadMeta();
     const g = this.add.graphics().setDepth(4);
     g.fillStyle(0x2a1408, 0.92).fillRoundedRect(40, 100, 470, 590, 22).lineStyle(3, 0xffb347, 1).strokeRoundedRect(40, 100, 470, 590, 22);

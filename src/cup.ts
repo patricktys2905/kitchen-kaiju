@@ -17,7 +17,7 @@ export const CUP = {
 
 /** Cup length: 'short' = 3 games (classic, Golden Spoon, final) or 'full'. Saved on this device. EASY TO CHANGE. */
 export type CupLength = 'short' | 'full';
-export function cupLength(): CupLength { try { return localStorage.getItem('kk-cup-length') === 'short' ? 'short' : 'full'; } catch { return 'full'; } }
+export function cupLength(): CupLength { try { return localStorage.getItem('kk-cup-length') === 'full' ? 'full' : 'short'; } catch { return 'short'; } } // short by default (≈ 3 games)
 export function setCupLength(v: CupLength): void { try { localStorage.setItem('kk-cup-length', v); } catch { /* blocked */ } }
 
 /** The games this group can play (skips modes that need more players than there are). */

@@ -25,9 +25,12 @@ export const KEYMAPS: { name: string; up: string; down: string; left: string; ri
 ];
 
 const keys: Record<string, boolean> = {};
-const downAt: Record<string, number> = {};
-const KEY_LATCH = 90; // ms: a quick tap is never lost between frames
-const held = (k: string): boolean => !!keys[k] || performance.now() - (downAt[k] ?? -1e9) < KEY_LATCH;
+// ⌨ a quick tap is never lost: a pressed key counts as held for at least one game update, even if it was
+// released before that update ran (fast fingers, a slow frame, or the paused test harness)
+const pending = new Map<string, boolean>(); // code -> already seen by one inputTick()
+const held = (k: string): boolean => !!keys[k] || pending.has(k);
+/** Call once per game update, before reading inputs. */
+export function inputTick(): void { for (const [k, seen] of pending) { if (seen) pending.delete(k); else pending.set(k, true); } }
 const tapped = new Set<string>();
 const BLOCK = new Set(['Space', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Enter', 'Slash', 'Tab']);
 
@@ -35,12 +38,12 @@ export function initInput(onFirstGesture: () => void): void {
   window.addEventListener('keydown', e => {
     onFirstGesture();
     keys[e.code] = true;
-    if (!e.repeat) { tapped.add(e.code); downAt[e.code] = performance.now(); }
+    if (!e.repeat) { tapped.add(e.code); pending.set(e.code, false); }
     if (BLOCK.has(e.code)) e.preventDefault();
   });
   window.addEventListener('keyup', e => { keys[e.code] = false; });
   window.addEventListener('pointerdown', onFirstGesture);
-  window.addEventListener('blur', () => { for (const k in keys) keys[k] = false; for (const k in downAt) delete downAt[k]; });
+  window.addEventListener('blur', () => { for (const k in keys) keys[k] = false; pending.clear(); });
 }
 
 /** Lets on-screen buttons trigger the same one-shot actions as keyboard shortcuts. */

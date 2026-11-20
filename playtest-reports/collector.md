@@ -1,134 +1,132 @@
-# Playtest evaluation: The Collector
+# Playtest evaluation — The Collector (profile 5, round 11)
 
-**Fun score: 7.0 / 10** (the unlock chase is charming and the reveal moments are lovely, but the Gallery detail panel goes blank, counts disagree, half the collection is a grind of random-bot autoplay wins, and the Shiny/colour goals are opaque)
-
-> Round 10, server http://localhost:7105, screenshots in `C:\Users\Pat\kitchen-kaiju\art-src\.playtest\r10-7105\`.
+**Fun score: 7.4 / 10** (the Gallery, Goals and Pantry make collecting clear and satisfying, but the long middle is gated behind a boss I could not beat, shinies are a 6,000-coin grind, and most locked colours never say how to get them)
 
 ## What I did
-About 110 harness commands, ~46 screenshots (all opened with Read).
-- Title, Gallery (6 visits: locked kaiju, locked colours, Move Lab button, Shiny button), Pantry (bought Toffee, Lilac, Peach, Blueberry; Silverware showed OWNED), Records (both pages, pinned Regular Diner), Story map and Rewards panel, Challenges modal (Chef's Pass line), Daily, Free Play, Party Modes (Team Feast, Hot Dumpling), Table Workshop (opened by accident, then explored).
-- Matches: 1 manual-ish Free Play, about 17 autoplay matches (Free Play hard bots, Team Feast, Hot Dumpling, Daily), Story ch 1 (3 stars) and ch 2 (2 stars) played via /act.
-- Result: kaiju 12/20 to 16/20, colours 2/21 to 10/21, collection 46% to 68%, Chocomunch, Bubblegumbo, Sloba, Avocadrake, Fondue Night unlocked, Table Maker and several other achievements, 9/37 achievements.
-- /errors: none at start, middle, end.
+- About 105 harness commands, fresh save, no keyboard. Saved to screenshots shot-1 .. shot-43 in `art-src/.playtest/r11-7105/`. All opened with Read.
+- Title -> Records (3 achievement pages) -> Records GOALS popup (twice: fresh and after progress) -> Gallery (clicked locked kaiju and a locked colour; tried every locked kaiju's requirement) -> Pantry (first visit, then bought Toffee, Lilac, Peach) -> Free Play setup (cycled all unlocked tables) -> Workshop (placed 2 cupcakes, saved) -> Story map, opening cutscene, Chapters 1 to 4 -> Gallery shiny purchase -> Daily preview card -> Challenges card -> Gallery Move Lab (Sloba) -> Practice.
+- Matches: 1 autoplay loss, 3 more autoplay (all losses), 1 manual-then-auto Free Play (WIN, 3-round), Story ch1 win (2 stars), ch2 win (3 stars), ch3 win, ch4 boss lost 3 times (boss Norigon + Salmonster). 5 matches won overall (4 wins counted + 1), 4 lost. Roughly 25 minutes of game time.
+- Result: Kaiju 12/20 -> 15/20, Tables 13/18 -> 15/18, Colours 2/21 -> 9/21, Shinies 0/20 -> 1/20, Achievements 0/37 -> 9/37, collection 46% -> 66%.
+- `/errors` checked at start, middle and end: always "none".
 
 ## What worked for me
-- **"NEW KAIJU!" reveal** (shot-29): full-screen spotlight with the power description and "Playable now in Free Play, Party Modes and Online". It is exactly the payoff a collector wants.
-- **Locked entries tell you how to earn them.** Gallery silhouettes say "Unlock: Win 5 matches (you have 0/5)", locked colours say `🔒 Ocean: "Regular Diner": Win 10 matches (0/10)`, Silverware says "buy it in the PANTRY for 400". Clear, specific, with progress.
-- **Records pin (new feature)**: pinning Regular Diner changed the footer to `📌 Pinned: Regular Diner (30%)`, and after matches the results card showed "Regular Diner: 6/10". It follows the pin as promised.
-- **Story Rewards panel** (shot-32): one grid showing every kaiju and table the Story gives, with "(2/12 cleared)" counters.
-- **Pantry**: tap-twice-to-buy is safe and fast. Weekly orders pay out visibly (40 each, green "paid" state).
-- **Gallery header coin balance (new feature)**: `Collection 68% · 🪙 91` and `🐉 16/20 · 🍽 14/18 · 🎨 10/21` is a perfect at-a-glance collector line.
-- Workshop prop/hazard explanations work (shot-23, shot-24).
-- Daily "still open: 🥇 win without losing a round +40" is shown on the results card (shot-45).
-- Story chapter clear card and the ★★★ rule line are clear.
+- **Records > GOALS is excellent.** One popup with every collection bar, a "next:" line per collection (for example "next: Beat Story chapter 4: Boss of the Belt (3/4 cleared)") and the four closest achievements with PIN. This is exactly what a collector wants (shot-3, shot-39).
+- **Clicking a locked kaiju silhouette tells you how to get it** ("Unlock: Play 3 matches in any mode (you have 0/3)", "Collect 30 stars in THE GRAND FEAST (you have 0/30)"). Silhouettes are a good tease.
+- **The match receipt lists every achievement and unlock** (shot-17: First Bite + Lime colour, Crumb Muncher, Size Matters + Lava colour, Rampage, NEW KAIJU: Chocomunch). This was the best moment of the session.
+- The NEW KAIJU reveal for Sloba after ch2 (shot-34) is a proper celebration.
+- Pantry first-visit "+25 🪙" announcement is there; the buy flow asks one item at a time ("Toffee colour? tap again to buy for 28 🪙") and coin total updates immediately (shot-18).
+- Colour swatch in Gallery live-recolours the big portrait (Lime applied instantly, shot-23). Gallery has the mastery bar, 📊 "You vs it" record, Rewards (Lv 2-6) list, and a clear "needs Mastery Lv 3 first" shiny gate.
+- Shiny purchase has a confirm step and a banner "SHINY GOBZILLA! It sparkles in every match now" and a ✨ SHINY tag in the panel (shot-38).
+- Weekly orders in Pantry pay out and show a green "paid" card (shot-18).
+- Workshop: Table Maker achievement fires on first save, props have clear icons, 6 slots.
+- Chapter-clear card shows "📜 Meanwhile…" line, +tokens and mastery (shot-31).
 
 ## 🧾 Exactly what would make this a 9/10 for me
-1. **Fix the blank Gallery detail panel.** What: after leaving a match or the Pantry and opening 📖 KAIJU, the Gobzilla tile is highlighted but the whole bottom panel (name, art, power, mastery) is empty, with only MOVE LAB and SHINY floating (shots 10, 11, 37). Where: Gallery on entry. How: always render the highlighted kaiju's panel on open (default to the last-used or first kaiju). Impact +0.5.
-2. **Make Shiny and Mastery a visible goal.** What: the SHINY button says "300 🪙 · needs Lv 3" yet tapping it first shows "BUY SHINY? tap again: 300" and only then "needs Mastery Lv 3". Fix: grey it out up front with "Mastery Lv 3 (you are Lv 1, 51/60 XP)", and show a mastery bar in the panel. Add a collection-wide "Shinies 0/20" counter in the header. Impact +0.4.
-3. **Let me aim at an unlock.** The only way I grinded was /autoplay, which gave me random kaiju seats each match. Add a "Target" pin in the Gallery for any locked kaiju/colour that shows on the title and match results ("Chocomunch: win 1 match, 0/1") exactly like the achievement pin. Also let Free Play remember "my kaiju" so Mastery XP goes where I want. Impact +0.5.
-4. **Fix count disagreements.** Party Modes says "TABLE: ALL 15 … tables owned 14/18" (shot-39); Records says "Tables visited 17/18" while Gallery says 14/18 owned. Brief item 8 says counts must agree: they do not. Make "ALL N" equal owned, and label Records "visited" distinctly (e.g. "Seen 17 of 18 tables"). Impact +0.2.
-5. **Fix mislabelled unlock sources.** Gallery says Chocomunch is "Win 1 match" but its panel says "🎁 Story reward" and the Story Rewards grid lists it as a Story reward "Playable now" while Story is 7% complete. Pick one source of truth per kaiju. Impact +0.2.
-6. **Stop spoiling mystery kaiju.** Silhouettes (tortoise, penguin, kangaroo, owl) are recognisable in Gallery and Story Rewards; a collector loses the surprise of "NEW KAIJU!". Use a pure black-box "?" or heavy blur for locked art. Impact +0.2.
-7. **Bots must not use locked kaiju.** Sloba appeared as a Free Play bot (shot after my first autoplay) while the Gallery still showed it as ??? and Story had not unlocked it. Spoils the unlock. Impact +0.2.
-8. **Make colour earning discoverable at a glance.** 21 padlocks in a row all look identical (shot-4). Tap-to-learn works but the hint text is tiny (about 11 px) at the far right. Show the hint in a bigger banner under the row, add category icons (win/KO/crumb/party/pantry) to the padlocks, and show a per-colour progress ring (e.g. 3/10). Impact +0.3.
-9. **Autoplay-free ways to progress party achievements.** Win Team Feast, Hot Dumpling, Golden Spoon, Crumb Rush give colours (Bubblegum, Sky, Lemon). I could not tell if autoplay in a Party mode actually counted: after PLAY, autoplay match 2 returned to a classic-looking results screen (shot-42). Show a mode label on the results card ("TEAM FEAST: RED won") and a toast naming the colour unlocked. Impact +0.3.
-10. **Show colour unlock toasts and a "NEW" badge in the Gallery.** Ten colours unlocked silently; I only noticed from the counter. Add a "NEW" dot on tiles/colours and a toast "🎨 Lime unlocked: wear it in the Gallery". Impact +0.3.
-11. **Pantry colour preview.** Buying "Peach colour" shows no swatch or kaiju preview, only "A soft peach style for every kaiju". Show the current kaiju wearing the colour. Impact +0.2.
-12. **Grind pacing.** 17 autoplay matches got me only 9/37 achievements and 16/20 kaiju; the rest needs Story chapters 4/8/12 and 30 stars. Add a clear "path to 100%" summary (see Proposal 1) with estimated matches remaining. Impact +0.4.
-13. **Fix Team Feast results.** The results list is individual ("1. TOASTBAT (YOU) 3 rounds") with no RED/BLUE team verdict (shot-40). Impact +0.2.
-14. **Fix MAP / tap-to-continue flow on Story reward modals** (clicking MAP while NEW KAIJU overlay was up sent me to the title screen). Impact +0.1.
-15. **Silverware double route.** Gallery says buy for 400, and the Pantry listed it, but no achievement hint; clarify duplicates. Impact +0.1.
+1. **Tell me how to get every locked colour, in one place.** What: the 12 locked swatches in the Gallery colour row all look identical (🔒) and I must click each one to read a 12 px line at the far right. Where: Gallery "YOUR COLOUR" row and Records > GOALS "Colours 9/21 - from achievements and the Pantry". How: (a) show a small badge on each lock (🏆 achievement / 🛒 shop / ⭐ story) and the swatch's actual colour dimmed instead of a padlock; (b) the GOALS Colours line lists the 3 closest ("Grape: Score 25 knockouts 12/25", "Ocean: Win 10 matches 4/10", "Pantry: Blueberry 180 🪙"); (c) bigger text for the hint (min 16 px, 2 lines under the row). +0.6
+2. **Make the 20 shinies reachable.** Shiny = Mastery Lv 3 + 300 🪙 each = 6,000 🪙 plus about 20 x ~300 XP. I earned about 520 🪙 in roughly 9 matches, so 20 shinies is 100+ matches. How: lower to 150-200 🪙 for the first 5, or add a "Shiny shard" drop from Gauntlet/Daily so it is not only coin; show "Shiny: 1/20 (next: Bubblegumbo Lv 2/3)" on GOALS. +0.5
+3. **Do not hard-block kaiju/table collection behind a boss you cannot choose to skip.** Kaiju #16 (Minturtle) and table #16 both wait on Ch 4/6; Boss Norigon beat my bot 3 times, even with 🍀 HELPING HAND. How: after 2 boss losses offer "Practice the boss" (Move-Lab style, no penalty) or an alternate route ("or win 15 matches in Free Play"), and show the unlock path in the Gallery detail of the locked kaiju (it does, good) and on the Story chapter card ("Beat this -> unlocks Minturtle + Chopping Block"). +0.5
+4. **Show the shiny in the Gallery.** After buying ✨ SHINY on Gobzilla the big portrait looks identical to the non-shiny, only a small "✨ SHINY" text appears. Add visible sparkle/gold rim on the card and the portrait, and in the gallery grid thumbnail. +0.4
+5. **Mastery level-up rewards must be announced.** The Defeated panel (shot-35) says "⬆ Mastery Lv 3 Sous Chef" but not what Lv 3 gave (HUD star, shiny now buyable). Say "Lv 3: ✔ HUD star · ✨ Shiny now buyable (300 🪙)". +0.3
+6. **A visible 100% path for tables.** Free Play table pill says "5 more to unlock" but shows no names; locked tables should appear as greyed "???" cards with how to get them. Add a table gallery row to the Gallery (or a Tables tab) with the same silhouette treatment as kaiju. +0.4
+7. **Fix the Gallery detail panel overflow** (see issues #1 and #2): the "Rewards (Lv 2-6)" line touches the bottom border and "Win 1 match in any mode (you have 1/1)" is shown on an already-unlocked kaiju. +0.2
+8. **Explain the speed of collection.** On the title screen "NEXT UP" gives 3 goals; add "X% to a full collection - about N hours left" in GOALS so the collector can plan. +0.2
+9. **Let autoplay/bot-in-my-seat win or at least be honest.** /autoplay never won a match for me in 4 tries (hard bot in my seat vs 3 BRUTAL bots, persisted from an earlier setting). Persisted BRUTAL bot level after I only wanted NORMAL is surprising; show "Bot level: BRUTAL" prominently on the Free Play start, and remember a separate easy level for grinding. +0.2
 
 ## 🔍 Every issue I saw (exhaustive)
-
 | # | Severity | Screen | What's wrong (exact text/element) | Screenshot | Suggested fix |
 |---|---|---|---|---|---|
-| 1 | major | Gallery (after returning from match/Pantry) | Bottom detail panel empty; only MOVE LAB + SHINY buttons visible, Gobzilla tile highlighted | shot-10, shot-11, shot-37 | Always draw the selected kaiju's panel on open |
-| 2 | major | Gallery | SHINY button label "300 🪙 · needs Lv 3" then tap shows "BUY SHINY? tap again: 300 🪙" before saying "needs Mastery Lv 3" | shot-13, shot-14 | Disable up front with exact requirement; do not offer confirm |
-| 3 | major | Party Modes | "TABLE: ALL 15 … tables owned 14/18"; Free Play earlier said "ALL 13 … owned 13/18"; Records "Tables visited 17/18" | shot-39 | Make counts consistent, rename Records stat |
-| 4 | major | Free Play bots | Sloba used as a bot before being unlocked | (autoplay result lists, e.g. match 1 of round 1 results) | Bots only pick unlocked kaiju, or hide until unlocked |
-| 5 | minor | Gallery | Chocomunch unlock text says "Win 1 match" but panel says "🎁 Story reward" and shows Wins: 0 after I played | shot-12 | Single source of truth |
-| 6 | minor | Gallery / Story Rewards | Locked silhouettes identifiable (tortoise, penguin, kangaroo, owl) | shot-4, shot-32 | Fully black or "?" art |
-| 7 | minor | Gallery colour row | Hint text for locked colour is tiny (approx 11 px) at far right: `🔒 Lime: "First Bite": Win a match (0/1)` | shot-4 | Larger banner under row; icon per padlock |
-| 8 | minor | Gallery | Collection counts for colours (10/21) give no list of which colours are earned vs bought vs locked, 21 near-identical padlocks | shot-37 | Category icons and progress |
-| 9 | minor | Pantry | No colour preview for Toffee/Lilac/Peach/Blueberry | shot-36 | Show swatch on current kaiju |
-| 10 | minor | Pantry | Lunchbox: "A free perk on every Gauntlet run" gives no hint which perk | shot-36 | Name the perk or the range |
-| 11 | minor | Story Rewards | Reward order is shuffled (unlocked entries sink to bottom, table and kaiju mixed) | shot-32 | Sort by chapter requirement, group kaiju vs tables |
-| 12 | minor | Story Rewards | Card title `CHEF'S NIGHTMARE (TABLE)` touches the card's right edge | shot-32 | Shrink-to-fit or wrap |
-| 13 | minor | Story reward modal | Clicking MAP while NEW KAIJU overlay was up and then tapping continue dropped me to the title instead of the map | shot-29, shot-31 | Return to Story map |
-| 14 | minor | Results screen (Team Feast) | Individual list only, no RED vs BLUE team result | shot-40 | Show team standings |
-| 15 | minor | Results screen (matches with duplicate kaiju) | "1. SALMONSTER (YOU) / 2. SALMONSTER" ambiguous | shot-9 | Append seat colour or number |
-| 16 | minor | Results screen | Footer awards line ("Most KOs ... Crumb Monster ...") is tiny (about 11 px) | shot-9, shot-40 | Larger or two rows |
-| 17 | minor | Records | "Tables visited 17/18" while only 14/18 are owned; "Matches won 3" next to "Win 3 in a row 1/3" seems fine but "Win rate 25%" after autoplay losses is demotivating | shot-15 | Clarify wording |
-| 18 | minor | Workshop | Saving an empty table (0/12 props) awards "Table Maker unlocked!" instantly (free achievement) | shot-22 | Require at least 3 props |
-| 19 | minor | Title Next-up box | "Finish the 1-minute Practice (+20 🪙)" stays top item even after many matches; box text small (about 13 px) | shot-1 | Allow skip or auto-complete when matches played |
-| 20 | polish | Gallery | Gallery coin total jumped 0 to 25 between first visit and next with no toast (reward for first Gallery visit?) | shot-2 vs shot-5 | Toast "+25 🪙 First look!" |
-| 21 | polish | Gallery | Shiny shows "300 🪙" but my 681 🪙 was useless due to Lv 3 gate, and nothing explains how to level mastery (XP shown only on panel) | shot-14 | Add "play as this kaiju for XP" hint |
-| 22 | polish | Daily intro (countdown) | Light text on a bright gingham table: readable only through the outline; medals line is two lines of long text | shot-44 | Dark text plate behind the tip |
-| 23 | polish | Results | Achievement toast "Crumb Muncher! +30" top right overlaps the table edge area, fine but covers the table corner | shot-8 | OK, optional |
-| 24 | polish | Autoplay | Seat kaiju changes every match, so Mastery XP spreads thin | n/a | Allow locking the kaiju |
-| 25 | polish | Party Modes setup | Eleven option pills in one row, each label about 12 px tall | shot-39 | Group into two rows with headers |
-| 26 | polish | Title | After "◀ MODES" from Free Play, clicking the title's ◀ MODES coordinate opened Workshop (two buttons share screen position between screens) | shot-46 | Different button positions or confirm |
+| 1 | minor | Gallery detail (Chocomunch, Bubblegumbo) | Last "Rewards (Lv 2-6)" line "gold frame · crown · Shiny" runs to the very bottom edge of the panel (y 686, panel ends 690). Line looks cut | shot-21, shot-23 | Reduce description lines or enlarge panel by 20 px |
+| 2 | minor | Gallery detail (unlocked kaiju) | Unlock hint still shown after unlocking: "🎁 Win 1 match in any mode (you have 1/1)" | shot-21 | Replace with "✔ Unlocked" |
+| 3 | minor | Gallery colour row | All locked colours show the same 🔒, order meaningless until clicked; hint text at right is ~12 px, wraps ("Lime: "First Bite": Win a match (0/1)") | shot-8 | Dimmed true colour + source badge, bigger 2-line hint under the row |
+| 4 | minor | Gallery SHINY button | After Lv 2, text "needs Mastery Lv 3 first" wraps to 3 cramped lines inside the button | shot-23 | Shorten to "needs Lv 3" |
+| 5 | polish | Gallery shiny | Shiny portrait identical to normal; only text tag changes | shot-38 | Sparkle overlay + gold rim |
+| 6 | polish | Gallery shiny banner | "SHINY GOBZILLA! It sparkles in every match now" floats on top of the kaiju grid, covering Bluebeary row names for ~2 s | shot-38 | Move to above the panel |
+| 7 | minor | Pantry first visit | "FIRST SERVICE ✔ Visit the 🛒 Pantry: +25 🪙" banner sits right over the shop cards and the weekly-orders "0/5" progress, hiding it | shot-9 | Place the banner at the top under the title |
+| 8 | polish | Pantry | Toffee shows "🏷 −30% today" but never shows the original price (40), so the discount feels fake | shot-9 | "~~40~~ 28 🪙" |
+| 9 | polish | Pantry | Cards give no preview of the colour (only an emoji) and bought colours are not marked on the card; item vanishes? (card stays, no "owned") | shot-18 | Show swatch on a kaiju + "✔ owned" |
+| 10 | minor | Records GOALS | "Colours 9/21 - from achievements and the 🛒 Pantry" lists no names; "Achievements - see the closest ones on the right" is a non-answer | shot-39 | Show next 2-3 colours/shinies per row |
+| 11 | minor | Records GOALS | Shinies 1/20 line says "Mastery Lv 3 + 300 🪙 each" but not which kaiju are eligible | shot-39 | "next: Gobzilla ✔ done, Bubblegumbo Lv 2/3" |
+| 12 | minor | Records | "PAGE 3/3 ▶" button label shows the current page not the action, and clicking wraps to 1 | shot-5 | "NEXT PAGE ▶" |
+| 13 | polish | Records | Bottom hint "Next up: First Bite (0%) ..." ends with "Each achievement pays 30" then the coin icon on a new wrapped line (two-line text, ~12 px) | shot-2 | Shorten, make 14 px |
+| 14 | major | Story ch 4 boss | Boss Norigon beat my hard bot 3 times in a row; Kaiju #16 and Table #16 sit behind it with no alternate path | shot-35 | See proposal 3 / checklist #3 |
+| 15 | minor | Defeated panel | Large empty band between "DEFEATED" and the text; Mastery Lv 3 reached but reward not named | shot-35 | Tighten, name the reward |
+| 16 | polish | Chapter clear panel | Chef tip, "Chapter 2 unlocked", "Meanwhile" all small (~14 px) and in the middle of the card, easy to skip | shot-31 | Bigger, bullet each |
+| 17 | polish | Match results | Receipt box (bottom-left) overlaps the table's corner place mat and a cutlery pickup; with 6 entries (shot-17) it reaches 340 px tall and nearly touches REMATCH | shot-17 | Cap at 5 lines + "see all" |
+| 18 | polish | Match results | Achievement shown twice: toast top-right "Size Matters! +30" and also in the receipt | shot-17 | Fine but only one at a time |
+| 19 | minor | Free Play setup | Table pill cycles only through unlocked tables, no teaser for the 5 locked ones | shot-24 | Locked table cards |
+| 20 | minor | Free Play setup | Bot level persisted at BRUTAL and FIRST TO 5 from an earlier match, not obvious; pill text says "BOT LEVEL BRUTAL" only | shot-24 | Reset to NORMAL on a fresh visit or flag in yellow |
+| 21 | minor | Free Play | Ambiguous start: clicking seat 1 then PLAY with 1 seat selected started a 4-player match with random kaiju (Crabbage) I did not choose | shot-12 | Show your kaiju pick on the seat; "random kaiju" label |
+| 22 | polish | Workshop | "Saved! 🏆 Table Maker unlocked!" does not mention +30 🪙 or any reward | shot-26 | Same reward line as match receipt |
+| 23 | polish | Workshop | Hint line ("CUP: a solid medium block...") ~13 px, wraps in two lines | shot-25 | 15 px |
+| 24 | minor | Workshop | ✏ NAME gave no visible response in the harness (no text box seen) | n/a | Make it an in-game text entry |
+| 25 | polish | Story map | Locked chapters show only a padlock; no hint which chapter gives which kaiju/table (only the Rewards 2/13 list) | shot-28 | Small reward icon on the chapter tile |
+| 26 | polish | Story opening | Subtitle word-by-word at the plate leaves a single word "on" in the middle of the screen (typewriter) | shot-27 | Show full line |
+| 27 | polish | Title NEXT UP | Text too small (~13 px) inside the dark box, 3 objectives packed; "Win 10 matches -> 🎨 Ocean" line cut in look output | shot-1 | 15 px, 2 lines |
+| 28 | polish | Daily card | Daily forces "You play SLOBA" (a new kaiju) with no preview of the power | shot-40 | Show the power line |
+| 29 | polish | Challenges card | Bottom checkpoint line ~13 px with 3 separators (·) crammed; "boss waves: +30 🪙 and a 🤍" reads like a typo | shot-41 | Split in two lines |
+| 30 | polish | Move Lab | Dummy stands at distance 36 px (right on top of you); STOMP READY shown (OK) but the hint bar says "STOMP to go KAIJU, then THROW / SWIPE" even on phone | shot-42 | Increase to 120 px |
+| 31 | polish | In match | HUD "KAIJU 6s!" good, but the 4-line text with "unarmed · KOs 0" on top strip uses 12 px | shot-15 | 14 px |
+| 32 | polish | Colour system | Lime applies to every kaiju, so Sloba (brown) and Gobzilla look the same green; hard to identify rivals in a match | shot-43 | Colour only your own kaiju (already so?) or add outlines |
+| 33 | polish | World Tour | "Play on 12 different tables" paid after only 4 matches (12 rounds), too easy and unnoticed | shot-17 | Count unique tables only |
 
 ## 🔠 Text and layout check
-- Title (shot-1): OK. NEXT UP box text small but legible.
-- Gallery (shot-2, 4, 10, 12, 14, 37): grid OK; **blank detail panel** (shots 10, 11, 37); colour hint tiny (shot-4); otherwise no overlaps.
-- Pantry (shot-5, 36): OK, no overflow.
-- Records (shot-15, 17): OK; footer text wraps to two lines, no cut-off.
-- Story map (shot-19): OK. Rewards modal (shot-32): `CHEF'S NIGHTMARE (TABLE)` touches the card edge.
-- Chapter clear modal (shot-26): OK. NEW KAIJU overlay (shot-29): OK.
-- Challenges modal (shot-38): OK.
-- Party Modes (shot-39): OK; pills text small.
-- Results screens (shot-8, 9, 40, 42, 45): THIS MATCH panel overlaps the table art (acceptable), footer stat line very small.
-- Daily intro (shot-44): readable but low contrast on gingham.
-- Workshop (shot-22, 46): OK.
-- Settings, Online, Help, Kid Mode: not visited.
+- Title (shot-1): OK. NEXT UP box text small but not overlapping.
+- Records pages 1-3 (shot-2, shot-4, shot-5): OK; the progress count on "Clean Sweep" row ("Win a first-to-3+ match without losing a round · 🎨 Cherry") is smaller than others and tight to the box edge (shot-5).
+- Records > GOALS (shot-3, shot-39): OK, but the underlying Records page shows through at the edges of the popup (the "Matches ..." column at left and "0/10" at right) - looks messy but readable.
+- Gallery (shot-6, 7, 8, 21, 23, 37, 38): detail panel bottom line cramped (issue #1); SHINY button text cramped (#4); banner covers tiles (#6). Colour hint at right small (#3).
+- Pantry (shot-9, shot-18): toast overlaps shop and orders (#7); otherwise OK.
+- Free Play (shot-10, shot-24): OK. A big striped table icon covers the left of the TABLE line but does not overlap text.
+- Workshop (shot-25, shot-26): OK.
+- Story map (shot-28): OK; chef dialogue (shot-29) OK, typed text mid-line "GOLDEN SPOO".
+- Chapter clear (shot-31), Defeated (shot-35), NEW KAIJU (shot-34): OK; NEW KAIJU overlay is drawn over the faded card behind it (text still readable but ghosted lines visible behind "SLOBA" text, shot-34).
+- Match results (shot-12, 17, 32): receipt overlaps board corner (issue #17), otherwise OK.
+- Daily (shot-40) and Challenges (shot-41): OK.
+- Move Lab (shot-42, shot-43): OK.
+- Phone mode and Kid Mode not tested.
 
 ## The single biggest structural problem
-There is no way to **aim** at a collection goal. Unlocks come from play volume and Story progress, but the Gallery only tells me the requirement when I tap, there is no target pin like the one achievements have, results screens do not tell me what I just got closer to for kaiju/colours, and autoplay/free play randomises my kaiju so Mastery (needed for Shinies) barely moves. A collector wants a visible "next unlock, 3 matches away" loop. Today it is a fog of 21 identical padlocks.
+Collection pacing is uneven and partly invisible. The first 14 minutes are great (3 kaiju, 7 colours and a table in 5 matches), then everything else sits behind either (a) a story boss that bot-level play cannot beat reliably, or (b) 300-coin shinies and counters of 100 to 1,000 crumbs/knockouts. There is no estimated-time-left, no list of what each remaining colour needs, and no alternate path when a gate is too hard. A collector's motivation is "I can see exactly what is next and it is reachable"; the game shows it for kaiju and tables (Goals) but not for colours, shinies or the 12 locked swatches.
 
 ## Big change proposals (2–3, most important first)
-### Proposal 1: Collection Tracker with Target Pin
-- **Problem it solves:** collectors cannot see or aim at the next unlock; progress is silent.
-- **How it would work:**
-  - A "Collection" tab inside the Gallery listing every locked kaiju, colour, table, Shiny with progress bars and a source icon (Story / Win / KO / Pantry / Party / Daily).
-  - Each locked row has a 📌 button; one pinned target appears on the title (replacing/alongside NEXT UP) and on the results card ("🎯 Chocomunch: 1/1 ✓ UNLOCKED" or "Avocadrake 3/5").
-  - Header gets a "Path to 100%" line: "Kaiju 4 left (needs Story ch 4, 8, 12 + 30★), Colours 11 left, Shinies 20".
-  - Sort filter: "Closest first".
-- **Example moment:** I win a Free Play match and the results card says "🎨 Ocean 8/10: 2 wins to go" with a tiny progress bar.
-- **Rewards / progression hooks:** +50 🪙 when a pinned target is completed; "Completionist" achievement at 100%.
-- **Risks:** more UI to maintain; keep the existing tap-to-learn hint as fallback.
+### Proposal 1: Collection Book (a "Goals" that you can walk)
+- **Problem it solves:** colours are anonymous locks, shinies are a number, tables have no gallery, and I cannot see what is left for 100%.
+- **How it would work (detailed design):** Add a Gallery tab strip: KAIJU | COLOURS | TABLES | SHINIES. COLOURS shows 21 big swatches, locked ones dimmed in their real colour with a source badge (🏆/🛒/⭐) and a progress line ("Grape - Score 25 knockouts 12/25"). TABLES shows 18 table thumbnails (silhouette when locked, "Beat Story ch 6 (3/6)" text). SHINIES shows 20 cards with Mastery bar and price; "BUY ✨ 300 🪙" is a button there too. Each tab header has a % and "closest: ..." line. Tap a locked item to PIN it to the title NEXT UP.
+- **Example moment:** I open COLOURS, see Grape at 12/25 knockouts, pin it, and the title screen says "Grape: 13 knockouts to go".
+- **Rewards / progression hooks:** 100% of a tab gives a one-time reward (e.g. 100 🪙 or a title). Pins give the bonus "+10% tokens on pinned goal progress".
+- **Risks and edge cases:** Spoiler-averse players: keep silhouettes optional; tab count must not push the phone layout.
 - **Size:** M
-- **Score impact for me:** +0.7
+- **Score impact for me:** +0.9
 
-### Proposal 2: Mastery & Shiny goal loop
-- **Problem it solves:** Shiny (20 kaiju x 300 🪙) is the long-tail goal but the gate (Mastery Lv 3) is invisible, and autoplay scatters XP.
-- **How it would work:** Gallery panel shows a mastery bar with "Lv 1 → 2 at 60 XP" and "XP per match: 12 + 8 per win"; a "Lock my kaiju" toggle in Free Play/Party seat; Shiny button states: locked (grey, exact need), affordable (glowing, banner + sparkles as in this round), owned. A "Shinies 3/20" counter in the Gallery header. A "Mastery quest" per kaiju: "Win 3 matches as Gobzilla" (+1 mastery level).
-- **Example moment:** I pick Gobzilla, win twice, Level-up toast "Gobzilla Lv 3: ✨ Shiny available (300 🪙, you have 681)".
-- **Rewards:** Shiny sparkle trail, gold name at Lv 4.
-- **Risks:** balance of XP rates; avoid pay-to-skip.
+### Proposal 2: Boss practice and alternate unlock routes
+- **Problem it solves:** the Ch 4 boss blocked kaiju #16 and a table for me after 3 losses; no way to learn the fight or sidestep.
+- **How it would work (detailed design):** After 2 losses on a boss the DEFEATED card gains a third button "🥋 PRACTICE BOSS" (Move-Lab rules: no tokens, no losing, boss starts with the same tell). Also add "or win N Free Play matches" alternates to each gated unlock (e.g. Minturtle: Ch 4 clear OR 15 match wins). The Gallery locked panel lists both lines with counters.
+- **Example moment:** I lose to Norigon twice, practise against it for 90 s with the reminder "step out before the stomp", then win round 2.
+- **Rewards / progression hooks:** Practice pays nothing; alternate unlock still pays achievements so nothing is lost.
+- **Risks and edge cases:** Do not trivialise Story stars; alternate route only unlocks the kaiju, not story clear.
+- **Size:** S-M
+- **Score impact for me:** +0.5
+
+### Proposal 3: Shiny shards
+- **Problem it solves:** 20 shinies x 300 🪙 is a 100-match grind with no feedback.
+- **How it would work (detailed design):** Every match gives +1 shard to the kaiju you played (+2 on a win, +3 for a 3-star story clear). Shiny unlocks at Lv 3 and 15 shards or, as before, 300 🪙. Gallery card shows a shard bar. GOALS shows "Shinies 1/20, closest: Bubblegumbo 9/15 shards".
+- **Example moment:** I buy nothing but Bubblegumbo's shiny pops after my 4th match with it.
+- **Rewards / progression hooks:** Playing many kaiju (the collector style) is rewarded.
+- **Risks and edge cases:** Coin sink drops, so tune the shop to keep colours valuable.
 - **Size:** M
 - **Score impact for me:** +0.5
 
-### Proposal 3: "NEW" badges and unlock toasts everywhere
-- **Problem it solves:** ten colours and five kaiju/tables unlocked silently or through tiny text.
-- **How it would work:** every unlock (colour, table, kaiju) fires a 3 s toast with a mini swatch, queues up on the results screen as an "UNLOCKED THIS MATCH" strip, and leaves a pulsing "NEW" dot on the Gallery button on the title and the unlocked tile until viewed.
-- **Example moment:** after First Bite I see "🎨 Lime unlocked" on the result card and a dot on 📖 KAIJU.
-- **Rewards:** none needed; it is feedback.
-- **Risks:** toast stacking after big wins; cap at 3 with "+2 more".
-- **Size:** S
-- **Score impact for me:** +0.4
-
 ## How this round's new features felt
-- **Gallery coin balance (6)**: good; the header line is clear and updates after purchases (🪙 91 after buying four colours). However the panel goes blank (issue 1) and the first-visit balance (0) differed from the next visit (25) without any toast.
-- **Buying a Shiny banner/sparkles**: could not trigger it. The button needs Mastery Lv 3, and I reached only Lv 2 with the best kaiju. The tap-to-confirm preceding the gate message is misleading.
-- **Tapping a locked colour shows how to earn it**: works (e.g. "🔒 Golden: "Clean Plate": Finish the whole Dessert Course"). Text is small and at the far right edge of the row (shot-4). Not a highlight on the swatch itself beyond a ring.
-- **Records footer follows pin (7)**: works exactly as described; also the results card shows the pinned progress (shots 17, 40, 42).
-- **Chef's Pass (3)**: visible in CHALLENGES with "0/12 Trial ★ or Gauntlet wave 0/8" (shot-38) and on Story Dessert/Spicy buttons; clear. Did not earn it.
-- **Daily medals (11)**: on the results card, "Today's medal: 🥈 · still open: 🥇 win without losing a round +40 🪙" (shot-45). Good. The pre-match intro also lists medal payouts but in a hard-to-read overlay.
-- **Workshop explanations (10)**: working for prop and hazard.
-- **Table counts agree everywhere (8)**: **not true** (14/18 vs ALL 15 vs visited 17/18).
-- **Party Cup, Kid Mode, Twist picker, Gauntlet ramp, KAIJU warning ring, First-timer**: not examined in depth; I saw the red ring around Salmonster in KAIJU form (shot-45) and it looked clear.
+- **🎯 Records > GOALS:** The best addition for me. The collections block is clear and the 4 closest achievements with PIN are useful. Missing: colour and shiny detail (issues #10, #11). Gallery mastery bar and 📊 "You vs it" record show up (shot-21: "You vs it: 0–1").
+- **Gallery detail no longer blank + ✨ Shiny tag:** works (shot-38). The shiny itself does not look different (issue #5).
+- **Receipt shows every achievement and unlock:** Great (shot-17). Just crowded.
+- **Pantry:** one-at-a-time buy works; first-visit +25 🪙 announced but overlaps content (#7).
+- **First Pantry +25 / Pantry order payout:** worked.
+- **Daily preview card:** opens, clear medals and streak; Spicy daily +40 🪙 is visible (shot-40). Did not play it.
+- **Fighting changes:** KAIJU HUD "KAIJU 6s!" seconds left is clear (shot-15). 1.4 s shield not noticed in my bot-driven play. Move Lab: dummy starts adjacent (dist 36) and KAIJU works (shot-43).
+- **Challenges:** card readable, checkpoint, weekly best (+25 🪙) and boss +30 🪙 + ❤ explained, small text (shot-41). Did not play Gauntlet.
+- **Story:** "📜 Meanwhile…" line appears after chapter clear (shot-31), tip on the chapter card (shot-28). "Chapters N/12" reads correctly after progress (Ch 4/12 on title).
+- **Workshop:** 6 slots and ✏ NAME present; cupcakes and 12-prop limit visible. NAME gave no visible reaction in the harness.
+- **Help, Phones, Kid Mode, Party:** not touched.
 
 ## Bugs that block play
-- None block play. Highest-impact bug: blank Gallery detail panel after returning from another screen (shots 10, 11, 37), and the table count mismatch (shot-39).
+- None. `/errors` stayed "none". The only "stuck" feeling: Ch 4 boss gating (see issue #14), which is design, not a bug.

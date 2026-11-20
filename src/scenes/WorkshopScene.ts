@@ -64,7 +64,7 @@ export class WorkshopScene extends Phaser.Scene {
     btn(65, 604, 88, '↶ UNDO', () => { const c = this.cur(); if (c.props.length) { c.props.pop(); sfx.pickup(); } else sfx.thwock(); this.redraw(); });
     btn(157, 604, 88, '🗑 CLEAR', () => { this.cur().props = []; sfx.thwock(); this.redraw(); });
     btn(265, 604, 90, '📂 SLOT ▶', () => { this.slot = (this.slot + 1) % MAX_CUSTOM; sfx.pickup(); this.redraw(); });
-    btn(357, 604, 88, '✏ NAME', () => { // ✏ rename this table (SAVE to keep it)
+    btn(357, 604, 88, '📝 NAME', () => { // ✏ rename this table (SAVE to keep it)
       const n = window.prompt('Name this table (up to 18 letters):', this.cur().name)?.trim().slice(0, 18);
       if (n) { this.cur().name = n; sfx.pickup(); this.redraw('Renamed! Press 💾 SAVE to keep it.'); } else sfx.thwock();
     });
@@ -141,7 +141,7 @@ export class WorkshopScene extends Phaser.Scene {
     sfx.go();
     this.scene.start('game', {
       slots: [isTouchDevice ? { kind: 'touch', index: 0 } : { kind: 'kb', index: 0 }, { kind: 'bot', index: 0 }, { kind: 'bot', index: 0 }, { kind: 'bot', index: 0 }],
-      difficulty: 'easy', species: owned().kaiju.slice(0, 4), tables: [index], rounds: 3,
+      difficulty: 'easy', species: owned().kaiju.slice(0, 4), tables: [index], rounds: 3, from: 'workshop', // back to the Workshop after (Free Play keeps its own table)
     });
   }
 

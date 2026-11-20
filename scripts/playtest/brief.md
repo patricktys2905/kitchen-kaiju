@@ -1,4 +1,4 @@
-# Playtest brief (round 10): read this fully before playing
+# Playtest brief (round 11): read this fully before playing
 
 You are an AI playtester for **Kitchen Kaiju**, a couch party brawler. Food kaiju throw cutlery, shove each other off a table,
 eat crumbs to fill their belly, then STOMP to go giant (KAIJU mode, with a per-kaiju power).
@@ -20,29 +20,42 @@ You play the REAL built game through a local HTTP harness. The game is frozen be
 - **Budget: 90–130 harness commands.** Play like your profile would, but cover a lot: this is the most thorough round yet.
 - Do NOT edit any game files and do NOT stop or restart the server. Only write your report file.
 
-## New since the last round (round 10: judge these in depth where your profile would touch them)
-1. **🦖 KAIJU warning:** a kaiju that just went KAIJU grows for 0.5 s. A pulsing red ring shows its reach, and it can't squash until the ring fills. Bots also wait 1.8 s before attacking each round.
-2. **🏁 Gauntlet:** the first 8 waves ramp gently (one more bot or one level at a time). Twists start at wave 7. A cleared wave previews the next one.
-3. **🎟 Chef's Pass:** 12 Trial ★ OR reaching Gauntlet wave 8 opens 🌶️ Spicy on any reached chapter and the 🍰 Dessert Course early. Progress shows in CHALLENGES and Trials.
-4. **🏆 Party Cup:**
-   - Places now count the mode's own score (crumbs HELD, spoon seconds) before KOs.
-   - Standings show points per game (G1 +5, G2 +0 …), a points-table line and how the mode places you.
-   - With the Cup ON, setup greys out MODE / FIRST TO.
-5. **🧸 Kid Mode:** genuinely bigger text everywhere.
-6. **📖 Gallery:**
-   - 🪙 balance in the header.
-   - Buying a Shiny shows a banner and sparkles.
-   - Tapping a locked colour highlights how to earn it.
-7. **🏅 Records:** the footer follows your 📌 pinned achievement.
-8. **🎓 First-timer:**
-   - Your seat says 👤 YOU.
-   - Practice shows the current step with its keys, plus the next one.
-   - Table counts agree everywhere.
-   - Quick key taps never get lost.
-9. **⚡ Twist picker:** switch on 🧪 TRY IT, then tap a twist for 1 quick round vs an EASY bot.
-10. **🛠 Workshop:** picking a prop or cycling the hazard explains what it does.
-11. **📅 Daily:** shows which medals are still open today and what they pay.
-12. **Text and layout:** audited on desktop, phone AND Kid Mode. **Prove us wrong:** report any overlap, cut-off text or stacked buttons with the screenshot path.
+## New since the last round (round 11: judge these in depth where your profile would touch them)
+1. **Round 10 fixes:**
+   - 🧪 TRY IT is a free warm-up: it doesn't change your setup or pay rewards.
+   - The Gallery detail panel no longer goes blank, and the ✨ Shiny tag shows.
+   - EVERY achievement and unlock earned in a match is on the receipt.
+   - The Cup locks MODE / FIRST TO.
+   - Gauntlet NEW BEST is real, NEW RUN starts from your checkpoint, and a boss wave gives a ❤.
+   - The Daily opens a preview card.
+   - The Giant Hand warns you every time.
+   - Pantry buys ask one item at a time.
+   - The first Pantry visit's +25 🪙 is announced.
+2. **🥊 Fighting:**
+   - KAIJU lasts 7 s (the HUD shows seconds left), and the dizzy spell after it is shorter.
+   - Rounds start with a 1.4 s shield.
+   - The Move Lab dummy stands close, and KAIJU doesn't run out there.
+   - Each Gallery card shows 📊 your record vs that kaiju.
+3. **🏁 Challenges:**
+   - Boss waves are the hardest of their course and pay +30 🪙.
+   - 🗓 Weekly Gauntlet best (+25 🪙 for beating it).
+   - 🌶️ SPICY DAILY (HARD rivals, +40 🪙 once a day) on the Daily card.
+4. **📖 Story:**
+   - A "📜 Meanwhile…" mystery line after each chapter clear.
+   - The tip is shown on the chapter card (not repeated by the chef).
+   - Progress reads "Chapters N/12".
+5. **🎯 Records ▸ GOALS:** your path to 100%, with every collection's next step and the 4 closest achievements (📌 PIN). The Gallery shows a mastery bar.
+6. **🎉 Party:**
+   - Setup shows ⏱ ≈ N min.
+   - Results show crumbs eaten and spoon seconds.
+   - Team Feast shows a live RED–BLUE score.
+   - A Phones-as-Pads room can start with bots only.
+7. **❓ Help:** BASICS is now picture cards. A new EXTRAS tab explains power-ups, twists and hazards.
+8. **📱 Phones:** a minimum text size everywhere, and phone wording in Practice and Help. **🧸 Kid Mode:** text at least 18 px.
+9. **🛠 Workshop:**
+   - 🥞 Pancakes are sticky, 🧁 cupcakes bake crumbs, and 🍅 tomatoes are soft bumpers.
+   - 6 slots, and ✏ NAME a table.
+10. **Text and layout:** audited on desktop, phone AND Kid Mode. **Prove us wrong:** report any overlap, cut-off text or stacked buttons with the screenshot path.
 
 ## What we want from you: EXTREME, SPECIFIC feedback aimed at 9/10
 The goal is **9/10 from every profile**. Your report must make it obvious exactly what stands between the game and a 9 for you.

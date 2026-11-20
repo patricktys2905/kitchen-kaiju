@@ -143,7 +143,7 @@ export function buy(id: string): boolean {
 }
 
 /** ✨ Shiny forms: a golden shimmer for one kaiju (in matches + Gallery). Needs that kaiju at Mastery Lv SHINY.level. EASY TO CHANGE. */
-export const SHINY = { cost: 300, level: 3 };
+export const SHINY = { cost: 200, level: 3 };
 export const isShiny = (species: number): boolean => (loadMeta().shiny ?? []).includes(species);
 /** Can this kaiju's Shiny be bought right now? ('ok' or the reason it can't). */
 export function shinyBlock(species: number): 'ok' | 'level' | 'tokens' | 'owned' {

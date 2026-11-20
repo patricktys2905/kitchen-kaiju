@@ -1,99 +1,115 @@
-# Playtest round 10: 11 Sonnet agents (2026-11-19), after the "gaps to 9" build (FEATURES §72)
+# Playtest round 11: 11 Sonnet agents (2026-11-20), after the round 10 "gaps to 9" build (FEATURES §74)
 
-Earlier rounds are in `round1/` to `round9/`. Release bar: every profile at **9.0 or higher**.
+Earlier rounds are in `round1/` to `round10/`. Release bar: every profile at **9.0 or higher**.
 
-| Profile | R8 | R9 | R10 |
+| Profile | R9 | R10 | R11 |
 |---|---|---|---|
-| Achiever | 6.5 | 7 | **7.5** |
-| Story Fan | 6.5 | 7 | **7.5** |
-| First-Timer | 7 | 7.5 | 7.5 |
-| Party Host | 7 | 6.5 | **7** |
-| Tinkerer | 7 | 7 | 7 |
-| Kid | 7 | 7.5 | 7 |
-| QA Tester | 7 | 7 | 7 |
-| Fighter | 6.5 | 6.5 | 6.5 |
-| Collector | 6.5 | 7.5 | 7 |
-| Challenge Seeker | 6.5 | 6.5 | **7** |
-| Phone Player | 7.5 | 7.5 | 7 |
-| **Average** | **6.8** | **≈7.05** | **≈7.1** |
+| QA Tester | 7 | 7 | **8.0** |
+| Challenge Seeker | 6.5 | 7 | **7.6** |
+| First-Timer | 7.5 | 7.5 | 7.6 |
+| Story Fan | 7 | 7.5 | 7.5 |
+| Kid | 7.5 | 7 | **7.5** |
+| Collector | 7.5 | 7 | **7.4** |
+| Tinkerer | 7 | 7 | 7.3 |
+| Phone Player | 7.5 | 7 | 7.3 |
+| Fighter | 6.5 | 6.5 | **7.0** |
+| Party Host | 6.5 | 7 | 7.0 |
+| Achiever | 7 | 7.5 | 7.0 |
+| **Average** | **≈7.05** | **≈7.1** | **≈7.4** |
 
-There were 0 blockers and no JavaScript errors in any session.
+This is the biggest jump in five rounds. 9 of 11 profiles went up or held, and QA reached 8. There were 0 blockers and no JavaScript errors.
 
 ## What worked
-- The KAIJU warning ring is readable.
-- The Gauntlet ramp and next-wave preview are good.
-- Chef's Pass is clear.
-- The Records pin and the Gallery colour hints are great.
-- The Cup is "strong" for the Party Host.
+The testers praised:
+- The Gauntlet boss waves, checkpoints and perks ("the best challenge loop yet").
+- The Daily preview card and Spicy Daily.
+- Records ▸ GOALS with pins.
+- The "Meanwhile…" lines.
+- The Help BASICS cards.
+- The Team Feast live score.
+- 📊 "You vs it".
+- The KAIJU seconds on the HUD.
+- The Move Lab.
+- TRY IT working as a free warm-up.
 
-## Fixed straight after round 10 (FEATURES §73)
-- **🧪 TRY IT:** returns to your exact setup, and doesn't pay rewards or count for stats (it was leaking EASY bots, the table, the twist and emptied seats, and paying ~79 🪙).
-- **📖 Gallery:**
-  - The detail panel no longer comes back blank after visiting a match or the Pantry (stale state on a reused scene).
-  - The ✨ SHINY tag on the detail panel now shows (it was destroyed as soon as it was drawn).
-  - SHINY says why it can't be bought before asking to confirm.
-- **🏆 Achievements and unlocks:** every one earned in a match is now on the receipt (they were added before that match's receipt existed, so most were lost).
-- **🛒 Pantry:**
-  - The first visit's hidden +25 🪙 FIRST SERVICE reward is now announced (this was every "coin mismatch" report).
-  - Only one item asks "tap again" at a time.
-- **🏆 Party Cup:**
-  - With the Cup ON, MODE and FIRST TO are locked, and the subtitle and info line match.
-  - Standings get the room: no winner art between games, a one-line receipt, and a shorter rules line (the teams note only in Team Feast).
-- **📱 Phones as Pads lobby:** keeps Power-ups, Hazards and the twist, and a couch room can start with bots only.
-- **🏁 Gauntlet:**
-  - NEW BEST only shows for a real best (the run's starting best was dropped between waves).
-  - ❤ +1 life for each boss wave cleared.
-  - NEW RUN starts at your furthest checkpoint.
-- **📅 Daily:** opens a preview card first (mode, rivals, table, medals, streak) with START / BACK.
-- **Fairness:**
-  - The Giant Hand warns you EVERY time it targets you ("STOMP NOW!" when full).
-  - Story ch3 gets the calm start.
-  - The spawn shield is 1.4 s (was 1.0).
-  - The HUD shows KAIJU seconds left.
-- **🥋 Move Lab:** the dummy starts close by, and KAIJU never runs out.
-- **🎓 Practice:**
-  - Going KAIJU in Practice ticks FIRST SERVICE's step.
-  - Phone wording instead of keys.
-  - No ghost step call-outs behind the complete card.
-- **🧸 Kid Mode:**
-  - Small body text grows to at least 18 px.
-  - Settings redraws as soon as Kid Mode is switched on.
-- **Smaller fixes:**
-  - Help > Tables no longer overflows when you have Workshop tables.
-  - Table counts match ("ALL 13 + 1 WORKSHOP · 5 more to unlock").
-  - Records pages are even ("PAGE 1/3").
-  - The quit warning sits clear of the pause menu.
-  - The Team Feast setup tag no longer covers the kaiju.
-  - "1 crumb".
-  - Table Maker needs a prop.
-  - The unlock source is shown correctly.
-  - Reward card names fit.
+## Fixed straight after round 11 (FEATURES §75)
+- **Keys and buttons:**
+  - Esc closes the GOALS panel first.
+  - Quick key taps are kept until the next game update (`inputTick`), so even a frozen or slow frame can't lose a SWIPE.
+  - Workshop PLAY IT returns to the Workshop and no longer sets the Free Play table.
+- **Layout:**
+  - The Pantry FIRST SERVICE banner sits under the title on a dark plate (all 11 testers saw it covering the cards).
+  - The Gallery detail panel shrinks text further to fit.
+  - The 6-player HUD is no longer clipped.
+  - The Online room fits its panel.
+  - The Cup hides the RED/BLUE seat tags.
+- **🌱 First matches:**
+  - Your first 3 matches start calm (hazards wait).
+  - Setup says "Win 3 rounds to win the match", and so does the Help goal line.
+  - After a Free Play match the button says ☰ SETUP.
+- **🦖 Fighting:**
+  - A "🦖 STOMP!" prompt shows whenever your belly is full.
+  - New achievements: ⚔ Swatter (10 parries) and 💀 Bot Breaker (beat a BRUTAL bot).
+  - Back from the Move Lab, the Gallery shows the same kaiju.
+- **🧸 Kid / 📖 Story:**
+  - Bots don't go KAIJU in the first 15 s in Kid Mode and in Grand Feast ch1–6.
+  - The Meanwhile line shows in Kid Mode and in the Story Log.
+  - The defeat advice comes first.
+  - The NEW KAIJU reveal is opaque.
+  - The defeat card says how many rounds you took.
+- **📱 Phone:**
+  - The Gauntlet perk screen hides the receipt and has ☰ END RUN (tap twice).
+  - Practice wording on phones.
+  - BIG TOUCH BUTTONS default ON on touch screens.
+  - Pause clears in-match call-outs.
+- **🎉 Host:**
+  - The Cup defaults to the short 3-game Cup.
+  - The ⏱ estimate uses each mode's real round time.
+  - Name tags and P-numbers switch on with 3+ humans.
+  - The couch room wording no longer contradicts START, and bots fill to 6.
+- **🏆 Achiever / Collector:**
+  - BOT LEVEL opens a picker (any level, explained).
+  - The "set bots to EASY" tip only shows when they aren't.
+  - Shiny costs 200 🪙.
+  - Clearer Shiny button text.
+  - The Shiny banner no longer covers the tiles.
+  - Unlocked kaiju don't show their old requirement.
+  - "PAGE 1/3 · NEXT ▶".
+- **🏁 Challenger:**
+  - The weekly best pays once, when the run ends (it paid on every lost life).
+  - No winner art over the perk cards.
+  - The Daily is first to 2.
 
 ## Still between us and 9 (the top asks)
-1. **Fighter:**
-   - Longer, more readable HARD rounds.
-   - KAIJU as a real decision (duration, less daze punish).
-   - A death replay or matchup stats learning loop.
-2. **Challenge Seeker:**
-   - Boss waves that feel like bosses.
-   - A weekly Gauntlet seed or ladder with rewards for a new best.
-   - A harder Daily tier.
-3. **Kid / Phone / First-Timer:**
-   - Help as picture cards instead of a text wall.
-   - Phone-safe minimum text (~14 css px) across the secondary text.
-   - Bigger Gallery colour dots and Workshop tap targets.
-4. **Story Fan:**
-   - The chapter tip shown once (not three times).
-   - More story between fights, with bosses as events.
-   - An honest progress % label.
-5. **Collector / Achiever:**
-   - A collection or goal tracker ("path to 100%", the 3 closest goals with jump buttons).
-   - Mastery bars.
-   - Lock autoplay to one kaiju.
+1. **Challenge Seeker:**
+   - A long Gauntlet tail (BRUTAL from wave 10, endless Seconds with a twist per wave).
+   - Trial cards with best / attempts / next-star hints and star milestones.
+   - A scored Daily.
+2. **Fighter:**
+   - Telegraphed bot attacks on HARD.
+   - Parry and dodge drills.
+   - Real cutlery and power numbers.
+   - Pick your kaiju in Trials.
+3. **Achiever:**
+   - A per-match progress delta and ETAs on goals.
+   - A better /autoplay or a "Rookie" tier that counts.
+4. **Collector:**
+   - Locked colours that show their source (🏆/🛒/⭐) and progress.
+   - An alternate unlock for the ch4-gated kaiju and table.
+   - A table gallery.
+5. **Story Fan:**
+   - A mid-campaign mystery payoff (ch6/ch9 silhouette cutscene).
+   - A clue tracker.
 6. **Party Host:**
-   - Predictable party length (first-to scaled by player count, a "≈ N min" estimate).
-   - Mode-specific results (crumbs and spoon seconds), and a team scoreboard in play.
+   - Timed modes with fixed rounds (SHORT / STANDARD / LONG).
+   - Resume Cup.
+   - Hot Dumpling about passing.
+   - House Rules labels listing every pill.
 7. **Tinkerer:**
-   - Workshop props with different behaviours (sticky, spawner, bounce).
-   - More Workshop slots and renaming.
-   - Help for power-ups, hazards and twists.
+   - Free twist combining with sliders.
+   - Workshop TEST, rotate / resize / drag.
+   - A Settings depth pass (sections, shake slider, colour-blind palette).
+8. **Phone / Kid:**
+   - Picture tiles for EXTRAS, GOALS and the receipt.
+   - Bigger title top buttons.
+   - A persistent "you" ring.
