@@ -44,7 +44,11 @@ try {
   const menuState = () => page.evaluate(() => { const m = window.__game.scene.getScene('menu'); return { diff: m.difficulty, table: m.table, pick: m.picks[0] }; });
   let m0 = await menuState();
   await tapEl(page.getByText(/^BOTS:/));
-  check((await menuState()).diff !== m0.diff, 'BOTS button changes bot difficulty');
+  await page.waitForTimeout(400);
+  check(await page.evaluate(() => window.__game.scene.getScene('menu').botUi.length > 0), 'BOTS button opens the bot level picker');
+  await page.evaluate(d => { const m = window.__game.scene.getScene('menu'); const b = m.botUi.find(u => u.label && !u.label.text.includes(d.toUpperCase()) && /EASY|NORMAL|TOUGH|HARD|BRUTAL/.test(u.label.text)); b.press(); }, m0.diff);
+  await page.waitForTimeout(300);
+  check((await menuState()).diff !== m0.diff, 'picking a level changes bot difficulty');
   m0 = await menuState();
   await tapEl(page.getByText(/^TABLE:/));
   check((await menuState()).table !== m0.table, 'TABLE button changes the table');

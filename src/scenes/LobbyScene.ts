@@ -80,7 +80,7 @@ export class LobbyScene extends Phaser.Scene {
   private cup = false; // 🏆 play a Party Cup instead of one match
   private tvMode = false; // 📺 the host screen only shows the game; everyone plays on their own phone
   private own: Owned = { kaiju: [], tables: [] }; // the HOST's unlocks apply to the whole room
-  private fillTo: 0 | 4 | 6 = 6; // bots fill empty seats up to this many players (0 = no bots)
+  private fillTo: 0 | 4 | 6 = 4; // bots fill empty seats up to this many players (0 = no bots)
   private status = '';
   private statusOk = true;
   private view: 'choose' | 'host' | 'join' = 'choose';
@@ -94,6 +94,7 @@ export class LobbyScene extends Phaser.Scene {
   private couch = false;
   init(data: { difficulty?: Difficulty; rounds?: number; couch?: boolean; mode?: GameMode; cup?: boolean; powerups?: boolean; hazards?: boolean; mutator?: Mutator }): void {
     this.couch = !!data.couch;
+    this.fillTo = this.couch ? 6 : 4; // a couch room fills the table
     if (data.powerups !== undefined) this.powerups = data.powerups; // 📱 Phones as Pads keeps the setup's switches
     if (data.hazards !== undefined) this.hazards = data.hazards;
     if (data.mutator !== undefined) this.mutator = data.mutator;
