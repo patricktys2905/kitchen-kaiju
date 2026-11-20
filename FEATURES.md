@@ -1100,3 +1100,10 @@ Built:
 Not done, and why:
 - Global Daily leaderboard and public rooms: they need a server; the game is peer-to-peer and offline-first.
 - Gamepad remapping: a bigger job, left for later.
+
+## 77. 🎮 Gamepad button remapping
+- **Settings ▸ KEYBOARD CONTROLS ▸ 🎮 GAMEPAD** (`PadControlsScene`): pick Throw, Swipe, Dash, Stomp or Emote, then press any button on any pad.
+- A button already in use swaps over.
+- One layout for every gamepad, saved as `kk-pad-v1` (`PAD_MAP`, `bindPad`, `resetPadBinds` in `src/input.ts`).
+- START and the D-pad stay fixed.
+- Help ▸ BASICS shows your current gamepad buttons (`padHint`).

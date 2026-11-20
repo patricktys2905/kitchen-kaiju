@@ -1414,3 +1414,21 @@ describe('giant hand fairness', () => {
     expect(RULES.handMinBelly).toBeGreaterThan(10);
   });
 });
+
+describe('gamepad remapping', () => {
+  it('binding a button swaps it away from the action that had it, and reset restores defaults', async () => {
+    const store: Record<string, string> = {};
+    (globalThis as { localStorage?: unknown }).localStorage = { getItem: (k: string) => store[k] ?? null, setItem: (k: string, v: string) => { store[k] = v; }, removeItem: (k: string) => { delete store[k]; } };
+    const { bindPad, PAD_MAP, PAD_DEFAULTS, resetPadBinds } = await import('../src/input');
+    resetPadBinds();
+    expect(PAD_MAP.throw).toEqual(PAD_DEFAULTS.throw);
+    bindPad('swipe', 0); // A was throw
+    expect(PAD_MAP.swipe).toEqual([0]);
+    expect(PAD_MAP.throw.includes(0)).toBe(false);
+    expect(PAD_MAP.throw.length).toBeGreaterThan(0);
+    expect(JSON.parse(store['kk-pad-v1']).swipe).toEqual([0]);
+    resetPadBinds();
+    expect(PAD_MAP.swipe).toEqual(PAD_DEFAULTS.swipe);
+    delete (globalThis as { localStorage?: unknown }).localStorage;
+  });
+});

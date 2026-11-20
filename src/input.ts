@@ -24,6 +24,35 @@ export const KEYMAPS: { name: string; up: string; down: string; left: string; ri
   },
 ];
 
+/** 🎮 Gamepad buttons for each action (standard layout: 0 A · 1 B · 2 X · 3 Y · 4 LB · 5 RB · 6 LT · 7 RT · 8 BACK · 10 L-STICK · 11 R-STICK).
+ *  Remapped in Settings ▸ KEYBOARD ▸ 🎮 GAMEPAD (saved as 'kk-pad-v1'). START (9) and the D-pad (12-15) are fixed. */
+export type PadAction = 'throw' | 'swipe' | 'dash' | 'stomp' | 'emote';
+export const PAD_DEFAULTS: Record<PadAction, number[]> = { throw: [0, 7], swipe: [2], dash: [1, 5], stomp: [3, 4], emote: [...EMOTE_PAD_BUTTONS] };
+export const PAD_MAP: Record<PadAction, number[]> = { throw: [], swipe: [], dash: [], stomp: [], emote: [] };
+export function applyPadBinds(): void {
+  let o: Partial<Record<PadAction, number[]>> = {};
+  try { o = JSON.parse(localStorage.getItem('kk-pad-v1') ?? '{}') as Partial<Record<PadAction, number[]>>; } catch { /* blocked */ }
+  for (const a of Object.keys(PAD_DEFAULTS) as PadAction[]) PAD_MAP[a] = (o[a] ?? PAD_DEFAULTS[a]).slice();
+}
+try { applyPadBinds(); } catch { for (const a of Object.keys(PAD_DEFAULTS) as PadAction[]) PAD_MAP[a] = PAD_DEFAULTS[a].slice(); }
+/** Binds one button to an action; whoever had that button gets this action's old buttons (a swap). */
+export function bindPad(a: PadAction, button: number): void {
+  const old = PAD_MAP[a].slice();
+  for (const x of Object.keys(PAD_MAP) as PadAction[]) if (x !== a && PAD_MAP[x].includes(button)) { PAD_MAP[x] = PAD_MAP[x].filter(v => v !== button); if (!PAD_MAP[x].length) PAD_MAP[x] = old.filter(v => v !== button).slice(0, 1); }
+  PAD_MAP[a] = [button];
+  try { localStorage.setItem('kk-pad-v1', JSON.stringify(PAD_MAP)); } catch { /* blocked */ }
+}
+export function resetPadBinds(): void { try { localStorage.removeItem('kk-pad-v1'); } catch { /* blocked */ } applyPadBinds(); }
+/** One-line gamepad hint with the current buttons. */
+export function padHint(): string { const n = (a: PadAction) => PAD_MAP[a].map(v => PAD_NAMES[v] ?? `#${v}`).join("/"); return `Gamepad: left stick move · right stick aim · ${n("throw")} throw · ${n("swipe")} swipe · ${n("dash")} dash · ${n("stomp")} stomp · ${n("emote")} emote`; }
+export const PAD_NAMES = ['A', 'B', 'X', 'Y', 'LB', 'RB', 'LT', 'RT', 'BACK', 'START', 'L-STICK', 'R-STICK', '↑', '↓', '←', '→', 'HOME'];
+/** Buttons pressed right now on any pad (for the remap screen). */
+export function padButtonsDown(): number[] {
+  const out: number[] = [];
+  for (const gp of pads()) if (gp) gp.buttons.forEach((btn, i) => { if (btn.pressed && !out.includes(i)) out.push(i); });
+  return out;
+}
+
 const keys: Record<string, boolean> = {};
 // ⌨ a quick tap is never lost: a pressed key counts as held for at least one game update, even if it was
 // released before that update ran (fast fingers, a slow frame, or the paused test harness)
@@ -100,12 +129,12 @@ export function readSlot(s: Slot): DeviceInput {
     out.my = my;
     const ax = gp.axes[2] ?? 0, ay = gp.axes[3] ?? 0;
     if (Math.hypot(ax, ay) > 0.45) { out.aimX = ax; out.aimY = ay; }
-    out.throw = b(0) || b(7);
-    out.swipe = b(2);
-    out.dash = b(1) || b(5);
-    out.stomp = b(3) || b(4);
+    out.throw = PAD_MAP.throw.some(b);
+    out.swipe = PAD_MAP.swipe.some(b);
+    out.dash = PAD_MAP.dash.some(b);
+    out.stomp = PAD_MAP.stomp.some(b);
     out.start = b(9);
-    out.emote = EMOTE_PAD_BUTTONS.some(b);
+    out.emote = PAD_MAP.emote.some(b);
   }
   return out;
 }

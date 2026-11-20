@@ -30,6 +30,7 @@ import { totalTrialStars, TRIAL_TOKENS, TRIALS, trialStars } from '../trials';
 import { chefsPass, chefsPassText } from '../challengePass';
 import { buy, buyShiny, shinyBlock, isShiny, SHINY, chefRank, completeStep, dailyDeal, loadMeta, MASTERY, masteryInfo, pinAchievement, pinnedAchievement, priceOf, SHOP, weeklyOrders, type OrderStat } from '../meta';
 import { ACTIONS, bind, keyFor, keyHint, keyLabel, RESERVED, resetKeybinds, type Action } from '../keybinds';
+import { bindPad, PAD_MAP, PAD_NAMES, padButtonsDown, padHint, resetPadBinds, type PadAction } from '../input';
 
 /** Shared backdrop, title, BACK button and keyboard/pad focus handling. */
 abstract class PanelScene extends Phaser.Scene {
@@ -199,12 +200,59 @@ export class ControlsScene extends PanelScene {
     });
     // grid order is row-major: [L0, R0, L1, R1, …] matches cols = 2
     this.buttons.push(new Button(this, 640, 650, { w: 300, h: 50, label: '↺ RESET TO DEFAULT', size: 18, onClick: () => { resetKeybinds(); sfx.pickup(); this.refresh(); this.note.setText('Back to the default keys.'); } }, 6));
+    this.buttons.push(new Button(this, 1050, 650, { w: 240, h: 50, label: '🎮 GAMEPAD ▶', size: 18, accent: 0x8dff6a, onClick: () => { sfx.go(); this.scene.start('padcontrols'); } }, 6));
     this.note = this.add.text(640, 696, 'Pick an action, then press the key you want.', body(15, '#e9dccb', 800)).setOrigin(0.5).setDepth(5);
     this.refresh();
   }
 
   private refresh(): void {
     ACTIONS.forEach((a, i) => { for (let p = 0; p < 2; p++) this.buttons[i * 2 + p]?.setText(`${a.label}:  ${keyLabel(keyFor(p, a.id))}`); });
+  }
+}
+
+// ------------------------------------------------------------------ 🎮 Gamepad button remapping
+export class PadControlsScene extends PanelScene {
+  protected title = '🎮 GAMEPAD BUTTONS';
+  protected cols = 1;
+  private waiting: { a: PadAction; b: Button; needRelease: boolean } | null = null;
+  private note!: Phaser.GameObjects.Text;
+  private rows: { a: PadAction; label: string; b?: Button }[] = [
+    { a: 'throw', label: '🍴 Throw (hold to charge)' }, { a: 'swipe', label: '👋 Swipe / parry' }, { a: 'dash', label: '💨 Dash' }, { a: 'stomp', label: '🦖 Stomp (go KAIJU)' }, { a: 'emote', label: '😜 Emote' },
+  ];
+  constructor() { super('padcontrols'); }
+  protected back(): void { sfx.leave(); this.scene.start('controls'); }
+
+  protected build(): void {
+    this.add.text(640, 106, 'One layout for every gamepad. Move with the left stick or D-pad, aim with the right stick. START = pause / play.', body(16, '#cdb9a3', 800)).setOrigin(0.5).setDepth(5);
+    this.rows.forEach((r, i) => {
+      r.b = new Button(this, 640, 176 + i * 70, { w: 640, h: 58, label: '', size: 20, accent: 0x8dff6a, onClick: () => {
+        this.refresh();
+        this.waiting = { a: r.a, b: r.b!, needRelease: true };
+        r.b!.setText(`${r.label}:  press a gamepad button…`);
+        this.note.setText('Press the new button on any gamepad (Esc to cancel).');
+      } }, 6);
+      this.buttons.push(r.b);
+    });
+    this.buttons.push(new Button(this, 640, 560, { w: 300, h: 50, label: '↺ RESET TO DEFAULT', size: 18, onClick: () => { resetPadBinds(); this.waiting = null; sfx.pickup(); this.refresh(); this.note.setText('Back to the default buttons.'); } }, 6));
+    this.note = this.add.text(640, 640, navigator.getGamepads && Array.from(navigator.getGamepads()).some(Boolean) ? 'Pick an action, then press the button you want.' : 'No gamepad found: plug one in (or press any of its buttons) to remap.', body(16, '#e9dccb', 800, { align: 'center', wordWrap: { width: 900 } })).setOrigin(0.5).setDepth(5);
+    this.refresh();
+  }
+
+  private refresh(): void {
+    for (const r of this.rows) r.b?.setText(`${r.label}:  ${PAD_MAP[r.a].map(n => PAD_NAMES[n] ?? `#${n}`).join(' / ')}`);
+  }
+
+  protected tick(): void {
+    const w = this.waiting;
+    if (!w) return;
+    const down = padButtonsDown().filter(n => n !== 9 && (n < 12 || n > 15));
+    if (w.needRelease) { if (!padButtonsDown().length) w.needRelease = false; return; } // let go of the button that opened this first
+    if (!down.length) return;
+    bindPad(w.a, down[0]);
+    this.waiting = null;
+    sfx.pickup();
+    this.refresh();
+    this.note.setText(`${w.a.toUpperCase()} = ${PAD_NAMES[down[0]] ?? '#' + down[0]}. A button already in use swaps over.`);
   }
 }
 
@@ -257,7 +305,7 @@ export class HelpScene extends PanelScene {
       txt(90, 504, (isTouchDevice ? ['📱 Drag the LEFT side to move', '🍴 Hold THROW (drag to aim), let go to throw', '👋 SWIPE · 💨 DASH · 🦖 STOMP: tap the buttons on the right', '😜 EMOTE: the little face button'] : [
         `Keyboard left:  ${keyHint(0)}`,
         `Keyboard right: ${keyHint(1)}`,
-        'Gamepad: left stick move · right stick aim · A throw · X swipe · B dash · Y stomp · LT/BACK emote',
+        padHint(),
         'Phone: drag the left side to move · hold THROW and drag to aim · SWIPE / DASH / STOMP buttons · 😜 EMOTE',
       ]).join('\n'), 16, '#e9dccb');
     } else if (p === 'cutlery') {

@@ -110,7 +110,7 @@ const start = async (key, data = {}, ms = TOUCH ? 2600 : 1500) => {
 const scene = k => `window.__game.scene.getScene('${k}')`;
 
 await start('title', {}, 2500); await audit('title');
-for (const s of ['settings', 'help', 'controls', 'records', 'pantry', 'workshop', 'lobby', 'trials']) { await start(s); await audit(s); }
+for (const s of ['settings', 'help', 'controls', 'padcontrols', 'records', 'pantry', 'workshop', 'lobby', 'trials']) { await start(s); await audit(s); }
 // records page 2
 await start('records'); await pg.evaluate(() => { const r = window.__game.scene.getScene('records'); r.buttons[0]?.press(); }); await audit('records page 2');
 // help pages (press every button that looks like a page/tab)
