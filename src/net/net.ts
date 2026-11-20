@@ -30,7 +30,8 @@ export type NetMsg =
   | { t: 'start'; species: number[]; names: string[]; seat: number; tables: number[] | null; rounds?: number; mode?: string; powerups?: boolean; hazards?: boolean; mutator?: string; hats?: string[]; cup?: { game: number; points: number[] } }
   | { t: 'in'; i: PlayerInput }
   | { t: 'snap'; s: Snapshot; ev: GameEvent[] }
-  | { t: 'ping' }
+  | { t: 'ping'; at?: number }
+  | { t: 'pong'; at: number }
   | { t: 'bye'; reason: string };
 
 /** For testing: ?net=backup forces friends onto the backup route. */
@@ -50,6 +51,7 @@ interface Channel {
   send(m: NetMsg): void;
   close(): void;
   lastHeard: number;
+  rtt?: number; // 📶 round-trip time in ms (from ping/pong)
 }
 
 /** Host side: owns the room, collects friends' inputs, broadcasts snapshots. */
@@ -134,7 +136,12 @@ export class NetHost {
     }).catch(() => { if (!this.directReady) this.onStatus('Could not reach the online servers. Check your internet connection.', false); });
   }
 
+  /** 📶 round-trip time to a guest (ms), once known. */
+  rttOf(g: number): number | undefined { return this.chans.get(g)?.rtt; }
+
   private handle(g: number, m: NetMsg): void {
+    if (m.t === 'pong') { const c = this.chans.get(g); if (c) c.rtt = Date.now() - m.at; return; }
+    if (m.t === 'ping') { if (m.at) this.chans.get(g)?.send({ t: 'pong', at: m.at }); return; }
     if (m.t === 'in') this.inputs.set(g, m.i);
     else if (m.t === 'pick') this.onPick(g, m.dir);
     else if (m.t === 'bye') this.drop(g);
@@ -150,7 +157,7 @@ export class NetHost {
   private checkSilence(): void {
     const now = Date.now();
     for (const [g, c] of this.chans) {
-      c.send({ t: 'ping' });
+      c.send({ t: 'ping', at: now });
       if (now - c.lastHeard > SILENCE_MS) this.drop(g);
     }
   }
@@ -256,12 +263,15 @@ export class NetGuest {
     }).catch(() => this.fail('Could not reach the online servers. Check your internet connection.'));
   }
 
+  /** 📶 round-trip time to the host (ms), once known. */
+  rtt: number | undefined;
+
   private connected(): void {
     this.lastHeard = Date.now();
     this.onStatus(this.route === 'direct' ? 'Connected! Waiting for the host to start…' : 'Connected through the backup route (a bit slower). Waiting for the host to start…', true);
     clearInterval(this.watchdog);
     this.watchdog = window.setInterval(() => {
-      this.send({ t: 'ping' });
+      this.send({ t: 'ping', at: Date.now() });
       if (this.lastHeard && Date.now() - this.lastHeard > SILENCE_MS) this.lost('Lost connection to the host.');
     }, 1000);
   }
@@ -271,7 +281,8 @@ export class NetGuest {
     this.lastHeard = Date.now();
     if (first && this.route === 'backup') this.connected();
     if (m.t === 'bye') { this.done = true; this.cleanup(); this.onClosed(m.reason); return; }
-    if (m.t === 'ping') return;
+    if (m.t === 'ping') { if (m.at) this.send({ t: 'pong', at: m.at }); return; }
+    if (m.t === 'pong') { this.rtt = Date.now() - m.at; return; }
     this.onMsg(m);
   }
 

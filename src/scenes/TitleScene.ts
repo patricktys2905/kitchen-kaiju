@@ -12,10 +12,10 @@ import { CHAPTERS } from '../story/chapters';
 import { secondsUnlocked } from '../story/campaigns';
 import { isTouchDevice, setTouchMode } from '../touch';
 import { playMusic } from '../music';
-import { GAUNTLET, gauntletBest, weeklyBest } from '../gauntlet';
+import { GAUNTLET, gauntletBest, pureBest, weeklyBest } from '../gauntlet';
 import { totalTrialStars, TRIALS } from '../trials';
 import { chefsPass, chefsPassText } from '../challengePass';
-import { dailyMedalLine, stepsDone } from '../meta';
+import { dailyMedalLine, loadMeta, stepsDone } from '../meta';
 import { getSettings } from '../settings';
 import { SPECIES } from '../sim/constants';
 import { LAYOUTS } from '../sim/layouts';
@@ -123,13 +123,20 @@ export class TitleScene extends Phaser.Scene {
       `Last 7 days: ${weekStrip()}   (✔ won · ✖ played · · missed)`,
       rec.date === d.date ? `Today so far: ${rec.won ? 'won ✔' : 'not won yet'} · tries ${rec.tries} · win streak ${rec.streak} 🔥` : `Win streak: ${rec.streak} 🔥 (win today to keep it)`,
     ];
-    const info = this.add.text(640, 238, lines.join('\n\n'), body(16, '#f1e4d2', 800, { align: 'center', wordWrap: { width: 720 }, lineSpacing: 2 })).setOrigin(0.5, 0).setDepth(31);
+    const info = this.add.text(640, 222, lines.join('\n'), body(16, '#f1e4d2', 800, { align: 'center', wordWrap: { width: 720 }, lineSpacing: 8 })).setOrigin(0.5, 0).setDepth(31);
+    for (let f = 16; info.y + info.height > 436 && f > 11;) info.setFontSize(--f); // always above COPY MY RESULT
     this.challengeUi.push(g, t, info);
     this.challengeUi.push(this.add.zone(640, 360, 1280, 720).setInteractive().setDepth(30)); // swallows clicks behind the card
     const start = new Button(this, 440, 528, { w: 220, h: 60, label: '▶ START', size: 24, accent: 0x8dff6a, onClick: () => { sfx.go(); this.scene.start('game', GameScene.dailyData()); } }, 31);
     const spicy = new Button(this, 670, 528, { w: 220, h: 60, label: '🌶️ SPICY', sub: spicyWonToday(d.date) ? 'beaten today ✔' : `HARD rivals · +${DAILY.spicyTokens} 🪙`, size: 20, accent: 0xff5a1a, onClick: () => { sfx.go(); this.scene.start('game', GameScene.dailyData(true)); } }, 31);
     const back = new Button(this, 880, 528, { w: 170, h: 60, label: '✖ BACK', size: 22, onClick: () => this.challenges(0) }, 31);
-    this.challengeUi.push(start, spicy, back); this.extraBtns.push(start, spicy, back);
+    // 📋 compare with friends: everyone plays the same Daily, so a pasted result line is a mini leaderboard
+    const copy: Button = new Button(this, 640, 462, { w: 300, h: 40, label: '📋 COPY MY RESULT', size: 16, accent: 0x8dd8ff, onClick: () => {
+      const r = loadDaily(), medal = ['', '🥉', '🥈', '🥇'][loadMeta().dailyMedal.date === d.date ? loadMeta().dailyMedal.medal : 0];
+      const line = `🍴 Kitchen Kaiju Daily ${d.date} (${md.name}): ${r.date === d.date ? (r.won ? 'WON' : 'not won yet') : 'not played'} ${medal} · best ${r.date === d.date ? r.best : 0} rounds · 🔥${r.streak}${spicyWonToday(d.date) ? ' · 🌶️ SPICY beaten' : ''} · last 7: ${weekStrip()}`;
+      void navigator.clipboard?.writeText(line).catch(() => {}); sfx.pickup(); copy.setText('✔ COPIED: paste it to friends');
+    } }, 31);
+    this.challengeUi.push(start, spicy, back, copy); this.extraBtns.push(start, spicy, back, copy);
   }
 
   /** 🏁 CHALLENGES: start the Gauntlet (from any course you've reached = checkpoints) or open the Trials. */
@@ -152,7 +159,10 @@ export class TitleScene extends Phaser.Scene {
       const b = new Button(this, 640 + (k - (starts.length - 1) / 2) * 205, 312, { w: 190, h: 100, label: s.c, sub: !s.open ? `🔒 clear wave ${s.wave - 1}` : s.wave === 1 ? 'from wave 1' : `start at wave ${s.wave}`, size: 17, accent: 0xff5a7a, disabled: !s.open, onClick: () => { sfx.go(); this.scene.start('game', GameScene.gauntletWave(s.wave, pick, { kind: 'local', index: 0 }, true)); } }, 31);
       this.challengeUi.push(b); this.extraBtns.push(b);
     });
-    const tr = new Button(this, 640, 440, { w: 520, h: 96, label: '🎯 TRIALS', sub: `${TRIALS.length} fixed hard fights · 3 stars each · you have ${totalTrialStars()}★`, size: 26, accent: 0x8dd8ff, onClick: () => { sfx.go(); this.scene.start('trials'); } }, 31);
+    const pureLabel = () => `🧼 PURE RUN: ${GameScene.pureRun ? 'ON' : 'OFF'}`;
+    const pb: Button = new Button(this, 640, 382, { w: 400, h: 36, label: pureLabel(), sub: '', size: 15, accent: 0x8dd8ff, onClick: () => { GameScene.pureRun = !GameScene.pureRun; sfx.pickup(); pb.setText(pureLabel(), GameScene.pureRun ? `no Pantry items · pure best ${pureBest()}` : ''); } }, 31);
+    this.challengeUi.push(pb); this.extraBtns.push(pb);
+    const tr = new Button(this, 640, 460, { w: 520, h: 84, label: '🎯 TRIALS', sub: `${TRIALS.length} fixed hard fights · 3 stars each · you have ${totalTrialStars()}★`, size: 26, accent: 0x8dd8ff, onClick: () => { sfx.go(); this.scene.start('trials'); } }, 31);
     this.challengeUi.push(tr); this.extraBtns.push(tr);
   }
 

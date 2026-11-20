@@ -22,7 +22,7 @@ import { NO_INPUT, World, type GameEvent, type PlayerInput } from '../sim/world'
 import { chapterRivals, starsFor } from '../story/chapters';
 import { COURSES, saveDessert } from '../story/dessert';
 import { addToShelf, cupRules, cupShelf, FINAL_MULTIPLIER, cupGames, placePoints, RANKED_BY } from '../cup';
-import { GAUNTLET, GAUNTLET_PERKS, gauntletBest, gauntletTables, runGrade, runScore, saveGauntletBest, waveCourse, wavePreview, waveSetup, checkpointWave, saveWeeklyBest, weeklyBest } from '../gauntlet';
+import { GAUNTLET, GAUNTLET_PERKS, gauntletBest, gauntletTables, runGrade, runScore, saveGauntletBest, waveCourse, wavePreview, waveSetup, checkpointWave, saveWeeklyBest, weeklyBest, savePureBest } from '../gauntlet';
 import { shopOwned } from '../meta';
 import { recordTrial, TRIAL_TOKENS, TRIALS } from '../trials';
 import { enabledMutators } from '../sim/mutators';
@@ -74,7 +74,7 @@ export interface GameData {
   lab?: boolean; // 🥋 Move Lab: practice with a belly that never empties (try KAIJU powers)
   tryout?: Record<string, unknown>; // 🧪 twist TRY IT: a warm-up that doesn't count; holds the menu setup to go back to
   hats?: string[]; // online: each seat's hat id ('' = none)
-  gauntlet?: { wave: number; bosses: number[]; perks?: string[]; lives?: number; kos?: number; startBest?: number }; // startBest = best wave before this run (for NEW BEST) // kos = knockouts earlier in the run (for the score) // Gauntlet: seat 0 is you, one round per wave; perks picked between waves
+  gauntlet?: { wave: number; bosses: number[]; perks?: string[]; lives?: number; kos?: number; startBest?: number; pure?: boolean }; // startBest = best wave before this run (for NEW BEST) // kos = knockouts earlier in the run (for the score) // Gauntlet: seat 0 is you, one round per wave; perks picked between waves
   from?: string; // scene to go back to (practice: 'help' or 'gallery')
   daily?: { date: string; spicy?: boolean }; // Daily Challenge: seat 0 is you
   party?: boolean; // started from the PARTY MODES setup (go back there afterwards)
@@ -358,9 +358,10 @@ export class GameScene extends Phaser.Scene {
     };
   }
   /** A new run: 🛒 Pantry items (Lifeline = +1 life, Lunchbox = a free starting perk). */
-  static runStart(): { lives: number; perks: string[]; startBest: number } {
-    const free = GAUNTLET_PERKS.filter(p => !p.once);
-    return { startBest: gauntletBest(), lives: GAUNTLET.lives + (shopOwned('lifeline') ? 1 : 0), perks: shopOwned('lunchbox') ? [free[Math.floor(Math.random() * free.length)].id] : [] };
+  static pureRun = false; // 🧼 CHALLENGES ▸ PURE RUN: no Pantry items in the Gauntlet
+  static runStart(): { lives: number; perks: string[]; startBest: number; pure: boolean } {
+    const free = GAUNTLET_PERKS.filter(p => !p.once), pure = GameScene.pureRun;
+    return { pure, startBest: gauntletBest(), lives: GAUNTLET.lives + (!pure && shopOwned('lifeline') ? 1 : 0), perks: !pure && shopOwned('lunchbox') ? [free[Math.floor(Math.random() * free.length)].id] : [] };
   }
 
   private setPaused(on: boolean, focus = 0): void {
@@ -528,7 +529,7 @@ export class GameScene extends Phaser.Scene {
       sfx.go();
       const next = GameScene.gauntletWave(gw.wave + 1, this.species[0], this.slots[0]);
       const bossHeart = GAUNTLET.bossHeart && gw.wave % GAUNTLET.bossEvery === 0 ? 1 : 0; // ❤ a boss wave cleared gives a life back
-      next.gauntlet = { ...next.gauntlet!, startBest: gw.startBest, kos: (gw.kos ?? 0) + this.world.players[0].kos, perks: id === 'heart' ? gw.perks ?? [] : [...(gw.perks ?? []), id], lives: Math.min(GAUNTLET.maxLives, (id === 'heart' ? lives + 1 : lives) + bossHeart) };
+      next.gauntlet = { ...next.gauntlet!, startBest: gw.startBest, pure: gw.pure, kos: (gw.kos ?? 0) + this.world.players[0].kos, perks: id === 'heart' ? gw.perks ?? [] : [...(gw.perks ?? []), id], lives: Math.min(GAUNTLET.maxLives, (id === 'heart' ? lives + 1 : lives) + bossHeart) };
       this.scene.restart(next);
     };
     this.perkUi = pool.map((pk, k) => new Button(this, VIEW.w / 2 + (k - 1) * 340, 470, { w: 320, h: 96, label: `${k + 1} · ${pk.name}`, sub: pk.desc, size: 22, accent: 0x8dff6a, onClick: () => go(pk.id) }, 14));
@@ -1052,7 +1053,9 @@ export class GameScene extends Phaser.Scene {
   private showEmote(id: number, n: number): void {
     const b = this.emoteBubbles[id];
     if (!b) return;
-    b.text.setText(EMOTES[n % EMOTES.length]).setVisible(true);
+    const ep = this.world.players[id];
+    if (!ep?.alive) return; // no bubble for a knocked-out kaiju
+    b.text.setText(EMOTES[n % EMOTES.length]).setPosition(ep.x, Math.max(84 + b.text.height, ep.y - ep.r * 2.6 - 10)).setVisible(true); // placed straight away (not at the corner)
     b.t = EMOTE_TIME;
     popIn(this, b.text, 1.5, 220);
     sfx.chirp(this.species[id]);
@@ -1776,7 +1779,8 @@ export class GameScene extends Phaser.Scene {
       else if (lives > 1) { main = 'LIFE LOST!'; color = '#ffb347'; sub = `${'❤'.repeat(Math.max(0, lives - 1))} left · trying wave ${wave} again with your perks…`; }
       else {
         const reached = wave - 1, prev = this.initData.gauntlet.startBest ?? 0, best = Math.max(prev, reached);
-        main = 'GAUNTLET OVER'; color = '#ff8a7a';
+        main = this.initData.gauntlet.pure ? 'GAUNTLET OVER\n🧼 PURE RUN' : 'GAUNTLET OVER'; color = '#ff8a7a';
+        if (this.initData.gauntlet.pure) savePureBest(reached);
         const perks = (this.initData.gauntlet.perks ?? []).map(id => GAUNTLET_PERKS.find(q => q.id === id)?.name ?? id);
         const totalKos = (this.initData.gauntlet.kos ?? 0) + this.world.players[0].kos;
         const score = runScore(reached, totalKos);

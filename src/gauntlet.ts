@@ -99,3 +99,7 @@ export function saveWeeklyBest(reached: number): boolean {
   try { localStorage.setItem(WEEK_KEY, JSON.stringify({ week: weekId(), best: reached })); } catch { /* blocked */ }
   return true;
 }
+
+/** 🧼 Best wave reached in a PURE RUN (no Pantry items). */
+export const pureBest = (): number => Number(localStorage.getItem('kk-gauntlet-pure') ?? 0) || 0;
+export function savePureBest(wave: number): void { if (wave > pureBest()) try { localStorage.setItem('kk-gauntlet-pure', String(wave)); } catch { /* blocked */ } }

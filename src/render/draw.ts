@@ -1,5 +1,6 @@
 // Shapes-first art. Everything is drawn with Phaser Graphics so real sprites can replace it piece by piece later.
 import type * as Phaser from 'phaser';
+import { getSettings } from '../settings';
 import { P, RULES, TABLE, VIEW } from '../sim/constants';
 import { CUTLERY } from '../sim/cutlery';
 import type { Belt, Layout, Obstacle, Toaster, Turntable, Zone } from '../sim/layouts';
@@ -30,6 +31,12 @@ function ellipse(cx: number, cy: number, rx: number, ry: number, n = 14): Pt[] {
 }
 
 // ------------------------------------------------------------------ table
+/** ⚠ High-contrast hazard outlines (Settings ▸ HIGH-CONTRAST HAZARDS): black under yellow, easy to see on any table. */
+const hcOn = (): boolean => getSettings().contrast;
+function hcRect(g: G, x: number, y: number, w: number, h: number): void { if (!hcOn()) return; g.lineStyle(9, 0x000000, 0.9); g.strokeRect(x, y, w, h); g.lineStyle(4, 0xffe600, 1); g.strokeRect(x, y, w, h); }
+function hcCircle(g: G, x: number, y: number, r: number): void { if (!hcOn()) return; g.lineStyle(9, 0x000000, 0.9); g.strokeCircle(x, y, r); g.lineStyle(4, 0xffe600, 1); g.strokeCircle(x, y, r); }
+function hcPoly(g: G, pts: { x: number; y: number }[]): void { if (!hcOn()) return; const v = pts as unknown as Phaser.Math.Vector2[]; g.lineStyle(9, 0x000000, 0.9); g.strokePoints(v, true); g.lineStyle(4, 0xffe600, 1); g.strokePoints(v, true); }
+
 export function drawFloor(g: G): void {
   g.fillStyle(0x1a120d, 1);
   g.fillRect(0, 0, VIEW.w, VIEW.h);
@@ -550,6 +557,7 @@ export function drawHand(g: G, h: Hand, t: number): void {
     g.lineStyle(3, 0xff3b3b, 0.8);
     g.lineBetween(TABLE.x, top, TABLE.x + TABLE.w, top);
     g.lineBetween(TABLE.x, top + band, TABLE.x + TABLE.w, top + band);
+    hcRect(g, TABLE.x, top, TABLE.w, band);
     g.fillStyle(0xff5050, 0.55 + 0.3 * Math.sin(t * 12));
     const off = ((t * 300) % 120) * h.dir;
     for (let x = TABLE.x - 120; x < TABLE.x + TABLE.w + 120; x += 120) {
@@ -669,6 +677,7 @@ export function drawCleaverWarn(g: G, c: Cleaver, t: number): void {
   }
   g.fillStyle(0x000000, 0.3 * k);
   g.fillRect(c.x - band / 2 + 10, TABLE.y, band, TABLE.h);
+  hcRect(g, c.x - band / 2, TABLE.y, band, TABLE.h);
 }
 
 export function drawCleaverBlade(g: G, c: Cleaver): void {
@@ -714,6 +723,7 @@ export function drawSpatula(g: G, sp: { state: 'warn' | 'flip'; x: number; y: nu
     g.lineStyle(4, 0xff3b3b, 0.5 + 0.4 * pulse); g.strokeRect(sp.x - S, sp.y - S, size, size);
     // the spatula's shadow growing over the square
     g.fillStyle(0x000000, 0.12 + 0.25 * k); g.fillRoundedRect(sp.x - S * k, sp.y - S * k, size * k, size * k, 10);
+    hcRect(g, sp.x - S, sp.y - S, size, size);
     return;
   }
   g.fillStyle(0x000000, 0.3); g.fillRoundedRect(sp.x - S + 8, sp.y - S + 10, size, size, 16);
@@ -728,6 +738,7 @@ export function drawSpatula(g: G, sp: { state: 'warn' | 'flip'; x: number; y: nu
 export function drawCheeseWarn(g: G, x: number, y: number, k: number, r: number, t: number): void {
   g.fillStyle(0x000000, 0.12 + 0.28 * k); g.fillEllipse(x, y, r * 2 * (0.4 + 0.6 * k), r * 1.4 * (0.4 + 0.6 * k));
   g.lineStyle(3, 0xffb347, 0.4 + 0.5 * Math.abs(Math.sin(t * (6 + 10 * k)))); g.strokeEllipse(x, y, r * 2, r * 1.4);
+  if (hcOn()) { g.lineStyle(9, 0x000000, 0.9); g.strokeEllipse(x, y, r * 2, r * 1.4); g.lineStyle(4, 0xffe600, 1); g.strokeEllipse(x, y, r * 2, r * 1.4); }
   const h = (1 - k) * 260, s = 10 + 16 * k;
   g.fillStyle(0xffd24a, 0.9); g.fillCircle(x, y - h, s);
   g.fillStyle(0xfff1a0, 0.9); g.fillCircle(x - s * 0.3, y - h - s * 0.3, s * 0.35);
@@ -749,6 +760,7 @@ export function drawBlender(g: G, z: { x: number; y: number; r: number }, state:
     const pulse = 0.5 + 0.5 * Math.sin(t * (state === 'spin' ? 18 : 9));
     g.fillStyle(0xff3b3b, state === 'spin' ? 0.22 : 0.1 + 0.12 * pulse);
     g.fillCircle(z.x, z.y, z.r + 18);
+    hcCircle(g, z.x, z.y, z.r + 18);
     g.lineStyle(3, 0xff3b3b, 0.5 + 0.4 * pulse);
     g.strokeCircle(z.x, z.y, z.r + 18);
     if (state === 'spin') {
@@ -783,6 +795,7 @@ export function drawBurner(g: G, z: Zone, state: Burner | null, i: number, t: nu
   const heat = !mine ? 0 : mine.state === 'warn' ? mine.t / RULES.burnerWarn : 1;
   g.fillStyle(0x1f2226, 0.85);
   g.fillCircle(z.x, z.y, z.r);
+  if (heat > 0) hcCircle(g, z.x, z.y, z.r + 4);
   for (let k = 0; k < 4; k++) {
     const r = z.r * (0.28 + k * 0.2);
     const glow = heat > 0 ? Math.min(1, heat * 1.2) * (0.6 + 0.4 * Math.sin(t * 18 + k)) : 0;
@@ -850,6 +863,7 @@ export function drawToasterWarn(g: G, z: Toaster, st: ToasterState, t: number): 
   const len = 1400, px = -uy * w / 2, py = ux * w / 2, ex = z.x + ux * len, ey = z.y + uy * len;
   g.fillStyle(0xff2a2a, 0.12 + 0.18 * k + 0.08 * Math.sin(t * 22));
   g.fillPoints([{ x: z.x + px, y: z.y + py }, { x: ex + px, y: ey + py }, { x: ex - px, y: ey - py }, { x: z.x - px, y: z.y - py }] as unknown as Phaser.Math.Vector2[], true);
+  hcPoly(g, [{ x: z.x + px, y: z.y + py }, { x: ex + px, y: ey + py }, { x: ex - px, y: ey - py }, { x: z.x - px, y: z.y - py }]);
   g.fillStyle(0xffffff, 0.8);
   for (let d = 40; d < 1200; d += 80) {
     const cx = z.x + ux * d + ux * ((t * 200) % 80), cy = z.y + uy * d + uy * ((t * 200) % 80);

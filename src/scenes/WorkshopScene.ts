@@ -1,7 +1,7 @@
 // 🛠 Table Workshop: build up to 3 custom tables (surface + hazard + props) for local play.
 import * as Phaser from 'phaser';
 import { sfx } from '../audio';
-import { BASE_COUNT, HAZARD_CHOICES, HAZARD_INFO, HAZARD_NAMES, propInfo, loadCustom, MAX_CUSTOM, MAX_PROPS, PROPS, saveCustom, SPAWNS, type CustomTable } from '../custom';
+import { BASE_COUNT, HAZARD_CHOICES, HAZARD_INFO, HAZARD_NAMES, propInfo, loadCustom, MAX_CUSTOM, MAX_PROPS, PROPS, saveCustom, SPAWNS, spawnsOf, FEATURED, type CustomTable } from '../custom';
 import { clearTaps, consumeTap } from '../input';
 import { playMusic } from '../music';
 import { fitInside, hasArt } from '../render/art';
@@ -23,6 +23,9 @@ export class WorkshopScene extends Phaser.Scene {
   private list: CustomTable[] = [];
   private slot = 0;
   private pick = 0;
+  private spotMode = false; // 📍 taps move start spots instead of placing props
+  private snap = false; // ▦ place on a 40-px grid
+  private featured = 0;
   private objs: Phaser.GameObjects.GameObject[] = [];
   private buttons: Button[] = [];
   private surfaces: number[] = [];
@@ -69,6 +72,9 @@ export class WorkshopScene extends Phaser.Scene {
       const n = window.prompt('Name this table (up to 18 letters):', this.cur().name)?.trim().slice(0, 18);
       if (n) { this.cur().name = n; sfx.pickup(); this.redraw('Renamed! Press 💾 SAVE to keep it.'); } else sfx.thwock();
     });
+    const spotBtn = btn(75, 500, 124, '📍 SPOTS', () => { this.spotMode = !this.spotMode; sfx.pickup(); spotBtn.setText(this.spotMode ? '📍 SPOTS ✔' : '📍 SPOTS'); this.redraw(this.spotMode ? '📍 Tap the table: the nearest start spot moves there. Tap 📍 again to go back to props.' : ''); }, 0xffd24a);
+    const snapBtn = btn(205, 500, 124, '▦ SNAP', () => { this.snap = !this.snap; sfx.pickup(); snapBtn.setText(this.snap ? '▦ SNAP ✔' : '▦ SNAP'); this.redraw(this.snap ? '▦ Props and spots snap to a grid.' : ''); }, 0x8dd8ff);
+    btn(335, 500, 124, '⭐ FEATURED', () => { const f = FEATURED[this.featured++ % FEATURED.length]; this.list[this.slot] = { ...JSON.parse(JSON.stringify(f)), surface: this.surfaces.includes(f.surface) ? f.surface : this.surfaces[0] ?? 0 }; sfx.matchWin(); this.redraw(`⭐ Loaded "${f.name}" into this slot: PLAY IT, remix it, or 💾 SAVE to keep it.`); }, 0xff7ad9);
     btn(110, 660, 180, '💾 SAVE', () => this.save(), 0x8dff6a);
     btn(310, 660, 180, '▶ PLAY IT', () => this.playIt(), 0xffd24a);
     // 📋 share codes: copy this table as a code, or load a friend's (then SAVE to keep it)
@@ -85,6 +91,7 @@ export class WorkshopScene extends Phaser.Scene {
         if (!t || !Array.isArray(t.props) || typeof t.surface !== 'number') throw new Error('bad');
         t.props = t.props.filter(q => PROPS.some(([st]) => st === q.style)).slice(0, MAX_PROPS);
         t.name = String(t.name ?? 'Shared table').slice(0, 24);
+        if (t.spawns && !(Array.isArray(t.spawns) && t.spawns.length === SPAWNS.length && t.spawns.every(s => Array.isArray(s) && s.every(v => typeof v === 'number')))) delete t.spawns;
         if (!this.surfaces.includes(t.surface)) t.surface = this.surfaces[0] ?? 0;
         this.list[this.slot] = t; sfx.matchWin(); this.redraw();
         this.note.setText('Loaded a shared table! Press 💾 SAVE to keep it.');
@@ -114,16 +121,32 @@ export class WorkshopScene extends Phaser.Scene {
 
   private tapTable(sx: number, sy: number): void {
     const c = this.cur(), t = toTable(sx, sy);
+    if (this.snap) { t.x = Math.round(t.x / 40) * 40; t.y = Math.round(t.y / 40) * 40; }
+    if (this.spotMode) { this.moveSpot(c, t.x, t.y); return; }
     const hit = c.props.findIndex(p => Math.hypot(p.x - t.x, p.y - t.y) < p.r);
     if (hit >= 0) { c.props.splice(hit, 1); sfx.thwock(); this.redraw('Removed.'); return; }
     const [style, r] = PROPS[this.pick];
     if (c.props.length >= MAX_PROPS) { sfx.thwock(); this.redraw(`That's the most props (${MAX_PROPS}). Tap one to remove it.`); return; }
     if (t.x < TABLE.x + r + 10 || t.x > TABLE.x + TABLE.w - r - 10 || t.y < TABLE.y + r + 10 || t.y > TABLE.y + TABLE.h - r - 10) { sfx.thwock(); this.redraw('Too close to the edge.'); return; }
-    if (SPAWNS.some(s => Math.hypot(s[0] - t.x, s[1] - t.y) < r + 70)) { sfx.thwock(); this.redraw('Keep the start spots (circles) clear.'); return; }
+    if (spawnsOf(c).some(s => Math.hypot(s[0] - t.x, s[1] - t.y) < r + 70)) { sfx.thwock(); this.redraw('Keep the start spots (circles) clear.'); return; }
     if (c.props.some(p => Math.hypot(p.x - t.x, p.y - t.y) < p.r + r + 8)) { sfx.thwock(); this.redraw('Too close to another prop.'); return; }
     c.props.push({ style, x: Math.round(t.x), y: Math.round(t.y), r });
     sfx.spawn();
     this.redraw();
+  }
+
+  /** 📍 move the start spot nearest the tap (kept on the table, off props, apart from the others). */
+  private moveSpot(c: CustomTable, x: number, y: number): void {
+    const spots = spawnsOf(c).map(s => [s[0], s[1]] as [number, number]);
+    let k = 0; spots.forEach((s, i) => { if (Math.hypot(s[0] - x, s[1] - y) < Math.hypot(spots[k][0] - x, spots[k][1] - y)) k = i; });
+    const m = 40;
+    if (x < TABLE.x + m || x > TABLE.x + TABLE.w - m || y < TABLE.y + m || y > TABLE.y + TABLE.h - m) { sfx.thwock(); this.redraw('Too close to the edge for a start spot.'); return; }
+    if (c.props.some(p => Math.hypot(p.x - x, p.y - y) < p.r + 40)) { sfx.thwock(); this.redraw('A start spot can\'t sit on a prop.'); return; }
+    if (spots.some((s, i) => i !== k && Math.hypot(s[0] - x, s[1] - y) < 90)) { sfx.thwock(); this.redraw('Keep start spots apart (or kaiju start on top of each other).'); return; }
+    spots[k] = [Math.round(x), Math.round(y)];
+    c.spawns = spots;
+    sfx.spawn();
+    this.redraw(`📍 Start spot ${k + 1} moved. Press 💾 SAVE to keep it.`);
   }
 
   private save(): void {
@@ -168,7 +191,7 @@ export class WorkshopScene extends Phaser.Scene {
     // the chosen surface and hazard, shown ON the preview
     add(this.add.text(PX + 10, PY + H - 10, `🍽 ${LAYOUTS[c.surface]?.name ?? ''}`, body(14, '#ffffff', 900, { backgroundColor: '#0d0805cc', padding: { x: 8, y: 4 } })).setOrigin(0, 1).setDepth(7));
     if (c.hazard !== 'none') { const icon: Record<string, string> = { hand: '✋', wind: '💨', cleaver: '🔪', cheese: '🧀', spatula: '🍳' }; add(this.add.text(PX + W - 10, PY + 10, `${icon[c.hazard] ?? '⚠'} ${HAZARD_NAMES[c.hazard]}`, body(16, '#ffb347', 900, { backgroundColor: '#0d0805cc', padding: { x: 8, y: 4 } })).setOrigin(1, 0).setDepth(7)); }
-    for (const s of SPAWNS) { const p = toScreen(s[0], s[1]); g2.lineStyle(2, 0xffffff, 0.5).strokeCircle(p.x, p.y, 18); }
+    spawnsOf(c).forEach((s, k) => { const p = toScreen(s[0], s[1]); g2.lineStyle(this.spotMode ? 3 : 2, this.spotMode ? 0xffd24a : 0xffffff, this.spotMode ? 1 : 0.5).strokeCircle(p.x, p.y, 18); if (this.spotMode) add(this.add.text(p.x, p.y, String(k + 1), body(14, '#ffd24a', 900)).setOrigin(0.5).setDepth(7)); });
     for (const pr of c.props) {
       const p = toScreen(pr.x, pr.y);
       if (hasArt(`ob-${pr.style}`)) add(fitInside(this.add.image(p.x, p.y, `ob-${pr.style}`), pr.r * 2 * PS * 1.25, pr.r * 2 * PS * 1.25).setDepth(6));

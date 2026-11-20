@@ -15,9 +15,10 @@ export interface Settings {
   kidMode: boolean; // 🧸 Story: rivals one level easier, one-line chats, bigger result text
   catchUp: boolean; // comeback help in Free Play / Party: kaiju behind on rounds start with a fuller belly
   kaijuPowers: boolean; // each kaiju's own KAIJU power + small trait (off = Classic: all kaiju the same)
+  contrast: boolean; // ⚠ hazard warnings get a thick yellow-and-black outline
 }
 
-export const DEFAULTS: Settings = { volume: 0.8, music: 0.4, shake: true, reducedFx: false, nameTags: false, replays: true, badges: false, tips: true, bigButtons: typeof window !== 'undefined' && ('ontouchstart' in window || navigator.maxTouchPoints > 0), rumble: true, kaijuPowers: true, catchUp: true, kidMode: false };
+export const DEFAULTS: Settings = { volume: 0.8, music: 0.4, shake: true, reducedFx: false, nameTags: false, replays: true, badges: false, tips: true, bigButtons: typeof window !== 'undefined' && ('ontouchstart' in window || navigator.maxTouchPoints > 0), rumble: true, kaijuPowers: true, catchUp: true, kidMode: false, contrast: false };
 
 const KEY = 'kk-settings-v1';
 let cache: Settings | null = null;
@@ -56,4 +57,5 @@ export const SETTINGS_ROWS: { key: keyof Settings; label: string; kind: 'level' 
   { key: 'catchUp', label: 'COMEBACK HELP', kind: 'toggle', help: 'Free Play / Party: whoever is behind starts rounds with a fuller belly' },
   { key: 'rumble', label: 'RUMBLE', kind: 'toggle', help: 'Gamepad / phone vibration on big hits' },
   { key: 'nameTags', label: 'NAME TAGS', kind: 'toggle', help: 'Show every kaiju\'s name above it in matches' },
+  { key: 'contrast', label: 'HIGH-CONTRAST HAZARDS', kind: 'toggle', help: 'Thick yellow-and-black outlines on every hazard warning' },
 ];

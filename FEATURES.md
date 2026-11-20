@@ -1107,3 +1107,21 @@ Not done, and why:
 - One layout for every gamepad, saved as `kk-pad-v1` (`PAD_MAP`, `bindPad`, `resetPadBinds` in `src/input.ts`).
 - START and the D-pad stay fixed.
 - Help ▸ BASICS shows your current gamepad buttons (`padHint`).
+
+## 78. Outside review, round 2 (build 1e60ed0 → the last pieces)
+- **Story SKIP CHAT:** S, the label or the last line goes straight into the match. A "🍴 ROUND 1…" card covers the moment before the game starts, so the chapter map never flashes up (`launching`). It already started the match; testers saw the map for one frame.
+- **Locked kaiju:** they show their KAIJU power, trait and your record against them (dark silhouette art, as before).
+- **Settings:**
+  - ⚠ HIGH-CONTRAST HAZARDS (`contrast`): a thick yellow-and-black outline on every hazard warning (`hcRect` / `hcCircle` / `hcPoly` in `src/render/draw.ts`).
+  - ⛶ FULL SCREEN button.
+  - The footer notes that M mutes in a match.
+- **Pantry:** items are tagged 🎨 colour / 🏁 Gauntlet, and the footer says where the other colours come from.
+- **Online:** 📶 connection badges on lobby seats (ping/pong with timestamps, `rttOf`, guest `rtt`), refreshed every 2 s.
+- **Gauntlet:** 🧼 PURE RUN toggle in CHALLENGES (no Pantry Lifeline / Lunchbox; its own best, `pureBest`). The end screen says PURE RUN.
+- **Workshop:**
+  - 📍 SPOTS: move the six start spots (`CustomTable.spawns`, `spawnsOf`).
+  - ▦ SNAP: a 40-px grid.
+  - ⭐ FEATURED: four curated tables to play or remix (`FEATURED` in `src/custom.ts`).
+- **Daily:** 📋 COPY MY RESULT puts a result line on the clipboard to compare with friends (a global board needs a server).
+
+Not done: public rooms / quick-match and a global leaderboard (they need a server).

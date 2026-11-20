@@ -94,9 +94,10 @@ export class SettingsScene extends PanelScene {
       b.setText(this.label(row.key, row.kind, row.label));
       this.buttons.push(b);
     });
-    this.buttons.push(new Button(this, 440, top + rows * step + 26, { w: 360, h: 48, label: '⌨ KEYBOARD CONTROLS', size: 20, accent: 0x4fd1ff, onClick: () => { sfx.go(); this.scene.start('controls'); } }, 6));
-    this.buttons.push(new Button(this, 840, top + rows * step + 26, { w: 360, h: 48, label: '💾 BACK UP / MOVE SAVE', size: 20, accent: 0x8dff6a, onClick: () => this.backupPanel() }, 6));
-    this.add.text(640, 706, isTouchDevice ? 'Saved on this device · tap to change' : 'Saved on this device · ENTER / click to change', body(15, '#cdb9a3', 800)).setOrigin(0.5).setDepth(5);
+    this.buttons.push(new Button(this, 260, top + rows * step + 26, { w: 330, h: 48, label: '⌨ KEYBOARD / 🎮 PAD', size: 20, accent: 0x4fd1ff, onClick: () => { sfx.go(); this.scene.start('controls'); } }, 6));
+    this.buttons.push(new Button(this, 1020, top + rows * step + 26, { w: 330, h: 48, label: '⛶ FULL SCREEN', size: 20, accent: 0xffd24a, onClick: () => { sfx.pickup(); if (document.fullscreenElement) void document.exitFullscreen(); else void document.documentElement.requestFullscreen?.().catch(() => {}); } }, 6));
+    this.buttons.push(new Button(this, 640, top + rows * step + 26, { w: 330, h: 48, label: '💾 BACK UP / MOVE SAVE', size: 20, accent: 0x8dff6a, onClick: () => this.backupPanel() }, 6));
+    this.add.text(640, 706, isTouchDevice ? 'Saved on this device · tap to change' : 'Saved on this device · ENTER / click to change · M mutes during a match', body(15, '#cdb9a3', 800)).setOrigin(0.5).setDepth(5);
   }
 
   /** A small HTML panel: copy your save code, or paste one from another device. */
@@ -581,7 +582,7 @@ export class GalleryScene extends PanelScene {
     const u = UNLOCKS.find(q => q.kind === 'kaiju' && q.index === i);
     const lines = got
       ? [`A ${sp.food}.`, `🌟 KAIJU power: ${KITS[i].power} — ${KITS[i].blurb} (reach ${Math.round(powerReach(KITS[i]))} · every ${powerCooldown(KITS[i]).toFixed(1)} s)`, `Trait: ${KITS[i].trait}`, `Matches: ${st.kaijuPlays[i] ?? 0}  ·  Wins: ${st.kaijuWins[i] ?? 0}${st.vs?.[i] ? `  ·  📊 You vs it: ${st.vs[i][0]}–${st.vs[i][1] - st.vs[i][0]}` : ''}${u ? `  ·  🎁 ${got ? 'unlocked by playing' : needText(u)}` : ''}`, (() => { const mi = masteryInfo(loadMeta().xp[i] ?? 0); const words = ['sparkles', 'HUD star', 'gold name', 'gold frame', 'crown']; const ladder = words.map((r, k) => `${k + 2 <= mi.level ? '✔' : '🔒'}${r}`).join(' · '); const fill = mi.need ? Math.round(8 * mi.into / mi.need) : 8; return `Mastery Lv ${mi.level} ${mi.title} ${'▰'.repeat(fill)}${'▱'.repeat(8 - fill)}${mi.need ? ` (${mi.into}/${mi.need} XP)` : ' MAX'}\nRewards (Lv 2-6): ${ladder} · ${isShiny(i) ? '✔' : '🔒'}Shiny`; })()]
-      : [u ? `Unlock: ${needText(u)}` : 'Locked', '', 'Left: normal look · right: KAIJU MODE'];
+      : [u ? `🔒 Unlock: ${needText(u)}` : '🔒 Locked', `🌟 KAIJU power: ${KITS[i].power} — ${KITS[i].blurb}`, `Trait: ${KITS[i].trait}`, `📊 You vs it: ${st.vs?.[i] ? `${st.vs[i][0]}–${st.vs[i][1] - st.vs[i][0]}` : 'not met yet'}`]; // plan your matchup before you own it
     // fit inside the panel (x 600..1115, y 518..680): wrap to the width, then shrink the font until it fits
     const W = 355, H = 156; // right side of the panel holds MOVE LAB + SHINY (a little margin above the border)
     let size = 19;
@@ -767,7 +768,8 @@ export class PantryScene extends PanelScene {
     SHOP.forEach((it, k) => {
       const x = 720 + (k % 2) * 360, y = 206 + Math.floor(k / 2) * 112, own = m.owned.includes(it.id), cost = priceOf(it.id), deal = dailyDeal()?.id === it.id, afford = m.tokens >= cost;
       const sub = own ? '✔ OWNED' : `${it.desc}\n🪙 ${cost}${deal ? `  🏷 −30% today` : ''}${afford ? '' : '  (not enough yet)'}`;
-      const b = new Button(this, x, y, { w: 340, h: 100, label: `${it.name}`, sub, size: 18, accent: own ? 0x8dff6a : deal ? 0x8dd8ff : afford ? 0xffd24a : 0x6a5a4a, onClick: () => {
+      const tag = it.id === 'lunchbox' || it.id === 'lifeline' ? '🏁' : '🎨';
+      const b = new Button(this, x, y, { w: 340, h: 100, label: `${tag} ${it.name}`, sub, size: 18, accent: own ? 0x8dff6a : deal ? 0x8dd8ff : afford ? 0xffd24a : 0x6a5a4a, onClick: () => {
         if (own) { sfx.thwock(); return; }
         if (m.tokens < cost) { sfx.thwock(); b.setText(it.name, `need ${cost - m.tokens} more 🪙`); return; }
         if (this.armed !== it.id) { this.disarm?.(); this.armed = it.id; sfx.pickup(); b.setText(`${it.name}?`, `tap again to buy for ${cost} 🪙`); this.disarm = () => b.setText(it.name, sub); return; } // only one item asks at a time
@@ -776,7 +778,7 @@ export class PantryScene extends PanelScene {
       } }, 6);
       this.buttons.push(b);
     });
-    this.objs.push(this.add.text(900, 650, 'Colours you buy appear in the 📖 KAIJU Gallery. Gauntlet items work on every new run.', body(13, '#a89680', 800, { align: 'center', wordWrap: { width: 700 } })).setOrigin(0.5).setDepth(5));
+    this.objs.push(this.add.text(900, 650, '🎨 = a colour (wear it from the 📖 Gallery) · 🏁 = a Gauntlet item (every new run). The other colours come from achievements: see 🏆 Records ▸ 🎯 GOALS.', body(13, '#a89680', 800, { align: 'center', wordWrap: { width: 700 } })).setOrigin(0.5).setDepth(5));
     if (this.nav) this.nav = new FocusNav([...this.buttons], 2);
   }
 }

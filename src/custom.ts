@@ -38,7 +38,11 @@ export interface CustomTable {
   surface: number; // index of a base table whose surface art to use
   hazard: HazardKind | 'none';
   props: { style: ObstacleStyle; x: number; y: number; r: number }[];
+  spawns?: [number, number][]; // 📍 your own six start spots (default SPAWNS)
 }
+
+/** The six start spots a custom table uses. */
+export const spawnsOf = (c: CustomTable): [number, number][] => (Array.isArray(c.spawns) && c.spawns.length === SPAWNS.length ? c.spawns : SPAWNS);
 
 const KEY = 'kk-custom-tables';
 /** How many tables are built in (custom ones come after these). */
@@ -59,7 +63,7 @@ export function toLayout(c: CustomTable): Layout {
     name: c.name, table: base.table, hazards: c.hazard === 'none' ? [] : [c.hazard], custom: true,
     blurb: `Your own table (${HAZARD_NAMES[c.hazard]}).`,
     obstacles: c.props.map(p => ({ shape: 'circle', x: p.x, y: p.y, r: p.r, style: p.style })),
-    spawns: SPAWNS.map(s => [s[0], s[1]] as [number, number]),
+    spawns: spawnsOf(c).map(s => [s[0], s[1]] as [number, number]),
   };
 }
 
@@ -70,3 +74,18 @@ export function applyCustomTables(): void {
 }
 
 export const isCustomTable = (i: number): boolean => !!LAYOUTS[i]?.custom;
+
+/** ⭐ Featured tables to play or remix (Workshop ▸ ⭐ FEATURED). EASY TO ADD MORE. */
+export const FEATURED: CustomTable[] = [
+  { name: 'Pinball Pantry', surface: 0, hazard: 'none', props: [
+    { style: 'gumdrop', x: 400, y: 250, r: 32 }, { style: 'gumdrop', x: 880, y: 250, r: 32 }, { style: 'gumdrop', x: 400, y: 515, r: 32 }, { style: 'gumdrop', x: 880, y: 515, r: 32 },
+    { style: 'gumdrop', x: 640, y: 382, r: 32 }, { style: 'tomato', x: 520, y: 382, r: 28 }, { style: 'tomato', x: 760, y: 382, r: 28 } ] },
+  { name: 'Syrup Swamp', surface: 0, hazard: 'hand', props: [
+    { style: 'pancakes', x: 460, y: 300, r: 38 }, { style: 'pancakes', x: 820, y: 300, r: 38 }, { style: 'pancakes', x: 460, y: 470, r: 38 }, { style: 'pancakes', x: 820, y: 470, r: 38 },
+    { style: 'cupcake', x: 640, y: 382, r: 28 } ] },
+  { name: 'Bake Off', surface: 0, hazard: 'wind', props: [
+    { style: 'cupcake', x: 360, y: 382, r: 28 }, { style: 'cupcake', x: 920, y: 382, r: 28 }, { style: 'cake', x: 640, y: 250, r: 44 }, { style: 'cake', x: 640, y: 520, r: 44 } ] },
+  { name: 'Teapot Fortress', surface: 0, hazard: 'cleaver', props: [
+    { style: 'teapot', x: 560, y: 300, r: 34 }, { style: 'teapot', x: 720, y: 300, r: 34 }, { style: 'teapot', x: 560, y: 465, r: 34 }, { style: 'teapot', x: 720, y: 465, r: 34 },
+    { style: 'cup', x: 380, y: 382, r: 30 }, { style: 'cup', x: 900, y: 382, r: 30 } ] },
+];

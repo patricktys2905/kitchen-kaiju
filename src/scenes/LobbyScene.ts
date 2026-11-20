@@ -131,6 +131,7 @@ export class LobbyScene extends Phaser.Scene {
     document.body.appendChild(this.root);
     this.events.once('shutdown', () => { this.root?.remove(); this.root = null; });
     this.render();
+    { const ping = window.setInterval(() => { if ((this.host || this.guest) && !this.root?.querySelector('input:focus')) this.render(); }, 2000); this.events.once('shutdown', () => clearInterval(ping)); } // 📶 keep the connection badges fresh
     if (this.couch) this.startHosting();
     // opened from a QR code / join link: go straight into the room
     const join = new URLSearchParams(location.search).get('join');
@@ -253,7 +254,7 @@ export class LobbyScene extends Phaser.Scene {
       const img = `art/kaiju-${s.species}.webp`;
       return `<div class="seat" style="border-color:${sp.css}">
         <img src="${img}" alt="">
-        <div class="k" style="color:${sp.css}">${sp.full}<div class="who">${esc(s.name)}${mine && s.who !== 'host' ? ' (you)' : ''}${this.tvMode && s.who === 'host' ? ' · 📺 watching, not playing' : ''}${s.route === 'backup' ? ' · backup route (slower)' : s.route === 'direct' ? ' · direct link' : ''}</div></div>
+        <div class="k" style="color:${sp.css}">${sp.full}<div class="who">${esc(s.name)}${mine && s.who !== 'host' ? ' (you)' : ''}${this.tvMode && s.who === 'host' ? ' · 📺 watching, not playing' : ''}${s.route === 'backup' ? ' · backup route (slower)' : s.route === 'direct' ? ' · direct link' : ''}${(() => { const ms = s.who === 'guest' && this.host && s.guest !== undefined ? this.host.rttOf(s.guest) : s.who === 'host' && this.guest ? this.guest.rtt : undefined; return ms === undefined ? '' : ` · ${ms < 80 ? '🟢' : ms < 160 ? '🟡' : '🔴'} ${ms} ms`; })()}</div></div>
         ${mine ? `<button data-pick="-1">◀</button><button data-pick="1">▶</button>` : ''}
       </div>`;
     }).join('');

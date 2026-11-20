@@ -330,7 +330,9 @@ export class StoryScene extends Phaser.Scene {
     return this.spicy && ((this.save.stars[this.sel] ?? 0) > 0 || chefsPass());
   }
 
+  private launching = false;
   private launch(): void {
+    this.launching = true;
     const ch = this.camp.chapters[this.sel], rivals = chapterRivals(ch, this.save.pick);
     const slots: Slot[] = [{ kind: 'local', index: 0 }, ...rivals.map((): Slot => ({ kind: 'bot', index: 0 }))];
     this.scene.start('game', {
@@ -402,7 +404,14 @@ export class StoryScene extends Phaser.Scene {
     const line = this.lines[this.lineIdx];
     if (this.lineText && this.lineShown < line.text.length) { this.lineShown = line.text.length; return; } // finish typing first
     this.lineIdx++;
-    if (this.lineIdx >= this.lines.length) { this.clearOverlay(); this.mode = 'map'; this.afterDialogue(); return; }
+    if (this.lineIdx >= this.lines.length) {
+      this.mode = 'map';
+      this.launching = false;
+      this.afterDialogue();
+      if (this.launching) { this.add.text(640, 360, '🍴 ROUND 1…', display(48, '#ffd24a', { strokeThickness: 7, backgroundColor: '#0d0805', padding: { x: 30, y: 16 } })).setOrigin(0.5).setDepth(60); return; } // straight into the match: the map never flashes up
+      this.clearOverlay();
+      return;
+    }
     this.showLine();
   }
 
