@@ -4,7 +4,7 @@
 import { LAYOUTS, type HazardKind, type Layout, type ObstacleStyle } from './sim/layouts';
 
 export const MAX_CUSTOM = 6;
-export const MAX_PROPS = 12;
+export const MAX_PROPS = 20;
 /** Props you can place: [style, radius]. 'gumdrop' is a bouncy bumper. */
 export const PROPS: [ObstacleStyle, number][] = [
   ['cup', 30], ['bowl', 36], ['candle', 22], ['teapot', 34], ['cake', 44], ['gift', 30], ['cupcake', 28], ['melon', 36],

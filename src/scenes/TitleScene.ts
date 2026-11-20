@@ -19,7 +19,7 @@ import { dailyMedalLine, stepsDone } from '../meta';
 import { getSettings } from '../settings';
 import { SPECIES } from '../sim/constants';
 import { LAYOUTS } from '../sim/layouts';
-import { DAILY, dailySetup, loadDaily, spicyWonToday, todayKey } from '../daily';
+import { DAILY, dailySetup, loadDaily, spicyWonToday, todayKey, weekStrip } from '../daily';
 import { modeDef } from '../sim/modes';
 import { GameScene } from './GameScene';
 import { owned } from '../story/unlocks';
@@ -120,6 +120,7 @@ export class TitleScene extends Phaser.Scene {
       `You play ${SPECIES[d.you].name} vs ${d.rivals.map((r, k) => `${SPECIES[r].name} (${kid ? 'easy' : DAILY.levels[k] ?? 'easy'})`).join(', ')}`,
       `Table: ${LAYOUTS[d.table].name} · first to ${DAILY.rounds} rounds · the same match for everyone today`,
       dailyMedalLine(d.date),
+      `Last 7 days: ${weekStrip()}   (✔ won · ✖ played · · missed)`,
       rec.date === d.date ? `Today so far: ${rec.won ? 'won ✔' : 'not won yet'} · tries ${rec.tries} · win streak ${rec.streak} 🔥` : `Win streak: ${rec.streak} 🔥 (win today to keep it)`,
     ];
     const info = this.add.text(640, 238, lines.join('\n\n'), body(16, '#f1e4d2', 800, { align: 'center', wordWrap: { width: 720 }, lineSpacing: 2 })).setOrigin(0.5, 0).setDepth(31);

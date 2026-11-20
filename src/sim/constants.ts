@@ -47,6 +47,7 @@ export const RULES = {
   handFirst: 7,
   handWarn: 1.4,
   handSpeed: 1700,
+  handMinBelly: 35, // the hand only comes once someone's belly is at least this full (or someone is KAIJU)
   handDodge: 0.4, // a DASH within this many seconds of the hand reaching you slips under it
   handBand: 130,
   handWidth: 170,

@@ -1602,6 +1602,7 @@ export class World {
       let target = alive.find(p => p.kaijuT > 0);
       if (!target) {
         const top = Math.max(...alive.map(p => p.meter));
+        if (top < RULES.handMinBelly) { this.handTimer = 1.5; return; } // nobody worth grabbing yet: check again soon
         target = this.rng.pick(alive.filter(p => p.meter === top));
       }
       const y = clamp(target.y, TABLE.y + band / 2, TABLE.y + TABLE.h - band / 2);

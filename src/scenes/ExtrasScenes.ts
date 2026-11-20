@@ -735,6 +735,7 @@ export class PantryScene extends PanelScene {
 
 // ------------------------------------------------------------------ 🎯 Trials: fixed hard scenarios with 3 stars each
 export class TrialsScene extends PanelScene {
+  static pick = -1; // -1 = each trial's own kaiju
   protected title = '🎯 TRIALS';
   protected cols = 2;
   constructor() { super('trials'); }
@@ -744,7 +745,11 @@ export class TrialsScene extends PanelScene {
     this.add.text(640, 120, chefsPassText(), body(14, chefsPass() ? '#8dff6a' : '#ffcf8a', 900, { align: 'center', wordWrap: { width: 1100 } })).setOrigin(0.5).setDepth(5);
     TRIALS.forEach((t, k) => {
       const x = 340 + (k % 2) * 600, y = 196 + Math.floor(k / 2) * 118, s = stars[t.id] ?? 0;
-      this.buttons.push(new Button(this, x, y, { w: 570, h: 104, label: `${t.name}   ${'★'.repeat(s)}${'☆'.repeat(Math.max(0, 3 - s))}`, sub: `${t.desc}\n★★★ = win without losing a round + ${t.kos} KOs`, size: 22, accent: s === 3 ? 0xffd24a : s ? 0x8dff6a : 0xffb347, onClick: () => { sfx.go(); this.scene.start('game', GameScene.trialData(t.id)); } }, 6));
+      this.buttons.push(new Button(this, x, y, { w: 570, h: 104, label: `${t.name}   ${'★'.repeat(s)}${'☆'.repeat(Math.max(0, 3 - s))}`, sub: `${t.desc}\n★★★ = win without losing a round + ${t.kos} KOs`, size: 22, accent: s === 3 ? 0xffd24a : s ? 0x8dff6a : 0xffb347, onClick: () => { sfx.go(); this.scene.start('game', GameScene.trialData(t.id, TrialsScene.pick)); } }, 6));
     });
+    // 🐉 pick your kaiju for every trial (or keep each trial's own pick)
+    const own = owned().kaiju, label = () => (TrialsScene.pick < 0 ? "🐉 YOUR KAIJU: THE TRIAL'S PICK ▶" : `🐉 YOUR KAIJU: ${SPECIES[TrialsScene.pick].name} ▶`);
+    const kb: Button = new Button(this, 640, 668, { w: 460, h: 44, label: label(), size: 17, accent: 0x8dd8ff, onClick: () => { const i = own.indexOf(TrialsScene.pick); TrialsScene.pick = i + 1 >= own.length ? -1 : own[i + 1]; sfx.pickup(); kb.setText(label()); } }, 6);
+    this.buttons.push(kb);
   }
 }

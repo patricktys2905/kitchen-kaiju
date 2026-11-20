@@ -1076,3 +1076,27 @@ The full list is in `playtest-reports/round11/SUMMARY.md` ("Fixed straight after
 - **Prices:** `SHINY.cost` is 200.
 - **Daily:** `DAILY.rounds` is 2.
 - **Gauntlet:** the perk screen gets an END RUN button; the weekly-best payout happens at the end of the run only.
+
+## 76. Outside review (another AI's 10-tester panel) — what was still true, now fixed
+These came from an outside review of build 073e404. Some of its points were already fixed by then:
+- Story SKIP CHAT (S) checked in a real browser: it goes straight into the match.
+- Locked kaiju are already silhouettes in the Gallery.
+
+Built:
+- **✋ Giant Hand:** it waits until someone's belly is at least `RULES.handMinBelly` (35) full, or someone is KAIJU. Ties were already random. No more 8-second ambush in a quiet 1v1.
+- **😜 Emotes:** no white box; a big emoji with a soft shadow.
+- **🍽 Free Play TABLE:** opens a picture grid of your tables plus 🎲 ALL (`MenuScene.toggleTables`). The M key still steps through them.
+- **🎯 Trials:** "🐉 YOUR KAIJU" lets you play any trial with your own kaiju (`TrialsScene.pick`, `trialData(id, pick)`).
+- **🔗 Online:** the host room has "Copy invite link" (the `?join=CODE` link the QR code already uses).
+- **🛠 Workshop:** ◀ SLOT / SLOT ▶, and up to 20 props (`MAX_PROPS`).
+- **🔊 Audio:**
+  - 10-step volume levels (`LEVELS`).
+  - **M** mutes or unmutes sound and music during a match.
+- **🎓 Story ch1** (first time through): a step-by-step coach at the bottom of the screen (THROW → SWIPE → EAT → STOMP, `storyCoach`).
+- **👑 Story bosses** quip when they go KAIJU or knock you out (`BOSS_QUIPS`).
+- **🏁 Gauntlet Over** shows total knockouts and this week's best.
+- **📅 Daily card:** "Last 7 days: ✔ ✖ · …" (`weekStrip`; kept on this device, since the game has no server for a global board).
+
+Not done, and why:
+- Global Daily leaderboard and public rooms: they need a server; the game is peer-to-peer and offline-first.
+- Gamepad remapping: a bigger job, left for later.

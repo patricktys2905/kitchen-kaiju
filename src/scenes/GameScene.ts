@@ -2,6 +2,7 @@ import * as Phaser from 'phaser';
 import { sfx } from '../audio';
 import { playMusic } from '../music';
 import { getSettings, setSetting } from '../settings';
+import { loadStory } from '../story/save';
 import { ACHIEVEMENTS, checkAchievements, loadStats, saveStats, type Stats } from '../stats';
 import { ACHIEVEMENT_TOKENS, addTokens, completeStep, isShiny, kaijuMastery, pinnedAchievement, recordMatch, type Receipt, dailyMedalLine } from '../meta';
 import { clearTaps, consumeTap, injectTap, listDevices, readSlot, slotLabel, type Slot, inputTick } from '../input';
@@ -21,7 +22,7 @@ import { NO_INPUT, World, type GameEvent, type PlayerInput } from '../sim/world'
 import { chapterRivals, starsFor } from '../story/chapters';
 import { COURSES, saveDessert } from '../story/dessert';
 import { addToShelf, cupRules, cupShelf, FINAL_MULTIPLIER, cupGames, placePoints, RANKED_BY } from '../cup';
-import { GAUNTLET, GAUNTLET_PERKS, gauntletBest, gauntletTables, runGrade, runScore, saveGauntletBest, waveCourse, wavePreview, waveSetup, checkpointWave, saveWeeklyBest } from '../gauntlet';
+import { GAUNTLET, GAUNTLET_PERKS, gauntletBest, gauntletTables, runGrade, runScore, saveGauntletBest, waveCourse, wavePreview, waveSetup, checkpointWave, saveWeeklyBest, weeklyBest } from '../gauntlet';
 import { shopOwned } from '../meta';
 import { recordTrial, TRIAL_TOKENS, TRIALS } from '../trials';
 import { enabledMutators } from '../sim/mutators';
@@ -255,6 +256,7 @@ export class GameScene extends Phaser.Scene {
     this.firstServiceLines = [];
     this.roundOut = null;
     this.toastQ = []; this.toastText = null; this.toastG = null; this.toastT = 0;
+    this.coachStep = -1; this.coachText = null;
     this.achEarned = { lines: [], tokens: 0 }; this.receiptFresh = false; this.receipt = null;
     this.ownedAtStart = owned();
     this.coachStomp = (this.story?.chapter ?? 99) <= 2 || loadStats().kaijuForms < STOMP_COACH_UNTIL;
@@ -311,7 +313,7 @@ export class GameScene extends Phaser.Scene {
       const p0 = this.world.players[0];
       this.practice = { done: PRACTICE_STEPS.map(() => false), moved: 0, lx: p0.x, ly: p0.y, text, g };
     }
-    this.emoteBubbles = this.world.players.map(() => ({ text: this.add.text(0, 0, '', body(34, '#ffffff', 900, { backgroundColor: '#ffffffee', padding: { x: 8, y: 4 } })).setOrigin(0.5, 1).setDepth(8).setVisible(false), t: 0 }));
+    this.emoteBubbles = this.world.players.map(() => ({ text: withShadow(this.add.text(0, 0, '', body(38, '#ffffff', 900, { padding: { x: 6, y: 6 } })).setOrigin(0.5, 1).setDepth(8).setVisible(false), 3), t: 0 }));
     this.emotePrev = this.world.players.map(() => false);
     this.emoteCd = this.world.players.map(() => 0);
     this.emoteNext = this.world.players.map((_, i) => i % EMOTES.length);
@@ -406,6 +408,7 @@ export class GameScene extends Phaser.Scene {
       if (!this.replay) this.setPaused(!this.paused);
     }
     if (consumeTap('KeyP') && this.world.phase !== 'matchEnd' && !this.net && !this.replay) this.setPaused(!this.paused);
+    if (consumeTap('KeyM')) { const s = getSettings(), muted = s.volume === 0 && s.music === 0; if (muted) { setSetting('volume', GameScene.lastVolume || 0.75); setSetting('music', GameScene.lastMusic || 0.35); } else { if (s.volume > 0) GameScene.lastVolume = s.volume; if (s.music > 0) GameScene.lastMusic = s.music; setSetting('volume', 0); setSetting('music', 0); } this.popup(VIEW.w / 2, 150, muted ? '🔊 SOUND ON (M)' : '🔇 MUTED (M)', '#ffe9c7', 20); }
     const anyStart = this.slots.some(s => s.kind === 'pad' && readSlot(s).start);
     if (anyStart && !this.padPrevStart && this.world.phase !== 'matchEnd' && !this.net && !this.replay) this.setPaused(!this.paused);
     if (this.pauseUi && this.pauseUi.nav.update(dt) === 'back') this.setPaused(false);
@@ -1080,6 +1083,37 @@ export class GameScene extends Phaser.Scene {
     return placePoints(this.world.players, this.world.mode === 'teams').map(v => v * (last ? FINAL_MULTIPLIER : 1));
   }
 
+  /** 🎓 Story ch1, first time through: a gentle step-by-step coach (THROW → SWIPE → EAT → STOMP).
+   *  👑 Bosses quip when they go KAIJU or knock you out. EASY TO CUSTOMISE: COACH and BOSS_QUIPS. */
+  private coachStep = -1;
+  private coachText: Phaser.GameObjects.Text | null = null;
+  private storyCoach(e: GameEvent): void {
+    const s = this.story;
+    if (!s) return;
+    const COACH: [string, (e: GameEvent) => boolean][] = [
+      [`🍴 HOLD ${isTouchDevice ? 'THROW' : 'SPACE'}, then let go: fling your cutlery!`, ev => ev.type === 'throw' && ev.id === 0],
+      [`👋 Up close? ${isTouchDevice ? 'tap SWIPE' : 'press F'} to smack (it bats forks back too!)`, ev => ev.type === 'swipe' && ev.id === 0],
+      ['🍪 Eat the crumbs on the table to fill your belly', ev => ev.type === 'meterFull' && ev.id === 0],
+      [`🦖 Belly full! ${isTouchDevice ? 'tap STOMP' : 'press E'} to go KAIJU and squash!`, ev => ev.type === 'kaiju' && ev.id === 0],
+    ];
+    const first = (s.campaign ?? 'main') === 'main' && s.chapter === 0 && !(loadStory().stars[0] > 0);
+    if (first) {
+      if (e.type === 'roundStart' && this.coachStep < 0) this.coachStep = 0;
+      else if (this.coachStep >= 0 && this.coachStep < COACH.length && COACH[this.coachStep][1](e)) { this.coachStep++; sfx.pickup(); }
+      if (this.coachStep >= 0) {
+        this.coachText ??= this.add.text(VIEW.w / 2, VIEW.h - 18, '', body(18, '#ffe9c7', 900, { backgroundColor: '#0d0805dd', padding: { x: 14, y: 6 } })).setOrigin(0.5, 1).setDepth(11);
+        this.coachText.setText(this.coachStep < COACH.length ? `🎓 ${this.coachStep + 1}/${COACH.length}  ${COACH[this.coachStep][0]}` : '🎉 That\'s every move! Now win the round.').setVisible(true);
+        if (this.coachStep >= COACH.length) this.time.delayedCall(3000, () => this.coachText?.setVisible(false));
+      }
+    }
+    const BOSS_QUIPS = ['Is that all you\'ve got?', 'You call that a fork?', 'Back to the kids\' table!', 'Too easy. Next!', 'Feel the weight of the crown!'];
+    const bosses = s.bosses ?? [];
+    if ((e.type === 'kaiju' && bosses.includes(e.id)) || (e.type === 'ko' && e.id === 0 && e.by !== null && bosses.includes(e.by))) {
+      const b = e.type === 'kaiju' ? e.id : (e as { by: number }).by, p = this.world.players[b];
+      if (p) this.popup(p.x, p.y - 80, `👑 ${SPECIES[this.species[b]].name}: "${BOSS_QUIPS[(this.world.round + b) % BOSS_QUIPS.length]}"`, this.css[b], 18);
+    }
+  }
+
   /** Static helper: GameData for a 🍰 Dessert Course fight (you play your Story pick). */
   static dessertData(course: number, pick: number): GameData {
     const c = COURSES[course], rivals = chapterRivals(c, pick);
@@ -1092,8 +1126,9 @@ export class GameScene extends Phaser.Scene {
 
   /** Static helper: GameData for today's Daily Challenge. */
   /** 🎯 GameData for a Trial. */
-  static trialData(id: string): GameData {
-    const t = TRIALS.find(q => q.id === id) ?? TRIALS[0];
+  static trialData(id: string, pick = -1): GameData {
+    const t0 = TRIALS.find(q => q.id === id) ?? TRIALS[0];
+    const t = pick >= 0 && !t0.rivals.some(r => r.species === pick) ? { ...t0, you: pick } : t0; // 🎯 your own kaiju (not one of the rivals)
     return {
       slots: [{ kind: 'local', index: 0 }, ...t.rivals.map((): Slot => ({ kind: 'bot', index: 0 }))], difficulty: 'normal',
       species: [t.you, ...t.rivals.map(r => r.species)], tables: [t.table], rounds: t.rounds, botLevels: [null, ...t.rivals.map(r => r.level)],
@@ -1196,6 +1231,7 @@ export class GameScene extends Phaser.Scene {
       if (this.initData.daily.spicy && this.humanWon(e.winner) && !spicyWonToday(this.initData.daily.date)) { markSpicyWin(this.initData.daily.date); addTokens(DAILY.spicyTokens); this.achEarned.lines.push(`🌶️ SPICY DAILY beaten! +${DAILY.spicyTokens} 🪙`); this.achEarned.tokens += DAILY.spicyTokens; this.mergeAch(); }
     }
     if (e.type === 'matchEnd' && this.initData.dessert && e.winner === 0) saveDessert(this.initData.dessert.course + 1);
+    this.storyCoach(e);
     if (e.type === 'roundStart' && this.initData.dessert && e.round === 1) { const q = COURSES[this.initData.dessert.course].quip; this.time.delayedCall(200, () => this.popup(VIEW.w / 2, 150, q, '#ffd9a0', 18)); }
     if (e.type === 'matchEnd' && this.initData.gauntlet) {
       const reached = this.initData.gauntlet.wave - (e.winner === 0 ? 0 : 1);
@@ -1742,8 +1778,9 @@ export class GameScene extends Phaser.Scene {
         const reached = wave - 1, prev = this.initData.gauntlet.startBest ?? 0, best = Math.max(prev, reached);
         main = 'GAUNTLET OVER'; color = '#ff8a7a';
         const perks = (this.initData.gauntlet.perks ?? []).map(id => GAUNTLET_PERKS.find(q => q.id === id)?.name ?? id);
-        const score = runScore(reached, (this.initData.gauntlet.kos ?? 0) + this.world.players[0].kos);
-        sub = `You cleared ${reached} wave${reached === 1 ? '' : 's'} (reached ${waveCourse(wave)})${reached > prev ? ' · 🏅 NEW BEST!' : ` · best ${best}`}\nScore ${score} · GRADE ${runGrade(score)}   (grades: ${GAUNTLET.grades.slice(0, -1).reverse().map(([n, g]) => `${g} ${n}`).join(' · ')})${perks.length ? `\nPerks: ${perks.join(', ')}` : ''}`;
+        const totalKos = (this.initData.gauntlet.kos ?? 0) + this.world.players[0].kos;
+        const score = runScore(reached, totalKos);
+        sub = `You cleared ${reached} wave${reached === 1 ? '' : 's'} (reached ${waveCourse(wave)})${reached > prev ? ' · 🏅 NEW BEST!' : ` · best ${best}`}\n🍴 ${totalKos} knockouts · 🗓 this week's best: ${weeklyBest()}\nScore ${score} · GRADE ${runGrade(score)}   (grades: ${GAUNTLET.grades.slice(0, -1).reverse().map(([n, g]) => `${g} ${n}`).join(' · ')})${perks.length ? `\nPerks: ${perks.join(', ')}` : ''}`;
       }
     } else if (w.phase === 'matchEnd' && this.initData.trial) {
       const t = TRIALS.find(q => q.id === this.initData.trial!.id)!, r = this.trialResult ?? { stars: 0, gained: 0 };

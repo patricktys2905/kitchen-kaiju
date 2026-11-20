@@ -17,7 +17,7 @@ export interface Settings {
   kaijuPowers: boolean; // each kaiju's own KAIJU power + small trait (off = Classic: all kaiju the same)
 }
 
-export const DEFAULTS: Settings = { volume: 0.75, music: 0.35, shake: true, reducedFx: false, nameTags: false, replays: true, badges: false, tips: true, bigButtons: typeof window !== 'undefined' && ('ontouchstart' in window || navigator.maxTouchPoints > 0), rumble: true, kaijuPowers: true, catchUp: true, kidMode: false };
+export const DEFAULTS: Settings = { volume: 0.8, music: 0.4, shake: true, reducedFx: false, nameTags: false, replays: true, badges: false, tips: true, bigButtons: typeof window !== 'undefined' && ('ontouchstart' in window || navigator.maxTouchPoints > 0), rumble: true, kaijuPowers: true, catchUp: true, kidMode: false };
 
 const KEY = 'kk-settings-v1';
 let cache: Settings | null = null;
@@ -41,7 +41,7 @@ export function onSettings(f: (s: Settings) => void): void {
 }
 
 /** Rows shown on the Settings screen. 'level' rows step through LEVELS, 'toggle' rows flip on/off. */
-export const LEVELS = [0, 0.15, 0.35, 0.55, 0.75, 1];
+export const LEVELS = [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1]; // 10 steps
 export const SETTINGS_ROWS: { key: keyof Settings; label: string; kind: 'level' | 'toggle'; help: string }[] = [
   { key: 'volume', label: 'SOUND EFFECTS', kind: 'level', help: 'Throws, clanks, splats' },
   { key: 'music', label: 'MUSIC', kind: 'level', help: 'Background tunes (0 = off)' },

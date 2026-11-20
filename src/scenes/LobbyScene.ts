@@ -283,7 +283,7 @@ export class LobbyScene extends Phaser.Scene {
           <button data-act="tv">${this.tvMode ? '📺 TV mode: ON (you just watch)' : '📺 TV mode: OFF (you play too)'}</button>
         </div>
         <p class="muted">${esc(modeDef(this.mode).blurb)}</p>
-        <div class="row"><button class="go" data-act="start" ${guests || this.couch ? '' : 'disabled'}>${guests ? 'Start match' : 'Start (bots fill the seats)'}</button><button data-act="back">Close room</button></div>
+        <div class="row"><button class="go" data-act="start" ${guests || this.couch ? '' : 'disabled'}>${guests ? 'Start match' : 'Start (bots fill the seats)'}</button><button data-act="copylink">🔗 Copy invite link</button><button data-act="back">Close room</button></div>
         ${guests ? '' : `<p class="muted">${this.couch ? 'Scan the code to join from a phone, or start now and bots fill the seats.' : 'Waiting for at least one friend to join…'}</p>`}
         ${statusHtml}`;
     } else {
@@ -330,5 +330,6 @@ export class LobbyScene extends Phaser.Scene {
     if (a === 'cup') { this.cup = !this.cup; this.render(); }
     if (a === 'mutator') { const l = enabledMutators().map(m => m.id); this.mutator = l[(l.indexOf(this.mutator) + 1) % l.length] ?? 'none'; this.syncLobby(); }
     if (a === 'start') this.startMatch();
+    if (a === 'copylink' && this.host?.code) { const link = joinLink(this.host.code); navigator.clipboard?.writeText(link).then(() => { this.status = '🔗 Invite link copied: paste it to your friends!'; this.render(); }).catch(() => { this.status = link; this.render(); }); }
   }
 }

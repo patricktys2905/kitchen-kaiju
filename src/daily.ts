@@ -44,6 +44,7 @@ export function loadDaily(): DailyRecord {
 
 /** Records today's attempt; rounds = rounds you won. Returns the updated record. */
 export function recordDaily(rounds: number, won: boolean, date = todayKey()): DailyRecord {
+  pushHistory(date, won);
   const r = loadDaily();
   if (r.date !== date) Object.assign(r, { date, best: 0, won: false, tries: 0 });
   r.tries++;
@@ -61,3 +62,18 @@ export function recordDaily(rounds: number, won: boolean, date = todayKey()): Da
 /** 🌶️ Spicy Daily: won today? (its 🪙 pays once a day) */
 export const spicyWonToday = (date = todayKey()): boolean => { try { return localStorage.getItem('kk-daily-spicy') === date; } catch { return false; } };
 export function markSpicyWin(date = todayKey()): void { try { localStorage.setItem('kk-daily-spicy', date); } catch { /* blocked */ } }
+
+/** 📅 Your last days of Dailies (on this device): date -> won. */
+const HIST = 'kk-daily-hist';
+export function dailyHistory(): Record<string, boolean> { try { return JSON.parse(localStorage.getItem(HIST) ?? '{}') as Record<string, boolean>; } catch { return {}; } }
+function pushHistory(date: string, won: boolean): void {
+  const h = dailyHistory(); h[date] = h[date] || won;
+  const keep = Object.keys(h).sort().slice(-30); const out: Record<string, boolean> = {}; for (const k of keep) out[k] = h[k];
+  try { localStorage.setItem(HIST, JSON.stringify(out)); } catch { /* blocked */ }
+}
+/** "✔ ✖ · ✔ …" for the last 7 days, oldest first (· = not played). */
+export function weekStrip(today = new Date()): string {
+  const h = dailyHistory(), out: string[] = [];
+  for (let k = 6; k >= 0; k--) { const t = new Date(today); t.setDate(t.getDate() - k); const key = todayKey(t); out.push(key in h ? (h[key] ? '✔' : '✖') : '·'); }
+  return out.join(' ');
+}

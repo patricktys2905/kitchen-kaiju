@@ -128,6 +128,8 @@ await pg.mouse.click(262, 690); await wait(500); await audit('house rules panel'
 await start('menu', {}, 1500); await pg.mouse.click(92, 690); await wait(400); await audit('keys panel');
 await start('menu', { party: true, mode: 'teams' }, 1500); await pg.evaluate(() => window.__game.scene.getScene('menu').toggleTwists()); await wait(400); await audit('twist picker');
 await pg.evaluate(() => { const m = window.__game.scene.getScene('menu'); const b = m.twistUi.find(u => u.label && /TRY IT/.test(u.label.text)); b?.press(); }); await wait(300); await audit('twist picker try it');
+await start('menu', {}, 1500); await pg.evaluate(() => window.__game.scene.getScene('menu').toggleTables()); await wait(400); await audit('table picker');
+await start('menu', {}, 1500); await pg.evaluate(() => window.__game.scene.getScene('menu').toggleBots()); await wait(400); await audit('bot level picker');
 await start('menu', { party: true, mode: 'teams' }, 1500); await pg.evaluate(() => { const M = window.__game.scene.getScene('menu').constructor; M.cupOn = true; }); await wait(500); await audit('party setup cup on'); await pg.evaluate(() => { const M = window.__game.scene.getScene('menu').constructor; M.cupOn = false; });
 await start('story', {}, 2000); await pg.evaluate(() => window.__game.scene.getScene('story').showLog()); await wait(400); await audit('story log');
 await start('story', {}, 2000); await pg.evaluate(() => window.__game.scene.getScene('story').showRewards()); await wait(400); await audit('story rewards');

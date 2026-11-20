@@ -273,7 +273,7 @@ export class MenuScene extends Phaser.Scene {
         ? [['mode', 'KeyG'], ['cup', 'KeyC'], ['cuplen', 'KeyL'], ['bots', 'Digit2'], ['table', 'KeyM'], ['rounds', 'KeyR'], ['twist', 'KeyX'], ['power', 'KeyU'], ['haz', 'KeyH'], ['dice', 'KeyZ'], ['phones', 'TouchPhones']]
         : [['bots', 'Digit2'], ['table', 'KeyM'], ['rounds', 'KeyR'], ['twist', 'KeyX'], ['power', 'KeyU'], ['haz', 'KeyH'], ['dice', 'KeyZ'], ['online', 'KeyO']];
       const x0 = 640 - ((items.length - 1) * (W + 8)) / 2;
-      this.setBtns = items.map(([id, code], k) => { const b = new Button(this, x0 + k * (W + 8), 512, { w: W, h: 54, label: '', size: 14, onClick: () => { if (this.keysShown) return; if (id === 'twist') this.toggleTwists(); else if (id === 'bots') this.toggleBots(); else injectTap(code); } }, 6); (b as Button & { id?: string }).id = id; b.label.setAlign('center').setLineSpacing(-2); return b; });
+      this.setBtns = items.map(([id, code], k) => { const b = new Button(this, x0 + k * (W + 8), 512, { w: W, h: 54, label: '', size: 14, onClick: () => { if (this.keysShown) return; if (id === 'twist') this.toggleTwists(); else if (id === 'bots') this.toggleBots(); else if (id === 'table') this.toggleTables(); else injectTap(code); } }, 6); (b as Button & { id?: string }).id = id; b.label.setAlign('center').setLineSpacing(-2); return b; });
       this.playBtn = new Button(this, 640, 590, { w: 320, h: 64, label: '▶ PLAY', size: 32, accent: 0xff9a3c, onClick: () => { if (!this.keysShown) injectTap('Digit1'); } }, 6);
       this.hintText = this.add.text(640, 652, '', { ...BODY, fontStyle: '800', fontSize: '13px', color: '#cdb9a3', align: 'center', wordWrap: { width: 1180 } }).setOrigin(0.5).setDepth(2);
       this.keysBtn = new Button(this, 92, 690, { w: 150, h: 40, label: '⌨ KEYS', size: 16, onClick: () => show(!this.keysShown) }, 21);
@@ -309,6 +309,29 @@ export class MenuScene extends Phaser.Scene {
   /** ⚡ Twist picker: every single twist and every double, in one panel (tap one to pick it). */
   private twistUi: (Button | Phaser.GameObjects.GameObject)[] = [];
   private botUi: (Button | Phaser.GameObjects.GameObject)[] = [];
+  private tableUi: (Button | Phaser.GameObjects.GameObject)[] = [];
+  /** 🍽 TABLE picker: every table you own as a picture, plus ALL (a different one each round). */
+  private toggleTables(): void {
+    const close = () => { for (const u of this.tableUi) { if (u instanceof Button) { u.g.destroy(); u.label.destroy(); u.sub?.destroy(); u.zone.destroy(); } else u.destroy(); } this.tableUi = []; };
+    if (this.tableUi.length) { close(); return; }
+    sfx.pickup();
+    const g = this.add.graphics().setDepth(30);
+    g.fillStyle(0x000000, 0.6).fillRect(0, 0, 1280, 720).fillStyle(0x0d0805, 1).fillRoundedRect(40, 70, 1200, 600, 20).lineStyle(3, 0x8dd8ff, 1).strokeRoundedRect(40, 70, 1200, 600, 20);
+    this.tableUi.push(this.add.zone(640, 360, 1280, 720).setInteractive().setDepth(30), g, this.add.text(640, 100, '🍽 PICK A TABLE', body(22, '#8dd8ff', 900)).setOrigin(0.5).setDepth(31));
+    const list = [-1, ...this.own.tables];
+    const cols = 6, cw = 186, ch = 112;
+    list.forEach((ti, k) => {
+      const col = k % cols, row = Math.floor(k / cols), x = 145 + col * (cw + 12), y = 190 + row * (ch + 10);
+      if (row > 3) return;
+      const L = ti >= 0 ? LAYOUTS[ti] : null, on = ti === this.table;
+      const b = new Button(this, x, y, { w: cw, h: ch, label: '', sub: L ? L.name : '🎲 ALL TABLES', size: 14, accent: on ? 0x8dff6a : 0x8dd8ff, onClick: () => { this.table = ti; sfx.go(); close(); } }, 31);
+      if (b.sub) b.sub.setY(y + ch / 2 - 16);
+      this.tableUi.push(b);
+      if (L && hasArt(L.table)) this.tableUi.push(this.add.image(x, y - 12, L.table).setDisplaySize(cw - 24, ch - 46).setDepth(33));
+      else if (!L) this.tableUi.push(this.add.text(x, y - 12, '🎲', body(40, '#ffffff', 900)).setOrigin(0.5).setDepth(33));
+    });
+    this.tableUi.push(new Button(this, 1200, 100, { w: 56, h: 44, label: '✖', size: 20, onClick: () => close() }, 31));
+  }
   /** 🤖 BOT LEVEL picker: every level in one tap, with what it means. */
   private toggleBots(): void {
     const close = () => { for (const u of this.botUi) { if (u instanceof Button) { u.g.destroy(); u.label.destroy(); u.sub?.destroy(); u.zone.destroy(); } else u.destroy(); } this.botUi = []; };
@@ -419,6 +442,7 @@ export class MenuScene extends Phaser.Scene {
     for (const u of this.twistUi) if (u instanceof Button) u.update(dt);
     if (this.twistUi.length && consumeTap('Escape')) { this.toggleTwists(); clearTaps(); return; }
     if (this.botUi.length && consumeTap('Escape')) { this.toggleBots(); clearTaps(); return; }
+    if (this.tableUi.length && consumeTap('Escape')) { this.toggleTables(); clearTaps(); return; }
     if (this.rulesUi.length && consumeTap('Escape')) { this.toggleRules(); clearTaps(); return; }
     if (this.keysShown && consumeTap('Escape')) this.keysToggle?.(false);
     this.pollDevices();

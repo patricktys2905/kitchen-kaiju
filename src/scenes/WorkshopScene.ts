@@ -61,10 +61,11 @@ export class WorkshopScene extends Phaser.Scene {
     tableZone.on('pointerup', (p: Phaser.Input.Pointer) => this.tapTable(p.x, p.y));
     btn(110, 548, 180, '◀ SURFACE ▶', () => this.cycleSurface(), 0x4fd1ff);
     btn(310, 548, 180, '⚠ HAZARD ▶', () => this.cycleHazard(), 0xff8a7a);
-    btn(65, 604, 88, '↶ UNDO', () => { const c = this.cur(); if (c.props.length) { c.props.pop(); sfx.pickup(); } else sfx.thwock(); this.redraw(); });
-    btn(157, 604, 88, '🗑 CLEAR', () => { this.cur().props = []; sfx.thwock(); this.redraw(); });
-    btn(265, 604, 90, '📂 SLOT ▶', () => { this.slot = (this.slot + 1) % MAX_CUSTOM; sfx.pickup(); this.redraw(); });
-    btn(357, 604, 88, '📝 NAME', () => { // ✏ rename this table (SAVE to keep it)
+    btn(55, 604, 72, '↶ UNDO', () => { const c = this.cur(); if (c.props.length) { c.props.pop(); sfx.pickup(); } else sfx.thwock(); this.redraw(); });
+    btn(133, 604, 72, '🗑 CLEAR', () => { this.cur().props = []; sfx.thwock(); this.redraw(); });
+    btn(213, 604, 72, '◀ SLOT', () => { this.slot = (this.slot + MAX_CUSTOM - 1) % MAX_CUSTOM; sfx.pickup(); this.redraw(); });
+    btn(291, 604, 72, 'SLOT ▶', () => { this.slot = (this.slot + 1) % MAX_CUSTOM; sfx.pickup(); this.redraw(); });
+    btn(370, 604, 72, '📝 NAME', () => { // ✏ rename this table (SAVE to keep it)
       const n = window.prompt('Name this table (up to 18 letters):', this.cur().name)?.trim().slice(0, 18);
       if (n) { this.cur().name = n; sfx.pickup(); this.redraw('Renamed! Press 💾 SAVE to keep it.'); } else sfx.thwock();
     });

@@ -1402,3 +1402,15 @@ describe('round 11 build', () => {
     expect(CHAPTERS.slice(0, -1).every(c => !!c.meanwhile)).toBe(true);
   });
 });
+
+describe('giant hand fairness', () => {
+  it('does not come for anyone until a belly is at least RULES.handMinBelly full', async () => {
+    const { RULES } = await import('../src/sim/constants');
+    const w = new World({ players: [{ name: 'A' }, { name: 'B' }], seed: 3, hazards: true, crumbSpawns: false, pickupSpawns: false, layout: 0 });
+    while (w.phase !== 'play') w.step(DT, []);
+    const evs: GameEvent[] = [];
+    for (let t = 0; t < 20 && w.phase === 'play'; t += DT) { for (const p of w.players) p.meter = 10; w.step(DT, []); evs.push(...w.drainEvents()); }
+    expect(evs.some(e => e.type === 'handWarn')).toBe(false);
+    expect(RULES.handMinBelly).toBeGreaterThan(10);
+  });
+});
