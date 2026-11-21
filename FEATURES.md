@@ -1352,3 +1352,27 @@ Each one flies in a new way. They're rare table pickups; `RARE_CHANCE` went from
 - `GameData.ranked`.
 
 **EASY TO CUSTOMISE:** `SEASON` (XP, tiers, rewards, RP), `RANKS` (names, thresholds, bot levels, season bonus) and `THEMES`.
+
+## 90. Big expansion, phase 3: four new kaiju (24 in all)
+You chose these from 32 Gemini concepts (sheets in `art-src/new-kaiju-options{,-2,-3}.png`).
+
+| Kaiju | KAIJU power | Trait | Unlock |
+|---|---|---|---|
+| 🐝 **HONEYBUZZ** (honey bee) | *Honey Glaze*: a big sticky honey puddle in front of it (`pz-honey`) | buzzes a bit faster | reach floor 2 of the 🗝 Dinner Dungeon |
+| 🥯 **BAGELBEAGLE** (bagel puppy) | *Zoomies*: a long wild sprint that flattens anyone in the way | shorter dash cooldown | 24 Grand Feast stars |
+| 🍨 **SCOOPOTAMUS** (ice-cream hippo) | *Belly Flop*: hops forward and lands with a huge splat | heavy | reach 🥈 SILVER SPOON in 🏅 Ranked |
+| 🍑 **PEACHICK** (peach chick) | *Peach Pit*: spits its stone, which dazes the first rival it hits (`pw-pit`) | light and quick | 15 stars |
+
+**Details:**
+- Every power reuses an existing power type (zone, charge, blink, shot), so there's no new physics.
+- New unlock kinds: `{ dungeon: floors }` and `{ rank: RP }` (`bestRp()` in seasons.ts).
+- Player colours were picked to pass the colour-distance test against all 24: violet, blue, magenta-pink, green.
+- Each has its own voice.
+- The Gallery is now 12 per row, with "An ice-cream hippo" grammar.
+- Hat positions are in `heads.json` (hats are switched off, `HATS_ENABLED = false`); `scripts/hat-sheet.mjs` now covers every kaiju.
+- `dungeonBest()` no longer throws when storage is blocked.
+
+**Art (all Gemini):**
+- Standard and KAIJU-mode sprites for all four. Bagelbeagle is your original pick, with its nose. Scoopotamus is your pick with the nostrils removed. Peachick had its white sticker border removed.
+- Sprites for whisk, skewer, scoop and grater (they replace the vector drawings).
+- The last 7 Story still redos: Night Market ch5, Room Service ch1 (now Sloba asleep in the hotel queue; Crabbage kept growing extra claws) and ch4, plus the Norigon, Bloblin, Toastbat and Tacowl endings.

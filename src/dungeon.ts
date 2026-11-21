@@ -231,7 +231,7 @@ const BEST = 'kk-dungeon-best';
 export function loadRun(): DungeonRun | null { try { const s = JSON.parse(localStorage.getItem(KEY) ?? 'null') as DungeonRun | null; return s && !s.over ? s : null; } catch { return null; } }
 export function saveRun(run: DungeonRun | null): void { try { if (run && !run.over) localStorage.setItem(KEY, JSON.stringify(run)); else localStorage.removeItem(KEY); } catch { /* blocked */ } }
 /** Best result: floors reached (3 = cleared). */
-export const dungeonBest = (): number => Number(localStorage.getItem(BEST) ?? 0) || 0;
+export const dungeonBest = (): number => { try { return Number(localStorage.getItem(BEST) ?? 0) || 0; } catch { return 0; } };
 export function saveDungeonBest(run: DungeonRun): boolean {
   const v = run.over === 'won' ? DUNGEON.floors.length : run.floor;
   if (v <= dungeonBest()) return false;

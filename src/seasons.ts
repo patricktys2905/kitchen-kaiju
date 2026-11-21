@@ -121,3 +121,8 @@ export function currentSeason(now = new Date()): SeasonSave {
 export function takeSeasonRoll(): { from: string; rank: Rank; tokens: number } | null {
   try { const r = JSON.parse(localStorage.getItem('kk-season-roll') ?? 'null'); localStorage.removeItem('kk-season-roll'); return r; } catch { return null; }
 }
+
+/** Your best Ranked RP in any season (for unlocks). Reads the save without rolling it over. */
+export function bestRp(): number {
+  try { const s = JSON.parse(localStorage.getItem(KEY) ?? 'null') as SeasonSave | null; return s ? Math.max(s.best, ...s.history.map(h => h.best)) : 0; } catch { return 0; }
+}

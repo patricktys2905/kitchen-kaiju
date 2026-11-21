@@ -1,0 +1,35 @@
+[
+  {
+    "name": "kaiju-21-rage",
+    "newChat": true,
+    "refs": [
+      "art-src/raw/kaiju-21.png"
+    ],
+    "prompt": "Generate an image. The attached picture is BAGELBEAGLE, a bagel puppy kaiju from my game. Draw it in KAIJU MODE: exactly the same design, shape, colours and art style (thick dark-brown outlines, cel shading), same framing (three-quarter view facing RIGHT, full body, centred, about 80% of the frame) and solid flat magenta (#FF00FF) background, but barking furiously with mouth wide open, angry eyebrows, salmon ears flapping, sesame seeds and cream cheese flying off. Keep its face exactly as designed (NO nose, no extra human features). No text, no shadow. Square 1:1."
+  },
+  {
+    "name": "kaiju-23",
+    "newChat": true,
+    "refs": [
+      "art-src/raw/nk-peachick.png"
+    ],
+    "prompt": "Generate an image. The attached picture is PEACHICK, a peach chick kaiju from my game. Redraw EXACTLY the same character (same pose, design, colours, art style and framing) with ONE change: remove the thick WHITE sticker-style border around it, so its thick dark-brown outline sits directly on a solid flat magenta (#FF00FF) background like my other characters. No text, no shadow. Square 1:1."
+  },
+  {
+    "name": "kaiju-23-rage",
+    "newChat": true,
+    "refs": [
+      "art-src/raw/kaiju-23.png"
+    ],
+    "prompt": "Generate an image. The attached picture is PEACHICK, a round peach chick kaiju from my game. Draw it in KAIJU MODE: exactly the same design, shape, colours and art style (thick dark-brown outlines, cel shading), same framing (three-quarter view facing RIGHT, full body, centred, about 80% of the frame) and solid flat magenta (#FF00FF) background, but cheeping furiously with beak wide open, angry eyebrows, feathers puffed up, peach juice drops flying off. Keep its face exactly as designed (NO nose, no extra human features). No text, no shadow. Square 1:1."
+  },
+  {
+    "name": "room-c0-v4",
+    "newChat": true,
+    "refs": [
+      "art-src/cut-refs/room-c0-sloba.png",
+      "art-src/cut-refs/bg-table.png"
+    ],
+    "prompt": "Generate an image. The first attached picture shows the character from my game Kitchen Kaiju. The second shows the table they are on. Keep this EXACT art style and these EXACT character designs: bold chunky cartoon, thick dark-brown outlines, flat bright colours with soft cel shading, funny expressions. The characters are tiny food monsters (\"kaiju\") from my party game. Every kaiju has exactly the body, limbs and face shown in the reference: no extra arms or legs, and NO nose (only the eyes and mouth as drawn). Draw a WIDE 16:9 LANDSCAPE cartoon scene, like one big panel from a funny comic: the front desk queue of a fancy hotel with a brass service bell and a velvet rope: the BUBBLE-TEA SLOTH kaiju is fast asleep STANDING UP in the queue, leaning on its big straw, next to a suitcase with travel stickers, a little cobweb between it and the rope because it has waited so long; its face fully visible. This kaiju is the ONLY living character in the picture: no other creatures, mascots or food with faces. No numbers or writing anywhere.These two kaiju are the ONLY living characters in the picture: no other creatures, mascots or food with faces.. Bright comic lighting, a clear readable composition with space at the bottom. No text, no letters, no logos, no speech bubbles. Landscape 16:9. IMPORTANT: each kaiju appears ONLY ONCE (no extra small copies anywhere), there are NO people or hands, and the kaiju are BIG and clear: each one is about a third of the picture height, in the foreground, apart from each other with nothing in front of their faces."
+  }
+]

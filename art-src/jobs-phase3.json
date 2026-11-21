@@ -1,0 +1,144 @@
+[
+  {
+    "name": "kaiju-22",
+    "newChat": true,
+    "refs": [
+      "art-src/raw/nk-scoopotamus.png"
+    ],
+    "prompt": "Generate an image. The attached picture is SCOOPOTAMUS, an ice-cream hippo kaiju from my game. Redraw EXACTLY the same picture (same pose, design, colours, art style, framing and solid flat magenta #FF00FF background) with ONE change: remove the two nostril dots on its snout, so the snout is smooth and plain (NO nose, NO nostrils, only its eyes and mouth). No text, no shadow. Square 1:1."
+  },
+  {
+    "name": "kaiju-20-rage",
+    "newChat": true,
+    "refs": [
+      "art-src/raw/kaiju-20.png"
+    ],
+    "prompt": "Generate an image. The attached picture is HONEYBUZZ, a round honeycomb bee kaiju from my game. Draw it in KAIJU MODE: exactly the same design, shape, colours and art style (thick dark-brown outlines, cel shading), same framing (three-quarter view facing RIGHT, full body, centred, about 80% of the frame) and solid flat magenta (#FF00FF) background, but buzzing furiously with mouth wide open, angry eyebrows, wings a blur, honey drops flying off. Keep its face exactly as designed (NO nose, no extra human features). No text, no shadow. Square 1:1."
+  },
+  {
+    "name": "kaiju-21-rage",
+    "newChat": true,
+    "refs": [
+      "art-src/raw/kaiju-21.png"
+    ],
+    "prompt": "Generate an image. The attached picture is BAGELBEAGLE, a bagel puppy kaiju from my game. Draw it in KAIJU MODE: exactly the same design, shape, colours and art style (thick dark-brown outlines, cel shading), same framing (three-quarter view facing RIGHT, full body, centred, about 80% of the frame) and solid flat magenta (#FF00FF) background, but barking furiously with mouth wide open, angry eyebrows, salmon ears flapping, sesame seeds and cream cheese flying off. Keep its face exactly as designed (NO nose, no extra human features). No text, no shadow. Square 1:1."
+  },
+  {
+    "name": "kaiju-22-rage",
+    "newChat": true,
+    "refs": [
+      "art-src/raw/kaiju-22.png"
+    ],
+    "prompt": "Generate an image. The attached picture is SCOOPOTAMUS, an ice-cream hippo kaiju from my game. Draw it in KAIJU MODE: exactly the same design, shape, colours and art style (thick dark-brown outlines, cel shading), same framing (three-quarter view facing RIGHT, full body, centred, about 80% of the frame) and solid flat magenta (#FF00FF) background, but roaring furiously with its big mouth wide open, angry eyebrows, ice cream splashes and chocolate chips flying off. Keep its face exactly as designed (NO nose, no extra human features). No text, no shadow. Square 1:1."
+  },
+  {
+    "name": "kaiju-23-rage",
+    "newChat": true,
+    "refs": [
+      "art-src/raw/kaiju-23.png"
+    ],
+    "prompt": "Generate an image. The attached picture is PEACHICK, a round peach chick kaiju from my game. Draw it in KAIJU MODE: exactly the same design, shape, colours and art style (thick dark-brown outlines, cel shading), same framing (three-quarter view facing RIGHT, full body, centred, about 80% of the frame) and solid flat magenta (#FF00FF) background, but cheeping furiously with beak wide open, angry eyebrows, feathers puffed up, peach juice drops flying off. Keep its face exactly as designed (NO nose, no extra human features). No text, no shadow. Square 1:1."
+  },
+  {
+    "name": "pz-honey",
+    "newChat": true,
+    "refs": [
+      "art-src/ref-props2.png"
+    ],
+    "prompt": "Generate an image. The attached picture shows prop sprites from my party game (top-down, chunky cartoon style, thick dark outlines, cel shading). Draw ONE new item in exactly the same style, seen STRAIGHT FROM ABOVE, centred, filling about 80% of the frame, on a solid flat magenta (#FF00FF) background: a big flat PUDDLE of golden runny HONEY with blobby wavy edges, glossy highlights and a few bubbles, roughly round. No text, no shadow, no characters, no faces. Square 1:1."
+  },
+  {
+    "name": "pw-pit",
+    "newChat": true,
+    "refs": [
+      "art-src/ref-props2.png"
+    ],
+    "prompt": "Generate an image. The attached picture shows prop sprites from my party game (top-down, chunky cartoon style, thick dark outlines, cel shading). Draw ONE new item in exactly the same style, seen STRAIGHT FROM ABOVE, centred, filling about 80% of the frame, on a solid flat magenta (#FF00FF) background: a round bumpy brown PEACH STONE (pit) with deep wrinkly grooves and a light highlight, perfectly round. No text, no shadow, no characters, no faces. Square 1:1."
+  },
+  {
+    "name": "cut-whisk",
+    "newChat": true,
+    "refs": [
+      "art-src/ref-cutlery.png"
+    ],
+    "prompt": "Generate an image. The attached picture shows cutlery sprites from my party game. Draw ONE new prop in exactly the same style (bold cartoon, thick dark outlines, cel shading, one white highlight), top-down view, lying flat and perfectly horizontal on a solid flat magenta (#FF00FF) background: a balloon WHISK with a black handle on the LEFT and a round cage of shiny steel wire loops on the RIGHT. Same size and framing as the references. No text, no shadow. Square 1:1."
+  },
+  {
+    "name": "cut-skewer",
+    "newChat": true,
+    "refs": [
+      "art-src/ref-cutlery.png"
+    ],
+    "prompt": "Generate an image. The attached picture shows cutlery sprites from my party game. Draw ONE new prop in exactly the same style (bold cartoon, thick dark outlines, cel shading, one white highlight), top-down view, lying flat and perfectly horizontal on a solid flat magenta (#FF00FF) background: a long thin wooden SKEWER, pointed on the RIGHT, with three chunks of food threaded on it: a red pepper, a green courgette slice and a yellow pineapple chunk. Same size and framing as the references. No text, no shadow. Square 1:1."
+  },
+  {
+    "name": "cut-scoop",
+    "newChat": true,
+    "refs": [
+      "art-src/ref-cutlery.png"
+    ],
+    "prompt": "Generate an image. The attached picture shows cutlery sprites from my party game. Draw ONE new prop in exactly the same style (bold cartoon, thick dark outlines, cel shading, one white highlight), top-down view, lying flat and perfectly horizontal on a solid flat magenta (#FF00FF) background: an ICE CREAM SCOOP with a pink handle on the LEFT and a round steel scoop on the RIGHT holding a ball of vanilla ice cream. Same size and framing as the references. No text, no shadow. Square 1:1."
+  },
+  {
+    "name": "cut-grater",
+    "newChat": true,
+    "refs": [
+      "art-src/ref-cutlery.png"
+    ],
+    "prompt": "Generate an image. The attached picture shows cutlery sprites from my party game. Draw ONE new prop in exactly the same style (bold cartoon, thick dark outlines, cel shading, one white highlight), top-down view, lying flat and perfectly horizontal on a solid flat magenta (#FF00FF) background: a small flat steel CHEESE GRATER paddle with a black handle on the LEFT and a rectangular grating plate full of little holes on the RIGHT. Same size and framing as the references. No text, no shadow. Square 1:1."
+  },
+  {
+    "name": "room-c0-v3",
+    "newChat": true,
+    "refs": [
+      "art-src/cut-refs/room-c0.png",
+      "art-src/cut-refs/bg-table.png"
+    ],
+    "prompt": "Generate an image. The first attached picture shows characters from my game Kitchen Kaiju. The second shows the table they are on. Keep this EXACT art style and these EXACT character designs: bold chunky cartoon, thick dark-brown outlines, flat bright colours with soft cel shading, funny expressions. The characters are tiny food monsters (\"kaiju\") from my party game. Every kaiju has exactly the body, limbs and face shown in the reference: no extra arms or legs, and NO nose (only the eyes and mouth as drawn). Draw a WIDE 16:9 LANDSCAPE cartoon scene, like one big panel from a funny comic: the front desk of a fancy hotel with a brass service bell: the CABBAGE CRAB kaiju (a YELLOW crab with exactly TWO claws and little legs, a green cabbage leaf on top of its head like a hat) holds up a small blank paper ticket in one claw and looks impatient, first in the queue; behind it the BUBBLE-TEA SLOTH kaiju is asleep standing up in the queue next to a suitcase; both faces fully visible. No numbers or writing anywhere.These two kaiju are the ONLY living characters in the picture: no other creatures, mascots or food with faces.. Bright comic lighting, a clear readable composition with space at the bottom. No text, no letters, no logos, no speech bubbles. Landscape 16:9. IMPORTANT: each kaiju appears ONLY ONCE (no extra small copies anywhere), there are NO people or hands, and the kaiju are BIG and clear: each one is about a third of the picture height, in the foreground, apart from each other with nothing in front of their faces."
+  },
+  {
+    "name": "room-c3-v3",
+    "newChat": true,
+    "refs": [
+      "art-src/cut-refs/room-c3.png",
+      "art-src/cut-refs/bg-parlour.png"
+    ],
+    "prompt": "Generate an image. The first attached picture shows characters from my game Kitchen Kaiju. The second shows the table they are on. Keep this EXACT art style and these EXACT character designs: bold chunky cartoon, thick dark-brown outlines, flat bright colours with soft cel shading, funny expressions. The characters are tiny food monsters (\"kaiju\") from my party game. Every kaiju has exactly the body, limbs and face shown in the reference: no extra arms or legs, and NO nose (only the eyes and mouth as drawn). Draw a WIDE 16:9 LANDSCAPE cartoon scene, like one big panel from a funny comic: a sunny hotel swimming pool deck with sun loungers and a beach ball: the SALMON kaiju (dark-blue fish head and tail fins, a salmon-pink fillet body, a lemon slice on its head) sits on a tall white pool chair wearing tiny sunglasses and a whistle, pointing bossily at the water as the pool rule-keeper; bright blue pool water; its face fully visible.This kaiju is the ONLY living character in the picture: no other creatures, mascots or food with faces.. Bright comic lighting, a clear readable composition with space at the bottom. No text, no letters, no logos, no speech bubbles. Landscape 16:9. IMPORTANT: each kaiju appears ONLY ONCE (no extra small copies anywhere), there are NO people or hands, and the kaiju are BIG and clear: each one is about a third of the picture height, in the foreground, apart from each other with nothing in front of their faces."
+  },
+  {
+    "name": "side-norigon-end-v3",
+    "newChat": true,
+    "refs": [
+      "art-src/cut-refs/side-norigon-end.png",
+      "art-src/cut-refs/bg-sushi.png"
+    ],
+    "prompt": "Generate an image. The first attached picture shows characters from my game Kitchen Kaiju. The second shows the table they are on. Keep this EXACT art style and these EXACT character designs: bold chunky cartoon, thick dark-brown outlines, flat bright colours with soft cel shading, funny expressions. The characters are tiny food monsters (\"kaiju\") from my party game. Every kaiju has exactly the body, limbs and face shown in the reference: no extra arms or legs, and NO nose (only the eyes and mouth as drawn). Draw a WIDE 16:9 LANDSCAPE cartoon scene, like one big panel from a funny comic: a sushi bar at closing time with a warm glow: the SUSHI-ROLL DRAGON kaiju (TEAL-GREEN dragon whose body is made of round sushi roll segments with white rice and a salmon-orange belly, pink ginger spikes on its back, exactly as in the reference) happily hangs a small BLANK wooden sign on the wall and holds out a plate of sushi as if offering to share, friendly smile; its face fully visible. No writing or letters anywhere, no banners.This kaiju is the ONLY living character in the picture: no other creatures, mascots or food with faces.. Bright comic lighting, a clear readable composition with space at the bottom. No text, no letters, no logos, no speech bubbles. Landscape 16:9. IMPORTANT: each kaiju appears ONLY ONCE (no extra small copies anywhere), there are NO people or hands, and the kaiju are BIG and clear: each one is about a third of the picture height, in the foreground, apart from each other with nothing in front of their faces."
+  },
+  {
+    "name": "side-bloblin-end-v3",
+    "newChat": true,
+    "refs": [
+      "art-src/cut-refs/side-bloblin-end.png",
+      "art-src/cut-refs/bg-freezer.png"
+    ],
+    "prompt": "Generate an image. The first attached picture shows characters from my game Kitchen Kaiju. The second shows the table they are on. Keep this EXACT art style and these EXACT character designs: bold chunky cartoon, thick dark-brown outlines, flat bright colours with soft cel shading, funny expressions. The characters are tiny food monsters (\"kaiju\") from my party game. Every kaiju has exactly the body, limbs and face shown in the reference: no extra arms or legs, and NO nose (only the eyes and mouth as drawn). Draw a WIDE 16:9 LANDSCAPE cartoon scene, like one big panel from a funny comic: just outside an open freezer door in a kitchen: the lime-JELLY BLOB kaiju (one smooth rounded jelly dome, whipped cream, cherry and a lime slice on top, no arms) sits wrapped in a cosy knitted scarf, a little frost still on its cream and a few tiny icicles hanging off it, smiling with relief, a warm mug beside it; its face fully visible. No writing, letters or labels on any box, jar or packaging.This kaiju is the ONLY living character in the picture: no other creatures, mascots or food with faces.. Bright comic lighting, a clear readable composition with space at the bottom. No text, no letters, no logos, no speech bubbles. Landscape 16:9. IMPORTANT: each kaiju appears ONLY ONCE (no extra small copies anywhere), there are NO people or hands, and the kaiju are BIG and clear: each one is about a third of the picture height, in the foreground, apart from each other with nothing in front of their faces."
+  },
+  {
+    "name": "side-toastbat-end-v3",
+    "newChat": true,
+    "refs": [
+      "art-src/cut-refs/side-toastbat-end.png",
+      "art-src/cut-refs/bg-breakfast.png"
+    ],
+    "prompt": "Generate an image. The first attached picture shows characters from my game Kitchen Kaiju. The second shows the table they are on. Keep this EXACT art style and these EXACT character designs: bold chunky cartoon, thick dark-brown outlines, flat bright colours with soft cel shading, funny expressions. The characters are tiny food monsters (\"kaiju\") from my party game. Every kaiju has exactly the body, limbs and face shown in the reference: no extra arms or legs, and NO nose (only the eyes and mouth as drawn). Draw a WIDE 16:9 LANDSCAPE cartoon scene, like one big panel from a funny comic: a bright TV cooking-show set with studio lights and a camera on a tripod: the TOAST BAT kaiju (a toast-coloured round body with two bat WINGS and NO hands or arms, a pat of butter on its head, exactly as in the reference, NO nose) stands behind the cooking counter wearing a tiny chef hat, a spatula lying on the counter in front of it, wings spread like a TV star, beaming; its face fully visible.This kaiju is the ONLY living character in the picture: no other creatures, mascots or food with faces.. Bright comic lighting, a clear readable composition with space at the bottom. No text, no letters, no logos, no speech bubbles. Landscape 16:9. IMPORTANT: each kaiju appears ONLY ONCE (no extra small copies anywhere), there are NO people or hands, and the kaiju are BIG and clear: each one is about a third of the picture height, in the foreground, apart from each other with nothing in front of their faces."
+  },
+  {
+    "name": "side-tacowl-end-v3",
+    "newChat": true,
+    "refs": [
+      "art-src/cut-refs/side-tacowl-end.png",
+      "art-src/cut-refs/bg-board.png"
+    ],
+    "prompt": "Generate an image. The first attached picture shows characters from my game Kitchen Kaiju. The second shows the table they are on. Keep this EXACT art style and these EXACT character designs: bold chunky cartoon, thick dark-brown outlines, flat bright colours with soft cel shading, funny expressions. The characters are tiny food monsters (\"kaiju\") from my party game. Every kaiju has exactly the body, limbs and face shown in the reference: no extra arms or legs, and NO nose (only the eyes and mouth as drawn). Draw a WIDE 16:9 LANDSCAPE cartoon scene, like one big panel from a funny comic: a kitchen at dawn with soft morning light (no boxes, jars or packaging with writing anywhere): the TACO OWL kaiju proudly shows off a big shiny gold star badge on its chest and holds out a second smaller handmade star badge (wonky, cut out of cardboard) as a gift, wings out, beaming; its face fully visible. This kaiju is the ONLY living character in the picture: no other creatures, mascots or food with faces.. Bright comic lighting, a clear readable composition with space at the bottom. No text, no letters, no logos, no speech bubbles. Landscape 16:9. IMPORTANT: each kaiju appears ONLY ONCE (no extra small copies anywhere), there are NO people or hands, and the kaiju are BIG and clear: each one is about a third of the picture height, in the foreground, apart from each other with nothing in front of their faces."
+  }
+]

@@ -60,6 +60,10 @@ export const KITS: KaijuKit[] = [
   /* 17 Pengwhip */ { power: 'Belly Slide', blurb: 'A long belly slide that flattens anyone in the way', trait: 'Great grip on ice', spec: { kind: 'charge', speed: 660, t: 0.42 }, mods: { grip: 1.8, speed: 1.03 } },
   /* 18 Velvaroo */ { power: 'Big Kick', blurb: 'A short, huge kick that launches rivals', trait: 'Shorter dash cooldown', cd: 1.1, spec: { kind: 'cone', range: 175, arc: 0.7, force: 1250 }, mods: { dashCD: 0.92 } },
   /* 19 Tacowl */ { power: 'Screech', blurb: 'A huge screech that dazes every rival nearby', trait: 'Faster throws', cd: 1.9, spec: { kind: 'burst', r: 270, force: 160, stun: 1.2 }, mods: { throwSpeed: 1.06 } },
+  /* 20 Honeybuzz */ { power: 'Honey Glaze', blurb: 'Drips a big sticky honey puddle in front of it', trait: 'Buzzes along a bit faster', spec: { kind: 'zone', zone: 'sticky', r: 150, t: 6, ahead: 150 }, mods: { speed: 1.04 }, art: 'pz-honey' },
+  /* 21 Bagelbeagle */ { power: 'Zoomies', blurb: 'A long, wild sprint that flattens anyone in the way', trait: 'Shorter dash cooldown', cd: 1.7, spec: { kind: 'charge', speed: 620, t: 0.55 }, mods: { dashCD: 0.88 } },
+  /* 22 Scoopotamus */ { power: 'Belly Flop', blurb: 'Hops forward and lands with a huge splat', trait: 'Heavy: hard to shove, a bit slow', spec: { kind: 'blink', dist: 140, landR: 170, landForce: 760 }, mods: { weight: 0.82, speed: 0.94 } },
+  /* 23 Peachick */ { power: 'Peach Pit', blurb: 'Spits its peach stone: it dazes the first rival it hits', trait: 'Light and quick, but easy to shove', spec: { kind: 'shot', speed: 720, r: 22, force: 520, stun: 0.9, range: 600 }, mods: { speed: 1.06, weight: 1.08 }, art: 'pw-pit' },
 ];
 
 export const kitOf = (species: number | undefined): KaijuKit | null => (species === undefined ? null : KITS[species] ?? null);

@@ -61,6 +61,7 @@ export const VOICES: { pitch: number; wave: OscillatorType; wobble: number }[] =
   { pitch: 180, wave: 'square', wobble: 10 }, { pitch: 600, wave: 'sine', wobble: 90 }, { pitch: 260, wave: 'triangle', wobble: 20 }, { pitch: 480, wave: 'sawtooth', wobble: 35 },
   { pitch: 200, wave: 'sine', wobble: 10 }, { pitch: 700, wave: 'triangle', wobble: 50 }, { pitch: 340, wave: 'sine', wobble: 60 }, { pitch: 560, wave: 'square', wobble: 45 },
   { pitch: 280, wave: 'triangle', wobble: 15 }, { pitch: 820, wave: 'sine', wobble: 30 }, { pitch: 400, wave: 'square', wobble: 25 }, { pitch: 660, wave: 'triangle', wobble: 70 },
+  { pitch: 640, wave: 'sawtooth', wobble: 120 }, { pitch: 360, wave: 'square', wobble: 70 }, { pitch: 150, wave: 'sine', wobble: 25 }, { pitch: 990, wave: 'triangle', wobble: 60 }, // 🆕 Honeybuzz, Bagelbeagle, Scoopotamus, Peachick
 ];
 const voice = (sp: number) => VOICES[sp % VOICES.length];
 

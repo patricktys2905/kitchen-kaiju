@@ -11,7 +11,8 @@ const hats = (process.argv[2] ?? 'party,chef,top,crown,viking,wizard').split(','
 const out = process.argv[3] ?? 'art-src/.hats-sheet.png';
 const R = 40, H = 3.1 * R, CW = 150, CH = 210;
 const comps = [];
-for (let k = 0; k < 20; k++) for (const [j, hid] of hats.entries()) {
+const N = (fs.readFileSync('src/sim/constants.ts', 'utf8').match(/{ name: '[A-Z]/g) ?? []).length; // every kaiju in SPECIES
+for (let k = 0; k < N; k++) for (const [j, hid] of hats.entries()) {
   const key = `kaiju-${k}${process.env.RAGE ? '-rage' : ''}`, meta = await sharp(`public/art/${key}.webp`).metadata();
   const s = H / meta.height, w = Math.round(meta.width * s), h = Math.round(H);
   const ox = Math.round(CW / 2 - w / 2), oy = CH - 20 - h;
@@ -25,5 +26,5 @@ for (let k = 0; k < 20; k++) for (const [j, hid] of hats.entries()) {
   const L = Math.round(hx - hatW / 2), T = Math.round(hy + dy * R * (hd[2] ?? 1) - hatH);
   if (L >= 0 && T >= 0) comps.push({ input: await sharp(`public/art/hat-${hid}.webp`).resize(hatW, hatH).toBuffer(), left: L, top: T });
 }
-await sharp({ create: { width: CW * hats.length * 2, height: CH * 10, channels: 3, background: '#5a3a24' } }).composite(comps).png().toFile(out);
+await sharp({ create: { width: CW * hats.length * 2, height: CH * Math.ceil(N / 2), channels: 3, background: '#5a3a24' } }).composite(comps).png().toFile(out);
 console.log(out);

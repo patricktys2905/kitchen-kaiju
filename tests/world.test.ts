@@ -610,8 +610,9 @@ describe('story unlockables', () => {
     expect(newlyEarned(fresh, after).map(u => u.index)).toEqual([16]); // beat the first boss -> Minturtle
     expect(owned(after).kaiju).toContain(16);
     const all = { ...fresh, stars: Array(12).fill(3) };
-    expect(UNLOCKS.every(u => isEarned(u, all))).toBe(true);
-    expect(owned(all).kaiju.length).toBe(SPECIES.length);
+    const story = UNLOCKS.filter(u => !('dungeon' in u.need) && !('rank' in u.need)); // 🗝 / 🏅 unlocks come from the Dungeon and Ranked
+    expect(story.every(u => isEarned(u, all))).toBe(true);
+    expect(owned(all).kaiju.length).toBe(SPECIES.length - (UNLOCKS.length - story.length));
     expect(owned(all).tables.length).toBe(LAYOUTS.length);
   });
 

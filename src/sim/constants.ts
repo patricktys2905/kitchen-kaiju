@@ -151,4 +151,9 @@ export const SPECIES = [
   { name: 'PENGWHIP', full: 'Pengwhip', food: 'cookies-and-cream penguin', color: 0x282030, css: '#c8bcd8' },
   { name: 'VELVAROO', full: 'Velvaroo', food: 'red-velvet kangaroo', color: 0x7e2549, css: '#d0507e' },
   { name: 'TACOWL', full: 'Tacowl', food: 'taco owl', color: 0xe0f018, css: '#e0f018' },
+  // 🆕 2026-11-22 (picked by the user from 32 concepts)
+  { name: 'HONEYBUZZ', full: 'Honeybuzz', food: 'honey bee', color: 0xb040ff, css: '#b040ff' },
+  { name: 'BAGELBEAGLE', full: 'Bagelbeagle', food: 'bagel puppy', color: 0x1a28c8, css: '#4a5cff' },
+  { name: 'SCOOPOTAMUS', full: 'Scoopotamus', food: 'ice-cream hippo', color: 0xff2bd6, css: '#ff2bd6' },
+  { name: 'PEACHICK', full: 'Peachick', food: 'peach chick', color: 0x18b450, css: '#2bdc6b' },
 ];

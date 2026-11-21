@@ -4,11 +4,13 @@ import { LAYOUTS } from '../sim/layouts';
 import { CHAPTERS } from './chapters';
 import { loadStory, totalStars, type StorySave } from './save';
 import { loadStats } from '../stats';
+import { dungeonBest } from '../dungeon';
+import { bestRp } from '../seasons';
 
 export interface Unlock {
   kind: 'kaiju' | 'table';
   index: number; // species index or table index
-  need: { chapter: number } | { stars: number } | { wins: number } | { matches: number }; // chapter = 0-based chapter to clear; wins / matches = any mode
+  need: { chapter: number } | { stars: number } | { wins: number } | { matches: number } | { dungeon: number } | { rank: number }; // dungeon = Dinner Dungeon floors reached; rank = best Ranked RP // chapter = 0-based chapter to clear; wins / matches = any mode
 }
 
 export const UNLOCKS: Unlock[] = [
@@ -19,6 +21,10 @@ export const UNLOCKS: Unlock[] = [
   { kind: 'kaiju', index: 18, need: { chapter: 11 } }, // Velvaroo: beat the final boss
   { kind: 'table', index: 14, need: { chapter: 11 } }, // Chef's Nightmare
   { kind: 'kaiju', index: 19, need: { stars: 30 } }, // Tacowl: 30 stars
+  { kind: 'kaiju', index: 20, need: { dungeon: 1 } }, // Honeybuzz: reach floor 2 of the Dinner Dungeon
+  { kind: 'kaiju', index: 21, need: { stars: 24 } }, // Bagelbeagle: 24 stars
+  { kind: 'kaiju', index: 22, need: { rank: 100 } }, // Scoopotamus: reach 🥈 SILVER SPOON in Ranked
+  { kind: 'kaiju', index: 23, need: { stars: 15 } }, // Peachick: 15 stars
   // 🌱 NEW SAVES ONLY (saves that existed before this was added keep everything): early goals, so there's more to earn in the first hours
   ...(freshSave() ? ([
     { kind: 'kaiju', index: 8, need: { wins: 1 } }, // Chocomunch: win any match
@@ -49,11 +55,15 @@ const lockedTables = new Set(UNLOCKS.filter(u => u.kind === 'table').map(u => u.
 export function isEarned(u: Unlock, s: StorySave): boolean {
   if ('chapter' in u.need) return (s.stars[u.need.chapter] ?? 0) > 0;
   if ('stars' in u.need) return totalStars(s) >= u.need.stars;
+  if ('dungeon' in u.need) return dungeonBest() >= u.need.dungeon;
+  if ('rank' in u.need) return bestRp() >= u.need.rank;
   const st = loadStats();
   return 'wins' in u.need ? st.wins >= u.need.wins : st.matches >= u.need.matches;
 }
 
 export function needText(u: Unlock, s: StorySave = loadStory()): string {
+  if ('dungeon' in u.need) return `Reach floor ${u.need.dungeon + 1} of the 🗝 DINNER DUNGEON (Challenges)`;
+  if ('rank' in u.need) return `Reach ${u.need.rank} RP in 🏅 RANKED (Challenges): you have ${Math.min(bestRp(), u.need.rank)}`;
   if ('wins' in u.need) return `Win ${u.need.wins} match${u.need.wins > 1 ? 'es' : ''} in any mode (you have ${Math.min(loadStats().wins, u.need.wins)}/${u.need.wins})`;
   if ('matches' in u.need) return `Play ${u.need.matches} matches in any mode (you have ${Math.min(loadStats().matches, u.need.matches)}/${u.need.matches})`;
   if ('stars' in u.need) return `Collect ${u.need.stars} stars in THE GRAND FEAST (you have ${Math.min(totalStars(s), u.need.stars)}/${u.need.stars}): replay chapters for ★★★`;

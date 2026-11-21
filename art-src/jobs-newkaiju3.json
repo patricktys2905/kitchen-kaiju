@@ -1,0 +1,82 @@
+[
+  {
+    "name": "nk-flamango",
+    "newChat": true,
+    "refs": [
+      "art-src/ref-style2.png"
+    ],
+    "prompt": "Generate an image. The attached picture shows character sprites from my party game Kitchen Kaiju. Keep this EXACT art style: bold chunky cartoon, thick dark-brown outlines, flat bright colours with soft cel shading and one crisp white highlight, cheeky (not babyish) expressions. The kaiju is MADE OF FOOD with its own body shape, different from the others. Framing: one full-body character, three-quarter view facing RIGHT, centred, filling about 80% of the frame, solid flat magenta (#FF00FF) background, no ground shadow, no text, no props. Square 1:1. Kaiju: FLAMANGO: a tall FLAMINGO kaiju made of MANGO: its body is a glossy orange-pink mango, long thin legs made of mango-skin, a curved beak made of a mango slice, standing on one leg, a sassy grin. It has exactly the limbs described, NO nose (only eyes and mouth), and it is the ONLY character in the picture."
+  },
+  {
+    "name": "nk-peachick",
+    "newChat": true,
+    "refs": [
+      "art-src/ref-style2.png"
+    ],
+    "prompt": "Generate an image. The attached picture shows character sprites from my party game Kitchen Kaiju. Keep this EXACT art style: bold chunky cartoon, thick dark-brown outlines, flat bright colours with soft cel shading and one crisp white highlight, cheeky (not babyish) expressions. The kaiju is MADE OF FOOD with its own body shape, different from the others. Framing: one full-body character, three-quarter view facing RIGHT, centred, filling about 80% of the frame, solid flat magenta (#FF00FF) background, no ground shadow, no text, no props. Square 1:1. Kaiju: PEACHICK: a round fluffy baby CHICK kaiju made of a PEACH: its body is a fuzzy peach with a soft pink blush, a green leaf on top of its head, tiny wings and little orange feet, a small beak, a cheeky grin. It has exactly the limbs described, NO nose (only eyes and mouth), and it is the ONLY character in the picture."
+  },
+  {
+    "name": "nk-pandacotta",
+    "newChat": true,
+    "refs": [
+      "art-src/ref-style2.png"
+    ],
+    "prompt": "Generate an image. The attached picture shows character sprites from my party game Kitchen Kaiju. Keep this EXACT art style: bold chunky cartoon, thick dark-brown outlines, flat bright colours with soft cel shading and one crisp white highlight, cheeky (not babyish) expressions. The kaiju is MADE OF FOOD with its own body shape, different from the others. Framing: one full-body character, three-quarter view facing RIGHT, centred, filling about 80% of the frame, solid flat magenta (#FF00FF) background, no ground shadow, no text, no props. Square 1:1. Kaiju: PANDACOTTA: a chubby PANDA kaiju made of PANNA COTTA: its body is a wobbly cream-white panna cotta, its black patches are glossy dark berry coulis, a raspberry on its head, a sleepy-cheeky grin. It has exactly the limbs described, NO nose (only eyes and mouth), and it is the ONLY character in the picture."
+  },
+  {
+    "name": "nk-tofox",
+    "newChat": true,
+    "refs": [
+      "art-src/ref-style2.png"
+    ],
+    "prompt": "Generate an image. The attached picture shows character sprites from my party game Kitchen Kaiju. Keep this EXACT art style: bold chunky cartoon, thick dark-brown outlines, flat bright colours with soft cel shading and one crisp white highlight, cheeky (not babyish) expressions. The kaiju is MADE OF FOOD with its own body shape, different from the others. Framing: one full-body character, three-quarter view facing RIGHT, centred, filling about 80% of the frame, solid flat magenta (#FF00FF) background, no ground shadow, no text, no props. Square 1:1. Kaiju: TOFOX: a sly FOX kaiju made of TOFU: its body and big bushy tail are smooth white tofu cubes with crispy golden fried edges, a spring onion curl on its head, pointy ears, a sly grin. It has exactly the limbs described, NO nose (only eyes and mouth), and it is the ONLY character in the picture."
+  },
+  {
+    "name": "nk-sprinklecorn",
+    "newChat": true,
+    "refs": [
+      "art-src/ref-style2.png"
+    ],
+    "prompt": "Generate an image. The attached picture shows character sprites from my party game Kitchen Kaiju. Keep this EXACT art style: bold chunky cartoon, thick dark-brown outlines, flat bright colours with soft cel shading and one crisp white highlight, cheeky (not babyish) expressions. The kaiju is MADE OF FOOD with its own body shape, different from the others. Framing: one full-body character, three-quarter view facing RIGHT, centred, filling about 80% of the frame, solid flat magenta (#FF00FF) background, no ground shadow, no text, no props. Square 1:1. Kaiju: SPRINKLECORN: a prancing UNICORN kaiju made of a CUPCAKE: its body is a cupcake in a striped paper case, its mane and tail are swirls of pastel frosting, a rainbow sprinkle-covered ice-cream-cone horn, a cheeky grin. It has exactly the limbs described, NO nose (only eyes and mouth), and it is the ONLY character in the picture."
+  },
+  {
+    "name": "nk-shrimpanzee",
+    "newChat": true,
+    "refs": [
+      "art-src/ref-style2.png"
+    ],
+    "prompt": "Generate an image. The attached picture shows character sprites from my party game Kitchen Kaiju. Keep this EXACT art style: bold chunky cartoon, thick dark-brown outlines, flat bright colours with soft cel shading and one crisp white highlight, cheeky (not babyish) expressions. The kaiju is MADE OF FOOD with its own body shape, different from the others. Framing: one full-body character, three-quarter view facing RIGHT, centred, filling about 80% of the frame, solid flat magenta (#FF00FF) background, no ground shadow, no text, no props. Square 1:1. Kaiju: SHRIMPANZEE: a cheeky CHIMPANZEE kaiju made of TEMPURA SHRIMP: its body is crunchy golden tempura batter, its curled tail is the red shrimp tail, long arms, a mischievous grin. It has exactly the limbs described, NO nose (only eyes and mouth), and it is the ONLY character in the picture."
+  },
+  {
+    "name": "nk-pumpkingfisher",
+    "newChat": true,
+    "refs": [
+      "art-src/ref-style2.png"
+    ],
+    "prompt": "Generate an image. The attached picture shows character sprites from my party game Kitchen Kaiju. Keep this EXACT art style: bold chunky cartoon, thick dark-brown outlines, flat bright colours with soft cel shading and one crisp white highlight, cheeky (not babyish) expressions. The kaiju is MADE OF FOOD with its own body shape, different from the others. Framing: one full-body character, three-quarter view facing RIGHT, centred, filling about 80% of the frame, solid flat magenta (#FF00FF) background, no ground shadow, no text, no props. Square 1:1. Kaiju: PUMPKINGFISHER: a round KINGFISHER bird kaiju made of a PUMPKIN: its body is a ribbed orange pumpkin, wings made of green pumpkin leaves, a long pointed beak, a curly vine as a crest, a cheeky grin. It has exactly the limbs described, NO nose (only eyes and mouth), and it is the ONLY character in the picture."
+  },
+  {
+    "name": "nk-cheesecoala",
+    "newChat": true,
+    "refs": [
+      "art-src/ref-style2.png"
+    ],
+    "prompt": "Generate an image. The attached picture shows character sprites from my party game Kitchen Kaiju. Keep this EXACT art style: bold chunky cartoon, thick dark-brown outlines, flat bright colours with soft cel shading and one crisp white highlight, cheeky (not babyish) expressions. The kaiju is MADE OF FOOD with its own body shape, different from the others. Framing: one full-body character, three-quarter view facing RIGHT, centred, filling about 80% of the frame, solid flat magenta (#FF00FF) background, no ground shadow, no text, no props. Square 1:1. Kaiju: CHEESECOALA: a round KOALA kaiju made of CHEESECAKE: its body is a slice of creamy cheesecake with a golden biscuit-crumb base, fluffy round ears, strawberry sauce dripping from its head, a dozy cheeky grin. It has exactly the limbs described, NO nose (only eyes and mouth), and it is the ONLY character in the picture."
+  },
+  {
+    "name": "nk2-bagelbeagle",
+    "newChat": true,
+    "refs": [
+      "art-src/ref-style2.png"
+    ],
+    "prompt": "Generate an image. The attached picture shows character sprites from my party game Kitchen Kaiju. Keep this EXACT art style: bold chunky cartoon, thick dark-brown outlines, flat bright colours with soft cel shading and one crisp white highlight, cheeky (not babyish) expressions. The kaiju is MADE OF FOOD with its own body shape, different from the others. Framing: one full-body character, three-quarter view facing RIGHT, centred, filling about 80% of the frame, solid flat magenta (#FF00FF) background, no ground shadow, no text, no props. Square 1:1. Kaiju: BAGELBEAGLE: a bouncy BEAGLE puppy kaiju made of a BAGEL: its round body is a sesame bagel with a smear of cream cheese, floppy ears made of smoked salmon slices, a happy tongue-out grin. Its face has NO nose at all: just two eyes and a mouth. It has exactly the limbs described, NO nose (only eyes and mouth), and it is the ONLY character in the picture."
+  },
+  {
+    "name": "nk2-scoopotamus",
+    "newChat": true,
+    "refs": [
+      "art-src/ref-style2.png"
+    ],
+    "prompt": "Generate an image. The attached picture shows character sprites from my party game Kitchen Kaiju. Keep this EXACT art style: bold chunky cartoon, thick dark-brown outlines, flat bright colours with soft cel shading and one crisp white highlight, cheeky (not babyish) expressions. The kaiju is MADE OF FOOD with its own body shape, different from the others. Framing: one full-body character, three-quarter view facing RIGHT, centred, filling about 80% of the frame, solid flat magenta (#FF00FF) background, no ground shadow, no text, no props. Square 1:1. Kaiju: SCOOPOTAMUS: a chubby HIPPO kaiju made of ICE CREAM: its round body is a big scoop of strawberry ice cream with a waffle-cone bowl around its belly, little chocolate-chip spots, a cherry on its head, a happy wide grin. Its wide snout has NO nostrils and NO nose: just two eyes and a mouth. It has exactly the limbs described, NO nose (only eyes and mouth), and it is the ONLY character in the picture."
+  }
+]
