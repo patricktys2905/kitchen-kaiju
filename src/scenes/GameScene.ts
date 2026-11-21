@@ -81,7 +81,8 @@ export interface GameData {
   attract?: boolean; // title-screen demo: any input goes back to the title
   dessert?: { course: number; bosses: number[] }; // 🍰 Dessert Course (index into COURSES)
   cup?: { game: number; points: number[]; hist?: number[][] }; // 🏆 Party Cup: which game of the cup, points so far, points per game
-  story?: { chapter: number; bosses: number[]; spicy?: boolean; campaign?: 'main' | 'seconds'; mutator?: Mutator; bossBelly?: number; helping?: boolean }; // story chapter: seat 0 is you; bosses start rounds with a full belly
+  story?: { chapter: number; bosses: number[]; spicy?: boolean; campaign?: string; mutator?: Mutator; bossBelly?: number; helping?: boolean; survive?: number };
+  teams?: number[]; // Team Feast seats (Story ally chapters: you and your ally on team 0) // story chapter: seat 0 is you; bosses start rounds with a full belly
   net?: { role: 'host'; host: NetHost } | { role: 'guest'; guest: NetGuest; seat: number };
   seed?: number;
 }
@@ -219,7 +220,7 @@ export class GameScene extends Phaser.Scene {
     this.mode = data.mode ?? 'classic';
     this.powerups = data.story ? false : data.powerups ?? POWERUPS.enabled;
     this.hazards = data.story ? true : data.hazards ?? true;
-    this.world = new World({ players: this.species.map(s => ({ name: SPECIES[s].name, species: s })), kaijuPowers: getSettings().kaijuPowers, kid: getSettings().kidMode || (!!data.story && (data.story.campaign ?? 'main') === 'main' && data.story.chapter < 6 && !data.story.spicy), catchUp: getSettings().catchUp && !data.story && !data.gauntlet && !data.daily && !data.dessert && !data.trial, calmStart: (data.story && ((data.story.campaign ?? 'main') === 'main' && data.story.chapter < 3 || getSettings().kidMode) && !data.story.spicy) || (!data.story && !data.net && !data.gauntlet && !data.trial && !data.daily && !data.dessert && loadStats().matches < 3) ? STORY_CALM : 0, seed, layouts: this.tables ?? undefined, target: this.rounds, mode: this.mode, powerups: this.powerups, hazards: this.hazards, mutator: data.story ? data.story.mutator ?? 'none' : data.dessert || data.daily ? 'none' : data.gauntlet ? data.mutator ?? 'none' : data.mutator, mutator2: data.story || data.dessert || data.daily || data.gauntlet || data.net ? 'none' : data.mutator2 });
+    this.world = new World({ players: this.species.map(s => ({ name: SPECIES[s].name, species: s })), kaijuPowers: getSettings().kaijuPowers, kid: getSettings().kidMode || (!!data.story && (data.story.campaign ?? 'main') === 'main' && data.story.chapter < 6 && !data.story.spicy), catchUp: getSettings().catchUp && !data.story && !data.gauntlet && !data.daily && !data.dessert && !data.trial, calmStart: (data.story && ((data.story.campaign ?? 'main') === 'main' && data.story.chapter < 3 || getSettings().kidMode) && !data.story.spicy) || (!data.story && !data.net && !data.gauntlet && !data.trial && !data.daily && !data.dessert && loadStats().matches < 3) ? STORY_CALM : 0, seed, layouts: this.tables ?? undefined, target: this.rounds, mode: this.mode, powerups: this.powerups, hazards: this.hazards, mutator: data.story ? data.story.mutator ?? 'none' : data.dessert || data.daily ? 'none' : data.gauntlet ? data.mutator ?? 'none' : data.mutator, mutator2: data.story || data.dessert || data.daily || data.gauntlet || data.net ? 'none' : data.mutator2, teams: data.teams, survive: data.story?.survive ?? 0 });
     this.story = data.story;
     this.practice = null;
     this.callout = { first: false, recent: data.slots.map(() => []), streak: data.slots.map(() => 0), nemesis: data.slots.map(() => null) };
@@ -414,7 +415,7 @@ export class GameScene extends Phaser.Scene {
     if (anyStart && !this.padPrevStart && this.world.phase !== 'matchEnd' && !this.net && !this.replay) this.setPaused(!this.paused);
     if (this.pauseUi && this.pauseUi.nav.update(dt) === 'back') this.setPaused(false);
     if (this.story && this.world.phase === 'matchEnd' && (this.world.phaseT > 2.8 || consumeTap('Digit1') || consumeTap('Space') || consumeTap('Enter'))) {
-      const me = this.world.players[0], won = this.world.winner === 0;
+      const me = this.world.players[0], won = this.humanWon(this.world.winner); // (an ally's win counts in team chapters)
       this.scene.start('story', { result: { chapter: this.story.chapter, won, stars: won ? starsFor(this.world.round - me.score) : 0, spicy: !!this.story.spicy, campaign: this.story.campaign, myRounds: me.score, myKos: me.kos, myKaiju: this.tally.kaiju[0] ?? 0, myOut: Object.entries(this.mine.out).sort((a, b) => b[1] - a[1])[0]?.[0], receipt: this.receipt?.lines.slice(0, 2) } });
       return;
     }

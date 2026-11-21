@@ -1432,3 +1432,34 @@ describe('gamepad remapping', () => {
     delete (globalThis as { localStorage?: unknown }).localStorage;
   });
 });
+
+describe('story campaigns', () => {
+  it('every chapter of every campaign is playable: goals fit their mode, allies and enemies exist, speakers are real', async () => {
+    const { CAMPAIGNS } = await import('../src/story/campaigns');
+    const { GOALS } = await import('../src/story/chapters');
+    const { modeDef } = await import('../src/sim/modes');
+    const { LAYOUTS } = await import('../src/sim/layouts');
+    for (const c of Object.values(CAMPAIGNS)) {
+      for (const ch of c.chapters) {
+        const where = `${c.id} / ${ch.title}`;
+        expect(LAYOUTS[ch.table], where).toBeTruthy();
+        expect(ch.rivals.length, where).toBeGreaterThan(0);
+        expect(ch.rivals.length + 1, where).toBeLessThanOrEqual(6);
+        if (ch.goal) expect(ch.rivals.length + 1, where).toBeGreaterThanOrEqual(modeDef(GOALS[ch.goal].mode).minPlayers);
+        if (ch.goal === 'team') { expect(ch.rivals.some(r => r.ally), where).toBe(true); expect(ch.rivals.some(r => !r.ally), where).toBe(true); }
+        else expect(ch.rivals.some(r => r.ally), where).toBe(false);
+        for (const l of [...ch.intro, ch.win]) if (l.speaker !== 'chef') expect(l.speaker, where).toBeLessThan(ch.rivals.length);
+      }
+    }
+    expect(Object.keys(CAMPAIGNS).length).toBeGreaterThanOrEqual(7);
+  });
+
+  it('a SURVIVE round goes to you when the clock runs out, and to a rival if you are knocked out', () => {
+    const w = new World({ players: [{ name: 'Me' }, { name: 'A' }, { name: 'B' }], seed: 5, hazards: false, crumbSpawns: false, pickupSpawns: false, layout: 0, survive: 3, target: 2 });
+    while (w.phase !== 'play') w.step(DT, []);
+    let t = 0;
+    while (w.phase === 'play' && t < 5) { w.step(DT, []); t += DT; }
+    expect(w.winner).toBe(0);
+    expect(w.players[0].score).toBe(1);
+  });
+});

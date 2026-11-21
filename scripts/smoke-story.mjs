@@ -70,7 +70,10 @@ try {
       await tapAt(170, 640); // STORY card
       await until(() => active('story'));
       await wait(1000);
-      await tapAt(1140, 50); // 🍽 SECOND HELPINGS ▶
+      await tapAt(1140, 50); // 📚 CAMPAIGNS ▶
+      check(await until(() => pg.evaluate(() => window.__game.scene.getScene('story').mode === 'picker')), 'the campaigns picker opens');
+      await wait(500);
+      await tapAt(900, 178); // SECOND HELPINGS in the picker
       check(await until(() => pg.evaluate(() => window.__game.scene.getScene('story').camp?.id === 'seconds')), 'second helpings opens from the story map');
       check(await until(() => pg.evaluate(() => window.__game.scene.getScene('story').mode === 'cut')), 'second helpings plays its own opening');
       await wait(2000);

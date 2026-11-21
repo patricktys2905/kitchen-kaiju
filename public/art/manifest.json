@@ -22,6 +22,7 @@
  "cleaver",
  "comic-ch4",
  "comic-ch8",
+ "comic-night4",
  "comic-s4",
  "crumb-0",
  "crumb-1",
@@ -132,6 +133,8 @@
  "mat-smoothie",
  "mat-sushi",
  "mat-table",
+ "night-end",
+ "night-open",
  "ob-banana",
  "ob-basket",
  "ob-berries",
@@ -208,6 +211,10 @@
  "s2-5",
  "s2-end",
  "s2-open",
+ "side-bloblin",
+ "side-mothball",
+ "side-norigon",
+ "side-pizza",
  "spoon",
  "toast"
 ]

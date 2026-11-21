@@ -1125,3 +1125,36 @@ Not done, and why:
 - **Daily:** 📋 COPY MY RESULT puts a result line on the clipboard to compare with friends (a global board needs a server).
 
 Not done: public rooms / quick-match and a global leaderboard (they need a server).
+
+## 79. 📚 Story expansion: the Night Market, side stories and new chapter goals
+- **🎯 Chapter goals** (`Chapter.goal`, `GOALS` in `src/story/chapters.ts`): a Story round can be won by more than "last kaiju standing".
+  - 🍪 **crumbs:** Crumb Rush.
+  - 🥄 **spoon:** Golden Spoon.
+  - 🥟 **dumpling:** Hot Dumpling.
+  - 🤝 **team:** a bot ALLY on your side (`Rival.ally`, Team Feast teams).
+  - ⏱ **survive:** last `surviveFor` seconds on the table. This is a new World option, `survive`: you win the round when the clock runs out, and lose it if you're knocked out.
+  - The chapter card shows the goal; allies are tagged 🤝 ALLY.
+  - Story wins count an ally's win in team chapters.
+- **🌙 THE NIGHT MARKET** (`src/story/night.ts`): an 8-chapter campaign.
+  - The Golden Spoon is stolen, and a mustard trail leads to the market.
+  - Every chapter uses a different goal.
+  - Bosses: 🦉 Tacowl (ch4, with a comic panel) and the Midnight Muncher, 🌭 Hotchog (ch8).
+  - "Meanwhile…" lines thread the mystery.
+  - Opens after the Grand Feast (or Second Helpings) ending.
+  - Saved as `kk-story3-v1`.
+- **📕 Side stories** (`src/story/side.ts`): 3 chapters each.
+  - Norigon's Revenge.
+  - Bloblin on Ice.
+  - Mothball and the Light.
+  - Pizzaraptor's Rush Hour.
+  - Each mixes goals, and each has a hero ally or boss.
+  - They open once Grand Feast ch4 is cleared.
+- **📚 CAMPAIGNS** button on the Story map (replaces the Second Helpings / Grand Feast switch). It lists every campaign with progress, 🔒 reasons and the side-story heroes, and glows "✨ something new to play" when there's a new one.
+- **Achievements:**
+  - 🌙 Night Shift: finish the Night Market.
+  - 📕 Side Dishes: finish 2 side stories.
+- **Art:** new Gemini stills (from the real sprites), each checked for faces and limbs.
+  - `night-open`, `night-end`.
+  - `comic-night4`.
+  - `side-norigon`, `side-bloblin`, `side-mothball`, `side-pizza`.
+- **Tests:** every chapter of every campaign is checked (goal fits its mode's player count, team chapters have an ally and enemies, speakers exist), and SURVIVE rounds are tested.

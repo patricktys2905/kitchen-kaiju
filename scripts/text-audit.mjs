@@ -136,6 +136,9 @@ await start('story', {}, 2000); await pg.evaluate(() => window.__game.scene.getS
 // story
 await start('story', {}, 2500); await audit('story map');
 await start('story', { campaign: 'seconds' }, 2500); await audit('story map seconds');
+await start('story', { campaign: 'night' }, 2500); await pg.evaluate(() => { const s = window.__game.scene.getScene('story'); if (s.mode === 'cut') s.endCut(); }); await wait(600); await audit('story map night');
+await start('story', { campaign: 'side-pizza' }, 2500); await pg.evaluate(() => { const s = window.__game.scene.getScene('story'); if (s.mode === 'cut') s.endCut(); }); await wait(600); await audit('story map side story');
+await start('story', {}, 2500); await pg.evaluate(() => { const s = window.__game.scene.getScene('story'); if (s.mode === 'cut') s.endCut(); s.showCampaigns(); }); await wait(600); await audit('story campaigns picker');
 // story dialogue + result cards
 await start('story', {}, 2500); await pg.evaluate(() => { const s = window.__game.scene.getScene('story'); s.sel = 3; const ch = s.camp.chapters[3]; s.lines = [...ch.intro, { speaker: 'chef', text: 'TIP: ' + ch.tip }]; s.startDialogue(ch.rivals.map(r => r.species), () => {}); s.lineShown = 999; }); await wait(1500); await audit('story dialogue');
 await start('story', { result: { chapter: 0, won: true, stars: 2, campaign: 'main', myRounds: 2, myKos: 3, myKaiju: 1, receipt: ['🪙 +32 Chef Tokens (1292)', '⬆ Mastery Lv 3 Sous Chef · 40/160 XP'] } }, 3000); await pg.keyboard.press('Escape'); await wait(800); await audit('story result win');

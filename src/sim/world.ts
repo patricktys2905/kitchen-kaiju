@@ -203,6 +203,7 @@ export interface WorldOptions {
   starterKind?: CutleryKind; // force everyone's starting cutlery
   mode?: GameMode; // party mode (default classic)
   teams?: number[]; // Team Feast: team per player (default: alternate seats)
+  survive?: number; // ⏱ Story SURVIVE goal: player 0 wins a round by lasting this many seconds (0 = off)
   powerups?: boolean; // condiment power-ups (off unless asked for; Free Play default is POWERUPS.enabled)
   mutator?: Mutator; // one wacky rule twist (default none)
   mutator2?: Mutator; // ⚡⚡ a second twist stacked on top (default none)
@@ -317,6 +318,7 @@ export class World {
   constructor(o: WorldOptions) {
     this.opts = {
       seed: o.seed ?? 1,
+      survive: o.survive ?? 0,
       kid: o.kid ?? false,
       target: o.target ?? 5,
       hazards: o.hazards ?? true,
@@ -1648,6 +1650,7 @@ export class World {
 
   /** Seconds left in a timed round (Crumb Rush), else null. */
   timeLeft(): number | null {
+    if (this.opts.survive > 0 && this.mode === 'classic') return Math.max(0, this.opts.survive - this.roundT);
     if (this.mode === 'goldenSpoon') return Math.max(0, MODE_RULES.goldenSpoon.roundTime - this.roundT);
     return this.mode === 'crumbRush' ? Math.max(0, MODE_RULES.crumbRush.roundTime - this.roundT) : null;
   }
@@ -1749,6 +1752,10 @@ export class World {
       const alive = this.alivePlayers();
       const teams = new Set(alive.map(p => p.team));
       if (teams.size <= 1) this.endRound(alive.length ? this.players.filter(p => p.team === alive[0].team) : []);
+    } else if (this.phase === 'play' && this.players.length > 1 && this.opts.survive > 0) {
+      const me = this.players[0], alive = this.alivePlayers();
+      if (!me.alive) this.endRound(alive.slice(0, 1)); // knocked out: the round goes to a rival
+      else if (this.roundT >= this.opts.survive || alive.length <= 1) this.endRound([me]); // lasted the clock (or cleared the table)
     } else if (this.phase === 'play' && this.players.length > 1) {
       const alive = this.alivePlayers();
       if (alive.length <= 1) {

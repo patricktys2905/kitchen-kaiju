@@ -8,8 +8,8 @@ import { body, display, popIn, withShadow } from '../render/fonts';
 import { Button } from '../render/ui';
 import { SPECIES } from '../sim/constants';
 import { LAYOUTS } from '../sim/layouts';
-import { chapterRivals, KID_EASE, SPICY_BUMP, type Line } from '../story/chapters';
-import { CAMPAIGNS, loadCampaign, secondsUnlocked, type Campaign, type CampaignId } from '../story/campaigns';
+import { chapterRivals, KID_EASE, SPICY_BUMP, type Line, GOALS } from '../story/chapters';
+import { CAMPAIGN_ORDER, CAMPAIGNS, campaignLock, loadCampaign, type Campaign, type CampaignId } from '../story/campaigns';
 import { checkAchievements, loadStats, saveStats } from '../stats';
 import { loadStory, recordResult, recordSpicy, saveStory, totalStars, type StorySave } from '../story/save';
 import { isTouchDevice, setTouchMode } from '../touch';
@@ -42,7 +42,7 @@ function cardPos(i: number): { x: number; y: number } {
   return { x: 112 + c * 200, y: 178 + r * 148 };
 }
 
-type Mode = 'map' | 'dialogue' | 'result' | 'ending' | 'cut';
+type Mode = 'map' | 'dialogue' | 'result' | 'ending' | 'cut' | 'picker';
 
 export class StoryScene extends Phaser.Scene {
   private save!: StorySave;
@@ -100,7 +100,7 @@ export class StoryScene extends Phaser.Scene {
     if (hasArt('bg-story')) this.add.image(640, 360, 'bg-story').setDisplaySize(1280, 720).setDepth(-3);
     else drawFloor(this.add.graphics().setDepth(-3));
     this.add.graphics().setDepth(-2).fillStyle(0x0d0805, 0.55).fillRect(0, 0, 1280, 720);
-    withShadow(this.add.text(isTouchDevice ? 190 : 30, 26, this.camp.title, display(isTouchDevice ? 32 : 40, '#ffcf8a', { strokeThickness: 7 })).setDepth(5), 4);
+    { const tt = withShadow(this.add.text(isTouchDevice ? 190 : 30, 26, this.camp.title, display(isTouchDevice ? 32 : 40, '#ffcf8a', { strokeThickness: 7 })).setDepth(5), 4); const room = 500 - tt.x; if (tt.width > room) tt.setScale(room / tt.width); } // long titles stop before 🎬 OPENING
     this.progressText = this.add.text(isTouchDevice ? 194 : 34, 78, '', body(15, '#e9dccb', 800)).setDepth(5);
     this.updateProgress();
     this.mapG = this.add.graphics().setDepth(1);
@@ -142,11 +142,10 @@ export class StoryScene extends Phaser.Scene {
 
     this.buttons.push(new Button(this, 585, 50, { w: 150, h: 44, label: '🎬 OPENING', size: 15, accent: 0xffd24a, onClick: () => { if (this.mode === 'map') { sfx.pickup(); this.playCut(this.camp.opening, () => {}); } } }, 6));
     // 🍰 Dessert Course: post-game, after the ending
-    // campaign switch: The Grand Feast ⇄ Second Helpings
-    if (this.main && secondsUnlocked()) this.buttons.push(new Button(this, 1135, 50, { w: 260, h: 44, label: '🍽 SECOND HELPINGS ▶', size: 16, accent: 0x8dff6a, onClick: () => { if (this.mode === 'map') { sfx.go(); this.scene.restart({ campaign: 'seconds' }); } } }, 6));
-    if (this.main && !secondsUnlocked()) { const sh = new Button(this, 1135, 50, { w: 260, h: 44, label: '🔒 SECOND HELPINGS', sub: 'clear chapter 6 to open', size: 15, accent: 0x6a5a4a, onClick: () => { if (secondsUnlocked() && this.mode === 'map') { sfx.go(); this.scene.restart({ campaign: 'seconds' }); } else sfx.thwock(); } }, 6); this.buttons.push(sh); this.time.addEvent({ delay: 500, loop: true, callback: () => { if (secondsUnlocked()) sh.setText('🍽 SECOND HELPINGS ▶', 'now open!'); } }); }
+    // 📚 one button opens every campaign: the Grand Feast, Second Helpings, the Night Market and the side stories
+    const anyNew = CAMPAIGN_ORDER.some(id => id !== this.camp.id && !campaignLock(id) && !loadCampaign(CAMPAIGNS[id]).stars.some(x => x > 0));
+    this.buttons.push(new Button(this, 1135, 50, { w: 260, h: 44, label: '📚 CAMPAIGNS ▶', sub: anyNew ? '✨ something new to play' : undefined, size: 16, accent: anyNew ? 0x8dff6a : 0xffcf8a, onClick: () => { if (this.mode === 'map') this.showCampaigns(); } }, 6));
     if (this.main && !this.save.endingSeen && !chefsPass()) this.buttons.push(new Button(this, 910, 50, { w: 165, h: 44, label: '🔒 DESSERT', sub: "finish the Feast or 🎟 Chef's Pass", size: 15, accent: 0x6a5a4a, disabled: true, onClick: () => {} }, 6));
-    if (!this.main) this.buttons.push(new Button(this, 1135, 50, { w: 260, h: 44, label: '◀ THE GRAND FEAST', size: 16, accent: 0xffcf8a, onClick: () => { if (this.mode === 'map') { sfx.go(); this.scene.restart({ campaign: 'main' }); } } }, 6));
     if (this.main && (this.save.endingSeen || chefsPass())) { // 🎟 the Chef's Pass opens it early
       const done = dessertBest(), next = done >= COURSES.length ? 0 : done;
       this.buttons.push(new Button(this, 910, 50, { w: 165, h: 44, label: `🍰 DESSERT ${done}/${COURSES.length}`, size: 17, accent: 0xff7ad9, onClick: () => {
@@ -279,19 +278,21 @@ export class StoryScene extends Phaser.Scene {
     const add = <T extends Phaser.GameObjects.GameObject>(o: T) => { this.panel.push(o); return o; };
     add(this.add.text(1070, 136, `CHAPTER ${this.sel + 1}${ch.boss ? (this.sel === this.camp.chapters.length - 1 ? ' · FINAL BOSS' : ' · BOSS') : ''}`, body(15, ch.boss ? '#ff8a7a' : '#ffcf8a', 900)).setOrigin(0.5).setDepth(5));
     add(withShadow(this.add.text(1070, 168, ch.title.toUpperCase(), display(28, '#ffe9c7', { strokeThickness: 5, align: 'center', wordWrap: { width: 330 } })).setOrigin(0.5, 0).setDepth(5), 3));
-    add(this.add.text(1070, 214, `${L.name} · first to ${ch.rounds} rounds`, body(14, '#e9dccb', 800)).setOrigin(0.5, 0).setDepth(5));
+    const tl = add(this.add.text(1070, 214, `${L.name} · first to ${ch.rounds} rounds`, body(14, '#e9dccb', 800)).setOrigin(0.5, 0).setDepth(5));
+    if (tl.width > 336) tl.setScale(336 / tl.width);
+    if (ch.goal) { const gl = add(this.add.text(1070, 214 + tl.displayHeight + 2, GOALS[ch.goal].label(ch), body(13, '#8dff6a', 900)).setOrigin(0.5, 0).setDepth(5)); if (gl.width > 336) gl.setScale(336 / gl.width); } // one line
     if (!open) {
       add(this.add.text(1070, 360, '🔒\nBeat the chapter before\nto unlock this one.', body(18, '#cdb9a3', 800, { align: 'center' })).setOrigin(0.5).setDepth(5));
       this.playBtn.disabled = true;
       return;
     }
     this.playBtn.disabled = false;
-    add(this.add.text(1070, 244, 'RIVALS', body(13, '#cdb9a3', 900)).setOrigin(0.5, 0).setDepth(5));
+    if (!ch.goal) add(this.add.text(1070, 244, 'RIVALS', body(13, '#cdb9a3', 900)).setOrigin(0.5, 0).setDepth(5)); // (a goal line takes that spot)
     const rivals = chapterRivals(ch, this.save.pick);
     rivals.forEach((r, k) => {
       const x = 1070 + (k - (rivals.length - 1) / 2) * 108;
       if (hasArt(`kaiju-${r.species}`)) add(fitInside(this.add.image(x, 300, `kaiju-${r.species}`), 84, 72).setDepth(5));
-      add(this.add.text(x, 344, SPECIES[r.species].name + (r.boss ? '\n👑 BOSS' : `\n${this.spicyOn() ? `🌶️ ${SPICY_BUMP[r.level]}` : getSettings().kidMode ? KID_EASE[r.level] : r.level}`), body(12, r.boss ? '#ff8a7a' : SPECIES[r.species].css, 900, { align: 'center' })).setOrigin(0.5, 0).setDepth(5));
+      { const rn = add(this.add.text(x, 344, SPECIES[r.species].name + (r.ally ? '\n🤝 ALLY' : r.boss ? '\n👑 BOSS' : `\n${this.spicyOn() ? `🌶️ ${SPICY_BUMP[r.level]}` : getSettings().kidMode ? KID_EASE[r.level] : r.level}`), body(12, r.boss ? '#ff8a7a' : SPECIES[r.species].css, 900, { align: 'center' })).setOrigin(0.5, 0).setDepth(5)); if (rn.width > 104) rn.setScale(104 / rn.width); } // names fit their slot
     });
     add(this.add.text(1070, 392, '“' + ch.tip + '”', body(14, '#ffe9c7', 700, { align: 'center', wordWrap: { width: 320 }, fontStyle: 'italic 700' })).setOrigin(0.5, 0).setDepth(5));
     const best = this.save.stars[this.sel] ?? 0;
@@ -302,6 +303,32 @@ export class StoryScene extends Phaser.Scene {
     const canSpicy = best > 0 || (chefsPass() && this.sel < this.save.unlocked); // 🎟 Chef's Pass: any reached chapter
     this.spicyBtn?.setText(canSpicy ? `🌶️ SPICY: ${this.spicy ? 'ON (tougher rivals)' : 'OFF'}` : "🌶️ SPICY: clear it (or 🎟 Chef's Pass)");
     if (this.spicyBtn) this.spicyBtn.disabled = !canSpicy;
+  }
+
+  /** 📚 every campaign in one list: progress, locks, and the side stories with their hero. */
+  private showCampaigns(): void {
+    sfx.pickup();
+    this.clearOverlay();
+    this.mode = 'picker';
+    this.overlayAt = this.time.now;
+    const g = this.add.graphics().setDepth(30);
+    g.fillStyle(0x000000, 0.65).fillRect(0, 0, 1280, 720).fillStyle(0x140b05, 1).fillRoundedRect(110, 70, 1060, 590, 22).lineStyle(3, 0xffcf8a, 1).strokeRoundedRect(110, 70, 1060, 590, 22);
+    this.overlay.push(g, this.add.zone(640, 360, 1280, 720).setInteractive().setDepth(30));
+    this.overlay.push(withShadow(this.add.text(640, 104, '📚 CAMPAIGNS', display(34, '#ffcf8a', { strokeThickness: 6 })).setOrigin(0.5).setDepth(31), 3));
+    CAMPAIGN_ORDER.forEach((id, k) => {
+      const c = CAMPAIGNS[id], lock = campaignLock(id), sv = loadCampaign(c), cleared = sv.stars.filter(x => x > 0).length;
+      const x = 380 + (k % 2) * 520, y = 178 + Math.floor(k / 2) * 98, here = id === this.camp.id;
+      const sub = lock ? `🔒 ${lock}` : `${c.tagline} · ${sv.endingSeen ? '✔ finished' : `${cleared}/${c.chapters.length} cleared`}`;
+      const b = new Button(this, x, y, { w: 500, h: 84, label: `${here ? '▶ ' : ''}${c.side ? '📕 ' : ''}${c.title}`, sub, size: 20, accent: lock ? 0x6a5a4a : here ? 0x8dff6a : c.side ? 0x8dd8ff : 0xffb347, onClick: () => {
+        if (lock) { sfx.thwock(); return; }
+        sfx.go(); this.scene.restart({ campaign: id });
+      } }, 31);
+      if (c.hero !== undefined && hasArt(`kaiju-${c.hero}`)) { const img = fitInside(this.add.image(x - 222, y, `kaiju-${c.hero}`), 40, 44).setDepth(33); if (lock) img.setTint(0x1a1410); this.overlay.push(img); }
+      this.overlayButtons.push(b);
+    });
+    this.overlayFocus = Math.max(0, CAMPAIGN_ORDER.indexOf(this.camp.id));
+    const close = new Button(this, 1120, 104, { w: 56, h: 44, label: '✖', size: 20, onClick: () => { this.clearOverlay(); this.mode = 'map'; } }, 31);
+    this.overlayButtons.push(close);
   }
 
   // ---------------------------------------------------------------- flow
@@ -335,10 +362,12 @@ export class StoryScene extends Phaser.Scene {
     this.launching = true;
     const ch = this.camp.chapters[this.sel], rivals = chapterRivals(ch, this.save.pick);
     const slots: Slot[] = [{ kind: 'local', index: 0 }, ...rivals.map((): Slot => ({ kind: 'bot', index: 0 }))];
+    const goal = ch.goal ? GOALS[ch.goal] : null;
     this.scene.start('game', {
+      mode: goal?.mode ?? 'classic', teams: ch.goal === 'team' ? [0, ...rivals.map(r => (r.ally ? 0 : 1))] : undefined,
       slots, difficulty: 'normal', species: [this.save.pick, ...rivals.map(r => r.species)], tables: [ch.table], rounds: ch.rounds,
       botLevels: [null, ...rivals.map(r => (this.spicyOn() ? SPICY_BUMP[r.level] : getSettings().kidMode ? KID_EASE[r.level] : r.level))],
-      story: { chapter: this.sel, bosses: rivals.map((r, k) => (r.boss ? k + 1 : -1)).filter(k => k > 0), spicy: this.spicyOn(), campaign: this.camp.id, mutator: ch.mutator, bossBelly: ch.bossBelly, helping: this.helping },
+      story: { chapter: this.sel, bosses: rivals.map((r, k) => (r.boss ? k + 1 : -1)).filter(k => k > 0), spicy: this.spicyOn(), campaign: this.camp.id, mutator: ch.mutator, bossBelly: ch.bossBelly, survive: ch.goal === 'survive' ? ch.surviveFor ?? 40 : undefined, helping: this.helping },
     });
   }
 
@@ -742,6 +771,12 @@ Next course: ${nextCh.title}. ${nextRival} is already sharpening the cutlery…`
         this.lineText.setText(line.text.slice(0, Math.floor(this.lineShown)));
       }
       if (go) this.advance();
+      if (back) { this.clearOverlay(); this.mode = 'map'; }
+    } else if (this.mode === 'picker') {
+      const n = this.overlayButtons.length;
+      if ((dx || dy) && n) this.overlayFocus = (this.overlayFocus + (dy ? dy * 2 : dx) + n) % n;
+      this.overlayButtons.forEach((b, i) => { b.focused = i === this.overlayFocus; b.update(dt); });
+      if (go && this.time.now - this.overlayAt > 250) this.overlayButtons[this.overlayFocus]?.press();
       if (back) { this.clearOverlay(); this.mode = 'map'; }
     } else if (this.mode === 'result' || this.mode === 'ending') {
       if (dx && this.overlayButtons.length) this.overlayFocus = (this.overlayFocus + dx + this.overlayButtons.length) % this.overlayButtons.length;

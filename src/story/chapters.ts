@@ -11,6 +11,7 @@ export interface Rival {
   species: number;
   level: Difficulty;
   boss?: boolean; // starts every round with a full belly (can go KAIJU straight away)
+  ally?: boolean; // 🤝 fights on YOUR team (team chapters)
 }
 
 /** A line of dialogue. speaker: a rival index in this chapter, or 'chef' (the narrator). */
@@ -18,6 +19,16 @@ export interface Line {
   speaker: number | 'chef';
   text: string;
 }
+
+/** 🎯 Chapter goals: different ways to win a Story round. */
+export type ChapterGoal = 'crumbs' | 'spoon' | 'dumpling' | 'team' | 'survive';
+export const GOALS: Record<ChapterGoal, { mode: 'crumbRush' | 'goldenSpoon' | 'hotDumpling' | 'teams' | 'classic'; label: (ch: Chapter) => string }> = {
+  crumbs: { mode: 'crumbRush', label: () => '🍪 CRUMB RACE: hold the most crumbs when time runs out' },
+  spoon: { mode: 'goldenSpoon', label: () => '🥄 SPOON GRAB: hold the Golden Spoon the longest' },
+  dumpling: { mode: 'hotDumpling', label: () => "🥟 HOT DUMPLING: don't be holding it when it pops" },
+  team: { mode: 'teams', label: () => '🤝 TEAM UP: you and your ally vs the rest' },
+  survive: { mode: 'classic', label: ch => `⏱ SURVIVE: stay on the table for ${ch.surviveFor ?? 40} s` },
+};
 
 export interface Chapter {
   title: string;
@@ -30,6 +41,9 @@ export interface Chapter {
   boss?: boolean;
   mutator?: Mutator; // a twist for this chapter (Second Helpings)
   bossBelly?: number; // boss belly at the start of each round (default 100 = goes KAIJU straight away)
+  /** 🎯 what wins a round (default: last kaiju standing). EASY TO CUSTOMISE: see GOALS below. */
+  goal?: ChapterGoal;
+  surviveFor?: number; // ⏱ 'survive': seconds to last
   meanwhile?: string; // 📜 a one-line story beat shown after you clear this chapter (the running mystery)
 }
 
