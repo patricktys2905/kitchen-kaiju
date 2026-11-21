@@ -37,7 +37,7 @@ export interface CustomTable {
   name: string;
   surface: number; // index of a base table whose surface art to use
   hazard: HazardKind | 'none';
-  props: { style: ObstacleStyle; x: number; y: number; r: number }[];
+  props: { style: ObstacleStyle; x: number; y: number; r: number; rot?: number /* quarter turns 0-3 */ }[];
   spawns?: [number, number][]; // 📍 your own six start spots (default SPAWNS)
 }
 
@@ -62,7 +62,7 @@ export function toLayout(c: CustomTable): Layout {
   return {
     name: c.name, table: base.table, hazards: c.hazard === 'none' ? [] : [c.hazard], custom: true,
     blurb: `Your own table (${HAZARD_NAMES[c.hazard]}).`,
-    obstacles: c.props.map(p => ({ shape: 'circle', x: p.x, y: p.y, r: p.r, style: p.style })),
+    obstacles: c.props.map(p => ({ shape: 'circle', x: p.x, y: p.y, r: p.r, style: p.style, rot: ((p.rot ?? 0) % 4) * Math.PI / 2 })),
     spawns: spawnsOf(c).map(s => [s[0], s[1]] as [number, number]),
   };
 }

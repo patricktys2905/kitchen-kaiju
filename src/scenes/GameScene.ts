@@ -17,7 +17,7 @@ import { CUTLERY } from '../sim/cutlery';
 import { angleDiff } from '../sim/math';
 import { MODE_RULES, modeDef, type GameMode } from '../sim/modes';
 import { POWER_DEFS, POWERUPS } from '../sim/powerups';
-import { MUTATOR_RULES, twistBlurb, twistName, type Mutator } from '../sim/mutators';
+import { MUTATOR_RULES, twistBlurb, twistName, type Mutator, twistChoices } from '../sim/mutators';
 import { NO_INPUT, World, type GameEvent, type PlayerInput } from '../sim/world';
 import { chapterRivals, starsFor } from '../story/chapters';
 import { COURSES, saveDessert } from '../story/dessert';
@@ -104,7 +104,7 @@ export class GameScene extends Phaser.Scene {
   private pauseUi: { nav: FocusNav; objs: Button[]; dim: Phaser.GameObjects.Graphics } | null = null;
   private initData!: GameData;
   /** Per-match tallies for the end-of-match awards. */
-  private tally = { crumbs: [] as number[], kaiju: [] as number[], falls: [] as number[], deaths: [] as number[], powers: [] as number[] };
+  private tally = { crumbs: [] as number[], kaiju: [] as number[], falls: [] as number[], deaths: [] as number[], powers: [] as number[], parries: [] as number[], handTargeted: [] as number[], handKOs: [] as number[], worstGap: [] as number[] };
   private awardsText!: Phaser.GameObjects.Text;
   private emoteBubbles: { text: Phaser.GameObjects.Text; t: number }[] = [];
   private emotePrev: boolean[] = [];
@@ -211,7 +211,7 @@ export class GameScene extends Phaser.Scene {
     this.slots = data.slots;
     // 📱 a phone never plays with a keyboard-only seat (no keyboard = no controls): it becomes the touch seat
     if (isTouchDevice && !data.net && !this.slots.some(s => s.kind === 'touch' || s.kind === 'local')) { const k = this.slots.findIndex(s => s.kind === 'kb'); if (k >= 0) this.slots = this.slots.map((s, i) => (i === k ? { kind: 'touch', index: 0 } : s)); }
-    this.tally = { crumbs: data.slots.map(() => 0), kaiju: data.slots.map(() => 0), falls: data.slots.map(() => 0), deaths: data.slots.map(() => 0), powers: data.slots.map(() => 0) };
+    this.tally = { crumbs: data.slots.map(() => 0), kaiju: data.slots.map(() => 0), falls: data.slots.map(() => 0), deaths: data.slots.map(() => 0), powers: data.slots.map(() => 0), parries: data.slots.map(() => 0), handTargeted: data.slots.map(() => 0), handKOs: data.slots.map(() => 0), worstGap: data.slots.map(() => 0) };
     this.difficulty = data.difficulty;
     const seed = data.seed ?? Math.floor(Math.random() * 1e9);
     this.species = this.slots.map((_, i) => data.species?.[i] ?? i);
@@ -620,6 +620,8 @@ export class GameScene extends Phaser.Scene {
         new Button(this, VIEW.w / 2 - 70, VIEW.h - 96, { w: 220, h: 56, label: gLost ? '↻ NEW RUN' : this.initData.dessert || this.initData.trial ? '↻ RETRY' : cupNext ? (this.initData.cup!.game + 1 >= cupGames(this.slots.length).length ? '↻ NEW CUP' : '▶ CONTINUE') : '↻ REMATCH', size: 20, accent: 0xff9a3c, onClick: () => (gLost ? this.newGauntletRun() : injectTap('Digit1')) }, 12),
         new Button(this, VIEW.w / 2 + 170, VIEW.h - 96, { w: 220, h: 56, label: this.story || this.initData.trial || this.initData.dessert || this.initData.gauntlet || this.initData.daily || this.net ? '☰ MENU' : '☰ SETUP', size: 20, onClick: () => { const c = this.initData.cup; if (c && c.game + 1 < cupGames(this.slots.length).length && !this.quitArmed) { this.quitArmed = true; this.time.delayedCall(4000, () => { this.quitArmed = false; }); this.popup(VIEW.w / 2, 560, '⚠ MENU again ends this Party Cup', '#ffd24a', 22); return; } this.leave(); } }, 12),
       ];
+      // ⚡ chain the next match with a fresh random twist (Free Play / Party, not Story, Cup, Gauntlet, Daily, Trials or online)
+      if (!this.story && !this.initData.cup && !this.initData.gauntlet && !this.initData.daily && !this.initData.trial && !this.initData.dessert && !this.net && !this.initData.tryout && !this.initData.lab) this.resultBtns.push(new Button(this, VIEW.w / 2 + 410, VIEW.h - 96, { w: 220, h: 56, label: '⚡ NEW TWIST', sub: 'rematch, random rules', size: 18, accent: 0x8dd8ff, onClick: () => this.rematchNewTwist() }, 12));
     }
     for (const b of this.resultBtns) b.update(dt);
   }
@@ -659,6 +661,15 @@ export class GameScene extends Phaser.Scene {
     if (this.net?.role === 'guest') this.net.guest.close();
     if (this.net) { this.scene.start('title'); return; }
     this.scene.start('menu', { slots: this.net ? [] : this.slots, difficulty: this.difficulty, species: this.net ? [] : this.species, botLevels: this.initData.botLevels ?? undefined, tables: this.tables, rounds: this.rounds, mode: this.mode, powerups: this.powerups, hazards: this.hazards, mutator: this.initData.mutator, mutator2: this.initData.mutator2, party: this.initData.party || this.mode !== 'classic' || !!this.initData.cup });
+  }
+
+  /** ⚡ a rematch with a random twist (single or double) that isn't the one just played. */
+  private rematchNewTwist(): void {
+    const all = twistChoices().filter(([a, b]) => a !== 'none' && !(a === this.initData.mutator && b === (this.initData.mutator2 ?? 'none')));
+    const [a, b] = all[Math.floor(Math.random() * all.length)] ?? ['none', 'none'];
+    this.initData = { ...this.initData, mutator: a, mutator2: b };
+    sfx.go();
+    this.rematch();
   }
 
   private rematch(): void {
@@ -898,7 +909,10 @@ export class GameScene extends Phaser.Scene {
       ['🛡️ Survivor', w.players.length > 2 ? low(T.deaths) : -1, ''],
       ['🌶️ Condiment Hoarder', top(T.powers, 2), ' power-ups'],
     ];
-    const vals: Record<string, number[]> = { '🍴 Most KOs': w.players.map(p => p.kos), '🍪 Crumb Monster': T.crumbs, '🦖 Kaiju Lover': T.kaiju, '🧈 Butterfingers': T.falls, '🌶️ Condiment Hoarder': T.powers };
+    const survived = T.handTargeted.map((n, i) => n - T.handKOs[i]);
+    list.push(['⚔ Fork Deflector', top(T.parries, 1), ' parries'], ['✋ Giant Hand Survivor', top(survived, 1), '× escaped'], ['🔥 Comeback Chef', w.winner !== null && T.worstGap[w.winner] >= 2 ? w.winner : -1, '']);
+    for (let k = list.length - 1; k > 0; k--) { const j = Math.floor(Math.random() * (k + 1)); [list[k], list[j]] = [list[j], list[k]]; } // a different mix every match
+    const vals: Record<string, number[]> = { '🍴 Most KOs': w.players.map(p => p.kos), '🍪 Crumb Monster': T.crumbs, '🦖 Kaiju Lover': T.kaiju, '🧈 Butterfingers': T.falls, '🌶️ Condiment Hoarder': T.powers, '⚔ Fork Deflector': T.parries, '✋ Giant Hand Survivor': survived };
     const got = list.filter(([, i]) => i >= 0).map(([title, i, unit]) => `${title}: ${name(i)}${unit && vals[title] ? ` (${vals[title][i]}${unit})` : ''}`);
     return got.slice(0, 4).join('   ·   ');
   }
@@ -1113,6 +1127,8 @@ export class GameScene extends Phaser.Scene {
       }
     }
     const BOSS_QUIPS = ['Is that all you\'ve got?', 'You call that a fork?', 'Back to the kids\' table!', 'Too easy. Next!', 'Feel the weight of the crown!'];
+    const BOSS_LOSS = ['Lucky shot!', 'That round didn\'t count!', 'I was going easy on you!', 'Grr… again!', 'My crown slipped!'];
+    if (e.type === 'roundEnd' && e.winner !== null && !(s.bosses ?? []).includes(e.winner) && this.world.phase === 'roundEnd') { const b = (s.bosses ?? []).find(id => this.world.players[id]); const bp = b !== undefined ? this.world.players[b] : null; if (bp) this.time.delayedCall(400, () => this.popup(bp.x, bp.y - 80, `👑 ${SPECIES[this.species[b!]].name}: "${BOSS_LOSS[this.world.round % BOSS_LOSS.length]}"`, this.css[b!], 18)); } // a boss sulks when it drops a round
     const bosses = s.bosses ?? [];
     if ((e.type === 'kaiju' && bosses.includes(e.id)) || (e.type === 'ko' && e.id === 0 && e.by !== null && bosses.includes(e.by))) {
       const b = e.type === 'kaiju' ? e.id : (e as { by: number }).by, p = this.world.players[b];
@@ -1219,7 +1235,10 @@ export class GameScene extends Phaser.Scene {
     if (e.type === 'eat') T.crumbs[e.id]++;
     if (e.type === 'kaiju') T.kaiju[e.id]++;
     if (e.type === 'powerup') T.powers[e.id]++;
-    if (e.type === 'ko') { T.deaths[e.id]++; if (e.cause === 'fall' || e.cause === 'wind') T.falls[e.id]++; }
+    if (e.type === 'ko') { T.deaths[e.id]++; if (e.cause === 'fall' || e.cause === 'wind') T.falls[e.id]++; if (e.cause === 'hand') T.handKOs[e.id]++; }
+    if (e.type === 'parry') T.parries[e.id]++;
+    if (e.type === 'handWarn' && e.target !== null) T.handTargeted[e.target]++;
+    if (e.type === 'roundEnd') { const best = Math.max(...this.world.players.map(p => p.score)); this.world.players.forEach((p, i) => { T.worstGap[i] = Math.max(T.worstGap[i], best - p.score); }); } // how far behind each kaiju ever fell
     if (e.type === 'matchEnd') { this.awardsText.setText(this.awards()).setFontSize(17).setWordWrapWidth(0); for (let f = 17; this.awardsText.width > 1000 && f > 11;) this.awardsText.setFontSize(--f); if (this.awardsText.width > 1000) this.awardsText.setWordWrapWidth(1000); }
     if (e.type === 'matchEnd' && this.initData.cup && this.initData.cup.game + 1 >= cupGames(this.slots.length).length && this.net?.role !== 'guest') {
       const tot = this.cupTotals(), lead = tot.indexOf(Math.max(...tot)), d = new Date();

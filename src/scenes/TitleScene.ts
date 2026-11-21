@@ -47,6 +47,8 @@ export class TitleScene extends Phaser.Scene {
   }
 
   create(): void {
+    const tbl = new URLSearchParams(location.search).get('table');
+    if (tbl) { try { sessionStorage.setItem('kk-shared-table', tbl); } catch { /* blocked */ } history.replaceState(null, '', location.pathname); this.scene.start('workshop'); return; } // 🔗 a shared Workshop table
     this.extraBtns = [];
     this.challengeUi = [];
     this.idle = 0;

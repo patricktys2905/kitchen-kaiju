@@ -1191,3 +1191,17 @@ Not done: public rooms / quick-match and a global leaderboard (they need a serve
   - `comic-ch6`, `comic-ch9`, `comic-ch11`.
   - `side-toastbat`, `side-squidgeon`, `side-velvaroo`, `side-tacowl`.
 - **Tests:** zone and protect rounds are tested, and the all-campaign chapter check covers the new goals.
+
+## 82. Outside review round 4: links, rotation, new twist, awards, boss sulks
+- **🛠 Workshop:**
+  - 🔗 LINK copies a `?table=KKT1-…` link. Opening it goes straight to the Workshop with that table loaded into a free slot, ready to PLAY IT or 💾 SAVE. The title screen hands it over via `sessionStorage`.
+  - **Tap a placed prop to turn it 90°** (`rot`, quarter turns, drawn rotated in matches too).
+  - 🗑 ERASE switches taps to removing props instead.
+- **⚡ NEW TWIST** on Free Play / Party results: a rematch with a random single or double twist (not the one just played). Not shown in Story, Cup, Gauntlet, Daily, Trials or online.
+- **🏅 New awards:**
+  - ⚔ Fork Deflector: most parries.
+  - ✋ Giant Hand Survivor: escaped the hand most.
+  - 🔥 Comeback Chef: won after being 2+ rounds behind.
+  - The award order is shuffled, so each match shows a different mix.
+- **👑 Story bosses sulk** when they drop a round ("Lucky shot!", "My crown slipped!"), alongside the existing quips when they go KAIJU or knock you out.
+- **🤖 Per-seat bot levels** (already working) are now explained: the BOT LEVEL picker has a "💡 Mix levels" tip, and bot seat cards read "🤖 EASY · tap: this bot's level".

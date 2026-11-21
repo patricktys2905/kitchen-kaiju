@@ -345,6 +345,7 @@ export class MenuScene extends Phaser.Scene {
       this.botUi.push(b);
     });
     this.botUi.push(new Button(this, 1000, 156, { w: 56, h: 44, label: '✖', size: 20, onClick: () => close() }, 31));
+    this.botUi.push(this.add.text(640, 604, "💡 Mix levels: tap a bot's SEAT CARD to give just that bot its own level (e.g. one BRUTAL + two EASY).", body(14, '#8dd8ff', 900, { align: 'center', wordWrap: { width: 740 } })).setOrigin(0.5).setDepth(31)); // per-seat levels already work: say so
   }
   private toggleTwists(): void {
     const close = () => { for (const u of this.twistUi) { if (u instanceof Button) { u.g.destroy(); u.label.destroy(); u.sub?.destroy(); u.zone.destroy(); } else u.destroy(); } this.twistUi = []; };
@@ -583,7 +584,7 @@ export class MenuScene extends Phaser.Scene {
         const you = this.slots.filter(q => q.kind !== 'bot').length === 1 && s.kind !== 'bot' ? '👤 YOU · ' : ''; // one human: their own seat is obvious
         const how = you + (s.kind === 'kb' ? (s.index === 0 ? 'Keys left · A / D' : 'Keys right · ← / →')
           : s.kind === 'pad' ? `${slotLabel(s)} · ◀ ▶`
-          : s.kind === 'touch' ? 'Touch · KAIJU ▶' : `🤖 Bot: ${(this.botLevels[i] ?? this.difficulty).toUpperCase()}${this.botLevels[i] ? ' ✎' : ''} (tap)`);
+          : s.kind === 'touch' ? 'Touch · KAIJU ▶' : `🤖 ${(this.botLevels[i] ?? this.difficulty).toUpperCase()}${this.botLevels[i] ? ' ✎' : ''} · tap: this bot's level`);
         this.slotSub[i].setText(how);
       } else {
         img.setVisible(false);

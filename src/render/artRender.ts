@@ -114,7 +114,8 @@ export class ArtRenderer {
       if (o.shape === 'circle') {
         const k = o.style === 'cup' ? 1.5 : 1.1; // cup art includes its handle
         fitInside(img, o.r * 2 * k, o.r * 2 * k);
-        img.setPosition(o.x + (o.style === 'cup' ? o.r * 0.22 : 0), o.y);
+        const off = o.style === 'cup' ? o.r * 0.22 : 0, rot = o.rot ?? 0;
+        img.setPosition(o.x + Math.cos(rot) * off, o.y + Math.sin(rot) * off).setRotation(rot); // 🔄 Workshop props can be turned
       } else {
         img.setDisplaySize(o.w * 1.08, o.h * 1.08).setPosition(o.x + o.w / 2, o.y + o.h / 2);
       }

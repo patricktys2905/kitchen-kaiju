@@ -25,6 +25,7 @@ export class WorkshopScene extends Phaser.Scene {
   private pick = 0;
   private spotMode = false; // 📍 taps move start spots instead of placing props
   private snap = false; // ▦ place on a 40-px grid
+  private erase = false; // 🗑 taps remove props (otherwise a tap turns a prop 90°)
   private featured = 0;
   private objs: Phaser.GameObjects.GameObject[] = [];
   private buttons: Button[] = [];
@@ -42,6 +43,8 @@ export class WorkshopScene extends Phaser.Scene {
     this.buttons = [];
     this.surfaces = owned().tables.filter(i => i < BASE_COUNT);
     this.list = loadCustom();
+    let shared: string | null = null;
+    try { shared = sessionStorage.getItem('kk-shared-table'); sessionStorage.removeItem('kk-shared-table'); } catch { /* blocked */ }
     if (hasArt('bg-menu')) this.add.image(640, 360, 'bg-menu').setDisplaySize(1280, 720).setDepth(-3);
     else drawFloor(this.add.graphics().setDepth(-3));
     this.add.graphics().setDepth(-2).fillStyle(0x0d0805, 0.75).fillRect(0, 0, 1280, 720);
@@ -72,11 +75,17 @@ export class WorkshopScene extends Phaser.Scene {
       const n = window.prompt('Name this table (up to 18 letters):', this.cur().name)?.trim().slice(0, 18);
       if (n) { this.cur().name = n; sfx.pickup(); this.redraw('Renamed! Press 💾 SAVE to keep it.'); } else sfx.thwock();
     });
-    const spotBtn = btn(75, 500, 124, '📍 SPOTS', () => { this.spotMode = !this.spotMode; sfx.pickup(); spotBtn.setText(this.spotMode ? '📍 SPOTS ✔' : '📍 SPOTS'); this.redraw(this.spotMode ? '📍 Tap the table: the nearest start spot moves there. Tap 📍 again to go back to props.' : ''); }, 0xffd24a);
-    const snapBtn = btn(205, 500, 124, '▦ SNAP', () => { this.snap = !this.snap; sfx.pickup(); snapBtn.setText(this.snap ? '▦ SNAP ✔' : '▦ SNAP'); this.redraw(this.snap ? '▦ Props and spots snap to a grid.' : ''); }, 0x8dd8ff);
-    btn(335, 500, 124, '⭐ FEATURED', () => { const f = FEATURED[this.featured++ % FEATURED.length]; this.list[this.slot] = { ...JSON.parse(JSON.stringify(f)), surface: this.surfaces.includes(f.surface) ? f.surface : this.surfaces[0] ?? 0 }; sfx.matchWin(); this.redraw(`⭐ Loaded "${f.name}" into this slot: PLAY IT, remix it, or 💾 SAVE to keep it.`); }, 0xff7ad9);
-    btn(110, 660, 180, '💾 SAVE', () => this.save(), 0x8dff6a);
-    btn(310, 660, 180, '▶ PLAY IT', () => this.playIt(), 0xffd24a);
+    const spotBtn = btn(64, 500, 96, '📍 SPOTS', () => { this.spotMode = !this.spotMode; sfx.pickup(); spotBtn.setText(this.spotMode ? '📍 SPOTS ✔' : '📍 SPOTS'); this.redraw(this.spotMode ? '📍 Tap the table: the nearest start spot moves there. Tap 📍 again to go back to props.' : ''); }, 0xffd24a);
+    const snapBtn = btn(164, 500, 96, '▦ SNAP', () => { this.snap = !this.snap; sfx.pickup(); snapBtn.setText(this.snap ? '▦ SNAP ✔' : '▦ SNAP'); this.redraw(this.snap ? '▦ Props and spots snap to a grid.' : ''); }, 0x8dd8ff);
+    const eraseBtn = btn(264, 500, 96, '🗑 ERASE', () => { this.erase = !this.erase; sfx.pickup(); eraseBtn.setText(this.erase ? '🗑 ERASE ✔' : '🗑 ERASE'); this.redraw(this.erase ? '🗑 Tap a prop to remove it.' : '🔄 Tap a prop to turn it 90°.'); }, 0xff8a7a);
+    btn(364, 500, 96, '⭐ FEATURED', () => { const f = FEATURED[this.featured++ % FEATURED.length]; this.list[this.slot] = { ...JSON.parse(JSON.stringify(f)), surface: this.surfaces.includes(f.surface) ? f.surface : this.surfaces[0] ?? 0 }; sfx.matchWin(); this.redraw(`⭐ Loaded "${f.name}" into this slot: PLAY IT, remix it, or 💾 SAVE to keep it.`); }, 0xff7ad9);
+    btn(75, 660, 124, '💾 SAVE', () => this.save(), 0x8dff6a);
+    btn(205, 660, 124, '▶ PLAY IT', () => this.playIt(), 0xffd24a);
+    btn(335, 660, 124, '🔗 LINK', () => { // a link that opens this table in anyone's Workshop
+      const link = `${location.origin}${location.pathname}?table=${encodeURIComponent('KKT1-' + btoa(JSON.stringify(this.cur())))}`;
+      void navigator.clipboard?.writeText(link).catch(() => {}); sfx.pickup();
+      this.note.setText('🔗 Table link copied! Anyone who opens it gets this table in their Workshop.');
+    }, 0x8dd8ff);
     // 📋 share codes: copy this table as a code, or load a friend's (then SAVE to keep it)
     btn(1000, 40, 170, '📋 COPY CODE', () => {
       const code = 'KKT1-' + btoa(JSON.stringify(this.cur()));
@@ -98,6 +107,21 @@ export class WorkshopScene extends Phaser.Scene {
       } catch { sfx.thwock(); this.note.setText("That code didn't work. Check it and try again."); }
     }, 0x8dd8ff);
     this.redraw();
+    if (shared) this.loadShared(shared);
+  }
+
+  /** 🔗 a table from a share link: goes into a free slot (or the current one), ready to PLAY or 💾 SAVE. */
+  private loadShared(code: string): void {
+    try {
+      const t = JSON.parse(atob(code.trim().replace(/^KKT1-/, ''))) as CustomTable;
+      if (!t || !Array.isArray(t.props) || typeof t.surface !== 'number') throw new Error('bad');
+      t.props = t.props.filter(q => PROPS.some(([st]) => st === q.style)).slice(0, MAX_PROPS);
+      t.name = String(t.name ?? 'Shared table').slice(0, 24);
+      if (!this.surfaces.includes(t.surface)) t.surface = this.surfaces[0] ?? 0;
+      this.slot = this.list.length < MAX_CUSTOM ? this.list.length : this.slot;
+      this.list[this.slot] = t; sfx.matchWin(); this.redraw();
+      this.note.setText(`🔗 Opened "${t.name}" from a link! ▶ PLAY IT, or 💾 SAVE to keep it.`);
+    } catch { sfx.thwock(); this.note.setText("That table link didn't work."); }
   }
 
   private cur(): CustomTable {
@@ -124,7 +148,11 @@ export class WorkshopScene extends Phaser.Scene {
     if (this.snap) { t.x = Math.round(t.x / 40) * 40; t.y = Math.round(t.y / 40) * 40; }
     if (this.spotMode) { this.moveSpot(c, t.x, t.y); return; }
     const hit = c.props.findIndex(p => Math.hypot(p.x - t.x, p.y - t.y) < p.r);
-    if (hit >= 0) { c.props.splice(hit, 1); sfx.thwock(); this.redraw('Removed.'); return; }
+    if (hit >= 0) {
+      if (this.erase) { c.props.splice(hit, 1); sfx.thwock(); this.redraw('Removed.'); return; }
+      c.props[hit].rot = ((c.props[hit].rot ?? 0) + 1) % 4; sfx.pickup(); this.redraw('🔄 Turned 90°. (Switch on 🗑 ERASE to remove props instead.)'); return; // tap a prop to turn it
+    }
+    if (this.erase) { sfx.thwock(); this.redraw('🗑 ERASE is on: tap a prop to remove it.'); return; }
     const [style, r] = PROPS[this.pick];
     if (c.props.length >= MAX_PROPS) { sfx.thwock(); this.redraw(`That's the most props (${MAX_PROPS}). Tap one to remove it.`); return; }
     if (t.x < TABLE.x + r + 10 || t.x > TABLE.x + TABLE.w - r - 10 || t.y < TABLE.y + r + 10 || t.y > TABLE.y + TABLE.h - r - 10) { sfx.thwock(); this.redraw('Too close to the edge.'); return; }
@@ -194,7 +222,7 @@ export class WorkshopScene extends Phaser.Scene {
     spawnsOf(c).forEach((s, k) => { const p = toScreen(s[0], s[1]); g2.lineStyle(this.spotMode ? 3 : 2, this.spotMode ? 0xffd24a : 0xffffff, this.spotMode ? 1 : 0.5).strokeCircle(p.x, p.y, 18); if (this.spotMode) add(this.add.text(p.x, p.y, String(k + 1), body(14, '#ffd24a', 900)).setOrigin(0.5).setDepth(7)); });
     for (const pr of c.props) {
       const p = toScreen(pr.x, pr.y);
-      if (hasArt(`ob-${pr.style}`)) add(fitInside(this.add.image(p.x, p.y, `ob-${pr.style}`), pr.r * 2 * PS * 1.25, pr.r * 2 * PS * 1.25).setDepth(6));
+      if (hasArt(`ob-${pr.style}`)) add(fitInside(this.add.image(p.x, p.y, `ob-${pr.style}`), pr.r * 2 * PS * 1.25, pr.r * 2 * PS * 1.25).setDepth(6).setRotation(((pr.rot ?? 0) % 4) * Math.PI / 2));
       else g2.fillStyle(0xffffff, 0.8).fillCircle(p.x, p.y, pr.r * PS);
     }
     add(this.add.text(PX, PY - 46, `SLOT ${this.slot + 1}/${MAX_CUSTOM}: ${c.name}  ·  ${LAYOUTS[c.surface]?.name ?? ''} surface  ·  ${HAZARD_NAMES[c.hazard]}  ·  ${c.props.length}/${MAX_PROPS} props`, body(15, '#ffe9c7', 900)).setDepth(5));

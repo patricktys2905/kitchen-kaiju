@@ -9,7 +9,7 @@ export type ObstacleStyle =
   | 'syrup' | 'butter' | 'berries';
 
 export type Obstacle =
-  | { shape: 'circle'; x: number; y: number; r: number; style: ObstacleStyle }
+  | { shape: 'circle'; x: number; y: number; r: number; style: ObstacleStyle; rot?: number /* radians: Workshop props can be turned */ }
   | { shape: 'rect'; x: number; y: number; w: number; h: number; style: ObstacleStyle };
 
 export type HazardKind = 'hand' | 'wind' | 'cleaver' | 'burner' | 'toaster' | 'blender' | 'cheese' | 'spatula';
