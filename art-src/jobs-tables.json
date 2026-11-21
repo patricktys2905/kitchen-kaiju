@@ -1,0 +1,290 @@
+[
+  {
+    "name": "bg-foodtruck",
+    "newChat": true,
+    "refs": [
+      "art-src/cut-refs/ref-table-breakfast.png",
+      "art-src/raw/tbl-foodtruck.png"
+    ],
+    "prompt": "Generate an image. The first attached picture is a table surface from my party game, seen straight from above. The second is a concept for a new table. Draw the NEW table surface in exactly the style, framing, size and straight top-down view of the FIRST picture: the serving counter of a FOOD TRUCK: brushed stainless steel with a painted red-and-yellow striped trim along the edges, a few scuffs and a little ketchup smear. The surface fills the whole image edge to edge. It must be completely EMPTY: no props, no food, no objects, no characters, no text. Low contrast and even lighting so game pieces on top stay readable. Wide landscape about 1.9:1."
+  },
+  {
+    "name": "bg-sushiboat",
+    "newChat": true,
+    "refs": [
+      "art-src/cut-refs/ref-table-breakfast.png",
+      "art-src/raw/tbl-sushiboat.png"
+    ],
+    "prompt": "Generate an image. The first attached picture is a table surface from my party game, seen straight from above. The second is a concept for a new table. Draw the NEW table surface in exactly the style, framing, size and straight top-down view of the FIRST picture: a light wooden SUSHI BOAT counter with a straight blue WATER CHANNEL running horizontally across the whole width, from 41% to 59% of the height, with gentle ripples. The surface fills the whole image edge to edge. It must be completely EMPTY: no props, no food, no objects, no characters, no text. Low contrast and even lighting so game pieces on top stay readable. Wide landscape about 1.9:1."
+  },
+  {
+    "name": "bg-bakeryoven",
+    "newChat": true,
+    "refs": [
+      "art-src/cut-refs/ref-table-breakfast.png",
+      "art-src/raw/tbl-bakeryoven.png"
+    ],
+    "prompt": "Generate an image. The first attached picture is a table surface from my party game, seen straight from above. The second is a concept for a new table. Draw the NEW table surface in exactly the style, framing, size and straight top-down view of the FIRST picture: a floury wooden BAKING BOARD with dustings of flour and a few crumbs. The surface fills the whole image edge to edge. It must be completely EMPTY: no props, no food, no objects, no characters, no text. Low contrast and even lighting so game pieces on top stay readable. Wide landscape about 1.9:1."
+  },
+  {
+    "name": "bg-teaparty",
+    "newChat": true,
+    "refs": [
+      "art-src/cut-refs/ref-table-breakfast.png",
+      "art-src/raw/tbl-teaparty.png"
+    ],
+    "prompt": "Generate an image. The first attached picture is a table surface from my party game, seen straight from above. The second is a concept for a new table. Draw the NEW table surface in exactly the style, framing, size and straight top-down view of the FIRST picture: a pastel lilac LACE TABLECLOTH with delicate lace patterns for a fancy tea party. The surface fills the whole image edge to edge. It must be completely EMPTY: no props, no food, no objects, no characters, no text. Low contrast and even lighting so game pieces on top stay readable. Wide landscape about 1.9:1."
+  },
+  {
+    "name": "bg-bbq",
+    "newChat": true,
+    "refs": [
+      "art-src/cut-refs/ref-table-breakfast.png",
+      "art-src/raw/tbl-bbq.png"
+    ],
+    "prompt": "Generate an image. The first attached picture is a table surface from my party game, seen straight from above. The second is a concept for a new table. Draw the NEW table surface in exactly the style, framing, size and straight top-down view of the FIRST picture: a BBQ GRILL: dark iron grill bars running across, with dim glowing coals visible underneath. The surface fills the whole image edge to edge. It must be completely EMPTY: no props, no food, no objects, no characters, no text. Low contrast and even lighting so game pieces on top stay readable. Wide landscape about 1.9:1."
+  },
+  {
+    "name": "bg-noodle",
+    "newChat": true,
+    "refs": [
+      "art-src/cut-refs/ref-table-breakfast.png",
+      "art-src/raw/tbl-noodle.png"
+    ],
+    "prompt": "Generate an image. The first attached picture is a table surface from my party game, seen straight from above. The second is a concept for a new table. Draw the NEW table surface in exactly the style, framing, size and straight top-down view of the FIRST picture: a red lacquered wooden NOODLE SHOP counter with a slight shine and faint wood grain. The surface fills the whole image edge to edge. It must be completely EMPTY: no props, no food, no objects, no characters, no text. Low contrast and even lighting so game pieces on top stay readable. Wide landscape about 1.9:1."
+  },
+  {
+    "name": "bg-cinema",
+    "newChat": true,
+    "refs": [
+      "art-src/cut-refs/ref-table-breakfast.png",
+      "art-src/raw/tbl-popcorn.png"
+    ],
+    "prompt": "Generate an image. The first attached picture is a table surface from my party game, seen straight from above. The second is a concept for a new table. Draw the NEW table surface in exactly the style, framing, size and straight top-down view of the FIRST picture: a CINEMA SNACK BAR counter with bold red-and-white vertical stripes and a few scattered popcorn crumbs. The surface fills the whole image edge to edge. It must be completely EMPTY: no props, no food, no objects, no characters, no text. Low contrast and even lighting so game pieces on top stay readable. Wide landscape about 1.9:1."
+  },
+  {
+    "name": "bg-chocfountain",
+    "newChat": true,
+    "refs": [
+      "art-src/cut-refs/ref-table-breakfast.png",
+      "art-src/raw/tbl-chocfountain.png"
+    ],
+    "prompt": "Generate an image. The first attached picture is a table surface from my party game, seen straight from above. The second is a concept for a new table. Draw the NEW table surface in exactly the style, framing, size and straight top-down view of the FIRST picture: a crisp white dessert-buffet TABLECLOTH with a few faint chocolate drips and crumbs. The surface fills the whole image edge to edge. It must be completely EMPTY: no props, no food, no objects, no characters, no text. Low contrast and even lighting so game pieces on top stay readable. Wide landscape about 1.9:1."
+  },
+  {
+    "name": "mat-foodtruck",
+    "newChat": true,
+    "refs": [
+      "art-src/ref-mats.png"
+    ],
+    "prompt": "Generate an image. The attached picture shows place-mat sprites from my party game (seen straight from above, chunky cartoon style, thick dark outlines). Draw ONE new place mat in exactly the same style, size and framing, perfectly flat and rectangular (landscape), on a solid flat magenta (#FF00FF) background: a red-and-yellow checked paper FOOD TRUCK tray liner. No text, no shadow."
+  },
+  {
+    "name": "mat-sushiboat",
+    "newChat": true,
+    "refs": [
+      "art-src/ref-mats.png"
+    ],
+    "prompt": "Generate an image. The attached picture shows place-mat sprites from my party game (seen straight from above, chunky cartoon style, thick dark outlines). Draw ONE new place mat in exactly the same style, size and framing, perfectly flat and rectangular (landscape), on a solid flat magenta (#FF00FF) background: a bamboo SUSHI mat with a little red trim. No text, no shadow."
+  },
+  {
+    "name": "mat-bakeryoven",
+    "newChat": true,
+    "refs": [
+      "art-src/ref-mats.png"
+    ],
+    "prompt": "Generate an image. The attached picture shows place-mat sprites from my party game (seen straight from above, chunky cartoon style, thick dark outlines). Draw ONE new place mat in exactly the same style, size and framing, perfectly flat and rectangular (landscape), on a solid flat magenta (#FF00FF) background: a floury wooden BREAD BOARD with a twist of baking paper. No text, no shadow."
+  },
+  {
+    "name": "mat-teaparty",
+    "newChat": true,
+    "refs": [
+      "art-src/ref-mats.png"
+    ],
+    "prompt": "Generate an image. The attached picture shows place-mat sprites from my party game (seen straight from above, chunky cartoon style, thick dark outlines). Draw ONE new place mat in exactly the same style, size and framing, perfectly flat and rectangular (landscape), on a solid flat magenta (#FF00FF) background: a round-cornered pink LACE DOILY place mat. No text, no shadow."
+  },
+  {
+    "name": "mat-bbq",
+    "newChat": true,
+    "refs": [
+      "art-src/ref-mats.png"
+    ],
+    "prompt": "Generate an image. The attached picture shows place-mat sprites from my party game (seen straight from above, chunky cartoon style, thick dark outlines). Draw ONE new place mat in exactly the same style, size and framing, perfectly flat and rectangular (landscape), on a solid flat magenta (#FF00FF) background: a red-and-white gingham BBQ picnic place mat. No text, no shadow."
+  },
+  {
+    "name": "mat-noodle",
+    "newChat": true,
+    "refs": [
+      "art-src/ref-mats.png"
+    ],
+    "prompt": "Generate an image. The attached picture shows place-mat sprites from my party game (seen straight from above, chunky cartoon style, thick dark outlines). Draw ONE new place mat in exactly the same style, size and framing, perfectly flat and rectangular (landscape), on a solid flat magenta (#FF00FF) background: a dark red NOODLE SHOP place mat with a gold cloud pattern. No text, no shadow."
+  },
+  {
+    "name": "mat-cinema",
+    "newChat": true,
+    "refs": [
+      "art-src/ref-mats.png"
+    ],
+    "prompt": "Generate an image. The attached picture shows place-mat sprites from my party game (seen straight from above, chunky cartoon style, thick dark outlines). Draw ONE new place mat in exactly the same style, size and framing, perfectly flat and rectangular (landscape), on a solid flat magenta (#FF00FF) background: a blue CINEMA place mat printed with little film reels and stars. No text, no shadow."
+  },
+  {
+    "name": "mat-chocfountain",
+    "newChat": true,
+    "refs": [
+      "art-src/ref-mats.png"
+    ],
+    "prompt": "Generate an image. The attached picture shows place-mat sprites from my party game (seen straight from above, chunky cartoon style, thick dark outlines). Draw ONE new place mat in exactly the same style, size and framing, perfectly flat and rectangular (landscape), on a solid flat magenta (#FF00FF) background: a chocolate-brown place mat with cream swirls. No text, no shadow."
+  },
+  {
+    "name": "ob-napkinbox",
+    "newChat": true,
+    "refs": [
+      "art-src/ref-props2.png"
+    ],
+    "prompt": "Generate an image. The attached picture shows prop sprites from my party game (top-down, chunky cartoon style, thick dark outlines, cel shading). Draw ONE new prop in exactly the same style, seen STRAIGHT FROM ABOVE, centred, filling about 80% of the frame, on a solid flat magenta (#FF00FF) background: a shiny steel NAPKIN DISPENSER box with white napkins poking out, seen from above, a long rectangle. No text, no logos, no shadow, no characters, no faces. Square 1:1."
+  },
+  {
+    "name": "ob-foodboat",
+    "newChat": true,
+    "refs": [
+      "art-src/ref-props2.png"
+    ],
+    "prompt": "Generate an image. The attached picture shows prop sprites from my party game (top-down, chunky cartoon style, thick dark outlines, cel shading). Draw ONE new prop in exactly the same style, seen STRAIGHT FROM ABOVE, centred, filling about 80% of the frame, on a solid flat magenta (#FF00FF) background: a red-and-white checked paper FOOD BOAT tray holding golden fries. No text, no logos, no shadow, no characters, no faces. Square 1:1."
+  },
+  {
+    "name": "ob-oven",
+    "newChat": true,
+    "refs": [
+      "art-src/ref-props2.png"
+    ],
+    "prompt": "Generate an image. The attached picture shows prop sprites from my party game (top-down, chunky cartoon style, thick dark outlines, cel shading). Draw ONE new prop in exactly the same style, seen STRAIGHT FROM ABOVE, centred, filling about 80% of the frame, on a solid flat magenta (#FF00FF) background: the round brick front of a BAKERY OVEN seen from above: a curved brick dome with a glowing orange opening on its RIGHT side. No text, no logos, no shadow, no characters, no faces. Square 1:1."
+  },
+  {
+    "name": "ob-breadtray",
+    "newChat": true,
+    "refs": [
+      "art-src/ref-props2.png"
+    ],
+    "prompt": "Generate an image. The attached picture shows prop sprites from my party game (top-down, chunky cartoon style, thick dark outlines, cel shading). Draw ONE new prop in exactly the same style, seen STRAIGHT FROM ABOVE, centred, filling about 80% of the frame, on a solid flat magenta (#FF00FF) background: a metal BAKING TRAY full of golden bread rolls, a long rectangle. No text, no logos, no shadow, no characters, no faces. Square 1:1."
+  },
+  {
+    "name": "ob-macarons",
+    "newChat": true,
+    "refs": [
+      "art-src/ref-props2.png"
+    ],
+    "prompt": "Generate an image. The attached picture shows prop sprites from my party game (top-down, chunky cartoon style, thick dark outlines, cel shading). Draw ONE new prop in exactly the same style, seen STRAIGHT FROM ABOVE, centred, filling about 80% of the frame, on a solid flat magenta (#FF00FF) background: a round plate of pastel MACARONS. No text, no logos, no shadow, no characters, no faces. Square 1:1."
+  },
+  {
+    "name": "ob-sausage",
+    "newChat": true,
+    "refs": [
+      "art-src/ref-props2.png"
+    ],
+    "prompt": "Generate an image. The attached picture shows prop sprites from my party game (top-down, chunky cartoon style, thick dark outlines, cel shading). Draw ONE new prop in exactly the same style, seen STRAIGHT FROM ABOVE, centred, filling about 80% of the frame, on a solid flat magenta (#FF00FF) background: two fat grilled SAUSAGES side by side with grill marks, a long rectangle. No text, no logos, no shadow, no characters, no faces. Square 1:1."
+  },
+  {
+    "name": "ob-corn",
+    "newChat": true,
+    "refs": [
+      "art-src/ref-props2.png"
+    ],
+    "prompt": "Generate an image. The attached picture shows prop sprites from my party game (top-down, chunky cartoon style, thick dark outlines, cel shading). Draw ONE new prop in exactly the same style, seen STRAIGHT FROM ABOVE, centred, filling about 80% of the frame, on a solid flat magenta (#FF00FF) background: a grilled CORN ON THE COB with charred stripes and a pat of butter, lying horizontally. No text, no logos, no shadow, no characters, no faces. Square 1:1."
+  },
+  {
+    "name": "ob-chopjar",
+    "newChat": true,
+    "refs": [
+      "art-src/ref-props2.png"
+    ],
+    "prompt": "Generate an image. The attached picture shows prop sprites from my party game (top-down, chunky cartoon style, thick dark outlines, cel shading). Draw ONE new prop in exactly the same style, seen STRAIGHT FROM ABOVE, centred, filling about 80% of the frame, on a solid flat magenta (#FF00FF) background: a round red cup holding a bundle of CHOPSTICKS, seen from above. No text, no logos, no shadow, no characters, no faces. Square 1:1."
+  },
+  {
+    "name": "ob-popcornmachine",
+    "newChat": true,
+    "refs": [
+      "art-src/ref-props2.png"
+    ],
+    "prompt": "Generate an image. The attached picture shows prop sprites from my party game (top-down, chunky cartoon style, thick dark outlines, cel shading). Draw ONE new prop in exactly the same style, seen STRAIGHT FROM ABOVE, centred, filling about 80% of the frame, on a solid flat magenta (#FF00FF) background: a red retro POPCORN MACHINE seen from above: a square glass box full of popcorn with a red frame. No text, no logos, no shadow, no characters, no faces. Square 1:1."
+  },
+  {
+    "name": "ob-popcorntub",
+    "newChat": true,
+    "refs": [
+      "art-src/ref-props2.png"
+    ],
+    "prompt": "Generate an image. The attached picture shows prop sprites from my party game (top-down, chunky cartoon style, thick dark outlines, cel shading). Draw ONE new prop in exactly the same style, seen STRAIGHT FROM ABOVE, centred, filling about 80% of the frame, on a solid flat magenta (#FF00FF) background: a red-and-white striped POPCORN TUB overflowing with popcorn, seen from above. No text, no logos, no shadow, no characters, no faces. Square 1:1."
+  },
+  {
+    "name": "ob-sodacup",
+    "newChat": true,
+    "refs": [
+      "art-src/ref-props2.png"
+    ],
+    "prompt": "Generate an image. The attached picture shows prop sprites from my party game (top-down, chunky cartoon style, thick dark outlines, cel shading). Draw ONE new prop in exactly the same style, seen STRAIGHT FROM ABOVE, centred, filling about 80% of the frame, on a solid flat magenta (#FF00FF) background: a big red SODA CUP with a lid and a straw, seen from above. No text, no logos, no shadow, no characters, no faces. Square 1:1."
+  },
+  {
+    "name": "ob-candybox",
+    "newChat": true,
+    "refs": [
+      "art-src/ref-props2.png"
+    ],
+    "prompt": "Generate an image. The attached picture shows prop sprites from my party game (top-down, chunky cartoon style, thick dark outlines, cel shading). Draw ONE new prop in exactly the same style, seen STRAIGHT FROM ABOVE, centred, filling about 80% of the frame, on a solid flat magenta (#FF00FF) background: a colourful rectangular box of CANDY with sweets spilling out. No text, no logos, no shadow, no characters, no faces. Square 1:1."
+  },
+  {
+    "name": "ob-chocfountain",
+    "newChat": true,
+    "refs": [
+      "art-src/ref-props2.png"
+    ],
+    "prompt": "Generate an image. The attached picture shows prop sprites from my party game (top-down, chunky cartoon style, thick dark outlines, cel shading). Draw ONE new prop in exactly the same style, seen STRAIGHT FROM ABOVE, centred, filling about 80% of the frame, on a solid flat magenta (#FF00FF) background: a three-tier CHOCOLATE FOUNTAIN seen from above: round tiers with melted chocolate flowing over them into a wide round base. No text, no logos, no shadow, no characters, no faces. Square 1:1."
+  },
+  {
+    "name": "ob-marshmallows",
+    "newChat": true,
+    "refs": [
+      "art-src/ref-props2.png"
+    ],
+    "prompt": "Generate an image. The attached picture shows prop sprites from my party game (top-down, chunky cartoon style, thick dark outlines, cel shading). Draw ONE new prop in exactly the same style, seen STRAIGHT FROM ABOVE, centred, filling about 80% of the frame, on a solid flat magenta (#FF00FF) background: three wooden skewers of pink and white MARSHMALLOWS lying side by side, a long rectangle. No text, no logos, no shadow, no characters, no faces. Square 1:1."
+  },
+  {
+    "name": "ob-wafers",
+    "newChat": true,
+    "refs": [
+      "art-src/ref-props2.png"
+    ],
+    "prompt": "Generate an image. The attached picture shows prop sprites from my party game (top-down, chunky cartoon style, thick dark outlines, cel shading). Draw ONE new prop in exactly the same style, seen STRAIGHT FROM ABOVE, centred, filling about 80% of the frame, on a solid flat magenta (#FF00FF) background: a round plate of golden WAFER biscuits. No text, no logos, no shadow, no characters, no faces. Square 1:1."
+  },
+  {
+    "name": "ob-hatch",
+    "newChat": true,
+    "refs": [
+      "art-src/ref-props2.png"
+    ],
+    "prompt": "Generate an image. The attached picture shows prop sprites from my party game (top-down, chunky cartoon style, thick dark outlines, cel shading). Draw ONE new prop in exactly the same style, seen STRAIGHT FROM ABOVE, centred, filling about 80% of the frame, on a solid flat magenta (#FF00FF) background: a long horizontal stainless-steel FOOD TRUCK SERVING HATCH shutter with ribbed metal slats and two hinges, a long thin rectangle seen from above. No text, no logos, no shadow, no characters, no faces. Square 1:1."
+  },
+  {
+    "name": "ob-cakestand",
+    "newChat": true,
+    "refs": [
+      "art-src/ref-props2.png"
+    ],
+    "prompt": "Generate an image. The attached picture shows prop sprites from my party game (top-down, chunky cartoon style, thick dark outlines, cel shading). Draw ONE new prop in exactly the same style, seen STRAIGHT FROM ABOVE, centred, filling about 80% of the frame, on a solid flat magenta (#FF00FF) background: a big round three-tier CAKE STAND seen from above: a white porcelain plate with tiers of little cakes, cupcakes and macarons, perfectly round. No text, no logos, no shadow, no characters, no faces. Square 1:1."
+  },
+  {
+    "name": "ob-ramenbowl",
+    "newChat": true,
+    "refs": [
+      "art-src/ref-props2.png"
+    ],
+    "prompt": "Generate an image. The attached picture shows prop sprites from my party game (top-down, chunky cartoon style, thick dark outlines, cel shading). Draw ONE new prop in exactly the same style, seen STRAIGHT FROM ABOVE, centred, filling about 80% of the frame, on a solid flat magenta (#FF00FF) background: a huge round RAMEN BOWL seen from above: a red bowl full of swirling orange broth forming a whirlpool, with noodles, a narutomaki slice and spring onions, perfectly round. No text, no logos, no shadow, no characters, no faces. Square 1:1."
+  },
+  {
+    "name": "ob-kernel",
+    "newChat": true,
+    "refs": [
+      "art-src/ref-props2.png"
+    ],
+    "prompt": "Generate an image. The attached picture shows prop sprites from my party game (top-down, chunky cartoon style, thick dark outlines, cel shading). Draw ONE new prop in exactly the same style, seen STRAIGHT FROM ABOVE, centred, filling about 80% of the frame, on a solid flat magenta (#FF00FF) background: one single fluffy white POPPED POPCORN kernel with a buttery yellow centre. No text, no logos, no shadow, no characters, no faces. Square 1:1."
+  }
+]

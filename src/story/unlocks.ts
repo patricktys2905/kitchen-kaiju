@@ -25,6 +25,10 @@ export const UNLOCKS: Unlock[] = [
   { kind: 'kaiju', index: 21, need: { stars: 24 } }, // Bagelbeagle: 24 stars
   { kind: 'kaiju', index: 22, need: { rank: 100 } }, // Scoopotamus: reach 🥈 SILVER SPOON in Ranked
   { kind: 'kaiju', index: 23, need: { stars: 15 } }, // Peachick: 15 stars
+  { kind: 'table', index: 20, need: { stars: 18 } }, // Bakery Oven: 18 stars
+  { kind: 'table', index: 23, need: { dungeon: 2 } }, // Noodle Shop: reach the DESSERT floor of the Dinner Dungeon
+  { kind: 'table', index: 24, need: { stars: 27 } }, // Cinema Snack Bar: 27 stars
+  { kind: 'table', index: 25, need: { rank: 250 } }, // Chocolate Fountain: reach 🥇 GOLD SPOON in Ranked
   // 🌱 NEW SAVES ONLY (saves that existed before this was added keep everything): early goals, so there's more to earn in the first hours
   ...(freshSave() ? ([
     { kind: 'kaiju', index: 8, need: { wins: 1 } }, // Chocomunch: win any match

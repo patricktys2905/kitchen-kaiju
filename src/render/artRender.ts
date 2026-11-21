@@ -75,6 +75,7 @@ export class ArtRenderer {
 
   /** Static scenery for a round: floor, table, obstacles. */
   setupTable(layout: Layout, starts: { x: number; y: number; color: number }[] = []): void {
+    this.skinOf = layout.skins ?? {};
     for (const s of this.statics) s.destroy();
     this.statics = [];
     this.baseG.clear();
@@ -127,14 +128,14 @@ export class ArtRenderer {
   /** Per-frame sprites. `under` = ground graphics, `over` = graphics drawn above sprites. */
   frame(w: World, t: number, under: G, over: G): void {
     this.pool.begin();
-    for (const b of w.layout.belts ?? []) drawBelt(under, b, t);
+    for (const b of w.layout.belts ?? []) drawBelt(under, b, t, w.layout.palette?.belt);
     (w.layout.spills ?? []).forEach((z, i) => drawSpill(under, z, i, t));
     (w.layout.stickies ?? []).forEach((z, i) => drawSticky(under, z, i));
     const tt = w.layout.turntable;
     if (tt) {
-      if (hasArt('lazysusan')) {
+      if (hasArt(this.sk('lazysusan'))) {
         under.fillStyle(0x000000, 0.25); under.fillCircle(tt.x + 6, tt.y + 9, tt.r);
-        const img = this.pool.take('lazysusan', D.mat);
+        const img = this.pool.take(this.sk('lazysusan'), D.mat);
         img.setDisplaySize(tt.r * 2.05, tt.r * 2.05).setRotation(w.turnAngle).setPosition(tt.x, tt.y);
       } else {
         drawTurntable(under, tt, w.turnAngle);
@@ -143,7 +144,7 @@ export class ArtRenderer {
     }
     if (w.toaster) { const z = w.layout.toasters?.[w.toaster.i]; if (z) drawToasterWarn(under, z, w.toaster, t); }
     (w.layout.burners ?? []).forEach((z, i) => drawBurner(under, z, w.burner, i, t));
-    w.puddles.forEach((z, i) => drawCheesePuddle(under, z, i));
+    w.puddles.forEach((z, i) => drawCheesePuddle(under, z, i, w.layout.palette?.cheese));
     for (const z of w.powerZones) {
       const key = KITS[z.species]?.art;
       if (key && hasArt(key)) { const fade = Math.min(1, z.t / 0.6); this.pool.take(key, D.mat).setDisplaySize(z.r * 2.2, z.r * 2.2).setPosition(z.x, z.y).setRotation((z.x * 0.37 + z.y * 0.11) % 6.28).setAlpha(0.82 * fade); }
@@ -151,11 +152,11 @@ export class ArtRenderer {
     }
     for (const q of w.powerShots) if (q.mine) this.powerShot(under, q, t);
     if (w.spatula) drawSpatula(w.spatula.state === 'warn' ? under : over, w.spatula, RULES.spatulaSize, Math.min(1, w.spatula.t / RULES.spatulaWarn), t);
-    for (const d of w.cheeseDrops) drawCheeseWarn(over, d.x, d.y, Math.min(1, d.t / RULES.cheeseWarn), RULES.cheeseRadius, t);
+    for (const d of w.cheeseDrops) drawCheeseWarn(over, d.x, d.y, Math.min(1, d.t / RULES.cheeseWarn), RULES.cheeseRadius, t, w.layout.palette?.cheese);
     const bz = w.layout.blender;
     if (bz) {
-      const art = hasArt('ob-blender');
-      if (art) fitInside(this.pool.take('ob-blender', D.mat), (bz.r + 26) * 2, (bz.r + 26) * 2).setPosition(bz.x + (w.blender?.state === 'warn' ? Math.sin(t * 60) * 2 : 0), bz.y).setRotation(w.blender ? w.bladeAngle : 0);
+      const art = hasArt(this.sk('ob-blender'));
+      if (art) fitInside(this.pool.take(this.sk('ob-blender'), D.mat), (bz.r + 26) * 2, (bz.r + 26) * 2).setPosition(bz.x + (w.blender?.state === 'warn' ? Math.sin(t * 60) * 2 : 0), bz.y).setRotation(w.blender ? w.bladeAngle : 0);
       drawBlender(under, bz, w.blender?.state ?? null, w.bladeAngle, t, RULES.blenderRange, !art);
     }
 
@@ -197,15 +198,15 @@ export class ArtRenderer {
     }
     if (w.wind && w.wind.state === 'gust') drawWind(over, w.wind, t);
     for (const ts of w.toasts) {
-      if (!hasArt('toast')) { drawToast(over, ts); continue; }
-      fitInside(this.pool.take('toast', D.flying), 40, 40).setRotation(ts.spin).setPosition(ts.x, ts.y);
+      if (!hasArt(this.sk('toast'))) { drawToast(over, ts); continue; }
+      fitInside(this.pool.take(this.sk('toast'), D.flying), 40, 40).setRotation(ts.spin).setPosition(ts.x, ts.y);
     }
     if (w.cleaver && w.cleaver.state === 'chop') {
       const c = w.cleaver, k = Math.min(1, c.t / 0.08); // slams down fast
-      if (!hasArt('cleaver')) {
+      if (!hasArt(this.sk('cleaver'))) {
         drawCleaverBlade(over, c);
       } else {
-        const img = this.pool.take('cleaver', D.hand);
+        const img = this.pool.take(this.sk('cleaver'), D.hand);
         // stretch the blade to exactly cover the lane it chops (width) and the table (height)
         const grow = 1.25 - 0.25 * k;
         img.setScale(((RULES.cleaverBand * 1.45) / img.width) * grow, ((TABLE.h * 0.95) / img.height) * grow);
@@ -225,6 +226,13 @@ export class ArtRenderer {
     const spin = q.mine ? 0 : key === 'pw-gum' ? 0 : t * 14;
     this.pool.take(key, q.mine ? D.loose : D.flying).setDisplaySize(size * bob, size * bob).setPosition(q.x, q.y).setRotation(spin);
   }
+
+  /** 🎨 This table's own art for a shared hazard (Layout.skins), if it exists. */
+
+  private skinOf: Partial<Record<string, string>> = {};
+
+  private sk(k: string): string { const s = this.skinOf[k]; return s && hasArt(s) ? s : k; }
+
 
   private cutlery(under: G, over: G, c: Cutlery, t: number, depth: number): void {
     const key = `cut-${c.kind}`;

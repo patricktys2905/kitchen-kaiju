@@ -252,6 +252,7 @@ export class GameScene extends Phaser.Scene {
   }
 
   create(): void {
+    this.readySent = false; this.readyText = null;
     this.rankLine = '';
     this.dungeonLeft = false; this.dungeonT = 0;
     this.resultBtns = []; // Phaser reuses this scene object: forget buttons from the last match
@@ -439,7 +440,8 @@ export class GameScene extends Phaser.Scene {
         const net = this.net;
         if (net?.role === 'host') {
           const names = this.world.players.map(p => p.name);
-          this.slots.forEach((sl, i) => { if (sl.kind === 'remote') net.host.send(sl.index, { t: 'start', species: this.species, names, seat: i, tables: this.tables, rounds: g.rounds, mode: g.mode, powerups: this.powerups, hazards: this.hazards, mutator: this.initData.mutator, hats: this.initData.hats, cup: next }); });
+          this.slots.forEach((sl, i) => { if (sl.kind === 'remote') net.host.send(sl.index, { t: 'start', species: this.species, names, seat: i, tables: this.tables, rounds: g.rounds, mode: g.mode, powerups: this.powerups, hazards: this.hazards, mutator: this.initData.mutator, mutator2: this.initData.mutator2, hats: this.initData.hats, cup: next }); });
+          net.host.ready.clear();
         }
         this.scene.restart({ ...this.initData, mode: g.mode, rounds: g.rounds, cup: next });
       } else if (!this.net) { const g0 = games[0]; sfx.go(); this.scene.restart({ ...this.initData, mode: g0.mode, rounds: g0.rounds, cup: { game: 0, points: [] } }); } // a new Cup
@@ -631,10 +633,22 @@ export class GameScene extends Phaser.Scene {
         new Button(this, VIEW.w / 2 + 170, VIEW.h - 96, { w: 220, h: 56, label: this.story || this.initData.trial || this.initData.dessert || this.initData.gauntlet || this.initData.daily || this.initData.ranked || this.net ? '☰ MENU' : '☰ SETUP', size: 20, onClick: () => { const c = this.initData.cup; if (c && c.game + 1 < cupGames(this.slots.length).length && !this.quitArmed) { this.quitArmed = true; this.time.delayedCall(4000, () => { this.quitArmed = false; }); this.popup(VIEW.w / 2, 560, '⚠ MENU again ends this Party Cup', '#ffd24a', 22); return; } this.leave(); } }, 12),
       ];
       // ⚡ chain the next match with a fresh random twist (Free Play / Party, not Story, Cup, Gauntlet, Daily, Trials or online)
-      if (!this.story && !this.initData.cup && !this.initData.gauntlet && !this.initData.daily && !this.initData.trial && !this.initData.dessert && !this.initData.ranked && !this.net && !this.initData.tryout && !this.initData.lab) this.resultBtns.push(new Button(this, VIEW.w / 2 + 410, VIEW.h - 96, { w: 220, h: 56, label: '⚡ NEW TWIST', sub: 'rematch, random rules', size: 18, accent: 0x8dd8ff, onClick: () => this.rematchNewTwist() }, 12));
+      if (!this.story && !this.initData.cup && !this.initData.gauntlet && !this.initData.daily && !this.initData.trial && !this.initData.dessert && !this.initData.ranked && this.net?.role !== 'guest' && !this.initData.tryout && !this.initData.lab) this.resultBtns.push(new Button(this, VIEW.w / 2 + 410, VIEW.h - 96, { w: 220, h: 56, label: '⚡ NEW TWIST', sub: 'rematch, random rules', size: 18, accent: 0x8dd8ff, onClick: () => this.rematchNewTwist() }, 12));
     }
     for (const b of this.resultBtns) b.update(dt);
+    // ✓ ONLINE READY TICKS: each friend's phone reports in from the results screen; the host sees who's ready
+    if (this.net && this.world.phase === 'matchEnd' && !this.replay) {
+      if (this.net.role === 'guest' && !this.readySent && this.world.phaseT > 1) { this.readySent = true; this.net.guest.send({ t: 'ready' }); }
+      if (this.net.role === 'host') {
+        const host = this.net.host, friends = this.slots.map((s, i) => ({ s, i })).filter(q => q.s.kind === 'remote');
+        const line = friends.length ? 'READY: ' + friends.map(q => `${host.ready.has(q.s.kind === 'remote' ? q.s.index : -1) ? '✓' : '…'} ${this.world.players[q.i]?.name ?? ''}`).join('   ') : '';
+        if (!this.readyText) this.readyText = this.add.text(VIEW.w / 2, VIEW.h - 146, '', body(16, '#8dff6a', 900, { backgroundColor: '#0d0805cc', padding: { x: 10, y: 4 } })).setOrigin(0.5).setDepth(12);
+        this.readyText.setText(line).setVisible(!!line && this.world.phaseT > 1);
+      }
+    }
   }
+  private readySent = false;
+  private readyText: Phaser.GameObjects.Text | null = null;
 
   // ---------------------------------------------------------------- online
   private setupNet(data: GameData, seed: number): void {
@@ -652,7 +666,7 @@ export class GameScene extends Phaser.Scene {
         if (m.t === 'snap') this.inbox.push({ s: m.s, ev: m.ev });
         if (m.t === 'start') {
           const slots = m.species.map((_, i) => (i === m.seat ? { kind: 'local' as const, index: 0 } : { kind: 'remote' as const, index: i }));
-          this.scene.restart({ slots, difficulty: this.difficulty, species: m.species, tables: m.tables, rounds: m.rounds, mode: m.mode as GameMode | undefined, powerups: m.powerups, hazards: m.hazards, mutator: m.mutator as Mutator | undefined, hats: m.hats, cup: m.cup, net: { role: 'guest', guest: net.guest, seat: m.seat } });
+          this.scene.restart({ slots, difficulty: this.difficulty, species: m.species, tables: m.tables, rounds: m.rounds, mode: m.mode as GameMode | undefined, powerups: m.powerups, hazards: m.hazards, mutator: m.mutator as Mutator | undefined, mutator2: m.mutator2 as Mutator | undefined, hats: m.hats, cup: m.cup, net: { role: 'guest', guest: net.guest, seat: m.seat } });
         }
       };
       net.guest.onClosed = reason => { this.netNotice = reason; this.time.delayedCall(2500, () => this.scene.start('menu', { difficulty: this.difficulty })); };
@@ -708,7 +722,8 @@ export class GameScene extends Phaser.Scene {
     const net = this.net;
     if (net?.role === 'host') {
       const names = this.world.players.map(p => p.name);
-      this.slots.forEach((sl, i) => { if (sl.kind === 'remote') net.host.send(sl.index, { t: 'start', species: this.species, names, seat: i, tables: this.tables, rounds: this.rounds, mode: this.mode, powerups: this.powerups, hazards: this.hazards, mutator: this.initData.mutator, hats: this.initData.hats }); });
+      this.slots.forEach((sl, i) => { if (sl.kind === 'remote') net.host.send(sl.index, { t: 'start', species: this.species, names, seat: i, tables: this.tables, rounds: this.rounds, mode: this.mode, powerups: this.powerups, hazards: this.hazards, mutator: this.initData.mutator, mutator2: this.initData.mutator2, hats: this.initData.hats }); });
+      net.host.ready.clear();
     }
     this.scene.restart(data);
   }
@@ -1123,7 +1138,7 @@ export class GameScene extends Phaser.Scene {
     this.bubbles.push({ id, text, t: 3.2 });
   }
   private updateBubbles(dt: number): void {
-    this.coachText?.setAlpha(this.replay ? 0 : 1); // 🎓 the tutorial strip steps aside for the INSTANT REPLAY (it sat on the KO feed)
+    this.coachText?.setAlpha(this.replay || this.world.phase === 'roundEnd' || this.world.phase === 'matchEnd' ? 0 : 1); // 🎓 the tutorial strip steps aside for the INSTANT REPLAY and the round-end / match-end banners (it sat on the fading KO feed)
     for (const b of this.bubbles) {
       b.t -= dt;
       const p = this.world.players[b.id];
@@ -1474,6 +1489,7 @@ export class GameScene extends Phaser.Scene {
     if (!show || !r) { this.receiptText.setVisible(false); return; }
     let lines = [...r.lines, ...this.firstServiceLines.map(d => d.replace('🍽 FIRST SERVICE: ', '🍽 '))];
     if (this.initData.cup && this.initData.cup.game + 1 < cupGames(this.slots.length).length) lines = lines.slice(0, 1); // between Cup games: just the tokens (the standings need the room)
+    else if (this.initData.cup) lines = lines.slice(0, getSettings().kidMode ? 2 : 4); // Cup final: the standings table is tall too (Kid Mode text is bigger), so keep the receipt short
     const pin = pinnedAchievement(), pa = pin ? ACHIEVEMENTS.find(a => a.id === pin) : null, st = this.stats;
     if (pa && st && !st.achieved.includes(pa.id) && pa.progress) { const [h, n] = pa.progress(st); lines.push(`📌 ${pa.name}: ${Math.min(h, n)}/${n}`); }
     const OUT: Record<string, string> = { cutlery: '🍴 cutlery', swipe: '👋 swipe', squash: '🦶 stomp', kaiju: '🦖 a KAIJU', fall: '⬇ fell off', hand: '✋ the Giant Hand', wind: '💨 wind', chop: '🔪 cleaver', burn: '🔥 burner', toast: '🍞 toaster', boom: '🥟 dumpling pop', blend: '🥤 blender', cheese: '🧀 hot cheese', flip: '🍳 spatula' };

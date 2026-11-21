@@ -1,0 +1,74 @@
+[
+  {
+    "name": "tbl-foodtruck",
+    "newChat": true,
+    "refs": [
+      "art-src/cut-refs/ref-table-breakfast.png",
+      "art-src/ref-props2.png"
+    ],
+    "prompt": "Generate an image. The first attached picture is a table surface from my party game Kitchen Kaiju, seen straight from above; the second shows its prop sprites. Draw a CONCEPT MOCK-UP of a NEW table for the game in exactly that style (clean painted cartoon, thick dark outlines on the props, gentle cel shading, even lighting), in the same straight top-down view, filling the whole wide frame: the serving counter of a colourful street FOOD TRUCK: a stainless-steel counter with painted red-and-yellow trim, ketchup and mustard bottles, a napkin dispenser and paper food boats as props; along one side a big metal SERVING HATCH shutter hinged so it can swing down and slam across the counter (the hazard). Leave plenty of open space on the surface for the players to run around. NO characters, NO creatures, NO faces, NO text, NO logos. Wide landscape 16:9."
+  },
+  {
+    "name": "tbl-sushiboat",
+    "newChat": true,
+    "refs": [
+      "art-src/cut-refs/ref-table-breakfast.png",
+      "art-src/ref-props2.png"
+    ],
+    "prompt": "Generate an image. The first attached picture is a table surface from my party game Kitchen Kaiju, seen straight from above; the second shows its prop sprites. Draw a CONCEPT MOCK-UP of a NEW table for the game in exactly that style (clean painted cartoon, thick dark outlines on the props, gentle cel shading, even lighting), in the same straight top-down view, filling the whole wide frame: a SUSHI BOAT restaurant table: pale wooden counter with a narrow blue WATER CHANNEL running across the middle, little wooden boats carrying sushi plates floating along it (the hazard: boats that drift and shove), soy sauce dishes and a teapot as props. Leave plenty of open space on the surface for the players to run around. NO characters, NO creatures, NO faces, NO text, NO logos. Wide landscape 16:9."
+  },
+  {
+    "name": "tbl-bakeryoven",
+    "newChat": true,
+    "refs": [
+      "art-src/cut-refs/ref-table-breakfast.png",
+      "art-src/ref-props2.png"
+    ],
+    "prompt": "Generate an image. The first attached picture is a table surface from my party game Kitchen Kaiju, seen straight from above; the second shows its prop sprites. Draw a CONCEPT MOCK-UP of a NEW table for the game in exactly that style (clean painted cartoon, thick dark outlines on the props, gentle cel shading, even lighting), in the same straight top-down view, filling the whole wide frame: a warm BAKERY OVEN counter: a floury wooden baking board with trays of bread rolls and croissants as props; at one end a big brick OVEN DOOR with an orange glow that blasts out puffs of HOT AIR across the table (the hazard). Leave plenty of open space on the surface for the players to run around. NO characters, NO creatures, NO faces, NO text, NO logos. Wide landscape 16:9."
+  },
+  {
+    "name": "tbl-teaparty",
+    "newChat": true,
+    "refs": [
+      "art-src/cut-refs/ref-table-breakfast.png",
+      "art-src/ref-props2.png"
+    ],
+    "prompt": "Generate an image. The first attached picture is a table surface from my party game Kitchen Kaiju, seen straight from above; the second shows its prop sprites. Draw a CONCEPT MOCK-UP of a NEW table for the game in exactly that style (clean painted cartoon, thick dark outlines on the props, gentle cel shading, even lighting), in the same straight top-down view, filling the whole wide frame: a fancy TEA PARTY table: a pastel lace tablecloth with teacups, a sugar bowl and a plate of macarons as props; in the middle a tall three-tier CAKE STAND on a turntable that SPINS (the hazard). Leave plenty of open space on the surface for the players to run around. NO characters, NO creatures, NO faces, NO text, NO logos. Wide landscape 16:9."
+  },
+  {
+    "name": "tbl-bbq",
+    "newChat": true,
+    "refs": [
+      "art-src/cut-refs/ref-table-breakfast.png",
+      "art-src/ref-props2.png"
+    ],
+    "prompt": "Generate an image. The first attached picture is a table surface from my party game Kitchen Kaiju, seen straight from above; the second shows its prop sprites. Draw a CONCEPT MOCK-UP of a NEW table for the game in exactly that style (clean painted cartoon, thick dark outlines on the props, gentle cel shading, even lighting), in the same straight top-down view, filling the whole wide frame: a backyard BBQ GRILL: dark iron grill bars with glowing coals underneath, sausages and corn cobs as props, and patches of FLARE-UP FLAMES bursting up from the bars (the hazard). Leave plenty of open space on the surface for the players to run around. NO characters, NO creatures, NO faces, NO text, NO logos. Wide landscape 16:9."
+  },
+  {
+    "name": "tbl-noodle",
+    "newChat": true,
+    "refs": [
+      "art-src/cut-refs/ref-table-breakfast.png",
+      "art-src/ref-props2.png"
+    ],
+    "prompt": "Generate an image. The first attached picture is a table surface from my party game Kitchen Kaiju, seen straight from above; the second shows its prop sprites. Draw a CONCEPT MOCK-UP of a NEW table for the game in exactly that style (clean painted cartoon, thick dark outlines on the props, gentle cel shading, even lighting), in the same straight top-down view, filling the whole wide frame: a NOODLE SHOP counter: red lacquered wood with chopstick holders and little bowls as props; in the middle a HUGE steaming RAMEN BOWL whose swirling broth SUCKS things towards it like a whirlpool (the hazard). Leave plenty of open space on the surface for the players to run around. NO characters, NO creatures, NO faces, NO text, NO logos. Wide landscape 16:9."
+  },
+  {
+    "name": "tbl-popcorn",
+    "newChat": true,
+    "refs": [
+      "art-src/cut-refs/ref-table-breakfast.png",
+      "art-src/ref-props2.png"
+    ],
+    "prompt": "Generate an image. The first attached picture is a table surface from my party game Kitchen Kaiju, seen straight from above; the second shows its prop sprites. Draw a CONCEPT MOCK-UP of a NEW table for the game in exactly that style (clean painted cartoon, thick dark outlines on the props, gentle cel shading, even lighting), in the same straight top-down view, filling the whole wide frame: a CINEMA SNACK BAR counter: red-and-white striped surface with popcorn tubs, a soda cup and candy boxes as props; a big POPCORN MACHINE in the corner that shoots hot popping kernels across the table (the hazard). Leave plenty of open space on the surface for the players to run around. NO characters, NO creatures, NO faces, NO text, NO logos. Wide landscape 16:9."
+  },
+  {
+    "name": "tbl-chocfountain",
+    "newChat": true,
+    "refs": [
+      "art-src/cut-refs/ref-table-breakfast.png",
+      "art-src/ref-props2.png"
+    ],
+    "prompt": "Generate an image. The first attached picture is a table surface from my party game Kitchen Kaiju, seen straight from above; the second shows its prop sprites. Draw a CONCEPT MOCK-UP of a NEW table for the game in exactly that style (clean painted cartoon, thick dark outlines on the props, gentle cel shading, even lighting), in the same straight top-down view, filling the whole wide frame: a dessert buffet with a big CHOCOLATE FOUNTAIN in the middle: creamy white tablecloth with strawberries, marshmallow skewers and wafer plates as props; the fountain sends WAVES of melted chocolate spreading out over the table (the hazard). Leave plenty of open space on the surface for the players to run around. NO characters, NO creatures, NO faces, NO text, NO logos. Wide landscape 16:9."
+  }
+]

@@ -70,6 +70,7 @@ const SURFACE: Record<Layout['table'], number> = {
   'bg-griddle': 0x8d939b, 'bg-parlour': 0xbfe8d6, 'bg-picnic': 0xe8a0a0,
   'bg-bakery': 0xe8d3a8, 'bg-banquet': 0xa8283a, 'bg-breakfast': 0xf6e7a0,
   'bg-freezer': 0xd6eef8, 'bg-candy': 0xffc4de, 'bg-nightmare': 0x3a3836, 'bg-smoothie': 0xfff1c8, 'bg-fondue': 0x8a5a32, 'bg-pancake': 0xf4d9a0,
+  'bg-foodtruck': 0xc8d0d8, 'bg-sushiboat': 0xe8d3a8, 'bg-bakeryoven': 0xd8b078, 'bg-teaparty': 0xe8d8f0, 'bg-bbq': 0x2a2624, 'bg-noodle': 0xb02a24, 'bg-cinema': 0xf0e0e0, 'bg-chocfountain': 0xf6f0ea,
 };
 export function drawTableSurface(g: G, table: Layout['table'] = 'bg-table'): void {
   g.fillStyle(SURFACE[table], 1);
@@ -111,6 +112,14 @@ const FRAMES: Record<Layout['table'], FrameStyle> = {
   'bg-smoothie': { frame: 0x2fb39a, hi: 0x7fe3cf, lip: 0x1f7a68, depth: 14 },
   'bg-fondue': { frame: 0x5a2a1a, hi: 0x9a5a3a, lip: 0x3a160a, depth: 16 },
   'bg-pancake': { frame: 0x4a8ad6, hi: 0x8ac0f0, lip: 0x2a5a96, depth: 14 },
+  'bg-foodtruck': { frame: 0xd8281e, hi: 0xffd24a, lip: 0x8a1810, depth: 16 },
+  'bg-sushiboat': { frame: 0x9b6a3c, hi: 0xcf9a62, lip: 0x5e3b1f, depth: 16 },
+  'bg-bakeryoven': { frame: 0xb08050, hi: 0xe2b27a, lip: 0x765230, depth: 18 },
+  'bg-teaparty': { frame: 0xc8a0d8, hi: 0xf0dcf8, lip: 0x8a6a9a, depth: 14 },
+  'bg-bbq': { frame: 0x3d4248, hi: 0x9aa3ad, lip: 0x22262a, depth: 18 },
+  'bg-noodle': { frame: 0x3a1a10, hi: 0xd4a640, lip: 0x22100a, depth: 18 },
+  'bg-cinema': { frame: 0x8a1018, hi: 0xff5a5a, lip: 0x4a0810, depth: 16 },
+  'bg-chocfountain': { frame: 0x5a2a1a, hi: 0x9a5a3a, lip: 0x3a160a, depth: 16 },
 };
 
 /** Soft floor shadow, the table's 3D front lip and its frame, styled per table. */
@@ -152,6 +161,7 @@ export function drawMat(g: G, x: number, y: number, color: number, table: Layout
     'bg-griddle': 0xf4f0e6, 'bg-parlour': 0xe8fff4, 'bg-picnic': 0xfff3a8,
     'bg-bakery': 0xf7f4ee, 'bg-banquet': 0xc0303c, 'bg-breakfast': 0xfff4c0,
     'bg-freezer': 0xeaf6fc, 'bg-candy': 0xffe0ee, 'bg-nightmare': 0x5a3a30, 'bg-smoothie': 0xfff6dc, 'bg-fondue': 0xd8b070, 'bg-pancake': 0xfff1d0,
+    'bg-foodtruck': 0xffe0a0, 'bg-sushiboat': 0x9fc26a, 'bg-bakeryoven': 0xf7f4ee, 'bg-teaparty': 0xffe0ee, 'bg-bbq': 0xf4f0e6, 'bg-noodle': 0x5a1a14, 'bg-cinema': 0x3a5ad8, 'bg-chocfountain': 0x6a3518,
   };
   g.fillStyle(0x000000, 0.18); g.fillRoundedRect(x - 54, y - 38, 112, 82, 12);
   g.fillStyle(fill[table], 0.9); g.fillRoundedRect(x - 56, y - 41, 112, 82, 12);
@@ -184,6 +194,8 @@ const FALLBACK_COLORS: Partial<Record<Obstacle['style'], number>> = {
   basket: 0xb07a3e, melon: 0x4caf50, lemonade: 0xfff176, sandwich: 0xe8c27a,
   croissant: 0xe0a24a, flour: 0xf4efe6, rollingpin: 0xc8925a, cupcakes: 0xffb6d0, dumplings: 0xd8b06a, noodles: 0xf0e0b0,
   teacup: 0xe8f4e0, toaster: 0xc8d0d8, jam: 0xd8283e, cereal: 0xf0c060,
+  napkinbox: 0xc8d0d8, foodboat: 0xd8281e, oven: 0x8a4a2a, breadtray: 0xc89050, macarons: 0xffb6d0, sausage: 0xa0402a, corn: 0xf2c418, chopjar: 0xc0303c,
+  popcornmachine: 0xd8281e, popcorntub: 0xfff4e0, sodacup: 0xd8281e, candybox: 0x8a4ad8, chocfountain: 0x6a3518, marshmallows: 0xffc4dc, wafers: 0xe0b060,
 };
 
 export function drawObstacle(g: G, o: Obstacle): void {
@@ -646,15 +658,15 @@ function drawAntTrail(g: G, b: Belt, t: number): void {
 }
 
 /** Sushi Bar conveyor: dark belt with chevrons scrolling in its direction (vertical belts are ant trails). */
-export function drawBelt(g: G, b: Belt, t: number): void {
+export function drawBelt(g: G, b: Belt, t: number, pal?: [number, number, number]): void {
   if (b.vy && !b.vx) { drawAntTrail(g, b, t); return; }
-  g.fillStyle(0x2d3138, 0.92);
+  g.fillStyle(pal?.[0] ?? 0x2d3138, 0.92);
   g.fillRect(b.x, b.y, b.w, b.h);
-  g.fillStyle(0x8a93a0, 1);
+  g.fillStyle(pal?.[1] ?? 0x8a93a0, 1);
   g.fillRect(b.x, b.y - 4, b.w, 5);
   g.fillRect(b.x, b.y + b.h - 1, b.w, 5);
   const dir = Math.sign(b.vx) || 1, gap = 70, off = ((t * b.vx) % gap + gap) % gap;
-  g.fillStyle(0x4a515c, 1);
+  g.fillStyle(pal?.[2] ?? 0x4a515c, 1);
   for (let x = b.x - gap + off; x < b.x + b.w + gap; x += gap) {
     if (x < b.x + 10 || x > b.x + b.w - 30) continue;
     const cy = b.y + b.h / 2;
@@ -768,22 +780,22 @@ export function drawSpatula(g: G, sp: { state: 'warn' | 'flip'; x: number; y: nu
 }
 
 /** Fondue Night: a growing shadow where cheese will land. k = 0..1 progress. */
-export function drawCheeseWarn(g: G, x: number, y: number, k: number, r: number, t: number): void {
+export function drawCheeseWarn(g: G, x: number, y: number, k: number, r: number, t: number, pal?: [number, number, number]): void {
   g.fillStyle(0x000000, 0.12 + 0.28 * k); g.fillEllipse(x, y, r * 2 * (0.4 + 0.6 * k), r * 1.4 * (0.4 + 0.6 * k));
   g.lineStyle(3, 0xffb347, 0.4 + 0.5 * Math.abs(Math.sin(t * (6 + 10 * k)))); g.strokeEllipse(x, y, r * 2, r * 1.4);
   if (hcOn()) { g.lineStyle(9, 0x000000, 0.9); g.strokeEllipse(x, y, r * 2, r * 1.4); g.lineStyle(4, 0xffe600, 1); g.strokeEllipse(x, y, r * 2, r * 1.4); }
   const h = (1 - k) * 260, s = 10 + 16 * k;
-  g.fillStyle(0xffd24a, 0.9); g.fillCircle(x, y - h, s);
-  g.fillStyle(0xfff1a0, 0.9); g.fillCircle(x - s * 0.3, y - h - s * 0.3, s * 0.35);
+  g.fillStyle(pal?.[1] ?? 0xffd24a, 0.9); g.fillCircle(x, y - h, s);
+  g.fillStyle(pal?.[2] ?? 0xfff1a0, 0.9); g.fillCircle(x - s * 0.3, y - h - s * 0.3, s * 0.35);
 }
 
 /** Fondue Night: a sticky cheese puddle (fades out at the end). */
-export function drawCheesePuddle(g: G, z: { x: number; y: number; r: number; t: number }, i: number): void {
+export function drawCheesePuddle(g: G, z: { x: number; y: number; r: number; t: number }, i: number, pal?: [number, number, number]): void {
   const a = Math.min(1, z.t / 1.2);
-  g.fillStyle(0xd8a020, 0.85 * a); g.fillCircle(z.x + 3, z.y + 4, z.r);
-  g.fillStyle(0xffd24a, 0.95 * a); g.fillCircle(z.x, z.y, z.r);
+  g.fillStyle(pal?.[0] ?? 0xd8a020, 0.85 * a); g.fillCircle(z.x + 3, z.y + 4, z.r);
+  g.fillStyle(pal?.[1] ?? 0xffd24a, 0.95 * a); g.fillCircle(z.x, z.y, z.r);
   for (let k = 0; k < 6; k++) { const an = k * 1.05 + i, rr = z.r * (0.75 + 0.2 * Math.sin(k * 2.1 + i)); g.fillCircle(z.x + Math.cos(an) * rr, z.y + Math.sin(an) * rr, z.r * 0.28); }
-  g.fillStyle(0xfff1a0, 0.7 * a);
+  g.fillStyle(pal?.[2] ?? 0xfff1a0, 0.7 * a);
   for (let k = 0; k < 5; k++) g.fillCircle(z.x + Math.cos(k * 2.3 + i) * z.r * 0.5, z.y + Math.sin(k * 1.9 + i) * z.r * 0.45, 3 + (k % 3));
 }
 

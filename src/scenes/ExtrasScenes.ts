@@ -333,16 +333,17 @@ export class HelpScene extends PanelScene {
       this.content.push(this.add.text(40, 690, `🍽 You own ${tc.own}/${tc.all} tables (Workshop tables are extra)`, body(15, '#ffd24a', 900)).setOrigin(0, 0.5).setDepth(5));
       const built = LAYOUTS.map((l, i) => ({ l, i })).filter(q => !q.l.custom); // Workshop tables live in the Workshop (they'd add a row that runs off screen)
       built.forEach(({ l, i }, n) => {
-        const per = Math.ceil(built.length / 3), col = Math.floor(n / per), row = n % per, x = 40 + col * 410, y = 168 + row * 84;
+        const cols = built.length > 18 ? 4 : 3, per = Math.ceil(built.length / cols), col = Math.floor(n / per), row = n % per, x = 30 + col * (1220 / cols), y = 166 + row * (cols > 3 ? 72 : 84), tw = cols > 3 ? 222 : 315; // 4 columns once there are more than 18 tables
         const locked = !own.includes(i);
         if (hasArt(l.table)) {
-          const img = this.add.image(x + 34, y + 24, l.table).setDisplaySize(64, 36).setDepth(5);
+          const img = this.add.image(x + 30, y + 22, l.table).setDisplaySize(56, 32).setDepth(5);
           if (locked) img.setAlpha(0.3); // (tints don't show in every browser)
           this.content.push(img);
         }
-        this.content.push(this.add.text(x + 76, y + 2, `${locked ? '🔒 ' : ''}${l.name}`, display(17, locked ? '#a89680' : '#ffe9c7', { strokeThickness: 3 })).setDepth(5));
+        this.content.push(this.add.text(x + 66, y + 2, `${locked ? '🔒 ' : ''}${l.name}`, display(cols > 3 ? 15 : 17, locked ? '#a89680' : '#ffe9c7', { strokeThickness: 3 })).setDepth(5));
         const u = UNLOCKS.find(q => q.kind === 'table' && q.index === i);
-        txt(x + 76, y + 26, locked && u ? needText(u) : l.blurb, 13, locked ? '#a89680' : '#e9dccb', 315);
+        txt(x + 66, y + 22, locked && u ? needText(u) : l.blurb, cols > 3 ? 12 : 13, locked ? '#a89680' : '#e9dccb', tw);
+        { const t = this.content[this.content.length - 1] as Phaser.GameObjects.Text; for (let f = 12; t.height > 46 && f > 9;) t.setFontSize(--f); }
         { const d = this.content[this.content.length - 1] as Phaser.GameObjects.Text; for (let f = 13; d.height > 50 && f > 10;) d.setFontSize(--f); } // max 2 lines per table
       });
     } else if (p === 'extras') {

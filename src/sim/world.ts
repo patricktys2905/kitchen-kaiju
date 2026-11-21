@@ -1413,7 +1413,8 @@ export class World {
       if (this.phase !== 'play') return;
       this.windTimer -= dt;
       if (this.windTimer > 0) return;
-      const dir = this.rng.int(4) * (Math.PI / 2); // right, down, left, up
+      const side = this.rng.int(4) * (Math.PI / 2); // right, down, left, up
+      const dir = this.layout.windDir ?? side; // (Bakery Oven: always away from the oven)
       this.wind = { state: 'warn', dir, t: 0 };
       this.emit({ type: 'windWarn', dir });
       return;

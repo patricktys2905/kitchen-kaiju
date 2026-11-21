@@ -26,6 +26,7 @@ export class WorkshopScene extends Phaser.Scene {
   private spotMode = false; // 📍 taps move start spots instead of placing props
   private snap = false; // ▦ place on a 40-px grid
   private erase = false; // 🗑 taps remove props (otherwise a tap turns a prop 90°)
+  private mirror = false; // ↔ placing / erasing a prop also does its twin across the centre line
   private featured = 0;
   private objs: Phaser.GameObjects.GameObject[] = [];
   private buttons: Button[] = [];
@@ -37,6 +38,7 @@ export class WorkshopScene extends Phaser.Scene {
   }
 
   create(): void {
+    this.spotMode = false; this.snap = false; this.erase = false; this.mirror = false; // the toggle buttons are rebuilt OFF on every visit, so the modes start OFF too
     clearTaps();
     setTouchMode('title');
     playMusic('menu');
@@ -75,10 +77,11 @@ export class WorkshopScene extends Phaser.Scene {
       const n = window.prompt('Name this table (up to 18 letters):', this.cur().name)?.trim().slice(0, 18);
       if (n) { this.cur().name = n; sfx.pickup(); this.redraw('Renamed! Press 💾 SAVE to keep it.'); } else sfx.thwock();
     });
-    const spotBtn = btn(64, 500, 96, '📍 SPOTS', () => { this.spotMode = !this.spotMode; sfx.pickup(); spotBtn.setText(this.spotMode ? '📍 SPOTS ✔' : '📍 SPOTS'); this.redraw(this.spotMode ? '📍 Tap the table: the nearest start spot moves there. Tap 📍 again to go back to props.' : ''); }, 0xffd24a);
-    const snapBtn = btn(164, 500, 96, '▦ SNAP', () => { this.snap = !this.snap; sfx.pickup(); snapBtn.setText(this.snap ? '▦ SNAP ✔' : '▦ SNAP'); this.redraw(this.snap ? '▦ Props and spots snap to a grid.' : ''); }, 0x8dd8ff);
-    const eraseBtn = btn(264, 500, 96, '🗑 ERASE', () => { this.erase = !this.erase; sfx.pickup(); eraseBtn.setText(this.erase ? '🗑 ERASE ✔' : '🗑 ERASE'); this.redraw(this.erase ? '🗑 Tap a prop to remove it.' : '🔄 Tap a prop to turn it 90°.'); }, 0xff8a7a);
-    btn(364, 500, 96, '⭐ FEATURED', () => { const f = FEATURED[this.featured++ % FEATURED.length]; this.list[this.slot] = { ...JSON.parse(JSON.stringify(f)), surface: this.surfaces.includes(f.surface) ? f.surface : this.surfaces[0] ?? 0 }; sfx.matchWin(); this.redraw(`⭐ Loaded "${f.name}" into this slot: PLAY IT, remix it, or 💾 SAVE to keep it.`); }, 0xff7ad9);
+    const spotBtn = btn(46, 500, 78, '📍 SPOTS', () => { this.spotMode = !this.spotMode; sfx.pickup(); spotBtn.setText(this.spotMode ? '📍 SPOTS ✔' : '📍 SPOTS'); this.redraw(this.spotMode ? '📍 Tap the table: the nearest start spot moves there. Tap 📍 again to go back to props.' : ''); }, 0xffd24a);
+    const snapBtn = btn(128, 500, 78, '▦ SNAP', () => { this.snap = !this.snap; sfx.pickup(); snapBtn.setText(this.snap ? '▦ SNAP ✔' : '▦ SNAP'); this.redraw(this.snap ? '▦ Props and spots snap to a grid.' : ''); }, 0x8dd8ff);
+    const eraseBtn = btn(210, 500, 78, '🗑 ERASE', () => { this.erase = !this.erase; sfx.pickup(); eraseBtn.setText(this.erase ? '🗑 ERASE ✔' : '🗑 ERASE'); this.redraw(this.erase ? '🗑 Tap a prop to remove it.' : '🔄 Tap a prop to turn it 90°.'); }, 0xff8a7a);
+    btn(374, 500, 78, '⭐ FEATURED', () => { const f = FEATURED[this.featured++ % FEATURED.length]; this.list[this.slot] = { ...JSON.parse(JSON.stringify(f)), surface: this.surfaces.includes(f.surface) ? f.surface : this.surfaces[0] ?? 0 }; sfx.matchWin(); this.redraw(`⭐ Loaded "${f.name}" into this slot: PLAY IT, remix it, or 💾 SAVE to keep it.`); }, 0xff7ad9);
+    const mirBtn = btn(292, 500, 78, '↔ MIRROR', () => { this.mirror = !this.mirror; sfx.pickup(); mirBtn.setText(this.mirror ? '↔ MIRROR ✔' : '↔ MIRROR'); this.redraw(this.mirror ? '↔ MIRROR is on: every prop you place (or erase) gets a twin on the other side.' : ''); }, 0xc98aff);
     btn(75, 660, 124, '💾 SAVE', () => this.save(), 0x8dff6a);
     btn(205, 660, 124, '▶ PLAY IT', () => this.playIt(), 0xffd24a);
     btn(335, 660, 124, '🔗 LINK', () => { // a link that opens this table in anyone's Workshop
@@ -149,7 +152,11 @@ export class WorkshopScene extends Phaser.Scene {
     if (this.spotMode) { this.moveSpot(c, t.x, t.y); return; }
     const hit = c.props.findIndex(p => Math.hypot(p.x - t.x, p.y - t.y) < p.r);
     if (hit >= 0) {
-      if (this.erase) { c.props.splice(hit, 1); sfx.thwock(); this.redraw('Removed.'); return; }
+      if (this.erase) {
+        const p0 = c.props[hit]; c.props.splice(hit, 1);
+        if (this.mirror) { const mx = 2 * (TABLE.x + TABLE.w / 2) - p0.x, k = c.props.findIndex(p => p.style === p0.style && Math.abs(p.x - mx) < 6 && Math.abs(p.y - p0.y) < 6); if (k >= 0) c.props.splice(k, 1); }
+        sfx.thwock(); this.redraw('Removed.'); return;
+      }
       c.props[hit].rot = ((c.props[hit].rot ?? 0) + 1) % 4; sfx.pickup(); this.redraw('🔄 Turned 90°. (Switch on 🗑 ERASE to remove props instead.)'); return; // tap a prop to turn it
     }
     if (this.erase) { sfx.thwock(); this.redraw('🗑 ERASE is on: tap a prop to remove it.'); return; }
@@ -159,8 +166,15 @@ export class WorkshopScene extends Phaser.Scene {
     if (spawnsOf(c).some(s => Math.hypot(s[0] - t.x, s[1] - t.y) < r + 70)) { sfx.thwock(); this.redraw('Keep the start spots (circles) clear.'); return; }
     if (c.props.some(p => Math.hypot(p.x - t.x, p.y - t.y) < p.r + r + 8)) { sfx.thwock(); this.redraw('Too close to another prop.'); return; }
     c.props.push({ style, x: Math.round(t.x), y: Math.round(t.y), r });
+    // ↔ MIRROR: the same prop on the other side of the centre line (skipped if it would overlap something)
+    let twin = '';
+    if (this.mirror) {
+      const mx = Math.round(2 * (TABLE.x + TABLE.w / 2) - t.x), my = Math.round(t.y);
+      const clash = Math.abs(mx - t.x) < r * 2 + 8 || spawnsOf(c).some(s => Math.hypot(s[0] - mx, s[1] - my) < r + 70) || c.props.some(p => Math.hypot(p.x - mx, p.y - my) < p.r + r + 8);
+      if (c.props.length < MAX_PROPS && !clash) { c.props.push({ style, x: mx, y: my, r }); twin = '↔ Placed with its mirror twin.'; } else twin = '↔ No room for a mirror twin there.';
+    }
     sfx.spawn();
-    this.redraw();
+    this.redraw(twin);
   }
 
   /** 📍 move the start spot nearest the tap (kept on the table, off props, apart from the others). */

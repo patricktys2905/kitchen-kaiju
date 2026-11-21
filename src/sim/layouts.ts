@@ -6,7 +6,9 @@ export type ObstacleStyle =
   | 'icetray' | 'peas' | 'popsicle' | 'tub' | 'gumdrop' | 'lollipop' | 'candyjar' | 'knifeblock' | 'pot' | 'pan'
   | 'smoothie' | 'pineapple' | 'banana' | 'strawberry'
   | 'fondue' | 'breadcubes' | 'cheesewheel' | 'grapes'
-  | 'syrup' | 'butter' | 'berries';
+  | 'syrup' | 'butter' | 'berries'
+  // 🆕 2026-11-22 tables
+  | 'napkinbox' | 'foodboat' | 'oven' | 'breadtray' | 'macarons' | 'sausage' | 'corn' | 'chopjar' | 'popcornmachine' | 'popcorntub' | 'sodacup' | 'candybox' | 'chocfountain' | 'marshmallows' | 'wafers';
 
 export type Obstacle =
   | { shape: 'circle'; x: number; y: number; r: number; style: ObstacleStyle; rot?: number /* radians: Workshop props can be turned */ }
@@ -50,7 +52,8 @@ export interface Layout {
   name: string;
   /** Art key of the table surface. */
   table: 'bg-table' | 'bg-sushi' | 'bg-party' | 'bg-board' | 'bg-griddle' | 'bg-parlour' | 'bg-picnic' | 'bg-bakery' | 'bg-banquet' | 'bg-breakfast'
-    | 'bg-freezer' | 'bg-candy' | 'bg-nightmare' | 'bg-smoothie' | 'bg-fondue' | 'bg-pancake';
+    | 'bg-freezer' | 'bg-candy' | 'bg-nightmare' | 'bg-smoothie' | 'bg-fondue' | 'bg-pancake'
+    | 'bg-foodtruck' | 'bg-sushiboat' | 'bg-bakeryoven' | 'bg-teaparty' | 'bg-bbq' | 'bg-noodle' | 'bg-cinema' | 'bg-chocfountain';
   hazards: HazardKind[];
   belts?: Belt[];
   spills?: Zone[]; // slippery: you slide instead of stopping
@@ -60,6 +63,12 @@ export interface Layout {
   toasters?: Toaster[]; // Breakfast Rush (hazard 'toaster')
   slippery?: boolean; // Freezer Shelf: the whole table is ice
   blender?: Zone; // Smoothie Bar: the blades (r = KO radius); it pulls from RULES.blenderRange
+  /** 🎨 Re-skin a shared hazard for this table: art key -> this table's art key (e.g. the turntable drawn as a cake stand). */
+  skins?: Partial<Record<'lazysusan' | 'ob-blender' | 'toast' | 'cleaver', string>>;
+  /** 🎨 Colours for hazards drawn in code: cheese drops/puddles [dark, main, light], belt [base, rails, arrows]. */
+  palette?: { cheese?: [number, number, number]; belt?: [number, number, number] };
+  /** The wind always blows this way (radians; 0 = to the right). Default: a random side each gust. */
+  windDir?: number;
   /** Unlocked in Story mode (see src/story/unlocks.ts). */
   locked?: boolean;
   /** Built in the Table Workshop (src/custom.ts): local play only. */
@@ -340,6 +349,130 @@ export const LAYOUTS: Layout[] = [
       { shape: 'circle', x: 950, y: 545, r: 28, style: 'syrup' },
       { shape: 'rect', x: 910, y: 196, w: 70, h: 50, style: 'butter' },
       { shape: 'circle', x: 330, y: 545, r: 30, style: 'berries' },
+    ],
+    spawns: [[170, 150], [1110, 615], [1110, 150], [170, 615], [160, 382], [1120, 382]],
+  },
+  // 🆕 2026-11-22: eight new tables (picked from concept art). Each re-uses a hazard with its own look.
+  {
+    name: 'Food Truck',
+    table: 'bg-foodtruck',
+    hazards: ['cleaver'],
+    skins: { cleaver: 'ob-hatch' },
+    blurb: 'The serving hatch SLAMS down across the counter. Watch the warning stripe!',
+    obstacles: [
+      { shape: 'rect', x: 590, y: 120, w: 100, h: 40, style: 'napkinbox' },
+      { shape: 'circle', x: 330, y: 240, r: 30, style: 'foodboat' },
+      { shape: 'circle', x: 950, y: 525, r: 30, style: 'foodboat' },
+      { shape: 'rect', x: 280, y: 520, w: 110, h: 36, style: 'ketchup' },
+      { shape: 'rect', x: 890, y: 210, w: 110, h: 36, style: 'mustard' },
+    ],
+    spawns: [[170, 150], [1110, 615], [1110, 150], [170, 615], [160, 382], [1120, 382]],
+  },
+  {
+    name: 'Sushi Boat',
+    table: 'bg-sushiboat',
+    hazards: ['hand'],
+    belts: [{ x: 100, y: 331, w: 1080, h: 104, vx: 120 }],
+    palette: { belt: [0x2f7fc8, 0x8fd0ff, 0x5aa8e8] },
+    blurb: 'A water channel runs across the middle: it carries you along. Hop over, or ride it!',
+    obstacles: [
+      { shape: 'circle', x: 250, y: 200, r: 16, style: 'soy' },
+      { shape: 'circle', x: 1030, y: 565, r: 16, style: 'soy' },
+      { shape: 'circle', x: 900, y: 195, r: 30, style: 'teapot' },
+      { shape: 'circle', x: 380, y: 565, r: 28, style: 'sushi' },
+    ],
+    spawns: [[170, 150], [1110, 615], [1110, 150], [170, 615], [640, 170], [640, 600]],
+  },
+  {
+    name: 'Bakery Oven',
+    table: 'bg-bakeryoven',
+    hazards: ['wind'],
+    windDir: 0,
+    locked: true,
+    blurb: 'The oven door bursts open: hot air blasts everyone towards the far edge!',
+    obstacles: [
+      { shape: 'rect', x: 100, y: 292, w: 90, h: 180, style: 'oven' },
+      { shape: 'rect', x: 560, y: 130, w: 160, h: 60, style: 'breadtray' },
+      { shape: 'rect', x: 560, y: 575, w: 160, h: 60, style: 'breadtray' },
+      { shape: 'circle', x: 960, y: 235, r: 30, style: 'flour' },
+      { shape: 'circle', x: 960, y: 530, r: 30, style: 'macarons' },
+    ],
+    spawns: [[230, 150], [1110, 615], [1110, 150], [230, 615], [260, 382], [1120, 382]],
+  },
+  {
+    name: 'Tea Party',
+    table: 'bg-teaparty',
+    hazards: ['hand'],
+    turntable: { x: 640, y: 382, r: 150, spin: 0.9 },
+    skins: { lazysusan: 'ob-cakestand' },
+    blurb: 'A giant spinning cake stand in the middle. Ride it, or get flung!',
+    obstacles: [
+      { shape: 'circle', x: 300, y: 205, r: 20, style: 'teacup' },
+      { shape: 'circle', x: 980, y: 560, r: 20, style: 'teacup' },
+      { shape: 'circle', x: 980, y: 205, r: 30, style: 'teapot' },
+      { shape: 'circle', x: 300, y: 560, r: 30, style: 'macarons' },
+    ],
+    spawns: [[170, 150], [1110, 615], [1110, 150], [170, 615], [160, 382], [1120, 382]],
+  },
+  {
+    name: 'BBQ Grill',
+    table: 'bg-bbq',
+    hazards: ['burner'],
+    blurb: 'Flare-ups! The hot spots glow, then FLAME. Keep off them.',
+    burners: [{ x: 385, y: 255, r: 60 }, { x: 895, y: 255, r: 60 }, { x: 385, y: 510, r: 60 }, { x: 895, y: 510, r: 60 }],
+    obstacles: [
+      { shape: 'rect', x: 580, y: 130, w: 120, h: 44, style: 'sausage' },
+      { shape: 'rect', x: 580, y: 590, w: 120, h: 44, style: 'sausage' },
+      { shape: 'rect', x: 590, y: 362, w: 100, h: 40, style: 'corn' },
+    ],
+    spawns: [[170, 150], [1110, 615], [1110, 150], [170, 615], [160, 382], [1120, 382]],
+  },
+  {
+    name: 'Noodle Shop',
+    table: 'bg-noodle',
+    hazards: ['blender'],
+    blender: { x: 640, y: 382, r: 48 },
+    skins: { 'ob-blender': 'ob-ramenbowl' },
+    locked: true,
+    blurb: 'The giant ramen bowl starts to swirl and SLURPS everything in. Run!',
+    obstacles: [
+      { shape: 'circle', x: 330, y: 220, r: 24, style: 'chopjar' },
+      { shape: 'circle', x: 950, y: 545, r: 24, style: 'chopjar' },
+      { shape: 'circle', x: 950, y: 220, r: 16, style: 'soy' },
+      { shape: 'circle', x: 330, y: 545, r: 30, style: 'bowl' },
+    ],
+    spawns: [[170, 150], [1110, 615], [1110, 150], [170, 615], [160, 382], [1120, 382]],
+  },
+  {
+    name: 'Cinema Snack Bar',
+    table: 'bg-cinema',
+    hazards: ['toaster'],
+    toasters: [{ x: 188, y: 296, a: 0 }, { x: 1092, y: 496, a: Math.PI }],
+    skins: { toast: 'ob-kernel' },
+    locked: true,
+    blurb: 'The popcorn machines rattle, then fire hot popcorn across the table. Duck!',
+    obstacles: [
+      { shape: 'rect', x: 116, y: 262, w: 70, h: 70, style: 'popcornmachine' },
+      { shape: 'rect', x: 1094, y: 462, w: 70, h: 70, style: 'popcornmachine' },
+      { shape: 'circle', x: 640, y: 240, r: 30, style: 'popcorntub' },
+      { shape: 'circle', x: 640, y: 530, r: 22, style: 'sodacup' },
+      { shape: 'rect', x: 860, y: 200, w: 80, h: 44, style: 'candybox' },
+    ],
+    spawns: [[170, 150], [1110, 615], [1110, 150], [170, 615], [160, 420], [1120, 330]],
+  },
+  {
+    name: 'Chocolate Fountain',
+    table: 'bg-chocfountain',
+    hazards: ['cheese'],
+    palette: { cheese: [0x3a1c0c, 0x6a3518, 0xb07040] },
+    locked: true,
+    blurb: 'Melted chocolate splats down from the fountain. Dodge the shadows; the puddles are sticky!',
+    obstacles: [
+      { shape: 'circle', x: 640, y: 382, r: 56, style: 'chocfountain' },
+      { shape: 'circle', x: 360, y: 230, r: 30, style: 'strawberry' },
+      { shape: 'rect', x: 860, y: 205, w: 110, h: 40, style: 'marshmallows' },
+      { shape: 'circle', x: 920, y: 535, r: 32, style: 'wafers' },
+      { shape: 'circle', x: 360, y: 535, r: 30, style: 'strawberry' },
     ],
     spawns: [[170, 150], [1110, 615], [1110, 150], [170, 615], [160, 382], [1120, 382]],
   },

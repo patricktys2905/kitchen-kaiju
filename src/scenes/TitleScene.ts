@@ -20,7 +20,8 @@ import { getSettings } from '../settings';
 import { SPECIES } from '../sim/constants';
 import { LAYOUTS } from '../sim/layouts';
 import { DAILY, dailySetup, loadDaily, spicyWonToday, todayKey, weekStrip } from '../daily';
-import { addFriend, clearFriends, loadFriends, playerName, resultLine, score, setPlayerName, type FriendResult } from '../friendBoard';
+import { addFriend, clearFriends, loadFriends, parseLine, playerName, resultLine, score, setPlayerName, type FriendResult } from '../friendBoard';
+import { pasteBox, readClipboard } from '../pasteBox';
 import { modeDef } from '../sim/modes';
 import { DUNGEON, loadRun } from '../dungeon';
 import { currentSeason, rankOf } from '../seasons';
@@ -39,6 +40,7 @@ function dailySub(): string {
 export const ATTRACT_AFTER = 40;
 
 export class TitleScene extends Phaser.Scene {
+  static friendMsg = ''; // 👥 one status line for the Friend Board (added / why not)
   private extraBtns: Button[] = [];
   private nav!: FocusNav;
   private idle = 0;
@@ -169,12 +171,17 @@ export class TitleScene extends Phaser.Scene {
     const t = this.add.text(640, 196, all.length > 1 ? rows.join('\n') : rows[0] + '\n\nNo friends on the board yet. Ask them to play today\'s Daily, press 📋 COPY MY RESULT and send you the line, then 📥 PASTE it here.', body(17, '#f1e4d2', 800, { align: 'center', wordWrap: { width: 720 }, lineSpacing: 8 })).setOrigin(0.5, 0).setDepth(31);
     for (let f = 17; t.height > 300 && f > 11;) t.setFontSize(--f);
     this.challengeUi.push(t);
-    const paste = new Button(this, 440, 556, { w: 230, h: 54, label: '📥 PASTE A FRIEND', size: 17, accent: 0x8dff6a, onClick: () => {
-      const line = window.prompt("Paste a friend's 📋 COPY MY RESULT line:", '');
+    // status line (stays across the redraw after adding a friend)
+    if (TitleScene.friendMsg) { const ok = TitleScene.friendMsg.startsWith('✅'); this.challengeUi.push(this.add.text(640, 508, TitleScene.friendMsg, body(16, ok ? '#8dff6a' : '#ffb347', 900, { align: 'center', wordWrap: { width: 740 } })).setOrigin(0.5).setDepth(31)); TitleScene.friendMsg = ''; }
+    const paste = new Button(this, 440, 556, { w: 230, h: 54, label: '📥 PASTE A FRIEND', size: 17, accent: 0x8dff6a, onClick: async () => {
+      // 1) the clipboard, if the browser lets us read it and it holds a result line; 2) otherwise an in-page paste box
+      const clip = await readClipboard();
+      const line = clip && parseLine(clip) ? clip : await pasteBox("📥 Paste a friend's 📋 COPY MY RESULT line", '🍴 Kitchen Kaiju Daily 2026-11-22 · Sam (CLASSIC): WON 🥇 · best 3 rounds · 🔥2 · …');
       if (!line) return;
       const why = addFriend(line, d.date);
-      if (why) { sfx.thwock(); window.alert(why); return; }
-      sfx.matchWin(); this.closeCard(); this.friendBoard();
+      if (why) { sfx.thwock(); TitleScene.friendMsg = `⚠ ${why}`; }
+      else { sfx.matchWin(); const f = parseLine(line)!; TitleScene.friendMsg = `✅ Added ${f.name}: ${f.won ? 'WON' : 'not won yet'}${f.medal ? ' ' + ['', '🥉', '🥈', '🥇'][f.medal] : ''} · best ${f.best}`; }
+      this.closeCard(); this.friendBoard();
     } }, 31);
     const clear = new Button(this, 670, 556, { w: 180, h: 54, label: '🗑 CLEAR', size: 17, onClick: () => { clearFriends(d.date); sfx.thwock(); this.closeCard(); this.friendBoard(); } }, 31);
     const back = new Button(this, 870, 556, { w: 180, h: 54, label: '◀ DAILY', size: 18, onClick: () => { this.closeCard(); this.dailyCard(); } }, 31);

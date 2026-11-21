@@ -580,14 +580,17 @@ Next course: ${nextCh.title}. ${nextRival} is already sharpening the cutlery…`
     this.clearOverlay();
     const g = this.add.graphics().setDepth(30);
     g.fillStyle(0x0d0805, 0.75); g.fillRect(0, 0, 1280, 720);
-    g.fillStyle(0x2a1408, 0.97); g.fillRoundedRect(190, 70, 900, 580, 26);
-    g.lineStyle(5, 0xffd24a, 1); g.strokeRoundedRect(190, 70, 900, 580, 26);
+    // the grid grows with the reward list (4 columns and a wider panel past 15 rewards), so every card fits
+    const n = UNLOCKS.length, cols = n > 15 ? 4 : n > 8 ? 3 : 2, rows = Math.ceil(n / cols), px = cols === 4 ? 40 : 190, pw = cols === 4 ? 1200 : 900;
+    const cw = Math.floor((pw - 30 - (cols - 1) * 12) / cols), ch = Math.min(90, Math.floor((460 - (rows - 1) * 8) / rows));
+    g.fillStyle(0x2a1408, 0.97); g.fillRoundedRect(px, 70, pw, 580, 26);
+    g.lineStyle(5, 0xffd24a, 1); g.strokeRoundedRect(px, 70, pw, 580, 26);
     this.overlay.push(g);
     this.overlay.push(withShadow(this.add.text(640, 112, '🎁 STORY REWARDS', display(40, '#ffd24a', { strokeThickness: 7 })).setOrigin(0.5).setDepth(31), 4));
     this.overlay.push(this.add.text(640, 152, 'Earn new kaiju and tables for Free Play and Online by playing Story mode.', body(16, '#e9dccb', 800)).setOrigin(0.5).setDepth(31));
     UNLOCKS.forEach((u, k) => {
       // 3 columns once there are many rewards (new saves have 13), so every card fits inside the panel
-      const cols = UNLOCKS.length > 8 ? 3 : 2, cw = cols === 3 ? 282 : 400, ch = cols === 3 ? 84 : 90, col = k % cols, row = Math.floor(k / cols), x = 205 + col * (cw + 12), y = 180 + row * (ch + 8);
+      const col = k % cols, row = Math.floor(k / cols), x = px + 15 + col * (cw + 12), y = 180 + row * (ch + 8);
       const got = isEarned(u, this.save);
       const card = this.add.graphics().setDepth(31);
       card.fillStyle(got ? 0x3a2412 : 0x1c1714, 1); card.fillRoundedRect(x, y, cw, ch, 14);
@@ -596,16 +599,16 @@ Next course: ${nextCh.title}. ${nextRival} is already sharpening the cutlery…`
       const key = u.kind === 'kaiju' ? `kaiju-${u.index}` : LAYOUTS[u.index].table;
       if (hasArt(key)) {
         const img = this.add.image(x + 40, y + ch / 2, !got && u.kind === 'kaiju' ? silhouetteKey(this, key) : key).setDepth(32);
-        if (u.kind === 'kaiju') fitInside(img, 64, 64); else img.setDisplaySize(68, 40);
+        if (u.kind === 'kaiju') fitInside(img, Math.min(64, ch - 8), Math.min(64, ch - 8)); else img.setDisplaySize(68, 40);
         if (!got && u.kind !== 'kaiju') img.setAlpha(0.3); // locked table: dimmed (kaiju get a real silhouette)
         this.overlay.push(img);
       }
       const name = got ? unlockName(u) : u.kind === 'kaiju' ? '??? (mystery kaiju)' : `${unlockName(u)} (table)`;
-      { const t = this.add.text(x + 82, y + 10, (got ? '✓ ' : '🔒 ') + name, display(cols === 3 ? 15 : 19, got ? (u.kind === 'kaiju' ? SPECIES[u.index].css : '#ffe9c7') : '#a89680', { strokeThickness: 3 })).setDepth(32); if (t.width > cw - 96) t.setScale((cw - 96) / t.width); this.overlay.push(t); } // long names stay inside the card
-      this.overlay.push(this.add.text(x + 82, y + 36, got ? (u.kind === 'kaiju' ? `Playable now · ${SPECIES[u.index].food}` : 'Playable now in Free Play and Online') : needText(u), body(cols === 3 ? 11 : 14, got ? '#8dff6a' : '#e9dccb', 800, { wordWrap: { width: cw - 92 } })).setDepth(32));
+      { const t = this.add.text(x + 82, y + 10, (got ? '✓ ' : '🔒 ') + name, display(cols >= 3 ? 15 : 19, got ? (u.kind === 'kaiju' ? SPECIES[u.index].css : '#ffe9c7') : '#a89680', { strokeThickness: 3 })).setDepth(32); if (t.width > cw - 96) t.setScale((cw - 96) / t.width); this.overlay.push(t); } // long names stay inside the card
+      this.overlay.push(this.add.text(x + 82, y + Math.min(36, ch * 0.42), got ? (u.kind === 'kaiju' ? `Playable now · ${SPECIES[u.index].food}` : 'Playable now in Free Play and Online') : needText(u), body(cols >= 3 ? 11 : 14, got ? '#8dff6a' : '#e9dccb', 800, { wordWrap: { width: cw - 92 } })).setDepth(32));
       { const t = this.overlay[this.overlay.length - 1] as Phaser.GameObjects.Text; for (let f = Number(String(t.style.fontSize).replace('px', '')); t.y + t.height > y + ch - 4 && f > 9;) t.setFontSize(--f); } // stays inside its card
     });
-    this.overlayButtons.push(new Button(this, 990, 112, { w: 150, h: 48, label: '✖ CLOSE', size: 20, onClick: () => { this.clearOverlay(); this.mode = 'map'; } }, 33));
+    this.overlayButtons.push(new Button(this, px + pw - 100, 112, { w: 150, h: 48, label: '✖ CLOSE', size: 20, onClick: () => { this.clearOverlay(); this.mode = 'map'; } }, 33));
     this.overlayFocus = 0;
   }
 

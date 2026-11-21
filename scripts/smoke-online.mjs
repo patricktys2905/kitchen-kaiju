@@ -84,6 +84,11 @@ try {
   await host.screenshot({ path: 'smoke-online-host.png' });
   await guest.screenshot({ path: 'smoke-online-guest.png' });
 
+  // ✓ Ready ticks: end the match on the host; the phone reports in from its results screen
+  await host.evaluate(() => { const w = window.__game.scene.getScene('game').world; w.players[0].score = w.opts.target - 1; for (let k = 0; k < 9 && w.phase !== 'matchEnd'; k++) { w.endRound([w.players[0]]); for (let s = 0; s < 400 && w.phase === 'roundEnd'; s++) w.step(1 / 60, []); } });
+  check(await until(() => host.evaluate(() => { const g = window.__game.scene.getScene('game'); return g.net.host.ready.size > 0 && /✓/.test(g.readyText?.text ?? ''); }), 12000), 'host sees the phone ✓ READY on the results screen');
+  await host.screenshot({ path: 'smoke-online-ready.png' });
+
   // Host leaves -> phone is told
   await host.keyboard.press('Escape');
   check(await until(() => guest.evaluate(() => window.__game.scene.getScene('game')?.netNotice || window.__game.scene.isActive('menu')), 8000), 'phone was told the host left');

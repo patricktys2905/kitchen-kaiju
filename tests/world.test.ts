@@ -3,6 +3,7 @@ import { BotBrain } from '../src/sim/bot';
 import { P, TABLE } from '../src/sim/constants';
 import type { CutleryKind } from '../src/sim/cutlery';
 import { NO_INPUT, World, type GameEvent, type PlayerInput } from '../src/sim/world';
+import { LAYOUTS } from '../src/sim/layouts';
 
 const DT = 1 / 120;
 
@@ -612,8 +613,8 @@ describe('story unlockables', () => {
     const all = { ...fresh, stars: Array(12).fill(3) };
     const story = UNLOCKS.filter(u => !('dungeon' in u.need) && !('rank' in u.need)); // 🗝 / 🏅 unlocks come from the Dungeon and Ranked
     expect(story.every(u => isEarned(u, all))).toBe(true);
-    expect(owned(all).kaiju.length).toBe(SPECIES.length - (UNLOCKS.length - story.length));
-    expect(owned(all).tables.length).toBe(LAYOUTS.length);
+    expect(owned(all).kaiju.length).toBe(SPECIES.length - UNLOCKS.filter(u => u.kind === 'kaiju' && ('dungeon' in u.need || 'rank' in u.need)).length);
+    expect(owned(all).tables.length).toBe(LAYOUTS.length - UNLOCKS.filter(u => u.kind === 'table' && ('dungeon' in u.need || 'rank' in u.need)).length);
   });
 
   it('the freezer shelf is slippery: you keep sliding after letting go', () => {
@@ -1055,6 +1056,18 @@ describe('kaiju voices', () => {
     const { SPECIES } = await import('../src/sim/constants');
     expect(VOICES.length).toBeGreaterThanOrEqual(SPECIES.length);
     expect(new Set(VOICES.slice(0, SPECIES.length).map(v => `${v.pitch}/${v.wave}`)).size).toBe(SPECIES.length);
+  });
+});
+
+describe('🆕 2026-11-22 tables', () => {
+  it('the Bakery Oven wind always blows away from the oven (to the right)', () => {
+    const idx = LAYOUTS.findIndex(l => l.name === 'Bakery Oven');
+    for (let seed = 1; seed < 6; seed++) {
+      const w = new World({ players: [{ name: 'a' }, { name: 'b' }], seed, hazards: true, crumbSpawns: false, pickupSpawns: false, layout: idx });
+      let dir: number | null = null;
+      for (let t = 0; t < 40 && dir === null; t += DT) { w.step(DT, []); for (const e of w.drainEvents()) if (e.type === 'windWarn') dir = e.dir; }
+      expect(dir).toBe(0);
+    }
   });
 });
 

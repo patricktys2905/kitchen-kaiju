@@ -1376,3 +1376,51 @@ You chose these from 32 Gemini concepts (sheets in `art-src/new-kaiju-options{,-
 - Standard and KAIJU-mode sprites for all four. Bagelbeagle is your original pick, with its nose. Scoopotamus is your pick with the nostrils removed. Peachick had its white sticker border removed.
 - Sprites for whisk, skewer, scoop and grater (they replace the vector drawings).
 - The last 7 Story still redos: Night Market ch5, Room Service ch1 (now Sloba asleep in the hotel queue; Crabbage kept growing extra claws) and ch4, plus the Norigon, Bloblin, Toastbat and Tacowl endings.
+
+## 91. Big expansion, phase 4: eight new tables (26 in all)
+You picked all eight from the concept sheet (`art-src/new-table-options.png`). Each re-uses an existing hazard with its own look, so the rules stay familiar but every table feels new.
+
+| # | Table | Hazard (re-skinned) | Unlock |
+|---|---|---|---|
+| 18 | 🚚 **Food Truck** | the serving HATCH slams down (cleaver → `ob-hatch`) | free |
+| 19 | 🍣 **Sushi Boat** | a blue water channel across the middle carries you along (belt, water palette) + the Giant Hand | free |
+| 20 | 🥐 **Bakery Oven** | hot air blasts out of the oven, always towards the far edge (wind, `windDir: 0`) | 18 stars |
+| 21 | 🫖 **Tea Party** | a giant spinning CAKE STAND (turntable → `ob-cakestand`) + the Giant Hand | free |
+| 22 | 🔥 **BBQ Grill** | flare-up hot spots (burners) | free |
+| 23 | 🍜 **Noodle Shop** | the giant RAMEN BOWL whirlpool slurps everyone in (blender → `ob-ramenbowl`) | reach DESSERT in the 🗝 Dinner Dungeon |
+| 24 | 🍿 **Cinema Snack Bar** | popcorn machines fire hot popcorn (toaster → `ob-kernel`) | 27 stars |
+| 25 | 🍫 **Chocolate Fountain** | melted chocolate splats down, leaving sticky puddles (cheese drops, chocolate palette) | reach 🥇 GOLD SPOON in 🏅 Ranked |
+
+**New:**
+- `Layout.skins` swaps a shared hazard's art per table. `ArtRenderer.sk()` falls back to the normal art if a skin isn't drawn yet.
+- `Layout.palette` holds colours for the hazards drawn in code (cheese, belt).
+- `Layout.windDir` fixes the wind's direction.
+- 15 new props: napkin box, food boat, oven, bread tray, macarons, sausage, corn, chopstick jar, popcorn machine, popcorn tub, soda cup, candy box, chocolate fountain, marshmallows, wafers.
+- Each table has its own surface and place mat (Gemini art), plus vector fallback colours.
+
+**Screens that had to grow:**
+- Help → TABLES switches to 4 columns once there are more than 18 tables.
+- The PICK A TABLE grid sizes itself to the list. It used to hide anything past 24.
+
+**Test:** the Bakery Oven wind always blows to the right.
+
+**EASY TO CUSTOMISE:** each table is one entry at the end of `LAYOUTS` in `src/sim/layouts.ts`.
+
+## 92. Outside review round 5: paste box, tutorial strip, Workshop MIRROR, Online NEW TWIST + ready ticks
+- **👥 Friend Board 📥 PASTE A FRIEND:**
+  - It reads the clipboard first. If that's blocked or empty (iOS Safari, installed apps), an in-page paste box opens (`src/pasteBox.ts`: a textarea over the game, Enter or ➕ ADD, Esc or CANCEL).
+  - The board shows a status line: "✅ Added Sam: WON 🥇 · best 3", or why the line wasn't added. No more `window.prompt` / `alert`.
+- **🎓 Story ch. 1 tutorial strip:** now hidden during the round-end and match-end banners too, not just the ⏪ replay, so it never pops back over the fading KO line.
+- **↔ MIRROR in the Table Workshop:**
+  - Every prop you place gets a twin mirrored across the centre line, if there's room. Erasing a prop removes its twin.
+  - All Workshop toggles (SPOTS, SNAP, ERASE, MIRROR) now start OFF on every visit, matching their buttons.
+- **🌐 Online ⚡ NEW TWIST:** the host gets the NEW TWIST rematch. Both twists are now sent to friends (`start.mutator2`).
+- **🌐 Online ✓ ready ticks:**
+  - Each friend's phone sends `{ t: 'ready' }` once its results screen is up.
+  - The host's results screen shows "READY: ✓ Sam  … Bo".
+  - Ticks reset when the next match or Cup game starts.
+  - Covered by `npm run smoke:online`.
+- **💬 Mid-match Story quips** (suggested again): already in from §83/§84. Rivals and bosses speak when they go KAIJU, and on round results at the next countdown (round-end pop-ups fade before they can be read).
+- **Also fixed:**
+  - The 🎁 STORY REWARDS grid grows with the list (4 columns and a wider panel past 15 rewards). The new kaiju and table unlocks had pushed cards off the bottom.
+  - The Party Cup final keeps its match receipt short (2 lines in Kid Mode, 4 otherwise) so it never touches the standings.

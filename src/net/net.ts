@@ -27,7 +27,8 @@ export type NetMsg =
   | { t: 'hello'; name: string; hat?: string }
   | { t: 'pick'; dir: number }
   | { t: 'lobby'; seats: LobbySeat[]; you: number; table: number; difficulty: string; rounds?: number; mode?: string; powerups?: boolean; hazards?: boolean; mutator?: string }
-  | { t: 'start'; species: number[]; names: string[]; seat: number; tables: number[] | null; rounds?: number; mode?: string; powerups?: boolean; hazards?: boolean; mutator?: string; hats?: string[]; cup?: { game: number; points: number[] } }
+  | { t: 'start'; species: number[]; names: string[]; seat: number; tables: number[] | null; rounds?: number; mode?: string; powerups?: boolean; hazards?: boolean; mutator?: string; mutator2?: string; hats?: string[]; cup?: { game: number; points: number[] } }
+  | { t: 'ready' } // ✓ a friend's phone is on the results screen, ready for the next match
   | { t: 'in'; i: PlayerInput }
   | { t: 'snap'; s: Snapshot; ev: GameEvent[] }
   | { t: 'ping'; at?: number }
@@ -145,11 +146,15 @@ export class NetHost {
     if (m.t === 'in') this.inputs.set(g, m.i);
     else if (m.t === 'pick') this.onPick(g, m.dir);
     else if (m.t === 'bye') this.drop(g);
+    else if (m.t === 'ready') this.ready.add(g);
   }
+  /** ✓ friends whose phones reported they're on the results screen (cleared when a new match starts). */
+  readonly ready = new Set<number>();
 
   private drop(g: number): void {
     if (!this.chans.delete(g)) return;
     this.inputs.delete(g);
+    this.ready.delete(g);
     for (const [id, n] of this.relayIds) if (n === g) this.relayIds.delete(id);
     this.onGuestLeave(g);
   }

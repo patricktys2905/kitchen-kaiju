@@ -319,10 +319,11 @@ export class MenuScene extends Phaser.Scene {
     g.fillStyle(0x000000, 0.6).fillRect(0, 0, 1280, 720).fillStyle(0x0d0805, 1).fillRoundedRect(40, 70, 1200, 600, 20).lineStyle(3, 0x8dd8ff, 1).strokeRoundedRect(40, 70, 1200, 600, 20);
     this.tableUi.push(this.add.zone(640, 360, 1280, 720).setInteractive().setDepth(30), g, this.add.text(640, 100, '🍽 PICK A TABLE', body(22, '#8dd8ff', 900)).setOrigin(0.5).setDepth(31));
     const list = [-1, ...this.own.tables];
-    const cols = 6, cw = 186, ch = 112;
+    // the grid grows with the list (26 built-in tables + ALL + up to 6 Workshop tables), so nothing is ever cut off
+    const cols = list.length <= 24 ? 6 : list.length <= 32 ? 8 : 9, rows = Math.ceil(list.length / cols);
+    const cw = Math.floor((1160 - (cols - 1) * 10) / cols), ch = Math.min(112, Math.floor((540 - (rows - 1) * 10) / rows));
     list.forEach((ti, k) => {
-      const col = k % cols, row = Math.floor(k / cols), x = 145 + col * (cw + 12), y = 190 + row * (ch + 10);
-      if (row > 3) return;
+      const col = k % cols, row = Math.floor(k / cols), x = 60 + cw / 2 + col * (cw + 10), y = 132 + ch / 2 + row * (ch + 10);
       const L = ti >= 0 ? LAYOUTS[ti] : null, on = ti === this.table;
       const b = new Button(this, x, y, { w: cw, h: ch, label: '', sub: L ? L.name : '🎲 ALL TABLES', size: 14, accent: on ? 0x8dff6a : 0x8dd8ff, onClick: () => { this.table = ti; sfx.go(); close(); } }, 31);
       if (b.sub) b.sub.setY(y + ch / 2 - 16);
