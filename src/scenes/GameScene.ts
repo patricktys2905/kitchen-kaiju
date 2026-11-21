@@ -22,6 +22,7 @@ import { NO_INPUT, World, type GameEvent, type Player, type PlayerInput } from '
 import { chapterRivals, starsFor } from '../story/chapters';
 import { COURSES, saveDessert } from '../story/dessert';
 import { addToShelf, cupRules, cupShelf, FINAL_MULTIPLIER, cupGames, placePoints, RANKED_BY } from '../cup';
+import { addSeasonXp, currentSeason, rankedResult, saveSeason } from '../seasons';
 import { DUNGEON, relicFx, ROOM_INFO, type RoomKind } from '../dungeon';
 import { GAUNTLET, GAUNTLET_PERKS, gauntletBest, gauntletTables, runGrade, runScore, saveGauntletBest, waveCourse, wavePreview, waveSetup, checkpointWave, saveWeeklyBest, weeklyBest, savePureBest } from '../gauntlet';
 import { shopOwned } from '../meta';
@@ -76,6 +77,7 @@ export interface GameData {
   tryout?: Record<string, unknown>; // 🧪 twist TRY IT: a warm-up that doesn't count; holds the menu setup to go back to
   hats?: string[]; // online: each seat's hat id ('' = none)
   gauntlet?: { wave: number; bosses: number[]; perks?: string[]; lives?: number; kos?: number; startBest?: number; pure?: boolean }; // startBest = best wave before this run (for NEW BEST) // kos = knockouts earlier in the run (for the score) // Gauntlet: seat 0 is you, one round per wave; perks picked between waves
+  ranked?: boolean; // 🏅 a Ranked match (src/seasons.ts): RP up or down at the end
   dungeon?: { room: number; kind: string; floor: number; relics: string[]; bosses: number[] }; // 🗝 a Dinner Dungeon room (src/dungeon.ts): one round, one life, relics on seat 0
   from?: string; // scene to go back to (practice: 'help' or 'gallery')
   daily?: { date: string; spicy?: boolean }; // Daily Challenge: seat 0 is you
@@ -250,6 +252,7 @@ export class GameScene extends Phaser.Scene {
   }
 
   create(): void {
+    this.rankLine = '';
     this.dungeonLeft = false; this.dungeonT = 0;
     this.resultBtns = []; // Phaser reuses this scene object: forget buttons from the last match
     this.perkUi = [];
@@ -624,11 +627,11 @@ export class GameScene extends Phaser.Scene {
     if (show && !this.resultBtns.length) {
       const cupNext = !!this.initData.cup;
       this.resultBtns = [
-        new Button(this, VIEW.w / 2 - 70, VIEW.h - 96, { w: 220, h: 56, label: gLost ? '↻ NEW RUN' : this.initData.dessert || this.initData.trial ? '↻ RETRY' : cupNext ? (this.initData.cup!.game + 1 >= cupGames(this.slots.length).length ? '↻ NEW CUP' : '▶ CONTINUE') : '↻ REMATCH', size: 20, accent: 0xff9a3c, onClick: () => (gLost ? this.newGauntletRun() : injectTap('Digit1')) }, 12),
-        new Button(this, VIEW.w / 2 + 170, VIEW.h - 96, { w: 220, h: 56, label: this.story || this.initData.trial || this.initData.dessert || this.initData.gauntlet || this.initData.daily || this.net ? '☰ MENU' : '☰ SETUP', size: 20, onClick: () => { const c = this.initData.cup; if (c && c.game + 1 < cupGames(this.slots.length).length && !this.quitArmed) { this.quitArmed = true; this.time.delayedCall(4000, () => { this.quitArmed = false; }); this.popup(VIEW.w / 2, 560, '⚠ MENU again ends this Party Cup', '#ffd24a', 22); return; } this.leave(); } }, 12),
+        new Button(this, VIEW.w / 2 - 70, VIEW.h - 96, { w: 220, h: 56, label: gLost ? '↻ NEW RUN' : this.initData.dessert || this.initData.trial ? '↻ RETRY' : cupNext ? (this.initData.cup!.game + 1 >= cupGames(this.slots.length).length ? '↻ NEW CUP' : '▶ CONTINUE') : this.initData.ranked ? '▶ NEXT RANKED' : '↻ REMATCH', size: 20, accent: 0xff9a3c, onClick: () => (gLost ? this.newGauntletRun() : this.initData.ranked ? this.scene.start('season', { again: this.species[0] }) : injectTap('Digit1')) }, 12),
+        new Button(this, VIEW.w / 2 + 170, VIEW.h - 96, { w: 220, h: 56, label: this.story || this.initData.trial || this.initData.dessert || this.initData.gauntlet || this.initData.daily || this.initData.ranked || this.net ? '☰ MENU' : '☰ SETUP', size: 20, onClick: () => { const c = this.initData.cup; if (c && c.game + 1 < cupGames(this.slots.length).length && !this.quitArmed) { this.quitArmed = true; this.time.delayedCall(4000, () => { this.quitArmed = false; }); this.popup(VIEW.w / 2, 560, '⚠ MENU again ends this Party Cup', '#ffd24a', 22); return; } this.leave(); } }, 12),
       ];
       // ⚡ chain the next match with a fresh random twist (Free Play / Party, not Story, Cup, Gauntlet, Daily, Trials or online)
-      if (!this.story && !this.initData.cup && !this.initData.gauntlet && !this.initData.daily && !this.initData.trial && !this.initData.dessert && !this.net && !this.initData.tryout && !this.initData.lab) this.resultBtns.push(new Button(this, VIEW.w / 2 + 410, VIEW.h - 96, { w: 220, h: 56, label: '⚡ NEW TWIST', sub: 'rematch, random rules', size: 18, accent: 0x8dd8ff, onClick: () => this.rematchNewTwist() }, 12));
+      if (!this.story && !this.initData.cup && !this.initData.gauntlet && !this.initData.daily && !this.initData.trial && !this.initData.dessert && !this.initData.ranked && !this.net && !this.initData.tryout && !this.initData.lab) this.resultBtns.push(new Button(this, VIEW.w / 2 + 410, VIEW.h - 96, { w: 220, h: 56, label: '⚡ NEW TWIST', sub: 'rematch, random rules', size: 18, accent: 0x8dd8ff, onClick: () => this.rematchNewTwist() }, 12));
     }
     for (const b of this.resultBtns) b.update(dt);
   }
@@ -676,6 +679,7 @@ export class GameScene extends Phaser.Scene {
   }
 
   private leave(): void {
+    if (this.initData.ranked) { this.scene.start('season'); return; }
     if (this.initData.dungeon) { if (!this.dungeonLeft) { this.dungeonLeft = true; this.backToDungeon(this.world.phase === 'matchEnd' && this.world.winner === 0); } return; } // quitting a room counts as losing it
     if (this.story) { this.scene.start('story', { campaign: this.story.campaign }); return; }
     if (this.initData.gauntlet || this.initData.daily) { this.scene.start('title'); return; }
@@ -1416,8 +1420,18 @@ export class GameScene extends Phaser.Scene {
       daily: this.initData.daily ? { won, flawless: won && w.players[me].score === w.round, date: this.initData.daily.date } : undefined,
     });
     this.receiptFresh = true;
+    // 🏅 season XP for every match you play (and rank points in Ranked)
+    if (!this.initData.attract && !this.practice && !this.initData.lab && !this.initData.tryout) {
+      const ss = currentSeason();
+      const xp = addSeasonXp(ss, { won, kos: t.kos, ranked: !!this.initData.ranked });
+      if (xp.tokens) addTokens(xp.tokens);
+      if (this.initData.ranked) { const rr = rankedResult(ss, won); this.rankLine = rr.line; this.receipt.lines.push(rr.promoted ? `⬆ ${rr.promoted.icon} ${rr.promoted.name}!` : `🏅 Ranked: ${rr.delta >= 0 ? '+' : ''}${rr.delta} RP (${ss.rp})`); if (rr.promoted) this.time.delayedCall(700, () => sfx.matchWin()); }
+      saveSeason(ss);
+      if (xp.tokens || this.initData.ranked) this.receipt.lines.push(xp.line); // (only when it matters: keeps the receipt short)
+    }
     this.mergeAch();
   }
+  private rankLine = '';
 
   /** Adds this match's achievements (and their tokens) to the receipt once both exist. */
   private mergeAch(): void {
@@ -1433,7 +1447,7 @@ export class GameScene extends Phaser.Scene {
   private firstService(won: boolean): void {
     const done: string[] = [];
     const tickStep = (id: string) => { const s = completeStep(id); if (s) done.push(`🍽 FIRST SERVICE: ${s.text} ✔ +${s.reward} 🪙`); };
-    if (!this.story && !this.initData.gauntlet && !this.initData.dungeon && !this.initData.daily && !this.initData.dessert && this.mode === 'classic' && !this.initData.cup) tickStep('match');
+    if (!this.story && !this.initData.gauntlet && !this.initData.dungeon && !this.initData.ranked && !this.initData.daily && !this.initData.dessert && this.mode === 'classic' && !this.initData.cup) tickStep('match');
     if (this.mode !== 'classic' || this.initData.cup) tickStep('party');
     if (this.story && won && this.story.chapter === 0 && (this.story.campaign ?? 'main') === 'main') tickStep('story');
     this.firstServiceLines = done;
@@ -1892,6 +1906,8 @@ export class GameScene extends Phaser.Scene {
       const n = this.initData.dessert.course, last = n === COURSES.length - 1;
       if (w.winner === 0) { main = last ? 'CLEAN PLATE!' : `COURSE ${n + 1} CLEARED!`; color = '#ffd24a'; sub = last ? 'You finished the whole Dessert Course! 🍰' : `Next: ${COURSES[n + 1].title}`; }
       else { main = 'TOO MUCH DESSERT'; color = '#ff8a7a'; sub = `Beaten on course ${n + 1}. Your progress is saved.\n\n↻ RETRY: 1 / ENTER / click   ·   Esc: back to the map`; }
+    } else if (w.phase === 'matchEnd' && this.initData.ranked && this.rankLine) {
+      main = this.humanWon(w.winner) ? 'RANKED WIN!' : 'RANKED LOSS'; color = this.humanWon(w.winner) ? '#ffd24a' : '#ff8a7a'; sub = this.rankLine;
     } else if (w.phase === 'matchEnd' && this.initData.dungeon) {
       if (w.winner === 0) { main = this.initData.dungeon.kind === 'boss' ? 'BOSS BEATEN!' : 'ROOM CLEARED!'; color = '#8dff6a'; sub = 'Back to the dungeon map…'; }
       else { main = 'KNOCKED OUT!'; color = '#ff8a7a'; sub = 'You lose a life. Back to the map…'; }

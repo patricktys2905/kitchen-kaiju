@@ -1320,3 +1320,35 @@ Each one flies in a new way. They're rare table pickups; `RARE_CHANCE` went from
 - `GameData.dungeon`: GameScene runs one-life rooms and comes back to the map by itself.
 
 **EASY TO CUSTOMISE:** `DUNGEON` (floors, lives, coins, prices, bot levels per floor) and `RELICS`.
+
+## 89. Big expansion, phase 6: 🏅 SEASONS & RANKED
+**Where:** Title → 🏁 CHALLENGES → 🏅 RANKED, which opens the SEASON & RANKED screen.
+
+**Seasons:**
+- A season is one calendar month (device clock).
+- Each month has a theme name, e.g. 🍂 GRAVY TRAIN in November (`THEMES`).
+
+**🎟 Season track:**
+- Every finished match earns season XP: +10 play, +20 win, +2 per KO, +15 extra in Ranked.
+- 20 tiers of 100 XP. Each tier pays 30 🪙 once, and every 5th tier pays 100 🪙.
+- The receipt shows a line for it.
+
+**🏅 Ranked:**
+- You against 3 bots, best of 3, on a random table you own.
+- The ladder: 🥉 BRONZE SPOON → 🥈 SILVER SPOON → 🥇 GOLD SPOON → 🍽 PLATINUM PLATE → 💎 DIAMOND DISH → 👑 MASTER CHEF (0 / 100 / 250 / 450 / 700 / 1000 RP).
+- Your rank sets the bots' levels, from easy + normal up to hard + brutal.
+- RP: win +25 (+40 in your first 3 placement games, plus up to +15 for a streak); lose −15 (nothing to lose at the very bottom).
+- The results screen shows RANKED WIN / LOSS with the RP change and ⬆ PROMOTED. ▶ NEXT RANKED queues another; MENU goes back to the Season screen.
+
+**New season:**
+- It starts from half your RP.
+- It pays a bonus for the best rank you reached (50 to 500 🪙).
+- It adds the old season to your history.
+- The Season screen shows "Last season you reached …" once.
+
+**Code:**
+- `src/seasons.ts`: no Phaser; tested in `tests/seasons.test.ts`. Saved under `kk-season-v1`.
+- `src/scenes/SeasonScene.ts`: the screen.
+- `GameData.ranked`.
+
+**EASY TO CUSTOMISE:** `SEASON` (XP, tiers, rewards, RP), `RANKS` (names, thresholds, bot levels, season bonus) and `THEMES`.
