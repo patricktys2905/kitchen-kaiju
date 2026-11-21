@@ -17,6 +17,8 @@ import { checkAchievements, loadStats, saveStats } from '../stats';
 // the table preview is drawn scaled down on the right
 const PS = 0.72, PX = 470, PY = 150;
 const toScreen = (x: number, y: number) => ({ x: PX + (x - TABLE.x) * PS, y: PY + (y - TABLE.y) * PS });
+/** ↔ MIRROR: taps this close (table px) to the centre line place ONE prop right on the line. */
+const MIRROR_CENTRE = 30;
 const toTable = (sx: number, sy: number) => ({ x: TABLE.x + (sx - PX) / PS, y: TABLE.y + (sy - PY) / PS });
 
 export class WorkshopScene extends Phaser.Scene {
@@ -149,6 +151,8 @@ export class WorkshopScene extends Phaser.Scene {
   private tapTable(sx: number, sy: number): void {
     const c = this.cur(), t = toTable(sx, sy);
     if (this.snap) { t.x = Math.round(t.x / 40) * 40; t.y = Math.round(t.y / 40) * 40; }
+    const centred = this.mirror && !this.spotMode && Math.abs(t.x - (TABLE.x + TABLE.w / 2)) < MIRROR_CENTRE;
+    if (centred) t.x = TABLE.x + TABLE.w / 2; // ↔ snaps onto the mirror line: one prop, no twin
     if (this.spotMode) { this.moveSpot(c, t.x, t.y); return; }
     const hit = c.props.findIndex(p => Math.hypot(p.x - t.x, p.y - t.y) < p.r);
     if (hit >= 0) {
@@ -168,7 +172,8 @@ export class WorkshopScene extends Phaser.Scene {
     c.props.push({ style, x: Math.round(t.x), y: Math.round(t.y), r });
     // ↔ MIRROR: the same prop on the other side of the centre line (skipped if it would overlap something)
     let twin = '';
-    if (this.mirror) {
+    if (this.mirror && centred) twin = '↔ Placed on the mirror line (one prop, no twin).';
+    else if (this.mirror) {
       const mx = Math.round(2 * (TABLE.x + TABLE.w / 2) - t.x), my = Math.round(t.y);
       const clash = Math.abs(mx - t.x) < r * 2 + 8 || spawnsOf(c).some(s => Math.hypot(s[0] - mx, s[1] - my) < r + 70) || c.props.some(p => Math.hypot(p.x - mx, p.y - my) < p.r + r + 8);
       if (c.props.length < MAX_PROPS && !clash) { c.props.push({ style, x: mx, y: my, r }); twin = '↔ Placed with its mirror twin.'; } else twin = '↔ No room for a mirror twin there.';
@@ -230,6 +235,13 @@ export class WorkshopScene extends Phaser.Scene {
     if (key && hasArt(key)) add(this.add.image(PX + W / 2, PY + H / 2, key).setDisplaySize(W, H).setDepth(4));
     else g.fillStyle(0xc89a64, 1).fillRect(PX, PY, W, H);
     const g2 = add(this.add.graphics().setDepth(6));
+    // ↔ MIRROR guide: a dashed centre line (and the band where a prop counts as "on the line")
+    if (this.mirror) {
+      const cx = PX + W / 2;
+      g2.fillStyle(0xc98aff, 0.12).fillRect(cx - MIRROR_CENTRE * PS, PY, MIRROR_CENTRE * 2 * PS, H);
+      g2.lineStyle(3, 0xc98aff, 0.85);
+      for (let y = PY; y < PY + H; y += 18) g2.lineBetween(cx, y, cx, Math.min(PY + H, y + 10));
+    }
     // the chosen surface and hazard, shown ON the preview
     add(this.add.text(PX + 10, PY + H - 10, `🍽 ${LAYOUTS[c.surface]?.name ?? ''}`, body(14, '#ffffff', 900, { backgroundColor: '#0d0805cc', padding: { x: 8, y: 4 } })).setOrigin(0, 1).setDepth(7));
     if (c.hazard !== 'none') { const icon: Record<string, string> = { hand: '✋', wind: '💨', cleaver: '🔪', cheese: '🧀', spatula: '🍳' }; add(this.add.text(PX + W - 10, PY + 10, `${icon[c.hazard] ?? '⚠'} ${HAZARD_NAMES[c.hazard]}`, body(16, '#ffb347', 900, { backgroundColor: '#0d0805cc', padding: { x: 8, y: 4 } })).setOrigin(1, 0).setDepth(7)); }

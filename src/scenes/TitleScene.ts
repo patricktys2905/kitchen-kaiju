@@ -21,7 +21,7 @@ import { SPECIES } from '../sim/constants';
 import { LAYOUTS } from '../sim/layouts';
 import { DAILY, dailySetup, loadDaily, spicyWonToday, todayKey, weekStrip } from '../daily';
 import { addFriend, clearFriends, loadFriends, parseLine, playerName, resultLine, score, setPlayerName, type FriendResult } from '../friendBoard';
-import { pasteBox, readClipboard } from '../pasteBox';
+import { pasteBox } from '../pasteBox';
 import { modeDef } from '../sim/modes';
 import { DUNGEON, loadRun } from '../dungeon';
 import { currentSeason, rankOf } from '../seasons';
@@ -174,9 +174,8 @@ export class TitleScene extends Phaser.Scene {
     // status line (stays across the redraw after adding a friend)
     if (TitleScene.friendMsg) { const ok = TitleScene.friendMsg.startsWith('✅'); this.challengeUi.push(this.add.text(640, 508, TitleScene.friendMsg, body(16, ok ? '#8dff6a' : '#ffb347', 900, { align: 'center', wordWrap: { width: 740 } })).setOrigin(0.5).setDepth(31)); TitleScene.friendMsg = ''; }
     const paste = new Button(this, 440, 556, { w: 230, h: 54, label: '📥 PASTE A FRIEND', size: 17, accent: 0x8dff6a, onClick: async () => {
-      // 1) the clipboard, if the browser lets us read it and it holds a result line; 2) otherwise an in-page paste box
-      const clip = await readClipboard();
-      const line = clip && parseLine(clip) ? clip : await pasteBox("📥 Paste a friend's 📋 COPY MY RESULT line", '🍴 Kitchen Kaiju Daily 2026-11-22 · Sam (CLASSIC): WON 🥇 · best 3 rounds · 🔥2 · …');
+      // an inline box (no clipboard permission popup): Ctrl+V / long-press Paste, then ADD; a wrong line is explained right in the box
+      const line = await pasteBox("📥 Paste a friend's 📋 COPY MY RESULT line", '🍴 Kitchen Kaiju Daily 2026-11-22 · Sam (CLASSIC): WON 🥇 · best 3 rounds · 🔥2 · …', v => { const f = parseLine(v); return !f ? "That isn't a 📋 COPY MY RESULT line from the Daily." : f.date !== d.date ? `That result is from ${f.date}, not today's Daily.` : null; });
       if (!line) return;
       const why = addFriend(line, d.date);
       if (why) { sfx.thwock(); TitleScene.friendMsg = `⚠ ${why}`; }

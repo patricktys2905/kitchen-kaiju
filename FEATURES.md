@@ -1424,3 +1424,11 @@ You picked all eight from the concept sheet (`art-src/new-table-options.png`). E
 - **Also fixed:**
   - The 🎁 STORY REWARDS grid grows with the list (4 columns and a wider panel past 15 rewards). The new kaiju and table unlocks had pushed cards off the bottom.
   - The Party Cup final keeps its match receipt short (2 lines in Kid Mode, 4 otherwise) so it never touches the standings.
+
+## 93. Outside review round 6: no clipboard popup, Workshop mirror guide
+- **📥 PASTE A FRIEND:** opens the in-page paste box straight away. It no longer calls `clipboard.readText()`, so Chrome never asks "wants to see text copied to the clipboard". You paste with Ctrl+V or long-press → Paste.
+  - A wrong line is explained inside the box ("That isn't a 📋 COPY MY RESULT line…" or "That result is from 2026-11-21, not today's Daily") and the box stays open.
+  - A good line closes it, and the board shows "✅ Added Sam…". `pasteBox()` takes an optional `check()`.
+- **↔ MIRROR guide:** with MIRROR on, the Workshop table shows a dashed purple centre line, plus a faint band 30 px either side (`MIRROR_CENTRE`).
+  - A tap inside the band places ONE prop exactly on the line instead of two overlapping twins.
+- **Online ⚡ NEW TWIST + ✓ READY:** suggested again, but already live since §92 (e57a731). It's on the host's results screen online and checked by `npm run smoke:online`.
