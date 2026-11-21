@@ -259,7 +259,7 @@ export class GameScene extends Phaser.Scene {
     this.firstServiceLines = [];
     this.roundOut = null;
     this.toastQ = []; this.toastText = null; this.toastG = null; this.toastT = 0;
-    this.coachStep = -1; this.coachText = null;
+    this.coachStep = -1; this.coachText = null; this.quipNext = null; this.bossSulk = null;
     this.achEarned = { lines: [], tokens: 0 }; this.receiptFresh = false; this.receipt = null;
     this.ownedAtStart = owned();
     this.coachStomp = (this.story?.chapter ?? 99) <= 2 || loadStats().kaijuForms < STOMP_COACH_UNTIL;
@@ -1106,6 +1106,9 @@ export class GameScene extends Phaser.Scene {
   /** 🎓 Story ch1, first time through: a gentle step-by-step coach (THROW → SWIPE → EAT → STOMP).
    *  👑 Bosses quip when they go KAIJU or knock you out. EASY TO CUSTOMISE: COACH and BOSS_QUIPS. */
   private coachStep = -1;
+  private quipRound = new Set<number>(); // 💬 rivals who already spoke this round
+  private bossSulk: number | null = null; // 👑 a boss that lost the last round
+  private quipNext: { id: number; lines: string[] } | null = null; // 💬 a round-end line, said at the next countdown
   private coachText: Phaser.GameObjects.Text | null = null;
   private storyCoach(e: GameEvent): void {
     const s = this.story;
@@ -1128,8 +1131,25 @@ export class GameScene extends Phaser.Scene {
     }
     const BOSS_QUIPS = ['Is that all you\'ve got?', 'You call that a fork?', 'Back to the kids\' table!', 'Too easy. Next!', 'Feel the weight of the crown!'];
     const BOSS_LOSS = ['Lucky shot!', 'That round didn\'t count!', 'I was going easy on you!', 'Grr… again!', 'My crown slipped!'];
-    if (e.type === 'roundEnd' && e.winner !== null && !(s.bosses ?? []).includes(e.winner) && this.world.phase === 'roundEnd') { const b = (s.bosses ?? []).find(id => this.world.players[id]); const bp = b !== undefined ? this.world.players[b] : null; if (bp) this.time.delayedCall(400, () => this.popup(bp.x, bp.y - 80, `👑 ${SPECIES[this.species[b!]].name}: "${BOSS_LOSS[this.world.round % BOSS_LOSS.length]}"`, this.css[b!], 18)); } // a boss sulks when it drops a round
+    if (e.type === 'roundEnd' && e.winner !== null && !(s.bosses ?? []).includes(e.winner)) { const b = (s.bosses ?? []).find(id => this.world.players[id]); if (b !== undefined) this.bossSulk = b; } // a boss sulks when it drops a round (said at the next countdown)
+    if (e.type === 'roundStart' && this.bossSulk !== null) { const b = this.bossSulk; this.bossSulk = null; this.time.delayedCall(250, () => { const bp = this.world.players[b]; if (bp) this.popup(bp.x, bp.y - 80, `👑 ${SPECIES[this.species[b]].name}: "${BOSS_LOSS[this.world.round % BOSS_LOSS.length]}"`, this.css[b], 18); }); }
     const bosses = s.bosses ?? [];
+    // 💬 every Story rival talks too (not only bosses): going KAIJU, taking a round, or losing one. One line per rival per round.
+    const RIVAL_KAIJU = ['Here I come!', 'Big snack, BIG trouble!', 'Look at me now!', 'Run, champ, run!', 'Dinner time!'];
+    const RIVAL_WIN = ['Ha! That one\'s mine!', 'Did you see that?', 'Too slow!', 'Lunch is served!', 'One-nil to me!'];
+    const RIVAL_LOSE = ['Hey! No fair!', 'I slipped!', 'Beginner\'s luck!', 'Just warming up…', 'Okay, okay, you\'re good.'];
+    const say = (id: number, lines: string[]) => {
+      const p = this.world.players[id];
+      if (!p || id === 0 || bosses.includes(id) || this.quipRound.has(id)) return; // bosses have their own lines
+      this.quipRound.add(id);
+      this.popup(p.x, p.y - 70, `💬 ${SPECIES[this.species[id]].name}: "${lines[(this.world.round * 3 + id) % lines.length]}"`, this.css[id], 17);
+    };
+    if (e.type === 'roundStart') { this.quipRound.clear(); const q = this.quipNext; this.quipNext = null; if (q) this.time.delayedCall(250, () => say(q.id, q.lines)); } // a round-end line plays during the next countdown (the round banner owns the screen at round end)
+    if (e.type === 'kaiju' && e.id !== 0) say(e.id, RIVAL_KAIJU);
+    if (e.type === 'roundEnd' && e.winner !== null) {
+      if (e.winner !== 0 && !this.humanWon(e.winner)) { if (!bosses.includes(e.winner)) this.quipNext = { id: e.winner, lines: RIVAL_WIN }; }
+      else { const loser = this.world.players.findIndex((pl, i) => i !== 0 && !bosses.includes(i) && !(this.initData.teams && this.initData.teams[i] === this.initData.teams[0])); if (loser > 0) this.quipNext = { id: loser, lines: RIVAL_LOSE }; }
+    }
     if ((e.type === 'kaiju' && bosses.includes(e.id)) || (e.type === 'ko' && e.id === 0 && e.by !== null && bosses.includes(e.by))) {
       const b = e.type === 'kaiju' ? e.id : (e as { by: number }).by, p = this.world.players[b];
       if (p) this.popup(p.x, p.y - 80, `👑 ${SPECIES[this.species[b]].name}: "${BOSS_QUIPS[(this.world.round + b) % BOSS_QUIPS.length]}"`, this.css[b], 18);

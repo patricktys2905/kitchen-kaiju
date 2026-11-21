@@ -1205,3 +1205,11 @@ Not done: public rooms / quick-match and a global leaderboard (they need a serve
   - The award order is shuffled, so each match shows a different mix.
 - **👑 Story bosses sulk** when they drop a round ("Lucky shot!", "My crown slipped!"), alongside the existing quips when they go KAIJU or knock you out.
 - **🤖 Per-seat bot levels** (already working) are now explained: the BOT LEVEL picker has a "💡 Mix levels" tip, and bot seat cards read "🤖 EASY · tap: this bot's level".
+
+## 83. Every Story rival talks; the Workshop help line matches its tools
+- **💬 Mid-match lines for every Story rival**, not only bosses (`storyCoach` in GameScene). Each rival says at most one line per round.
+  - When a rival goes KAIJU: "Dinner time!", "Run, champ, run!".
+  - After a rival takes a round: "Too slow!", "One-nil to me!".
+  - After you take a round: "Beginner's luck!", "I slipped!".
+- **Round-end lines play at the next countdown** (`quipNext`, `bossSulk`): pop-ups fade at round end so the banner owns the screen, which also hid last update's boss round-loss quips. Now they're seen.
+- **🛠 Workshop:** the help line under the table now says "🔄 tap a placed prop to turn it · 🗑 ERASE removes". It still said "tap a prop to remove it" after tap-to-turn shipped.

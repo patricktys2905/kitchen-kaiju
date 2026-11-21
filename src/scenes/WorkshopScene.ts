@@ -226,7 +226,7 @@ export class WorkshopScene extends Phaser.Scene {
       else g2.fillStyle(0xffffff, 0.8).fillCircle(p.x, p.y, pr.r * PS);
     }
     add(this.add.text(PX, PY - 46, `SLOT ${this.slot + 1}/${MAX_CUSTOM}: ${c.name}  ·  ${LAYOUTS[c.surface]?.name ?? ''} surface  ·  ${HAZARD_NAMES[c.hazard]}  ·  ${c.props.length}/${MAX_PROPS} props`, body(15, '#ffe9c7', 900)).setDepth(5));
-    this.note.setText(msg || `👉 ${propInfo(PROPS[this.pick][0], PROPS[this.pick][1])} · tap the table to place it · tap a prop to remove it · white circles = start spots`);
+    this.note.setText(msg || `👉 ${propInfo(PROPS[this.pick][0], PROPS[this.pick][1])} · tap the table to place it · 🔄 tap a placed prop to turn it · 🗑 ERASE removes · white circles = start spots`);
   }
 
   update(_t: number, delta: number): void {
