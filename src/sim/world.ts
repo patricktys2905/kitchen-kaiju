@@ -682,7 +682,8 @@ export class World {
     p.charge = 0;
     if (!c) return;
     const def = CUTLERY[c.kind];
-    const angles = def.split === 2 ? [p.aim - 0.08, p.aim + 0.08] : [p.aim];
+    const sp = def.spread ?? 0.16;
+    const angles = def.split === 3 ? [p.aim - sp, p.aim, p.aim + sp] : def.split === 2 ? [p.aim - sp / 2, p.aim + sp / 2] : [p.aim];
     angles.forEach((a, i) => {
       const e = i === 0 ? c : this.newCutlery(c.kind, p.x, p.y);
       if (i > 0) e.temp = true;
@@ -1071,6 +1072,7 @@ export class World {
       c.vx = Math.cos(cur + turn) * c.speed;
       c.vy = Math.sin(cur + turn) * c.speed;
     }
+    if (def.curve && !c.boomerang) { const a = Math.atan2(c.vy, c.vx) + def.curve * dt, v = Math.hypot(c.vx, c.vy); c.vx = Math.cos(a) * v; c.vy = Math.sin(a) * v; } // 🥄 whisk
     const speed = Math.hypot(c.vx, c.vy);
     const steps = Math.max(1, Math.ceil((speed * dt) / 6));
     for (let i = 0; i < steps; i++) {
@@ -1081,7 +1083,8 @@ export class World {
       c.angle = Math.atan2(c.vy, c.vx);
       if (def.spin) c.spin += (dt / steps) * 28;
 
-      const hit = this.cutleryCollide(c, def.radius * 0.6);
+      const hit = this.cutleryCollide(c, def.radius * 0.6, !!(def.pierce || def.lob));
+      if (def.lob && (hit || c.traveled >= c.maxRange)) { this.splat(c, def.lob); return; } // 🍨 scoop lands
       if (hit) {
         if (c.bouncesLeft > 0) {
           const dot = c.vx * hit.nx + c.vy * hit.ny;
@@ -1096,6 +1099,7 @@ export class World {
       }
 
       if (def.heavy) this.shoveLoose(c, sx, sy);
+      if (def.lob) continue; // up in the air: flies over everyone
       if (this.cutleryHitsPlayers(c)) return;
 
       if (c.boomerang && owner && Math.hypot(owner.x - c.x, owner.y - c.y) < owner.r + 14) {
@@ -1117,8 +1121,20 @@ export class World {
     }
   }
 
-  private cutleryCollide(c: Cutlery, r: number): Hit | null {
-    for (const o of this.layout.obstacles) {
+  /** 🍨 A lobbed scoop lands: everyone (but friends) close enough is knocked out. */
+  private splat(c: Cutlery, radius: number): void {
+    for (const p of this.players) {
+      if (!p.alive || p.id === c.owner || this.friends(p.id, c.owner)) continue;
+      if (Math.hypot(p.x - c.x, p.y - c.y) > radius + p.r) continue;
+      if (p.kaijuT > 0 || p.invT > 0) continue;
+      this.ko(p, c.owner, 'cutlery');
+    }
+    this.emit({ type: 'bounce', x: c.x, y: c.y });
+    this.land(c);
+  }
+
+  private cutleryCollide(c: Cutlery, r: number, edgesOnly = false): Hit | null {
+    if (!edgesOnly) for (const o of this.layout.obstacles) {
       const h = o.shape === 'circle'
         ? circCircle(c.x, c.y, r, o.x, o.y, o.r)
         : circRect(c.x, c.y, r, o.x, o.y, o.w, o.h);

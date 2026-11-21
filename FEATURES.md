@@ -1266,3 +1266,57 @@ Not done: public rooms / quick-match and a global leaderboard (they need a serve
   - Captions live in the `*_CUTS` arrays.
   - Scene prompts live in `scripts/make-comic-jobs.mjs` (`COMIC_SCENES`).
   - New keys go in the `CUTS` list in `scripts/process-art.mjs`.
+
+## 87. Big expansion, phase 2: four new cutlery types
+Each one flies in a new way. They're rare table pickups; `RARE_CHANCE` went from 0.25 to 0.4 so you actually meet them.
+- **🥄 Whisk:** curves to the right as it flies (`curve` 1.4 rad/s), so you can bend it round props.
+- **🍢 Skewer:** very fast, and flies straight through props (`pierce`); it still stops at the table edge.
+- **🍨 Ice Cream Scoop:** lobbed over every kaiju and prop. It lands at the end of its range and SPLATS everyone within 52 px (`lob`). It draws bigger mid-air (`lobLift`).
+- **🧀 Cheese Grater:** sprays 3 short shards in a wide fan (`split` 3, `spread` 0.24).
+- **Under the hood:**
+  - New optional fields on `CutleryDef` (`curve`, `pierce`, `lob`, `spread`) plus a one-line `CUTLERY_NOTE` per kind for Help.
+  - Online snapshot kinds are appended, so older clients still work.
+  - For now they're drawn as vector shapes; Gemini sprites (`cut-whisk` etc.) come later.
+- **Help → CUTLERY:** now a 3-column grid with a picture for every kind.
+- **Tests:** a skewer goes through the gravy boat where a fork sticks; a whisk curls; a scoop flies over one kaiju and splats the next; a grater throws 3.
+- **EASY TO CUSTOMISE:** all the numbers live in `src/sim/cutlery.ts`.
+
+## 88. Big expansion, phase 5: 🗝 DINNER DUNGEON (roguelike)
+**Where:** Title → 🏁 CHALLENGES → 🗝 DINNER DUNGEON. The button shows CONTINUE when a run is saved.
+
+**How a run works:**
+- Pick a kaiju and walk three floors: 🥗 STARTER, 🍖 MAIN COURSE, 🍰 DESSERT.
+- Each floor is a branching map of 6 columns (`makeFloor`, seeded). You choose the path; the last column is the 👑 BOSS.
+- **Rooms:**
+  - ⚔ FIGHT: bots, ONE round, ONE life.
+  - 💀 ELITE: tougher bots plus a random twist; winning one gives a relic choice.
+  - 🎁 PANTRY: pick 1 of 3 relics, or skip for coins.
+  - 🛒 SHOP: relics for 45 🪙, or +1 life for 30 🪙.
+  - 🍲 SOUP BREAK: +1 life.
+  - 👑 BOSS: a boss seat plus a rival.
+- Every floor has a pantry in the middle and a soup break or shop just before the boss.
+
+**Lives and coins:**
+- You start with ❤ 3 lives (5 at most).
+- Losing a room costs a life, and you can pick another path. At 0 lives the run is over.
+- Quitting a room, or closing the game mid-fight, counts as losing it.
+- Coins come from rooms you win plus every knockout.
+
+**🎒 17 relics:**
+- They stack, and are applied to your kaiju at the start of every room (`GameScene.applyRelics`, on a copy of its kit).
+- Traits: speed, throw speed, dash cooldown, weight, grip, reach.
+- Start-of-room boosts: belly, shield, ghost, hot feet, sugar rush.
+- Start holding a Skewer, Scoop or Whisk.
+- Economy: Piggy Bank, Crumb Magnet, Doggy Bag (heals a life after each boss).
+
+**Saving and rewards:**
+- The run saves after every room (`kk-dungeon-v1`).
+- When it ends it pays 🪙 tokens: 40 per floor reached, +5 per room won, +200 for clearing.
+- It keeps your best (`kk-dungeon-best`).
+
+**Code:**
+- `src/dungeon.ts`: rules, map, relics, save. It has no Phaser, so it's unit-tested in `tests/dungeon.test.ts`.
+- `src/scenes/DungeonScene.ts`: the map, pantry, shop and end screens.
+- `GameData.dungeon`: GameScene runs one-life rooms and comes back to the map by itself.
+
+**EASY TO CUSTOMISE:** `DUNGEON` (floors, lives, coins, prices, bot levels per floor) and `RELICS`.

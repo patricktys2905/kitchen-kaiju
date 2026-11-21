@@ -276,6 +276,12 @@ export function drawCrumbs(g: G, crumbs: Crumb[], t: number): void {
 // ------------------------------------------------------------------ cutlery
 const SILVER = 0xd5dce3, SILVER_DARK = 0x8d98a3;
 
+/** 🍨 A lobbed scoop draws bigger mid-flight (it's up in the air). */
+export function lobLift(c: Cutlery): number {
+  if (c.state !== 'flying' || !CUTLERY[c.kind].lob || !(c.maxRange > 0)) return 1;
+  return 1 + 0.8 * Math.sin(Math.PI * Math.min(1, c.traveled / c.maxRange));
+}
+
 export function drawCutleryShape(g: G, kind: Cutlery['kind'], x: number, y: number, a: number, s = 1): void {
   switch (kind) {
     case 'fork':
@@ -325,6 +331,33 @@ export function drawCutleryShape(g: G, kind: Cutlery['kind'], x: number, y: numb
       poly(g, [[-28, -2.5], [-18, -2.5], [-18, 2.5], [-28, 2.5]], x, y, a, s);
       poly(g, [[18, -2.5], [28, -2.5], [28, 2.5], [18, 2.5]], x, y, a, s);
       break;
+    case 'whisk':
+      g.fillStyle(0x3a3a44, 1);
+      poly(g, [[-22, -2.6], [-4, -2.6], [-4, 2.6], [-22, 2.6]], x, y, a, s);
+      g.fillStyle(SILVER, 1);
+      for (const w of [10, 7, 4]) { poly(g, ellipse(9, 0, 13, w), x, y, a, s); g.fillStyle(w === 10 ? SILVER_DARK : SILVER, 1); }
+      break;
+    case 'skewer':
+      g.fillStyle(0xd9b27a, 1);
+      poly(g, [[-28, -1.4], [22, -1.2], [29, 0], [22, 1.2], [-28, 1.4]], x, y, a, s);
+      for (const [o, col] of [[-10, 0xd84a2a], [0, 0x6fae4a], [10, 0xffd24a]] as const) { g.fillStyle(col, 1); poly(g, ellipse(o, 0, 4.5, 4.5, 10), x, y, a, s); }
+      break;
+    case 'scoop':
+      g.fillStyle(0xe05a8a, 1);
+      poly(g, [[-20, -2.6], [2, -2.6], [2, 2.6], [-20, 2.6]], x, y, a, s);
+      g.fillStyle(SILVER, 1);
+      poly(g, ellipse(12, 0, 10, 10, 16), x, y, a, s);
+      g.fillStyle(0xfff0d8, 1);
+      poly(g, ellipse(13, 0, 7.5, 7.5, 14), x, y, a, s);
+      break;
+    case 'grater':
+      g.fillStyle(SILVER, 1);
+      poly(g, [[-12, -8], [12, -6], [12, 6], [-12, 8]], x, y, a, s);
+      g.fillStyle(SILVER_DARK, 1);
+      for (const ox of [-6, 0, 6]) for (const oy of [-3, 3]) poly(g, ellipse(ox, oy, 1.6, 1.2, 6), x, y, a, s);
+      g.fillStyle(0x2a2a30, 1);
+      poly(g, [[-18, -2], [-12, -2], [-12, 2], [-18, 2]], x, y, a, s);
+      break;
     case 'spork':
       g.fillStyle(0xffcf5a, 1);
       poly(g, [[-16, -2], [6, -2], [6, 2], [-16, 2]], x, y, a, s);
@@ -367,7 +400,7 @@ export function drawCutlery(g: G, c: Cutlery, colors: number[], t: number): void
     drawCutleryShape(g, c.kind, c.x - ox, c.y - oy, a, 0.8);
     drawCutleryShape(g, c.kind, c.x + ox, c.y + oy, a, 0.8);
   } else {
-    drawCutleryShape(g, c.kind, c.x, c.y, a, c.state === 'held' ? 0.8 : 1);
+    drawCutleryShape(g, c.kind, c.x, c.y, a, c.state === 'held' ? 0.8 : lobLift(c));
   }
 }
 

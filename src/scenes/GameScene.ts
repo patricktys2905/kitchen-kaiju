@@ -18,10 +18,11 @@ import { angleDiff } from '../sim/math';
 import { MODE_RULES, modeDef, type GameMode, TEAM_MODES } from '../sim/modes';
 import { POWER_DEFS, POWERUPS } from '../sim/powerups';
 import { MUTATOR_RULES, twistBlurb, twistName, type Mutator, twistChoices } from '../sim/mutators';
-import { NO_INPUT, World, type GameEvent, type PlayerInput } from '../sim/world';
+import { NO_INPUT, World, type GameEvent, type Player, type PlayerInput } from '../sim/world';
 import { chapterRivals, starsFor } from '../story/chapters';
 import { COURSES, saveDessert } from '../story/dessert';
 import { addToShelf, cupRules, cupShelf, FINAL_MULTIPLIER, cupGames, placePoints, RANKED_BY } from '../cup';
+import { DUNGEON, relicFx, ROOM_INFO, type RoomKind } from '../dungeon';
 import { GAUNTLET, GAUNTLET_PERKS, gauntletBest, gauntletTables, runGrade, runScore, saveGauntletBest, waveCourse, wavePreview, waveSetup, checkpointWave, saveWeeklyBest, weeklyBest, savePureBest } from '../gauntlet';
 import { shopOwned } from '../meta';
 import { recordTrial, TRIAL_TOKENS, TRIALS } from '../trials';
@@ -75,6 +76,7 @@ export interface GameData {
   tryout?: Record<string, unknown>; // 🧪 twist TRY IT: a warm-up that doesn't count; holds the menu setup to go back to
   hats?: string[]; // online: each seat's hat id ('' = none)
   gauntlet?: { wave: number; bosses: number[]; perks?: string[]; lives?: number; kos?: number; startBest?: number; pure?: boolean }; // startBest = best wave before this run (for NEW BEST) // kos = knockouts earlier in the run (for the score) // Gauntlet: seat 0 is you, one round per wave; perks picked between waves
+  dungeon?: { room: number; kind: string; floor: number; relics: string[]; bosses: number[] }; // 🗝 a Dinner Dungeon room (src/dungeon.ts): one round, one life, relics on seat 0
   from?: string; // scene to go back to (practice: 'help' or 'gallery')
   daily?: { date: string; spicy?: boolean }; // Daily Challenge: seat 0 is you
   party?: boolean; // started from the PARTY MODES setup (go back there afterwards)
@@ -248,6 +250,7 @@ export class GameScene extends Phaser.Scene {
   }
 
   create(): void {
+    this.dungeonLeft = false; this.dungeonT = 0;
     this.resultBtns = []; // Phaser reuses this scene object: forget buttons from the last match
     this.perkUi = [];
     this.rampage = {};
@@ -338,7 +341,7 @@ export class GameScene extends Phaser.Scene {
 
   // ---------------------------------------------------------------- pause menu
   private bossSeats(): number[] {
-    return this.story?.bosses ?? this.initData?.gauntlet?.bosses ?? this.initData?.dessert?.bosses ?? this.initData?.trial?.bosses ?? [];
+    return this.story?.bosses ?? this.initData?.dungeon?.bosses ?? this.initData?.gauntlet?.bosses ?? this.initData?.dessert?.bosses ?? this.initData?.trial?.bosses ?? [];
   }
 
   /** Builds the GameData for a Gauntlet wave (you keep your kaiju; rivals and table are random). */
@@ -615,7 +618,9 @@ export class GameScene extends Phaser.Scene {
   /** Results screens: clickable REMATCH / CONTINUE and MENU (keys still work). */
   private updateResultButtons(dt: number): void {
     const gLost = !!this.initData.gauntlet && this.world.winner !== 0 && (this.initData.gauntlet.lives ?? GAUNTLET.lives) <= 1;
-    const show = this.world.phase === 'matchEnd' && !this.replay && !this.story && (!this.initData.gauntlet || gLost) && (!this.initData.dessert || this.world.winner !== 0) && !this.initData.attract && this.net?.role !== 'guest' && this.world.phaseT > 1;
+    this.dungeonT = this.world.phase === 'matchEnd' ? this.dungeonT + dt : 0;
+    if (this.initData.dungeon && this.dungeonT > 3 && !this.dungeonLeft) { this.dungeonLeft = true; this.backToDungeon(this.world.winner === 0); }
+    const show = this.world.phase === 'matchEnd' && !this.replay && !this.story && !this.initData.dungeon && (!this.initData.gauntlet || gLost) && (!this.initData.dessert || this.world.winner !== 0) && !this.initData.attract && this.net?.role !== 'guest' && this.world.phaseT > 1;
     if (show && !this.resultBtns.length) {
       const cupNext = !!this.initData.cup;
       this.resultBtns = [
@@ -651,7 +656,27 @@ export class GameScene extends Phaser.Scene {
     }
   }
 
+  /** 🗝 Dinner Dungeon: your relics, on your kaiju, at the start of the room. */
+  private applyRelics(p: Player, ids: string[]): void {
+    const fx = relicFx(ids), base = p.kit;
+    if (base) p.kit = { ...base, mods: { ...base.mods, speed: (base.mods.speed ?? 1) * (fx.speed ?? 1), throwSpeed: (base.mods.throwSpeed ?? 1) * (fx.throwSpeed ?? 1), dashCD: (base.mods.dashCD ?? 1) * (fx.dashCD ?? 1), weight: (base.mods.weight ?? 1) * (fx.weight ?? 1), grip: (base.mods.grip ?? 1) * (fx.grip ?? 1), reach: (base.mods.reach ?? 0) + (fx.reach ?? 0) } };
+    if (fx.belly) p.meter = Math.min(100, p.meter + fx.belly);
+    if (fx.shield) p.shieldT = Math.max(p.shieldT, 60);
+    if (fx.ghost) p.invT = Math.max(p.invT, RULES.countdown + fx.ghost);
+    if (fx.hot) p.speedT = Math.max(p.speedT, 8);
+    if (fx.sugar) p.sugarT = Math.max(p.sugarT, 60);
+    if (fx.cutlery) { const c = this.world.cutlery.find(x => x.id === p.holding); if (c) c.kind = fx.cutlery; }
+  }
+  private dungeonLeft = false;
+  private dungeonT = 0;
+  private backToDungeon(won: boolean): void {
+    const d = this.initData.dungeon;
+    if (!d) return;
+    this.scene.start('dungeon', { result: { room: d.room, won, kos: this.world.players[0]?.kos ?? 0 } });
+  }
+
   private leave(): void {
+    if (this.initData.dungeon) { if (!this.dungeonLeft) { this.dungeonLeft = true; this.backToDungeon(this.world.phase === 'matchEnd' && this.world.winner === 0); } return; } // quitting a room counts as losing it
     if (this.story) { this.scene.start('story', { campaign: this.story.campaign }); return; }
     if (this.initData.gauntlet || this.initData.daily) { this.scene.start('title'); return; }
     if (this.mode === 'practice') { this.scene.start(this.initData.from ?? 'help', this.initData.lab ? { show: this.species[0] } : undefined); return; }
@@ -761,6 +786,7 @@ export class GameScene extends Phaser.Scene {
           // 👑 Story boss PHASE 2: once a boss has lost a round it comes back faster and shielded (each later round)
           if (this.story) for (const b of this.bossSeats()) { const bp = w.players[b]; if (bp && e.round > 1 && bp.score < e.round - 1) { bp.speedT = Math.max(bp.speedT, 60); bp.shieldT = Math.max(bp.shieldT, 60); if (!this.bossPhase2) { this.bossPhase2 = true; this.time.delayedCall(400, () => { sfx.roar(this.species[b]); this.shake(0.01, 300); this.popup(VIEW.w / 2, VIEW.h / 2 - 120, `👑 PHASE 2! ${bp.name} is FURIOUS`, '#ff5a4a', 40); this.popup(VIEW.w / 2, VIEW.h / 2 - 66, 'faster, and shielded from the first hit', '#ffd9a0', 20); }); } } }
           for (const pk of this.initData.gauntlet?.perks ?? []) GAUNTLET_PERKS.find(q => q.id === pk)?.apply(w.players[0]); // bosses can go KAIJU straight away
+          if (this.initData.dungeon && w.players[0]) this.applyRelics(w.players[0], this.initData.dungeon.relics);
           if (this.story?.helping && w.players[0]) { w.players[0].meter = 100; w.players[0].shieldT = Math.max(w.players[0].shieldT, 60); } // 🍀 helping hand: start ready to go KAIJU, with a shield
           if (this.story?.spicy) w.players.forEach((p, k) => { if (k > 0 && p.meter < 100) p.meter = SPICY_START_BELLY; }); // 🌶️ rivals start half-full
           this.parts = [];
@@ -834,7 +860,7 @@ export class GameScene extends Phaser.Scene {
           this.announce(e);
           this.replayBuf.markKo();
           if (e.by !== null && e.by !== e.id && this.net?.role !== 'guest' && this.slots[e.by]?.kind === 'bot' && Math.random() < BOT_EMOTE_CHANCE) this.time.delayedCall(250, () => this.handleEvents([{ type: 'emote', id: e.by!, n: Math.floor(Math.random() * EMOTES.length) }]));
-          if (this.initData.gauntlet && e.id === 0 && w.phase === 'play') w.endRound(w.alivePlayers().slice(0, 1)); // one life: the wave is lost
+          if ((this.initData.gauntlet || this.initData.dungeon) && e.id === 0 && w.phase === 'play') w.endRound(w.alivePlayers().slice(0, 1)); // one life: the wave / room is lost
           break;
         case 'handWarn': sfx.handWarn(); if (e.target !== null && this.isHuman(e.target)) { const tp = this.world.players[e.target]; this.popup(tp.x, tp.y - 60, this.handExplained ? (tp.meter >= 100 ? '✋ HAND INCOMING: STOMP NOW!' : '✋ HAND INCOMING: DASH as it arrives!') : '✋ THE GIANT HAND WANTS YOU (fullest belly)! STOMP, or DASH as it arrives!', '#ffb347', 20); this.handExplained = true; } break; // every time it's after YOU
         case 'handSweep': sfx.handSweep(); this.shake(0.006, 400); break;
@@ -1380,7 +1406,7 @@ export class GameScene extends Phaser.Scene {
     if (e.type === 'roundEnd' && this.humanWon(e.winner)) t.rounds++;
     if (e.type !== 'matchEnd') return;
     const won = this.humanWon(e.winner), vsBots = this.slots.filter(s => s.kind !== 'bot').length === 1;
-    if (!this.story && !this.initData.gauntlet && !this.initData.daily && !this.initData.dessert && vsBots) GameScene.lossRun = won ? 0 : GameScene.lossRun + 1;
+    if (!this.story && !this.initData.gauntlet && !this.initData.dungeon && !this.initData.daily && !this.initData.dessert && vsBots) GameScene.lossRun = won ? 0 : GameScene.lossRun + 1;
     this.firstService(won);
     this.receipt = recordMatch({
       species: this.species[me], won, kos: t.kos, kaijus: t.kaijus, crumbs: t.crumbs, roundsWon: t.rounds, parries: t.parries,
@@ -1407,7 +1433,7 @@ export class GameScene extends Phaser.Scene {
   private firstService(won: boolean): void {
     const done: string[] = [];
     const tickStep = (id: string) => { const s = completeStep(id); if (s) done.push(`🍽 FIRST SERVICE: ${s.text} ✔ +${s.reward} 🪙`); };
-    if (!this.story && !this.initData.gauntlet && !this.initData.daily && !this.initData.dessert && this.mode === 'classic' && !this.initData.cup) tickStep('match');
+    if (!this.story && !this.initData.gauntlet && !this.initData.dungeon && !this.initData.daily && !this.initData.dessert && this.mode === 'classic' && !this.initData.cup) tickStep('match');
     if (this.mode !== 'classic' || this.initData.cup) tickStep('party');
     if (this.story && won && this.story.chapter === 0 && (this.story.campaign ?? 'main') === 'main') tickStep('story');
     this.firstServiceLines = done;
@@ -1830,6 +1856,7 @@ export class GameScene extends Phaser.Scene {
       if (this.initData.cup) { const n = cupGames(w.players.length).length, fin = this.initData.cup.game + 1 >= n; sub = `🏆 PARTY CUP · GAME ${this.initData.cup.game + 1}/${n}${fin ? ` · FINAL: ×${FINAL_MULTIPLIER} POINTS` : ''} · ${modeDef(w.mode).name} · ${w.layout.name}`; }
       if (this.initData.dessert) { const c = COURSES[this.initData.dessert.course]; sub = `🍰 DESSERT COURSE ${this.initData.dessert.course + 1}/${COURSES.length} · ${c.title.toUpperCase()} · ${w.layout.name}`; }
       if (this.initData.daily) sub = `${this.initData.daily.spicy ? '🌶️ SPICY DAILY' : '📅 DAILY'} · ${w.players.length - 1} rivals (${(this.initData.botLevels ?? []).filter(Boolean).join(', ')}) · win to keep your 🔥 streak · ${w.layout.name}\n${dailyMedalLine(this.initData.daily.date)}`;
+      if (this.initData.dungeon) { const dd = this.initData.dungeon; sub = `🗝 DINNER DUNGEON · ${DUNGEON.floors[dd.floor] ?? ''} · ${ROOM_INFO[dd.kind as RoomKind]?.icon ?? ''} ${ROOM_INFO[dd.kind as RoomKind]?.name ?? ''} · ONE LIFE · ${w.players.length - 1} rivals${dd.relics.length ? ` · 🎒 ${dd.relics.length} relic${dd.relics.length > 1 ? 's' : ''}` : ''}`; }
       if (this.initData.gauntlet) sub = `GAUNTLET · ${waveCourse(this.initData.gauntlet.wave)} · WAVE ${this.initData.gauntlet.wave}${this.initData.gauntlet.wave % GAUNTLET.bossEvery === 0 ? ' (COURSE BOSS)' : ''} · ❤ ${this.initData.gauntlet.lives ?? GAUNTLET.lives} · ${w.players.length - 1} rival${w.players.length > 2 ? 's' : ''}${this.bossSeats().length ? ' + 👑 BOSS' : ''} · ${w.layout.name}`;
       if (w.mutator !== 'none') sub += `\n⚡ TWIST: ${twistName(w.mutator, w.mutator2)} — ${twistBlurb(w.mutator, w.mutator2)}`;
       if (this.tip) sub += `\n\n💡 ${this.tip}`;
@@ -1865,6 +1892,9 @@ export class GameScene extends Phaser.Scene {
       const n = this.initData.dessert.course, last = n === COURSES.length - 1;
       if (w.winner === 0) { main = last ? 'CLEAN PLATE!' : `COURSE ${n + 1} CLEARED!`; color = '#ffd24a'; sub = last ? 'You finished the whole Dessert Course! 🍰' : `Next: ${COURSES[n + 1].title}`; }
       else { main = 'TOO MUCH DESSERT'; color = '#ff8a7a'; sub = `Beaten on course ${n + 1}. Your progress is saved.\n\n↻ RETRY: 1 / ENTER / click   ·   Esc: back to the map`; }
+    } else if (w.phase === 'matchEnd' && this.initData.dungeon) {
+      if (w.winner === 0) { main = this.initData.dungeon.kind === 'boss' ? 'BOSS BEATEN!' : 'ROOM CLEARED!'; color = '#8dff6a'; sub = 'Back to the dungeon map…'; }
+      else { main = 'KNOCKED OUT!'; color = '#ff8a7a'; sub = 'You lose a life. Back to the map…'; }
     } else if (w.phase === 'matchEnd' && this.initData.gauntlet) {
       const wave = this.initData.gauntlet.wave;
       const lives = this.initData.gauntlet.lives ?? GAUNTLET.lives;

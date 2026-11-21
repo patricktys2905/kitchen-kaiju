@@ -10,6 +10,7 @@ import {
   cutleryAngle, drawBelt, drawBlender, drawBurner, drawCheesePuddle, drawCheeseWarn, drawSpatula, drawSpill, drawSticky, drawToast, drawToasterWarn, drawTurnArrows, drawTurntable, drawChopMark, drawCleaverBlade, drawCleaverWarn, drawCrumbs, drawCutlery, drawCutleryGlow, drawFloor,
   drawHand, drawKaiju, drawObstacle, drawObstacleShadow, drawMat, drawPlayerOver, drawPlayerUnder, drawTableFrame, drawTableRim,
   drawTableSurface, drawWind, playerAlpha,
+  lobLift,
 } from './draw';
 
 /** Which kaiju each player is, and their colour. */
@@ -230,7 +231,7 @@ export class ArtRenderer {
     if (!hasArt(key)) { drawCutlery(over, c, this.looks.colors, t); return; }
     drawCutleryGlow(under, c, this.looks.colors, t);
     const img = this.pool.take(key, depth);
-    const s = (CUTLERY_LEN[c.kind] * (c.state === 'flying' ? 1.1 : 1)) / img.width;
+    const s = (CUTLERY_LEN[c.kind] * (c.state === 'flying' ? 1.1 * lobLift(c) : 1)) / img.width;
     img.setScale(s).setRotation(cutleryAngle(c)).setPosition(c.x, c.y);
   }
 

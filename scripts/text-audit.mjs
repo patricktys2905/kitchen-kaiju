@@ -164,6 +164,12 @@ await start('title', {}, 1500); await pg.evaluate(() => { const t = window.__gam
 await start('title', {}, 1500); await pg.evaluate(() => { window.__game.scene.getScene('title').dailyCard(); }); await wait(300); await audit('daily preview card');
 await pg.evaluate(() => { localStorage.setItem('kk-name', 'Pat'); const t = window.__game.scene.getScene('title'); t.friendBoard(); }); await wait(400); await audit('daily friend board');
 await start('records', {}, 2500); await pg.evaluate(() => { window.__game.scene.getScene('records').toggleGoals(); }); await wait(800); await audit('records goals board');
+// 🗝 Dinner Dungeon: start screen, map, pantry and shop overlays
+await pg.evaluate(() => localStorage.removeItem('kk-dungeon-v1')); await start('dungeon', {}, 1500); await audit('dungeon start');
+await pg.evaluate(() => { const d = window.__game.scene.getScene('dungeon'); d.buttons.find(b => b.label.text.includes('START')).o.onClick(); }); await wait(1500); await audit('dungeon map');
+await pg.evaluate(() => { const r = JSON.parse(localStorage.getItem('kk-dungeon-v1')); r.relics = ['holster', 'boots', 'piggy', 'doggybag', 'mustard', 'breakfast']; r.treasure = ['scoopbelt', 'sugar', 'mitts']; localStorage.setItem('kk-dungeon-v1', JSON.stringify(r)); window.__game.scene.getScene('dungeon').scene.restart({ msg: '💔 Lost the room. 2 lives left. Try a different path?' }); }); await wait(1200); await audit('dungeon pantry');
+await pg.evaluate(() => { const r = JSON.parse(localStorage.getItem('kk-dungeon-v1')); r.treasure = undefined; r.coins = 80; r.shop = { offers: ['soda', 'gravy', 'magnet'], bought: ['gravy'], healed: false }; localStorage.setItem('kk-dungeon-v1', JSON.stringify(r)); window.__game.scene.getScene('dungeon').scene.restart({}); }); await wait(1200); await audit('dungeon shop');
+await pg.evaluate(() => localStorage.removeItem('kk-dungeon-v1'));
 // trial result + move lab + cup final
 await pg.evaluate(() => { const g = window.__game; for (const s of g.scene.getScenes(true)) s.scene.stop(); const GS = g.scene.getScene('game').constructor; g.scene.start('game', GS.trialData('crowd')); }); await wait(3500); await audit('trial countdown');
 await pg.evaluate(() => { const w = window.__game.scene.getScene('game').world; w.players[0].score = w.opts.target - 1; w.endRound([w.players[0]]); }); await wait(4000); await audit('trial result');

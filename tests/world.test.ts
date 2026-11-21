@@ -113,6 +113,46 @@ describe('throwing', () => {
     expect(ev.find(e => e.type === 'catch')).toMatchObject({ id: 0, from: 0 });
     expect(w.players[0].holding).toBe(id);
   });
+
+  // 🆕 expansion cutlery (the gravy boat sits across y = 370 on Sunday Roast)
+  it('a skewer flies through the gravy boat; a fork sticks in it', () => {
+    for (const [kind, hits] of [['skewer', true], ['fork', false]] as const) {
+      const w = makeWorld(2, kind);
+      place(w, 0, 300, 370);
+      place(w, 1, 900, 370);
+      run(w, 1.2, t => [tap(1, 0, t)]);
+      expect(w.players[1].alive).toBe(!hits);
+    }
+  });
+
+  it('a whisk curls to the right as it flies', () => {
+    const w = makeWorld(2, 'whisk');
+    place(w, 0, 200, 160); // above the cups
+    place(w, 1, 1100, 650);
+    const id = w.players[0].holding!;
+    run(w, 0.6, t => [tap(1, 0, t)]);
+    const c = w.cutlery.find(x => x.id === id)!;
+    expect(c.state).toBe('flying');
+    expect(c.y).toBeGreaterThan(200);
+  });
+
+  it('a lobbed scoop flies over the first kaiju and splats the one where it lands', () => {
+    const w = makeWorld(3, 'scoop');
+    place(w, 0, 200, 200);
+    place(w, 1, 400, 200); // under the flight path
+    place(w, 2, 630, 200); // where it comes down (≈ 400 px away)
+    run(w, 1.4, t => [tap(1, 0, t)]);
+    expect(w.players[1].alive).toBe(true);
+    expect(w.players[2].alive).toBe(false);
+  });
+
+  it('a cheese grater sprays three shards', () => {
+    const w = makeWorld(2, 'grater');
+    place(w, 0, 200, 200);
+    place(w, 1, 1100, 650);
+    run(w, 0.1, t => [tap(1, 0, t)]);
+    expect(w.cutlery.filter(c => c.state === 'flying' && c.kind === 'grater').length).toBe(3);
+  });
 });
 
 describe('close combat', () => {

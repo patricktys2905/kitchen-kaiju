@@ -22,6 +22,7 @@ import { LAYOUTS } from '../sim/layouts';
 import { DAILY, dailySetup, loadDaily, spicyWonToday, todayKey, weekStrip } from '../daily';
 import { addFriend, clearFriends, loadFriends, playerName, resultLine, score, setPlayerName, type FriendResult } from '../friendBoard';
 import { modeDef } from '../sim/modes';
+import { DUNGEON, loadRun } from '../dungeon';
 import { GameScene } from './GameScene';
 import { owned } from '../story/unlocks';
 import { loadStats } from '../stats';
@@ -202,8 +203,11 @@ export class TitleScene extends Phaser.Scene {
     const pureLabel = () => `🧼 PURE RUN: ${GameScene.pureRun ? 'ON' : 'OFF'}`;
     const pb: Button = new Button(this, 640, 382, { w: 400, h: 36, label: pureLabel(), sub: '', size: 15, accent: 0x8dd8ff, onClick: () => { GameScene.pureRun = !GameScene.pureRun; sfx.pickup(); pb.setText(pureLabel(), GameScene.pureRun ? `no Pantry items · pure best ${pureBest()}` : ''); } }, 31);
     this.challengeUi.push(pb); this.extraBtns.push(pb);
-    const tr = new Button(this, 640, 460, { w: 520, h: 84, label: '🎯 TRIALS', sub: `${TRIALS.length} fixed hard fights · 3 stars each · you have ${totalTrialStars()}★`, size: 26, accent: 0x8dd8ff, onClick: () => { sfx.go(); this.scene.start('trials'); } }, 31);
+    const tr = new Button(this, 465, 460, { w: 330, h: 84, label: '🎯 TRIALS', sub: `${TRIALS.length} hard fights · you have ${totalTrialStars()}★`, size: 24, accent: 0x8dd8ff, onClick: () => { sfx.go(); this.scene.start('trials'); } }, 31);
     this.challengeUi.push(tr); this.extraBtns.push(tr);
+    const dr = loadRun();
+    const dgn = new Button(this, 815, 460, { w: 330, h: 84, label: '🗝 DINNER DUNGEON', sub: dr ? `CONTINUE · ${DUNGEON.floors[dr.floor]} · ${'❤'.repeat(dr.lives)}` : 'roguelike: map, relics, 3 bosses', size: 22, accent: 0xff9a3a, onClick: () => { sfx.go(); this.scene.start('dungeon'); } }, 31);
+    this.challengeUi.push(dgn); this.extraBtns.push(dgn);
   }
 
   /** A bot-only demo match on a random table; any input returns to the title (see GameScene attract). */

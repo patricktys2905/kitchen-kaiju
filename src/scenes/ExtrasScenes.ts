@@ -5,14 +5,14 @@ import { sfx } from '../audio';
 import { clearTaps } from '../input';
 import { playMusic } from '../music';
 import { fitInside, hasArt, kaijuKey, silhouetteKey } from '../render/art';
-import { drawFloor } from '../render/draw';
+import { drawCutleryShape, drawFloor } from '../render/draw';
 import { body, display, popIn, withShadow } from '../render/fonts';
 import { Button, FocusNav } from '../render/ui';
 import { KITS, powerCooldown, powerReach } from '../sim/powers';
 import HEADS from '../render/heads.json';
 import { getSettings, LEVELS, setSetting, SETTINGS_ROWS, type Settings } from '../settings';
 import { SPECIES } from '../sim/constants';
-import { CUTLERY, RARE_KINDS, type CutleryKind } from '../sim/cutlery';
+import { CUTLERY, CUTLERY_NOTE, RARE_KINDS, type CutleryKind } from '../sim/cutlery';
 import { LAYOUTS } from '../sim/layouts';
 import { enabledModes } from '../sim/modes';
 import { enabledMutators } from '../sim/mutators';
@@ -33,7 +33,7 @@ import { ACTIONS, bind, keyFor, keyHint, keyLabel, RESERVED, resetKeybinds, type
 import { bindPad, PAD_MAP, PAD_NAMES, padButtonsDown, padHint, resetPadBinds, type PadAction } from '../input';
 
 /** Shared backdrop, title, BACK button and keyboard/pad focus handling. */
-abstract class PanelScene extends Phaser.Scene {
+export abstract class PanelScene extends Phaser.Scene {
   protected nav!: FocusNav;
   protected buttons: Button[] = [];
   protected t = 0;
@@ -311,9 +311,10 @@ export class HelpScene extends PanelScene {
       ]).join('\n'), 16, '#e9dccb');
     } else if (p === 'cutlery') {
       (Object.keys(CUTLERY) as CutleryKind[]).forEach((k, i) => {
-        const d = CUTLERY[k], x = 110 + (i % 2) * 560, y = 172 + Math.floor(i / 2) * 128;
-        if (hasArt(`cut-${k}`)) this.content.push(fitInside(this.add.image(x + 40, y + 44, `cut-${k}`).setRotation(-0.6), 84, 84).setDepth(5));
-        head(x + 110, y + 8, d.name.toUpperCase());
+        const d = CUTLERY[k], x = 40 + (i % 3) * 410, y = 166 + Math.floor(i / 3) * 128;
+        if (hasArt(`cut-${k}`)) this.content.push(fitInside(this.add.image(x + 36, y + 44, `cut-${k}`).setRotation(-0.6), 70, 70).setDepth(5));
+        else { const g = this.add.graphics().setDepth(5); drawCutleryShape(g, k, x + 36, y + 44, -0.6, 1.3); this.content.push(g); }
+        head(x + 84, y + 8, d.name.toUpperCase());
         const traits = [
           d.speed >= 900 ? 'very fast' : d.speed <= 560 ? 'slow' : 'quick',
           d.range >= 600 ? 'long range' : d.range <= 400 ? 'short range' : 'medium range',
@@ -321,9 +322,11 @@ export class HelpScene extends PanelScene {
           d.bounces ? `bounces ${d.bounces}× off walls` : '',
           d.returns ? 'comes back like a boomerang' : '',
           d.heavy ? 'HEAVY: keeps going after a hit and shoves loose cutlery' : '',
+          CUTLERY_NOTE[k] ?? '',
           RARE_KINDS.includes(k) ? 'rare pickup only' : '',
         ].filter(Boolean).join(' · ');
-        txt(x + 110, y + 44, traits, 16, '#e9dccb', 400);
+        txt(x + 84, y + 40, traits, 14, '#e9dccb', 310);
+        { const t = this.content[this.content.length - 1] as Phaser.GameObjects.Text; for (let f = 14; t.height > 84 && f > 10;) t.setFontSize(--f); }
       });
     } else if (p === 'tables') {
       const own = owned().tables, tc = tableCount();
