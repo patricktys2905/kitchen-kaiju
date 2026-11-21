@@ -154,6 +154,7 @@ export class LobbyScene extends Phaser.Scene {
     this.leaving = true;
     this.host?.close();
     this.guest?.close();
+    if (this.couch) { this.scene.start('menu', { party: true, mode: this.mode, rounds: this.rounds, difficulty: this.difficulty, powerups: this.powerups, hazards: this.hazards, mutator: this.mutator }); return; } // 📱 a couch room came from Party Modes: go back there
     this.scene.start('title');
   }
 
@@ -255,7 +256,7 @@ export class LobbyScene extends Phaser.Scene {
       return `<div class="seat" style="border-color:${sp.css}">
         <img src="${img}" alt="">
         <div class="k" style="color:${sp.css}">${sp.full}<div class="who">${esc(s.name)}${mine && s.who !== 'host' ? ' (you)' : ''}${this.tvMode && s.who === 'host' ? ' · 📺 watching, not playing' : ''}${s.route === 'backup' ? ' · backup route (slower)' : s.route === 'direct' ? ' · direct link' : ''}${(() => { const ms = s.who === 'guest' && this.host && s.guest !== undefined ? this.host.rttOf(s.guest) : s.who === 'host' && this.guest ? this.guest.rtt : undefined; return ms === undefined ? '' : ` · ${ms < 80 ? '🟢' : ms < 160 ? '🟡' : '🔴'} ${ms} ms`; })()}</div></div>
-        ${mine ? `<button data-pick="-1">◀</button><button data-pick="1">▶</button>` : ''}
+        ${mine && !(this.tvMode && s.who === 'host') ? `<button data-pick="-1">◀</button><button data-pick="1">▶</button>` : ''}
       </div>`;
     }).join('');
     let html = '';

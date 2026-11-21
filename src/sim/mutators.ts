@@ -34,6 +34,9 @@ export const MUTATOR_COMBOS: [Mutator, Mutator][] = [['ice', 'turbo'], ['tiny', 
 export const twistChoices = (): [Mutator, Mutator][] => [...enabledMutators().map((m): [Mutator, Mutator] => [m.id, 'none']), ...MUTATOR_COMBOS];
 export const twistName = (a: Mutator, b: Mutator = 'none'): string => (b === 'none' ? mutatorDef(a).name : `${mutatorDef(a).name} + ${mutatorDef(b).name}`);
 /** Short label for small buttons: ICE + TURBO. */
-export const twistShort = (a: Mutator, b: Mutator = 'none'): string => (b === 'none' ? mutatorDef(a).name : `${mutatorDef(a).name.split(' ').pop()} + ${mutatorDef(b).name.split(' ').pop()}`);
+/** One clear word per twist for ⚡⚡ double labels (EASY TO CUSTOMISE). Falls back to the name's first word. */
+export const TWIST_WORD: Partial<Record<Mutator, string>> = { frenzy: 'FRENZY', turbo: 'TURBO', boomerang: 'BOOMERANGS', giant: 'GIANT', ice: 'ICE', snack: 'SNACKS', fists: 'FISTS', bouncy: 'BOUNCY', mirror: 'MIRROR', tiny: 'MINI' };
+const word = (m: Mutator) => TWIST_WORD[m] ?? mutatorDef(m).name.split(' ')[0];
+export const twistShort = (a: Mutator, b: Mutator = 'none'): string => (b === 'none' ? mutatorDef(a).name : `${word(a)} + ${word(b)}`);
 export const twistBlurb = (a: Mutator, b: Mutator = 'none'): string => (b === 'none' ? mutatorDef(a).blurb : `${mutatorDef(a).blurb}. ${mutatorDef(b).blurb}`);
 export const mutatorDef = (id: Mutator) => MUTATORS.find(m => m.id === id) ?? MUTATORS[0];

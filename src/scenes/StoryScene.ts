@@ -2,7 +2,7 @@
 import * as Phaser from 'phaser';
 import { sfx } from '../audio';
 import { clearTaps, consumeTap, listDevices, readSlot, type Slot } from '../input';
-import { fitInside, hasArt } from '../render/art';
+import { fitInside, hasArt, silhouetteKey } from '../render/art';
 import { drawFloor } from '../render/draw';
 import { body, display, popIn, withShadow } from '../render/fonts';
 import { Button } from '../render/ui';
@@ -323,7 +323,7 @@ export class StoryScene extends Phaser.Scene {
         if (lock) { sfx.thwock(); return; }
         sfx.go(); this.scene.restart({ campaign: id });
       } }, 31);
-      if (c.hero !== undefined && hasArt(`kaiju-${c.hero}`)) { const img = fitInside(this.add.image(x - 222, y, `kaiju-${c.hero}`), 40, 44).setDepth(33); if (lock) img.setTint(0x1a1410); this.overlay.push(img); }
+      if (c.hero !== undefined && hasArt(`kaiju-${c.hero}`)) { const img = fitInside(this.add.image(x - 222, y, `kaiju-${c.hero}`), 40, 44).setDepth(33); if (lock) img.setTexture(silhouetteKey(this, `kaiju-${c.hero}`)); this.overlay.push(img); }
       this.overlayButtons.push(b);
     });
     this.overlayFocus = Math.max(0, CAMPAIGN_ORDER.indexOf(this.camp.id));
@@ -593,9 +593,9 @@ Next course: ${nextCh.title}. ${nextRival} is already sharpening the cutlery…`
       this.overlay.push(card);
       const key = u.kind === 'kaiju' ? `kaiju-${u.index}` : LAYOUTS[u.index].table;
       if (hasArt(key)) {
-        const img = this.add.image(x + 40, y + ch / 2, key).setDepth(32);
+        const img = this.add.image(x + 40, y + ch / 2, !got && u.kind === 'kaiju' ? silhouetteKey(this, key) : key).setDepth(32);
         if (u.kind === 'kaiju') fitInside(img, 64, 64); else img.setDisplaySize(68, 40);
-        if (!got) img.setTint(0x1a1410); // locked: a dark silhouette
+        if (!got && u.kind !== 'kaiju') img.setAlpha(0.3); // locked table: dimmed (kaiju get a real silhouette)
         this.overlay.push(img);
       }
       const name = got ? unlockName(u) : u.kind === 'kaiju' ? '??? (mystery kaiju)' : `${unlockName(u)} (table)`;

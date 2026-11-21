@@ -23,7 +23,7 @@ export const TRIALS: Trial[] = [
   { id: 'crowd', name: 'Dinner Rush', desc: 'Five rivals at once. Survive the crowd.', you: 5, rivals: [2, 4, 9, 12, 14].map(s => ({ species: s, level: 'normal' as Difficulty })), table: 4, rounds: 2, kos: 6 },
   { id: 'tiny', name: 'Pocket Monsters', desc: 'Mini Kaiju + Kaiju Frenzy. Tiny, quick and huge.', you: 13, rivals: [{ species: 0, level: 'hard' }, { species: 3, level: 'hard' }], table: 8, rounds: 2, mutator: 'tiny', mutator2: 'frenzy', kos: 4 },
   { id: 'brutal', name: 'Brutal Bot', desc: 'One BRUTAL rival. The hardest bot in the game.', you: 7, rivals: [{ species: 9, level: 'brutal' }], table: 3, rounds: 3, kos: 4 },
-  { id: 'gauntlet', name: 'Chef\'s Table', desc: 'Three HARD rivals and a boom-rang twist.', you: 4, rivals: [{ species: 11, level: 'hard' }, { species: 12, level: 'hard' }, { species: 10, level: 'hard' }], table: 10, rounds: 2, mutator: 'boomerang', mutator2: 'giant', kos: 5 },
+  { id: 'gauntlet', name: 'Chef\'s Table', desc: 'Three HARD rivals and a boomerang twist.', you: 4, rivals: [{ species: 11, level: 'hard' }, { species: 12, level: 'hard' }, { species: 10, level: 'hard' }], table: 10, rounds: 2, mutator: 'boomerang', mutator2: 'giant', kos: 5 },
 ];
 
 export const TRIAL_TOKENS = 20; // per new star

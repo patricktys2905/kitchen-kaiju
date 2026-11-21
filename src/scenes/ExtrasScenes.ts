@@ -4,7 +4,7 @@ import * as Phaser from 'phaser';
 import { sfx } from '../audio';
 import { clearTaps } from '../input';
 import { playMusic } from '../music';
-import { fitInside, hasArt, kaijuKey } from '../render/art';
+import { fitInside, hasArt, kaijuKey, silhouetteKey } from '../render/art';
 import { drawFloor } from '../render/draw';
 import { body, display, popIn, withShadow } from '../render/fonts';
 import { Button, FocusNav } from '../render/ui';
@@ -334,7 +334,7 @@ export class HelpScene extends PanelScene {
         const locked = !own.includes(i);
         if (hasArt(l.table)) {
           const img = this.add.image(x + 34, y + 24, l.table).setDisplaySize(64, 36).setDepth(5);
-          if (locked) img.setTint(0x333333);
+          if (locked) img.setAlpha(0.3); // (tints don't show in every browser)
           this.content.push(img);
         }
         this.content.push(this.add.text(x + 76, y + 2, `${locked ? '🔒 ' : ''}${l.name}`, display(17, locked ? '#a89680' : '#ffe9c7', { strokeThickness: 3 })).setDepth(5));
@@ -406,8 +406,7 @@ export class GalleryScene extends PanelScene {
       const b = new Button(this, x, y, { w: 108, h: 118, label: '', size: 12, accent: (loadMeta().xp[i] ?? 0) >= MASTERY.levels[4] ? 0xffd24a : sp.color, /* 🖼 gold frame at Mastery Lv 5 */ onClick: () => { this.nav.index = i; this.showDetail(i, true); } }, 6);
       this.buttons.push(b);
       if (hasArt(`kaiju-${i}`)) {
-        const img = fitInside(this.add.image(x, y - 6, `kaiju-${i}`), 86, 80).setDepth(8);
-        if (!own.includes(i)) img.setTint(0x1a1410);
+        fitInside(this.add.image(x, y - 6, own.includes(i) ? `kaiju-${i}` : silhouetteKey(this, `kaiju-${i}`)), 86, 80).setDepth(8);
       }
       { const t = this.add.text(x, y + 44, own.includes(i) ? `${isShiny(i) ? '✨' : ''}${sp.name}` : '???', body(11, own.includes(i) ? sp.css : '#a89680', 900)).setOrigin(0.5).setDepth(8); if (t.width > 100) t.setScale(100 / t.width); } // long names (and Kid Mode text) stay on the tile
     });
@@ -547,7 +546,7 @@ export class GalleryScene extends PanelScene {
     g.clear();
     COLOURS.forEach((c, k) => {
       const got = colourUnlocked(c);
-      this.colIcons[k].setTint(got ? 0xffffff : 0x2a2420);
+      this.colIcons[k].setAlpha(got ? 1 : 0.22); // locked: faded (the 🔒 sits on top; tints don't show in every browser)
       if (c.id === cur.id) { g.lineStyle(3, 0x8dff6a, 1); g.strokeRoundedRect(this.colX(k) - this.colStep / 2 + 1, 366, this.colStep - 2, 64, 12); }
       this.colLocks[k]?.setVisible(!got);
     });
@@ -573,9 +572,8 @@ export class GalleryScene extends PanelScene {
     this.detail.push(g);
     for (const [k, x] of [[`kaiju-${i}`, 280], [`kaiju-${i}-rage`, 470]] as const) {
       if (!hasArt(k)) continue;
-      const img = fitInside(this.add.image(x, 595, got ? kaijuKey(this, i, currentColour().id, k.endsWith('-rage')) : k), 180, 160).setDepth(6); // leaves room above for a hat
+      const img = fitInside(this.add.image(x, 595, got ? kaijuKey(this, i, currentColour().id, k.endsWith('-rage')) : silhouetteKey(this, k)), 180, 160).setDepth(6); // leaves room above for a hat
       if (x === 280) { this.previewTop = 595 - img.displayHeight / 2; this.previewW = img.displayWidth; this.previewH = img.displayHeight; }
-      if (!got) img.setTint(0x1a1410);
       this.detail.push(img);
     }
     this.detail.push(withShadow(this.add.text(600, 470, got ? sp.full.toUpperCase() : '??? (LOCKED)', display(36, got ? sp.css : '#a89680', { strokeThickness: 6 })).setDepth(6), 3));

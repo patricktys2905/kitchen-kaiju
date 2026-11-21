@@ -86,6 +86,25 @@ export function fitInside(img: Phaser.GameObjects.Image, w: number, h: number): 
  * 🎨 The texture key for a kaiju in a colour style ('classic' = the original art). The recoloured copy is made
  * once, the first time it's asked for (src/colours.ts lists the styles; src/render/recolor.ts does the pixels).
  */
+/** 🔒 A dark silhouette of any art key (made once, works in WebGL AND Canvas, unlike setTint). */
+export function silhouetteKey(scene: Phaser.Scene, base: string, color = '#1a1410'): string {
+  if (!hasArt(base)) return base;
+  const key = `${base}~sil`;
+  if (scene.textures.exists(key)) return key;
+  try {
+    const src = scene.textures.get(base).getSourceImage() as HTMLImageElement | HTMLCanvasElement;
+    const cv = document.createElement('canvas');
+    cv.width = src.width; cv.height = src.height;
+    const ctx = cv.getContext('2d');
+    if (!ctx) return base;
+    ctx.drawImage(src, 0, 0);
+    ctx.globalCompositeOperation = 'source-in'; // keep the shape, paint it dark
+    ctx.fillStyle = color; ctx.fillRect(0, 0, cv.width, cv.height);
+    scene.textures.addCanvas(key, cv);
+    return key;
+  } catch { return base; }
+}
+
 export function kaijuKey(scene: Phaser.Scene, species: number, colourId: string | undefined, rage = false): string {
   const base = `kaiju-${species}${rage ? '-rage' : ''}`;
   const c = colourById(colourId);

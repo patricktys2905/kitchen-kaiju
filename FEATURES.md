@@ -1158,3 +1158,10 @@ Not done: public rooms / quick-match and a global leaderboard (they need a serve
   - `comic-night4`.
   - `side-norigon`, `side-bloblin`, `side-mothball`, `side-pizza`.
 - **Tests:** every chapter of every campaign is checked (goal fits its mode's player count, team chapters have an ally and enemies, speakers exist), and SURVIVE rounds are tested.
+
+## 80. Outside review round 3 (build 7128e60)
+- **🔒 Locked kaiju are real silhouettes everywhere:** Gallery grid, Gallery detail, Story rewards and the campaign picker. `silhouetteKey()` in `src/render/art.ts` makes a dark copy of the art. `setTint` is ignored by Phaser's Canvas renderer, so in some browsers locked kaiju showed in full colour. Locked colour swatches and locked tables now fade (alpha) instead of being tinted.
+- **⚡⚡ Double-twist labels** use one chosen word per twist (`TWIST_WORD` in `src/sim/mutators.ts`): "FISTS + ICE", "MIRROR + TURBO", "FRENZY + SNACKS" (they were "ONLY + RINK" and similar).
+- **📱 Phones as Pads:** CLOSE ROOM goes back to Party Modes with the same setup, not the title.
+- **📺 TV MODE:** the host card hides its ◀ ▶ kaiju arrows while the host only watches.
+- **Typo:** "boomerang twist" (Trials ▸ Chef's Table).
