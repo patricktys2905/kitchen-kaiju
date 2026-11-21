@@ -20,6 +20,7 @@ import { getSettings } from '../settings';
 import { SPECIES } from '../sim/constants';
 import { LAYOUTS } from '../sim/layouts';
 import { DAILY, dailySetup, loadDaily, spicyWonToday, todayKey, weekStrip } from '../daily';
+import { addFriend, clearFriends, loadFriends, playerName, resultLine, score, setPlayerName, type FriendResult } from '../friendBoard';
 import { modeDef } from '../sim/modes';
 import { GameScene } from './GameScene';
 import { owned } from '../story/unlocks';
@@ -133,12 +134,49 @@ export class TitleScene extends Phaser.Scene {
     const spicy = new Button(this, 670, 528, { w: 220, h: 60, label: '🌶️ SPICY', sub: spicyWonToday(d.date) ? 'beaten today ✔' : `HARD rivals · +${DAILY.spicyTokens} 🪙`, size: 20, accent: 0xff5a1a, onClick: () => { sfx.go(); this.scene.start('game', GameScene.dailyData(true)); } }, 31);
     const back = new Button(this, 880, 528, { w: 170, h: 60, label: '✖ BACK', size: 22, onClick: () => this.challenges(0) }, 31);
     // 📋 compare with friends: everyone plays the same Daily, so a pasted result line is a mini leaderboard
-    const copy: Button = new Button(this, 640, 462, { w: 300, h: 40, label: '📋 COPY MY RESULT', size: 16, accent: 0x8dd8ff, onClick: () => {
-      const r = loadDaily(), medal = ['', '🥉', '🥈', '🥇'][loadMeta().dailyMedal.date === d.date ? loadMeta().dailyMedal.medal : 0];
-      const line = `🍴 Kitchen Kaiju Daily ${d.date} (${md.name}): ${r.date === d.date ? (r.won ? 'WON' : 'not won yet') : 'not played'} ${medal} · best ${r.date === d.date ? r.best : 0} rounds · 🔥${r.streak}${spicyWonToday(d.date) ? ' · 🌶️ SPICY beaten' : ''} · last 7: ${weekStrip()}`;
-      void navigator.clipboard?.writeText(line).catch(() => {}); sfx.pickup(); copy.setText('✔ COPIED: paste it to friends');
+    const mine = (): FriendResult => { const r = loadDaily(), today = r.date === d.date; return { name: playerName() || 'You', date: d.date, won: today && r.won, medal: loadMeta().dailyMedal.date === d.date ? loadMeta().dailyMedal.medal : 0, best: today ? r.best : 0, streak: r.streak, spicy: spicyWonToday(d.date), you: true }; };
+    const ensureName = (): boolean => { if (playerName()) return true; const n = window.prompt('Your name on the friend board (up to 14 letters):', '')?.trim(); if (!n) return false; setPlayerName(n); return true; };
+    // 📋 compare with friends: everyone plays the same Daily, so a pasted result line is a mini leaderboard
+    const copy: Button = new Button(this, 520, 462, { w: 230, h: 40, label: '📋 COPY MY RESULT', size: 16, accent: 0x8dd8ff, onClick: () => {
+      if (!ensureName()) return;
+      const line = resultLine(mine(), md.name, weekStrip());
+      void navigator.clipboard?.writeText(line).catch(() => {}); sfx.pickup(); copy.setText('✔ COPIED', 'paste it to friends');
     } }, 31);
+    const board = new Button(this, 760, 462, { w: 230, h: 40, label: '👥 FRIEND BOARD', size: 16, accent: 0xffd24a, onClick: () => { this.closeCard(); this.friendBoard(); } }, 31);
+    this.challengeUi.push(board); this.extraBtns.push(board);
     this.challengeUi.push(start, spicy, back, copy); this.extraBtns.push(start, spicy, back, copy);
+  }
+
+  /** 👥 today's Daily, ranked: you plus every friend line pasted in (kept on this device). */
+  /** Closes whatever card/overlay is open (never opens CHALLENGES the way the toggle would). */
+  private closeCard(): void { if (this.challengeUi.length) this.challenges(0); }
+
+  private friendBoard(): void {
+    const d = dailySetup();
+    this.closeCard(); // close the Daily card (shares the overlay list)
+    sfx.pickup();
+    const g = this.add.graphics().setDepth(30);
+    g.fillStyle(0x000000, 0.65).fillRect(0, 0, 1280, 720).fillStyle(0x140b05, 1).fillRoundedRect(240, 110, 800, 500, 22).lineStyle(3, 0xffd24a, 1).strokeRoundedRect(240, 110, 800, 500, 22);
+    this.challengeUi.push(g, this.add.zone(640, 360, 1280, 720).setInteractive().setDepth(30));
+    this.challengeUi.push(withShadow(this.add.text(640, 146, `👥 TODAY'S FRIEND BOARD · ${d.date}`, display(28, '#ffd24a', { strokeThickness: 5 })).setOrigin(0.5).setDepth(31), 3));
+    const r = loadDaily(), today = r.date === d.date;
+    const me: FriendResult = { name: playerName() || 'You', date: d.date, won: today && r.won, medal: loadMeta().dailyMedal.date === d.date ? loadMeta().dailyMedal.medal : 0, best: today ? r.best : 0, streak: r.streak, spicy: spicyWonToday(d.date), you: true };
+    const all = [me, ...loadFriends(d.date)].sort((a, b) => score(b) - score(a));
+    const medals = ['', '🥉', '🥈', '🥇'];
+    const rows = all.map((f, k) => `${k === 0 ? '🏆' : `${k + 1}.`} ${f.name}${f.you ? ' (you)' : ''}  ·  ${f.won ? 'WON' : 'not won'} ${medals[f.medal] ?? ''}  ·  best ${f.best}  ·  🔥${f.streak}${f.spicy ? '  ·  🌶️' : ''}`);
+    const t = this.add.text(640, 196, all.length > 1 ? rows.join('\n') : rows[0] + '\n\nNo friends on the board yet. Ask them to play today\'s Daily, press 📋 COPY MY RESULT and send you the line, then 📥 PASTE it here.', body(17, '#f1e4d2', 800, { align: 'center', wordWrap: { width: 720 }, lineSpacing: 8 })).setOrigin(0.5, 0).setDepth(31);
+    for (let f = 17; t.height > 300 && f > 11;) t.setFontSize(--f);
+    this.challengeUi.push(t);
+    const paste = new Button(this, 440, 556, { w: 230, h: 54, label: '📥 PASTE A FRIEND', size: 17, accent: 0x8dff6a, onClick: () => {
+      const line = window.prompt("Paste a friend's 📋 COPY MY RESULT line:", '');
+      if (!line) return;
+      const why = addFriend(line, d.date);
+      if (why) { sfx.thwock(); window.alert(why); return; }
+      sfx.matchWin(); this.closeCard(); this.friendBoard();
+    } }, 31);
+    const clear = new Button(this, 670, 556, { w: 180, h: 54, label: '🗑 CLEAR', size: 17, onClick: () => { clearFriends(d.date); sfx.thwock(); this.closeCard(); this.friendBoard(); } }, 31);
+    const back = new Button(this, 870, 556, { w: 180, h: 54, label: '◀ DAILY', size: 18, onClick: () => { this.closeCard(); this.dailyCard(); } }, 31);
+    this.challengeUi.push(paste, clear, back); this.extraBtns.push(paste, clear, back);
   }
 
   /** 🏁 CHALLENGES: start the Gauntlet (from any course you've reached = checkpoints) or open the Trials. */

@@ -1213,3 +1213,15 @@ Not done: public rooms / quick-match and a global leaderboard (they need a serve
   - After you take a round: "Beginner's luck!", "I slipped!".
 - **Round-end lines play at the next countdown** (`quipNext`, `bossSulk`): pop-ups fade at round end so the banner owns the screen, which also hid last update's boss round-loss quips. Now they're seen.
 - **🛠 Workshop:** the help line under the table now says "🔄 tap a placed prop to turn it · 🗑 ERASE removes". It still said "tap a prop to remove it" after tap-to-turn shipped.
+
+## 84. Friend Board, speech bubbles, replay tidy-up
+- **👥 Daily Friend Board** (`src/friendBoard.ts`, Daily card ▸ 👥 FRIEND BOARD). It needs no server:
+  - Everyone plays the same Daily.
+  - 📋 COPY MY RESULT now includes your name (asked once, the same name Online uses).
+  - Friends paste each other's lines with 📥 PASTE A FRIEND.
+  - The board ranks today's group: a win, then the medal, Spicy, then rounds.
+  - Yesterday's lines and junk are refused. It's kept per day on this device; 🗑 CLEAR empties it.
+- **💬 Story quips are now speech bubbles** (`speak()`): a cream bubble that follows the kaiju for about 3 s.
+  - Pop-ups faded in about 1 s and were capped at 3, so testers missed the quips.
+  - The bubbles hide during the Instant Replay.
+- **⏪ Instant Replay:** the 🎓 Story ch1 tutorial strip hides while the replay runs (it sat on the KO feed).

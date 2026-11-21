@@ -1484,3 +1484,21 @@ describe('new chapter goals', () => {
     expect(w.winner).toBe(2);
   });
 });
+
+describe('daily friend board', () => {
+  it('a copied result line reads back, ranks by win/medal, and only today counts', async () => {
+    const store: Record<string, string> = {};
+    (globalThis as { localStorage?: unknown }).localStorage = { getItem: (k: string) => store[k] ?? null, setItem: (k: string, v: string) => { store[k] = v; }, removeItem: (k: string) => { delete store[k]; } };
+    const { resultLine, parseLine, addFriend, loadFriends, score } = await import('../src/friendBoard');
+    const line = resultLine({ name: 'Sam', date: '2026-11-21', won: true, medal: 3, best: 2, streak: 4, spicy: true }, 'CRUMB RUSH', '✔ · ✖ · · · ✔');
+    expect(parseLine(line)).toMatchObject({ name: 'Sam', won: true, medal: 3, best: 2, streak: 4, spicy: true });
+    expect(addFriend(line, '2026-11-21')).toBeNull();
+    expect(addFriend(line, '2026-11-22')).toMatch(/not today/);
+    expect(addFriend('hello', '2026-11-21')).toMatch(/doesn't look/);
+    const lose = resultLine({ name: 'Ali', date: '2026-11-21', won: false, medal: 1, best: 1, streak: 0, spicy: false }, 'CRUMB RUSH', '·');
+    addFriend(lose, '2026-11-21');
+    const ranked = loadFriends('2026-11-21').sort((a, b) => score(b) - score(a)).map(f => f.name);
+    expect(ranked).toEqual(['Sam', 'Ali']);
+    delete (globalThis as { localStorage?: unknown }).localStorage;
+  });
+});

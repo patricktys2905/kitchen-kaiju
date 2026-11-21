@@ -259,7 +259,7 @@ export class GameScene extends Phaser.Scene {
     this.firstServiceLines = [];
     this.roundOut = null;
     this.toastQ = []; this.toastText = null; this.toastG = null; this.toastT = 0;
-    this.coachStep = -1; this.coachText = null; this.quipNext = null; this.bossSulk = null;
+    this.coachStep = -1; this.coachText = null; this.quipNext = null; this.bossSulk = null; this.bubbles = [];
     this.achEarned = { lines: [], tokens: 0 }; this.receiptFresh = false; this.receipt = null;
     this.ownedAtStart = owned();
     this.coachStomp = (this.story?.chapter ?? 99) <= 2 || loadStats().kaijuForms < STOMP_COACH_UNTIL;
@@ -507,7 +507,7 @@ export class GameScene extends Phaser.Scene {
         n++;
       }
       this.updateFx(dt);
-      this.updateEmotes(dt);
+      this.updateEmotes(dt); this.updateBubbles(dt);
       this.hostBroadcast(dt);
     }
     this.render();
@@ -971,6 +971,7 @@ export class GameScene extends Phaser.Scene {
   }
 
   private tickReplay(dt: number): void {
+    this.coachText?.setAlpha(0); for (const b of this.bubbles) b.text.setVisible(false); // 🎓💬 the replay owns the screen
     const r = this.replay!;
     const skip = consumeTap('Space') || consumeTap('Enter') || consumeTap('Digit1') || this.slots.some(s => s.kind !== 'bot' && s.kind !== 'remote' && readSlot(s).throw);
     r.t += dt * REPLAY.speed;
@@ -1078,6 +1079,28 @@ export class GameScene extends Phaser.Scene {
     sfx.chirp(this.species[id]);
   }
 
+  /** 💬 Story speech bubbles: a cream bubble that follows its kaiju for a few seconds (one per kaiju, not counted as a pop-up). */
+  private bubbles: { id: number; text: Phaser.GameObjects.Text; t: number }[] = [];
+  private speak(id: number, line: string): void {
+    const old = this.bubbles.find(b => b.id === id);
+    if (old) { old.text.destroy(); this.bubbles = this.bubbles.filter(b => b !== old); }
+    const text = this.add.text(0, 0, `${SPECIES[this.species[id]].name}: ${line}`, body(16, '#2a1408', 900, { backgroundColor: '#fff4dcee', padding: { x: 10, y: 6 }, wordWrap: { width: 300 }, align: 'center' })).setOrigin(0.5, 1).setDepth(8);
+    text.setStroke(this.css[id], 0);
+    popIn(this, text, 1.3, 240);
+    this.bubbles.push({ id, text, t: 3.2 });
+  }
+  private updateBubbles(dt: number): void {
+    this.coachText?.setAlpha(this.replay ? 0 : 1); // 🎓 the tutorial strip steps aside for the INSTANT REPLAY (it sat on the KO feed)
+    for (const b of this.bubbles) {
+      b.t -= dt;
+      const p = this.world.players[b.id];
+      if (!p || b.t <= 0) { b.text.destroy(); continue; }
+      const half = b.text.width / 2 + 6;
+      b.text.setPosition(Math.max(half, Math.min(VIEW.w - half, p.x)), Math.max(96 + b.text.height, p.y - p.r * (p.kaijuT > 0 ? 2.4 : 1.6) - 14)).setAlpha(Math.min(1, b.t * 2)).setVisible(!this.replay);
+    }
+    this.bubbles = this.bubbles.filter(b => b.t > 0 && b.text.active);
+  }
+
   private updateEmotes(dt: number): void {
     this.emoteBubbles.forEach((b, i) => {
       if (b.t <= 0) { b.text.setVisible(false); return; } // a reset bubble (new round) never lingers
@@ -1132,7 +1155,7 @@ export class GameScene extends Phaser.Scene {
     const BOSS_QUIPS = ['Is that all you\'ve got?', 'You call that a fork?', 'Back to the kids\' table!', 'Too easy. Next!', 'Feel the weight of the crown!'];
     const BOSS_LOSS = ['Lucky shot!', 'That round didn\'t count!', 'I was going easy on you!', 'Grr… again!', 'My crown slipped!'];
     if (e.type === 'roundEnd' && e.winner !== null && !(s.bosses ?? []).includes(e.winner)) { const b = (s.bosses ?? []).find(id => this.world.players[id]); if (b !== undefined) this.bossSulk = b; } // a boss sulks when it drops a round (said at the next countdown)
-    if (e.type === 'roundStart' && this.bossSulk !== null) { const b = this.bossSulk; this.bossSulk = null; this.time.delayedCall(250, () => { const bp = this.world.players[b]; if (bp) this.popup(bp.x, bp.y - 80, `👑 ${SPECIES[this.species[b]].name}: "${BOSS_LOSS[this.world.round % BOSS_LOSS.length]}"`, this.css[b], 18); }); }
+    if (e.type === 'roundStart' && this.bossSulk !== null) { const b = this.bossSulk; this.bossSulk = null; this.time.delayedCall(250, () => { const bp = this.world.players[b]; if (bp) this.speak(b, `👑 ${BOSS_LOSS[this.world.round % BOSS_LOSS.length]}`); }); }
     const bosses = s.bosses ?? [];
     // 💬 every Story rival talks too (not only bosses): going KAIJU, taking a round, or losing one. One line per rival per round.
     const RIVAL_KAIJU = ['Here I come!', 'Big snack, BIG trouble!', 'Look at me now!', 'Run, champ, run!', 'Dinner time!'];
@@ -1142,7 +1165,7 @@ export class GameScene extends Phaser.Scene {
       const p = this.world.players[id];
       if (!p || id === 0 || bosses.includes(id) || this.quipRound.has(id)) return; // bosses have their own lines
       this.quipRound.add(id);
-      this.popup(p.x, p.y - 70, `💬 ${SPECIES[this.species[id]].name}: "${lines[(this.world.round * 3 + id) % lines.length]}"`, this.css[id], 17);
+      this.speak(id, `${lines[(this.world.round * 3 + id) % lines.length]}`);
     };
     if (e.type === 'roundStart') { this.quipRound.clear(); const q = this.quipNext; this.quipNext = null; if (q) this.time.delayedCall(250, () => say(q.id, q.lines)); } // a round-end line plays during the next countdown (the round banner owns the screen at round end)
     if (e.type === 'kaiju' && e.id !== 0) say(e.id, RIVAL_KAIJU);
@@ -1152,7 +1175,7 @@ export class GameScene extends Phaser.Scene {
     }
     if ((e.type === 'kaiju' && bosses.includes(e.id)) || (e.type === 'ko' && e.id === 0 && e.by !== null && bosses.includes(e.by))) {
       const b = e.type === 'kaiju' ? e.id : (e as { by: number }).by, p = this.world.players[b];
-      if (p) this.popup(p.x, p.y - 80, `👑 ${SPECIES[this.species[b]].name}: "${BOSS_QUIPS[(this.world.round + b) % BOSS_QUIPS.length]}"`, this.css[b], 18);
+      if (p) this.speak(b, `👑 ${BOSS_QUIPS[(this.world.round + b) % BOSS_QUIPS.length]}`);
     }
   }
 
