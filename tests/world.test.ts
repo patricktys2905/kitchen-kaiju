@@ -1342,14 +1342,15 @@ describe('fresh saves and comics', () => {
     vi.vi.resetModules();
   });
 
-  it('every comic panel points at a mid-campaign boss chapter', async () => {
+  it('every comic panel points at a real chapter (boss fights, plus the Grand Feast mystery scenes)', async () => {
     const { COMICS } = await import('../src/story/cutscenes');
-    const { CHAPTERS } = await import('../src/story/chapters');
-    const { SECONDS_CHAPTERS } = await import('../src/story/seconds');
+    const { CAMPAIGNS } = await import('../src/story/campaigns');
     for (const id of Object.keys(COMICS)) {
       const [camp, n] = id.split(':');
-      const ch = (camp === 'main' ? CHAPTERS : SECONDS_CHAPTERS)[Number(n)];
-      expect(ch?.boss).toBe(true);
+      const ch = CAMPAIGNS[camp]?.chapters[Number(n)];
+      expect(ch, id).toBeTruthy();
+      expect(ch!.boss || camp === 'main', id).toBe(true); // outside the Feast, comics follow bosses
+      expect(COMICS[id].noVideo, id).toBe(true);
     }
   });
 });
@@ -1446,7 +1447,7 @@ describe('story campaigns', () => {
         expect(ch.rivals.length, where).toBeGreaterThan(0);
         expect(ch.rivals.length + 1, where).toBeLessThanOrEqual(6);
         if (ch.goal) expect(ch.rivals.length + 1, where).toBeGreaterThanOrEqual(modeDef(GOALS[ch.goal].mode).minPlayers);
-        if (ch.goal === 'team') { expect(ch.rivals.some(r => r.ally), where).toBe(true); expect(ch.rivals.some(r => !r.ally), where).toBe(true); }
+        if (ch.goal === 'team' || ch.goal === 'protect') { expect(ch.rivals.some(r => r.ally), where).toBe(true); expect(ch.rivals.some(r => !r.ally), where).toBe(true); }
         else expect(ch.rivals.some(r => r.ally), where).toBe(false);
         for (const l of [...ch.intro, ch.win]) if (l.speaker !== 'chef') expect(l.speaker, where).toBeLessThan(ch.rivals.length);
       }
@@ -1461,5 +1462,25 @@ describe('story campaigns', () => {
     while (w.phase === 'play' && t < 5) { w.step(DT, []); t += DT; }
     expect(w.winner).toBe(0);
     expect(w.players[0].score).toBe(1);
+  });
+});
+
+describe('new chapter goals', () => {
+  it('KING OF THE PLATE: standing alone in the zone scores, and reaching the hold wins the round', () => {
+    const w = new World({ players: [{ name: 'Me' }, { name: 'A' }], seed: 5, hazards: false, crumbSpawns: false, pickupSpawns: false, layout: 0, zone: { x: 640, y: 382, r: 115, hold: 2 }, target: 2 });
+    while (w.phase !== 'play') w.step(DT, []);
+    place(w, 0, 640, 382); place(w, 1, 200, 200);
+    let t = 0;
+    while (w.phase === 'play' && t < 4) { place(w, 0, 640, 382); place(w, 1, 200, 200); w.step(DT, []); t += DT; }
+    expect(w.winner).toBe(0);
+  });
+
+  it('PROTECT: if the VIP ally is knocked out, their team loses the round', () => {
+    const w = new World({ players: [{ name: 'Me' }, { name: 'Ally' }, { name: 'Foe' }], seed: 5, hazards: false, crumbSpawns: false, pickupSpawns: false, layout: 0, mode: 'teams', teams: [0, 0, 1], vip: 1, target: 2 });
+    while (w.phase !== 'play') w.step(DT, []);
+    (w as unknown as { ko: (p: unknown, by: number | null, cause: string) => void }).ko(w.players[1], 2, 'fall'); // the ally falls
+    let t = 0;
+    while (w.phase === 'play' && t < 3) { w.step(DT, []); t += DT; }
+    expect(w.winner).toBe(2);
   });
 });

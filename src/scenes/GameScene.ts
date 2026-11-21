@@ -82,7 +82,9 @@ export interface GameData {
   dessert?: { course: number; bosses: number[] }; // 🍰 Dessert Course (index into COURSES)
   cup?: { game: number; points: number[]; hist?: number[][] }; // 🏆 Party Cup: which game of the cup, points so far, points per game
   story?: { chapter: number; bosses: number[]; spicy?: boolean; campaign?: string; mutator?: Mutator; bossBelly?: number; helping?: boolean; survive?: number };
-  teams?: number[]; // Team Feast seats (Story ally chapters: you and your ally on team 0) // story chapter: seat 0 is you; bosses start rounds with a full belly
+  teams?: number[]; // Team Feast seats (Story ally chapters: you and your ally on team 0)
+  zone?: { x: number; y: number; r: number; hold: number }; // 👑 Story KING OF THE PLATE
+  vip?: number; // 🛡 Story PROTECT: this seat must stay on the table // story chapter: seat 0 is you; bosses start rounds with a full belly
   net?: { role: 'host'; host: NetHost } | { role: 'guest'; guest: NetGuest; seat: number };
   seed?: number;
 }
@@ -220,7 +222,7 @@ export class GameScene extends Phaser.Scene {
     this.mode = data.mode ?? 'classic';
     this.powerups = data.story ? false : data.powerups ?? POWERUPS.enabled;
     this.hazards = data.story ? true : data.hazards ?? true;
-    this.world = new World({ players: this.species.map(s => ({ name: SPECIES[s].name, species: s })), kaijuPowers: getSettings().kaijuPowers, kid: getSettings().kidMode || (!!data.story && (data.story.campaign ?? 'main') === 'main' && data.story.chapter < 6 && !data.story.spicy), catchUp: getSettings().catchUp && !data.story && !data.gauntlet && !data.daily && !data.dessert && !data.trial, calmStart: (data.story && ((data.story.campaign ?? 'main') === 'main' && data.story.chapter < 3 || getSettings().kidMode) && !data.story.spicy) || (!data.story && !data.net && !data.gauntlet && !data.trial && !data.daily && !data.dessert && loadStats().matches < 3) ? STORY_CALM : 0, seed, layouts: this.tables ?? undefined, target: this.rounds, mode: this.mode, powerups: this.powerups, hazards: this.hazards, mutator: data.story ? data.story.mutator ?? 'none' : data.dessert || data.daily ? 'none' : data.gauntlet ? data.mutator ?? 'none' : data.mutator, mutator2: data.story || data.dessert || data.daily || data.gauntlet || data.net ? 'none' : data.mutator2, teams: data.teams, survive: data.story?.survive ?? 0 });
+    this.world = new World({ players: this.species.map(s => ({ name: SPECIES[s].name, species: s })), kaijuPowers: getSettings().kaijuPowers, kid: getSettings().kidMode || (!!data.story && (data.story.campaign ?? 'main') === 'main' && data.story.chapter < 6 && !data.story.spicy), catchUp: getSettings().catchUp && !data.story && !data.gauntlet && !data.daily && !data.dessert && !data.trial, calmStart: (data.story && ((data.story.campaign ?? 'main') === 'main' && data.story.chapter < 3 || getSettings().kidMode) && !data.story.spicy) || (!data.story && !data.net && !data.gauntlet && !data.trial && !data.daily && !data.dessert && loadStats().matches < 3) ? STORY_CALM : 0, seed, layouts: this.tables ?? undefined, target: this.rounds, mode: this.mode, powerups: this.powerups, hazards: this.hazards, mutator: data.story ? data.story.mutator ?? 'none' : data.dessert || data.daily ? 'none' : data.gauntlet ? data.mutator ?? 'none' : data.mutator, mutator2: data.story || data.dessert || data.daily || data.gauntlet || data.net ? 'none' : data.mutator2, teams: data.teams, survive: data.story?.survive ?? 0, zone: data.zone ?? null, vip: data.vip ?? -1 });
     this.story = data.story;
     this.practice = null;
     this.callout = { first: false, recent: data.slots.map(() => []), streak: data.slots.map(() => 0), nemesis: data.slots.map(() => null) };
@@ -1509,6 +1511,16 @@ export class GameScene extends Phaser.Scene {
       fx.lineStyle(5, r.color, Math.max(0, 1 - r.t / 0.5));
       fx.strokeCircle(r.x, r.y, r.r);
     }
+    // 👑 the zone (glows gold for whoever is alone in it) and 🛡 the ally you protect
+    const zn = this.world.opts.zone;
+    if (zn) {
+      const inside = this.world.alivePlayers().filter(p => Math.hypot(p.x - zn.x, p.y - zn.y) < zn.r), king = inside.length === 1 ? inside[0] : null;
+      fx.fillStyle(king ? this.colors[king.id] : 0xffd24a, king ? 0.22 : 0.1); fx.fillCircle(zn.x, zn.y, zn.r);
+      fx.lineStyle(5, king ? this.colors[king.id] : 0xffd24a, 0.6 + 0.3 * Math.sin(this.t * 4)); fx.strokeCircle(zn.x, zn.y, zn.r);
+      if (inside.length > 1) { fx.lineStyle(3, 0xff5050, 0.8); fx.strokeCircle(zn.x, zn.y, zn.r - 8); } // contested: nobody scores
+    }
+    const vp = this.world.players[this.world.opts.vip];
+    if (vp?.alive) { fx.lineStyle(4, 0x8dff6a, 0.7 + 0.3 * Math.sin(this.t * 6)); fx.strokeCircle(vp.x, vp.y, vp.r + 14); }
     // 🦖 a KAIJU still growing: a pulsing red danger ring where its body will reach (squash starts when it fills)
     for (const p of this.world.players) if (p.alive && p.kaijuT > 0 && p.growT > 0) {
       const k = 1 - p.growT / RULES.kaijuGrow, R = P.kaijuRadius + 14;
@@ -1695,6 +1707,7 @@ export class GameScene extends Phaser.Scene {
       if (w.mode === 'crumbRush') info = !p.alive && p.respawnT > 0 ? `BACK IN ${Math.ceil(p.respawnT)} · 🍪 ${p.pts}` : `🍪 ${p.pts} crumb${p.pts === 1 ? "" : "s"} · KOs ${p.kos}`;
       if (w.mode === 'teams') info = `${MODE_RULES.teams.names[p.team] ?? ''} · ${status}`;
       if (this.bossPhase2 && this.bossSeats().includes(i) && p.alive) info = '👑 PHASE 2: FURIOUS!';
+      if (w.opts.zone) info = `👑 ${Math.floor(p.pts)}/${w.opts.zone.hold}s · KOs ${p.kos}`;
       if (w.mode === 'goldenSpoon') info = !p.alive && p.respawnT > 0 ? `BACK IN ${Math.ceil(p.respawnT)} · 🥄 ${Math.floor(p.pts)}/${MODE_RULES.goldenSpoon.holdToWin}` : `${w.spoon?.holder === p.id ? '🥄 HOLDING! ' : '🥄 '}${Math.floor(p.pts)}/${MODE_RULES.goldenSpoon.holdToWin}s · KOs ${p.kos}`;
       if (w.mode === 'hotDumpling' && w.hot?.id === p.id && p.alive && w.phase === 'play') info = '🥟 HOT! PASS IT!';
       const buffs = (p.speedT > 0 ? POWER_DEFS.hotsauce.short : '') + (p.shieldT > 0 ? POWER_DEFS.mustard.short : '') + (p.sugarT > 0 ? POWER_DEFS.sugar.short : '');

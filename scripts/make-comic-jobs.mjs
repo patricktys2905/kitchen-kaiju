@@ -27,6 +27,27 @@ export const COMIC_SCENES = [
     still: 'a birthday party table at night with a big cake and glowing candles: the purple MARSHMALLOW MOTH kaiju hovers in front of one candle flame, staring at it with huge dreamy sparkly eyes and a happy smile, warm glow on its fluffy body; its face fully visible' },
   { key: 'side-pizza', cast: [11], table: 'bg-breakfast',
     still: 'a busy breakfast diner counter: the PIZZA RAPTOR kaiju sprints along the counter wearing a little red delivery cap, carrying a stack of three pizza boxes, with speed lines behind it and a big confident grin; its face fully visible' },
+  // 🛎 Room Service + 🔎 Grand Feast mystery + 📕 more side stories (2026-11-21)
+  { key: 'room-open', cast: [0], table: 'bg-banquet',
+    still: 'the grand front desk of a fancy hotel kitchen: a shiny brass service bell, a little golden key on a hook and a rack of plates; the STRAWBERRY LIZARD kaiju stands at the desk ringing the bell with an excited, determined grin; its face fully visible. This kaiju is the ONLY living character in the picture: no other creatures, mascots or food with faces.' },
+  { key: 'room-end', cast: [0, 5], table: 'bg-pancake',
+    still: 'the top floor of a fancy hotel kitchen at night, city lights through big windows: the STRAWBERRY LIZARD kaiju proudly holds up a shiny golden key card; next to it the TOAST BAT kaiju (a slice of toast with little bat wings) wears a tiny manager bow tie and bows politely to hand over the job; both faces fully visible' },
+  { key: 'comic-room4', cast: [14, 1], table: 'bg-parlour',
+    still: 'a hotel pool party: the SALMON fish kaiju lies sulking on an inflatable pool float with a grumpy face; the JELLY OCTOPUS kaiju gently pushes the float around with its tentacles, smiling kindly; bright pool water, a beach ball; both faces fully visible' },
+  { key: 'comic-ch6', cast: [6], table: 'bg-banquet',
+    still: 'close-up of a big bamboo steamer basket on a dinner table, wisps of steam; the lid is lifted just a crack and ONLY the two round eyes of the DUMPLING kaiju peek out from the dark gap, watching; the rest of it is hidden inside the steamer; mysterious, funny. This kaiju is the ONLY living character in the picture: no other creatures, mascots or food with faces.' },
+  { key: 'comic-ch9', cast: [6], table: 'bg-banquet',
+    still: 'a dark pantry at night lit by one beam of light from a door: the DUMPLING kaiju is drawn as a dark round SILHOUETTE (no details, no face, just its shape) holding a small golden crown above its head, about to put it on; jars on the shelves; mysterious, funny. This kaiju is the ONLY living character in the picture: no other creatures, mascots or food with faces.' },
+  { key: 'comic-ch11', cast: [6], table: 'bg-banquet',
+    still: 'a grand banquet table: a bamboo steamer has burst open with a big puff of steam, and the DUMPLING kaiju stands on top of it wearing a small gold crown, arms out in a dramatic villain pose with a smug grin; dramatic lighting; its face fully visible. This kaiju is the ONLY living character in the picture: no other creatures, mascots or food with faces.' },
+  { key: 'side-toastbat', cast: [5], table: 'bg-breakfast',
+    still: 'a breakfast counter turned into a little stage with a spotlight: the TOAST BAT kaiju (a slice of toast with little bat wings) strikes a proud superstar pose in the spotlight, wings spread, big showbiz grin; its face fully visible. This kaiju is the ONLY living character in the picture: no other creatures, mascots or food with faces.' },
+  { key: 'side-squidgeon', cast: [1], table: 'bg-party',
+    still: 'a birthday party table with balloons, streamers and a cake: the JELLY OCTOPUS kaiju wears a little party hat and holds a bunch of balloons in several tentacles, beaming with joy; its face fully visible. This kaiju is the ONLY living character in the picture: no other creatures, mascots or food with faces.' },
+  { key: 'side-velvaroo', cast: [18], table: 'bg-candy',
+    still: 'a candy shop table: the RED-VELVET KANGAROO kaiju holds its pouch closed with both paws, looking left and right secretively, a soft warm glow coming from inside the pouch; funny and sneaky; its face fully visible. This kaiju is the ONLY living character in the picture: no other creatures, mascots or food with faces.' },
+  { key: 'side-tacowl', cast: [19], table: 'bg-board',
+    still: 'a dark kitchen at night: the TACO OWL kaiju on night watch holds a small flashlight with its wing, the beam lighting up a cutting board, a shiny badge on its chest, big alert round eyes; its face fully visible. This kaiju is the ONLY living character in the picture: no other creatures, mascots or food with faces.' },
 ];
 
 const STYLE = 'Keep this EXACT art style and these EXACT character designs: bold chunky cartoon, thick dark-brown outlines, flat bright colours with soft cel shading, funny expressions. The characters are tiny food monsters ("kaiju") from my party game. Every kaiju has exactly the body, limbs and face shown in the reference: no extra arms or legs, and NO nose (only the eyes and mouth as drawn).';

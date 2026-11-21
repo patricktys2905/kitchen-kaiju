@@ -1165,3 +1165,29 @@ Not done: public rooms / quick-match and a global leaderboard (they need a serve
 - **📱 Phones as Pads:** CLOSE ROOM goes back to Party Modes with the same setup, not the title.
 - **📺 TV MODE:** the host card hides its ◀ ▶ kaiju arrows while the host only watches.
 - **Typo:** "boomerang twist" (Trials ▸ Chef's Table).
+
+## 81. 📚 Story expansion 2: Room Service, the steamer mystery, 4 more side stories, 2 new goals
+- **New chapter goals** (`ChapterGoal` in `src/story/chapters.ts`):
+  - 👑 **zone** (KING OF THE PLATE): score seconds standing ALONE in a gold circle; a crowd scores nothing. First to `zoneHold` seconds wins the round, otherwise the most after `RULES.zoneTime` (60 s). This is the World option `zone`; bots head for the circle. The HUD shows 👑 seconds, and the circle glows in the scoring kaiju's colour.
+  - 🛡 **protect**: a team chapter where your ally (green ring) must stay on the table, or your team loses the round. This is the World option `vip`.
+- **🛎 ROOM SERVICE** (`src/story/room.ts`): an 8-chapter 4th campaign in the Grand Hotel, floor by floor.
+  - Goals across the chapters: zone, crumbs, protect, survive, zone, protect.
+  - Bosses: 🐟 Salmonster at the pool (ch4, with a comic) and a two-boss finale, the Night Manager 🍞 Toastbat with Velvaroo.
+  - Opens after the Night Market. Saved as `kk-story4-v1`.
+- **🔎 Grand Feast mystery payoff:**
+  - Comic scenes after ch6 (eyes in the steamer), ch9 (a shadow tries on a crown) and ch11 (the steamer bursts: it was DUMPLORD).
+  - The Story Log has a **🔎 CLUES n/11** view: every "Meanwhile…" clue in order, with ❓ and the chapter that reveals the missing ones. The log itself no longer repeats them.
+- **📕 4 more side stories:**
+  - Toastbat: Toast of the Town.
+  - Squidgeon's Big Day.
+  - Velvaroo's Pouch.
+  - Tacowl's Night Shift.
+  - There are now 8 side stories.
+- **Achievements:**
+  - 🛎 Five-Star Service: finish Room Service.
+  - 📚 Bookworm: finish all 8 side stories.
+- **Art:** 10 new Gemini stills, each checked.
+  - `room-open`, `room-end`, `comic-room4`.
+  - `comic-ch6`, `comic-ch9`, `comic-ch11`.
+  - `side-toastbat`, `side-squidgeon`, `side-velvaroo`, `side-tacowl`.
+- **Tests:** zone and protect rounds are tested, and the all-campaign chapter check covers the new goals.

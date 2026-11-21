@@ -21,13 +21,15 @@ export interface Line {
 }
 
 /** 🎯 Chapter goals: different ways to win a Story round. */
-export type ChapterGoal = 'crumbs' | 'spoon' | 'dumpling' | 'team' | 'survive';
+export type ChapterGoal = 'crumbs' | 'spoon' | 'dumpling' | 'team' | 'survive' | 'zone' | 'protect';
 export const GOALS: Record<ChapterGoal, { mode: 'crumbRush' | 'goldenSpoon' | 'hotDumpling' | 'teams' | 'classic'; label: (ch: Chapter) => string }> = {
   crumbs: { mode: 'crumbRush', label: () => '🍪 CRUMB RACE: hold the most crumbs when time runs out' },
   spoon: { mode: 'goldenSpoon', label: () => '🥄 SPOON GRAB: hold the Golden Spoon the longest' },
   dumpling: { mode: 'hotDumpling', label: () => "🥟 HOT DUMPLING: don't be holding it when it pops" },
   team: { mode: 'teams', label: () => '🤝 TEAM UP: you and your ally vs the rest' },
   survive: { mode: 'classic', label: ch => `⏱ SURVIVE: stay on the table for ${ch.surviveFor ?? 40} s` },
+  zone: { mode: 'classic', label: ch => `👑 KING OF THE PLATE: stand ALONE in the gold circle for ${ch.zoneHold ?? 20} s` },
+  protect: { mode: 'teams', label: () => '🛡 PROTECT: keep your ally (green ring) on the table!' },
 };
 
 export interface Chapter {
@@ -44,6 +46,7 @@ export interface Chapter {
   /** 🎯 what wins a round (default: last kaiju standing). EASY TO CUSTOMISE: see GOALS below. */
   goal?: ChapterGoal;
   surviveFor?: number; // ⏱ 'survive': seconds to last
+  zoneHold?: number; // 👑 'zone': seconds alone in the circle to win the round
   meanwhile?: string; // 📜 a one-line story beat shown after you clear this chapter (the running mystery)
 }
 

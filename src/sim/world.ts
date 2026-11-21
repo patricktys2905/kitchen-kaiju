@@ -204,6 +204,8 @@ export interface WorldOptions {
   mode?: GameMode; // party mode (default classic)
   teams?: number[]; // Team Feast: team per player (default: alternate seats)
   survive?: number; // ⏱ Story SURVIVE goal: player 0 wins a round by lasting this many seconds (0 = off)
+  zone?: { x: number; y: number; r: number; hold: number } | null; // 👑 KING OF THE PLATE: score seconds standing ALONE in this circle
+  vip?: number; // 🛡 PROTECT (team chapters): if this player is knocked out, their team loses the round (-1 = off)
   powerups?: boolean; // condiment power-ups (off unless asked for; Free Play default is POWERUPS.enabled)
   mutator?: Mutator; // one wacky rule twist (default none)
   mutator2?: Mutator; // ⚡⚡ a second twist stacked on top (default none)
@@ -319,6 +321,8 @@ export class World {
     this.opts = {
       seed: o.seed ?? 1,
       survive: o.survive ?? 0,
+      zone: o.zone ?? null,
+      vip: o.vip ?? -1,
       kid: o.kid ?? false,
       target: o.target ?? 5,
       hazards: o.hazards ?? true,
@@ -1651,11 +1655,15 @@ export class World {
   /** Seconds left in a timed round (Crumb Rush), else null. */
   timeLeft(): number | null {
     if (this.opts.survive > 0 && this.mode === 'classic') return Math.max(0, this.opts.survive - this.roundT);
+    if (this.opts.zone && this.mode === 'classic') return Math.max(0, RULES.zoneTime - this.roundT);
     if (this.mode === 'goldenSpoon') return Math.max(0, MODE_RULES.goldenSpoon.roundTime - this.roundT);
     return this.mode === 'crumbRush' ? Math.max(0, MODE_RULES.crumbRush.roundTime - this.roundT) : null;
   }
 
   private updateMode(dt: number): void {
+    // 👑 King of the Plate: one kaiju alone in the zone scores its seconds (a crowd scores nothing)
+    const z = this.opts.zone;
+    if (z && this.phase === 'play') { const inside = this.alivePlayers().filter(p => Math.hypot(p.x - z.x, p.y - z.y) < z.r); if (inside.length === 1) inside[0].pts += dt; }
     // 🍽 Feeding frenzy: long rounds end in KAIJU fights instead of stand-offs
     if ((this.mode === 'classic' || this.mode === 'teams') && this.roundT > RULES.suddenDeathAt) {
       if (!this.frenzy) { this.frenzy = true; this.emit({ type: 'frenzy' }); }
@@ -1750,8 +1758,14 @@ export class World {
       }
     } else if (this.phase === 'play' && this.players.length > 1 && this.mode === 'teams') {
       const alive = this.alivePlayers();
-      const teams = new Set(alive.map(p => p.team));
-      if (teams.size <= 1) this.endRound(alive.length ? this.players.filter(p => p.team === alive[0].team) : []);
+      const teams = new Set(alive.map(p => p.team)), vip = this.players[this.opts.vip];
+      if (vip && !vip.alive) this.endRound(this.players.filter(p => p.team !== vip.team)); // 🛡 the one you protect fell
+      else if (teams.size <= 1) this.endRound(alive.length ? this.players.filter(p => p.team === alive[0].team) : []);
+    } else if (this.phase === 'play' && this.players.length > 1 && this.opts.zone && this.mode === 'classic') {
+      const z = this.opts.zone, alive = this.alivePlayers(), king = this.players.find(p => p.pts >= z.hold);
+      if (king) this.endRound([king]);
+      else if (alive.length <= 1) this.endRound(alive);
+      else if (this.roundT >= RULES.zoneTime) { const best = Math.max(...this.players.map(p => p.pts)); this.endRound(best > 0 ? this.players.filter(p => p.pts === best).slice(0, 1) : []); }
     } else if (this.phase === 'play' && this.players.length > 1 && this.opts.survive > 0) {
       const me = this.players[0], alive = this.alivePlayers();
       if (!me.alive) this.endRound(alive.slice(0, 1)); // knocked out: the round goes to a rival

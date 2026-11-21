@@ -51,7 +51,11 @@ export const ALL_CUTS: Cutscene[] = [OPENING, ...CHAPTER_CUTS, ENDING_CUT];
  * Art: public/art/comic-*.webp (scripts/make-comic-jobs.mjs). EASY TO CUSTOMISE: captions here. */
 export const COMICS: Record<string, Cutscene> = {
   'main:3': { key: 'comic-ch4', noVideo: true, heading: 'MEANWHILE, ON THE CONVEYOR BELT…', caption: 'Norigon is on a roll. Downhill. Salmonster can\'t believe its eyes.' },
+  'main:5': { key: 'comic-ch6', noVideo: true, heading: 'MEANWHILE, BEHIND THE BAMBOO STEAMER…', caption: 'Two eyes in the steam. Someone is taking notes on every table you clear.' },
+  'main:8': { key: 'comic-ch9', noVideo: true, heading: 'LATER, IN THE DARK PANTRY…', caption: 'A round shadow tries on a golden crown. It fits. It giggles.' },
+  'main:10': { key: 'comic-ch11', noVideo: true, heading: 'THE STEAMER LID LIFTS…', caption: 'It was DUMPLORD all along. The quiet one. The host. The final course.' },
   'main:7': { key: 'comic-ch8', noVideo: true, heading: 'LATER, AT THE PARLOUR…', caption: 'Bloblin is NOT sulking. Bloblin is just… setting. Mothball brings comfort.' },
+  'room:3': { key: 'comic-room4', noVideo: true, heading: 'MEANWHILE, AT THE POOL…', caption: 'Salmonster sulks on a pool float. Squidgeon paddles him in gentle circles.' },
   'night:3': { key: 'comic-night4', noVideo: true, heading: 'MEANWHILE, ON THE LAMP POST…', caption: 'Tacowl counts his bribe: forty jars of mustard. Sloba sleeps on the change.' },
   'seconds:3': { key: 'comic-s4', noVideo: true, heading: 'MEANWHILE, IN THE FREEZER…', caption: 'The ice queen slipped. Minturtle offers a flipper. The crown keeps sliding.' },
 };

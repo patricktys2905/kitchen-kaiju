@@ -170,6 +170,150 @@ export const SIDE_STORIES: SideStory[] = [
       { speaker: 'chef', text: 'Pizzaraptor names a pizza after you: the Kaiju Supreme. Extra cheese, extra chaos.' },
     ],
   },
+  {
+    id: 'side-toastbat', title: 'TOASTBAT: TOAST OF THE TOWN', tagline: 'a bat made of bread wants to be famous', hero: 5, still: 'side-toastbat',
+    chapters: [
+      {
+        title: 'Hot Off the Press', table: 11, rounds: 2, goal: 'zone', zoneHold: 15,
+        rivals: [{ species: 5, level: 'normal' }, { species: 8, level: 'easy' }],
+        intro: [
+          { speaker: 0, text: 'The toaster is my STAGE. The middle of the table is my SPOTLIGHT. Stay out of my spotlight!' },
+          { speaker: 1, text: 'I just want breakfast. Why is there a show?' },
+        ],
+        tip: 'KING OF THE PLATE: hold the middle alone. The toasters fire across it, so time your steps!',
+        win: { speaker: 0, text: 'Upstaged! Fine. Every star needs a rival. Meet me at the bakery. Bring an audience.' },
+      },
+      {
+        title: 'Crumb Fans', table: 9, rounds: 2, goal: 'crumbs',
+        rivals: [{ species: 5, level: 'normal' }, { species: 12, level: 'easy' }, { species: 9, level: 'easy' }],
+        intro: [
+          { speaker: 0, text: 'My fans throw crumbs at me! Whoever has the MOST crumbs is the most famous. That\'s science.' },
+          { speaker: 2, text: 'I\'m not a fan. I just like crumbs.' },
+        ],
+        tip: 'CRUMB RACE: the sticky dough slows everyone down, so plan your route!',
+        win: { speaker: 0, text: 'More famous than me?! There\'s only one stage left. The big one.' },
+      },
+      {
+        title: 'The Big Premiere', table: 4, rounds: 3, boss: true,
+        rivals: [{ species: 5, level: 'normal', boss: true }, { species: 4, level: 'normal' }],
+        intro: [
+          { speaker: 0, text: 'Lights! Camera! TOAST! Tonight the whole kitchen watches me WIN.' },
+          { speaker: 1, text: 'Ooh, the spotlights! So bright! Whose side am I on? The light\'s side!' },
+        ],
+        tip: 'BOSS: Toastbat starts ready to go KAIJU. The wind blows from the side: use it to push him off!',
+        win: { speaker: 0, text: 'The critics will call this… a flop. A crispy flop. …Can I have your autograph?' },
+      },
+    ],
+    ending: [{ speaker: 'chef', text: 'Toastbat finally gets famous: as the star of a cooking show called "Toasted by the Champ".' }],
+  },
+  {
+    id: 'side-squidgeon', title: "SQUIDGEON'S BIG DAY", tagline: 'eight arms, one birthday, zero plan', hero: 1, still: 'side-squidgeon',
+    chapters: [
+      {
+        title: 'Party Planner', table: 4, rounds: 2, goal: 'protect',
+        rivals: [{ species: 1, level: 'normal', ally: true }, { species: 4, level: 'easy' }, { species: 5, level: 'easy' }],
+        intro: [
+          { speaker: 0, text: 'It\'s my birthday and these two keep popping my balloons! Help me keep the party going!' },
+          { speaker: 1, text: 'Balloons are shiny. Shiny things are mine.' },
+        ],
+        tip: 'PROTECT: Squidgeon (green ring) must stay on the table, or the party\'s over!',
+        win: { speaker: 0, text: 'Party saved! Now… the cake. Somebody took the cake!' },
+      },
+      {
+        title: 'Where\'s the Cake?', table: 1, rounds: 2, goal: 'spoon',
+        rivals: [{ species: 6, level: 'normal' }, { species: 2, level: 'easy' }],
+        intro: [
+          { speaker: 0, text: 'The cake is safe with me. Inside me. Mostly. The cake SPOON is still up for grabs.' },
+          { speaker: 1, text: 'Snip! Whoever holds the spoon cuts the next cake. House rules.' },
+        ],
+        tip: 'SPOON GRAB: hold the spoon the longest. Knock the holder to make it drop!',
+        win: { speaker: 0, text: 'Fine, fine. I\'ll bake a new cake. A dumpling cake. Very… doughy.' },
+      },
+      {
+        title: 'The Grand Finale', table: 16, rounds: 3, goal: 'survive', surviveFor: 45,
+        rivals: [{ species: 1, level: 'tough' }, { species: 6, level: 'normal' }, { species: 2, level: 'normal' }, { species: 4, level: 'normal' }],
+        intro: [
+          { speaker: 0, text: 'SURPRISE! The last party game: everyone vs the champ! It\'s tradition! (I just made it up.)' },
+          { speaker: 2, text: 'Pinchers out! Party\'s ON!' },
+        ],
+        tip: 'SURVIVE 45 seconds against the whole party. The hot cheese drops near you: keep moving!',
+        win: { speaker: 0, text: 'Best. Birthday. EVER. Same time next year? You\'re already invited. All eight arms say so.' },
+      },
+    ],
+    ending: [{ speaker: 'chef', text: 'Squidgeon frames a photo from the party. You\'re in the middle. Every arm is giving a thumbs-up.' }],
+  },
+  {
+    id: 'side-velvaroo', title: "VELVAROO'S POUCH", tagline: 'what is she keeping in there?', hero: 18, still: 'side-velvaroo',
+    chapters: [
+      {
+        title: 'Pouch Inspection', table: 13, rounds: 2, goal: 'crumbs',
+        rivals: [{ species: 18, level: 'normal' }, { species: 9, level: 'easy' }],
+        intro: [
+          { speaker: 0, text: 'My pouch? Nothing in it. Definitely not every spoon in the candy shop. Hop along.' },
+          { speaker: 1, text: 'She\'s hoarding ALL the sweets! Out-eat her!' },
+        ],
+        tip: 'CRUMB RACE on the candy table: the bumpers bounce you, so don\'t run straight at them!',
+        win: { speaker: 0, text: 'Hmph. You\'ll never find what\'s really in my pouch. NEVER. (It\'s in the freezer.)' },
+      },
+      {
+        title: 'Cold Case', table: 12, rounds: 2, goal: 'zone', zoneHold: 15,
+        rivals: [{ species: 18, level: 'normal' }, { species: 17, level: 'normal' }],
+        intro: [
+          { speaker: 0, text: 'Nobody touches the freezer\'s middle shelf. NOBODY.' },
+          { speaker: 1, text: 'I\'m guarding it. Mostly because it\'s cold and I like cold.' },
+        ],
+        tip: 'KING OF THE PLATE on ice: brake early or you\'ll slide right out of the circle!',
+        win: { speaker: 0, text: 'Fine! FINE! The secret is in the back kitchen. Come and see. If you DARE.' },
+      },
+      {
+        title: 'The Secret', table: 14, rounds: 3, boss: true, goal: 'team',
+        rivals: [{ species: 18, level: 'normal', boss: true }, { species: 16, level: 'normal', ally: true }, { species: 17, level: 'normal' }],
+        intro: [
+          { speaker: 1, text: 'I know her secret. I\'ll help you. Slowly. But I\'ll help.' },
+          { speaker: 0, text: 'You want to know what\'s in the pouch? Beat me and I\'ll SHOW you!' },
+        ],
+        tip: 'BOSS TEAM UP: Minturtle is your ally against Velvaroo and Pengwhip. Burners, toasters AND the hand!',
+        win: { speaker: 0, text: '…It\'s a baby joey. Made of red velvet cake. I was keeping him warm. Please don\'t tell anyone.' },
+      },
+    ],
+    ending: [{ speaker: 'chef', text: 'The secret is out: a tiny cake joey. The whole kitchen now takes turns babysitting.' }],
+  },
+  {
+    id: 'side-tacowl', title: "TACOWL'S NIGHT SHIFT", tagline: 'the night watch never sleeps (it tries)', hero: 19, still: 'side-tacowl',
+    chapters: [
+      {
+        title: 'Lights Out', table: 5, rounds: 2, goal: 'survive', surviveFor: 35,
+        rivals: [{ species: 19, level: 'normal' }, { species: 12, level: 'easy' }, { species: 4, level: 'easy' }],
+        intro: [
+          { speaker: 0, text: 'Hoo\'s there? Night watch rules: anyone on the table after dark gets SHOVED.' },
+          { speaker: 2, text: 'Is it dark? I can\'t tell. I\'m always near a lamp.' },
+        ],
+        tip: 'SURVIVE: just stay on the table. Watch the cleaver\'s red line!',
+        win: { speaker: 0, text: 'Hoo, you\'re good. I could use a partner on my rounds. The kitchen gets… spooky at night.' },
+      },
+      {
+        title: 'The Night Round', table: 3, rounds: 2, goal: 'team',
+        rivals: [{ species: 19, level: 'normal', ally: true }, { species: 14, level: 'normal' }, { species: 7, level: 'easy' }],
+        intro: [
+          { speaker: 0, text: 'Midnight snackers on the sushi belt! Help me catch them, partner!' },
+          { speaker: 1, text: 'A late-night snack never hurt anyone. Except YOU two.' },
+        ],
+        tip: 'TEAM UP: you and Tacowl clear the belt together.',
+        win: { speaker: 0, text: 'Caught! Hoo-ray! But someone is still raiding the hot sauce. I can smell it.' },
+      },
+      {
+        title: 'The Hot Sauce Thief', table: 6, rounds: 3, goal: 'protect',
+        rivals: [{ species: 19, level: 'normal', ally: true }, { species: 15, level: 'tough' }, { species: 11, level: 'normal' }],
+        intro: [
+          { speaker: 0, text: 'It\'s HOTCHOG again! And he\'s brought a raptor! Don\'t let them knock me off, partner!' },
+          { speaker: 1, text: 'You can\'t prove anything. *hides sauce bottle behind quills*' },
+        ],
+        tip: 'PROTECT: Tacowl (green ring) must stay on the table while you stop the thieves. Mind the burners!',
+        win: { speaker: 0, text: 'Case closed! Best night shift ever. Same time tomorrow? Bring snacks. Legal ones.' },
+      },
+    ],
+    ending: [{ speaker: 'chef', text: 'Tacowl gets a shiny new night-watch badge. You get one too. It says "Partner". He made it himself.' }],
+  },
 ];
 
 /** Side stories open once Grand Feast ch5 is reached (ch4 cleared). EASY TO CHANGE. */

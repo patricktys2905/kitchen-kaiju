@@ -6,7 +6,7 @@ import { fitInside, hasArt, silhouetteKey } from '../render/art';
 import { drawFloor } from '../render/draw';
 import { body, display, popIn, withShadow } from '../render/fonts';
 import { Button } from '../render/ui';
-import { SPECIES } from '../sim/constants';
+import { SPECIES, TABLE } from '../sim/constants';
 import { LAYOUTS } from '../sim/layouts';
 import { chapterRivals, KID_EASE, SPICY_BUMP, type Line, GOALS } from '../story/chapters';
 import { CAMPAIGN_ORDER, CAMPAIGNS, campaignLock, loadCampaign, type Campaign, type CampaignId } from '../story/campaigns';
@@ -364,7 +364,9 @@ export class StoryScene extends Phaser.Scene {
     const slots: Slot[] = [{ kind: 'local', index: 0 }, ...rivals.map((): Slot => ({ kind: 'bot', index: 0 }))];
     const goal = ch.goal ? GOALS[ch.goal] : null;
     this.scene.start('game', {
-      mode: goal?.mode ?? 'classic', teams: ch.goal === 'team' ? [0, ...rivals.map(r => (r.ally ? 0 : 1))] : undefined,
+      mode: goal?.mode ?? 'classic', teams: ch.goal === 'team' || ch.goal === 'protect' ? [0, ...rivals.map(r => (r.ally ? 0 : 1))] : undefined,
+      zone: ch.goal === 'zone' ? { ...zoneSpot(LAYOUTS[ch.table]), r: 115, hold: ch.zoneHold ?? 20 } : undefined,
+      vip: ch.goal === 'protect' ? 1 + Math.max(0, rivals.findIndex(r => r.ally)) : undefined,
       slots, difficulty: 'normal', species: [this.save.pick, ...rivals.map(r => r.species)], tables: [ch.table], rounds: ch.rounds,
       botLevels: [null, ...rivals.map(r => (this.spicyOn() ? SPICY_BUMP[r.level] : getSettings().kidMode ? KID_EASE[r.level] : r.level))],
       story: { chapter: this.sel, bosses: rivals.map((r, k) => (r.boss ? k + 1 : -1)).filter(k => k > 0), spicy: this.spicyOn(), campaign: this.camp.id, mutator: ch.mutator, bossBelly: ch.bossBelly, survive: ch.goal === 'survive' ? ch.surviveFor ?? 40 : undefined, helping: this.helping },
@@ -620,15 +622,41 @@ Next course: ${nextCh.title}. ${nextRival} is already sharpening the cutlery…`
     const done = this.camp.chapters.map((ch, i) => ({ ch, i })).filter(({ i }) => (this.save.stars[i] ?? 0) > 0);
     const lines = done.length ? done.map(({ ch, i }) => {
       const rv = chapterRivals(ch, this.save.pick), sp = rv[ch.win.speaker as number]?.species ?? rv[0].species;
-      return `${i + 1}. ${ch.title} ${'★'.repeat(this.save.stars[i] ?? 0)}: you beat ${rv.map(r => SPECIES[r.species].name).join(' & ')}. ${SPECIES[sp].name}: “${ch.win.text}”${ch.meanwhile ? `  📜 ${ch.meanwhile}` : ''}`;
+      return `${i + 1}. ${ch.title} ${'★'.repeat(this.save.stars[i] ?? 0)}: you beat ${rv.map(r => SPECIES[r.species].name).join(' & ')}. ${SPECIES[sp].name}: “${ch.win.text}”`;
     }) : ['Nothing yet! Clear chapter 1 and your story starts here.'];
     const next = this.camp.chapters[done.length];
     if (next && done.length) lines.push(`👉 Next: ${next.title}. ${SPECIES[next.rivals[0].species].full} is waiting…`);
     const t = this.add.text(190, 140, lines.join('\n'), body(15, '#f1e4d2', 800, { wordWrap: { width: 900 }, lineSpacing: 6 })).setDepth(31);
     for (let f = 15; t.height > 430 && f > 10;) t.setFontSize(--f);
     this.overlay.push(t);
-    this.overlayButtons.push(new Button(this, 640, 620, { w: 200, h: 54, label: 'CLOSE', size: 22, onClick: () => { this.clearOverlay(); this.mode = 'map'; } }, 33));
+    const clueN = this.camp.chapters.filter(ch => ch.meanwhile).length;
+    this.overlayButtons.push(new Button(this, clueN ? 530 : 640, 620, { w: 200, h: 54, label: 'CLOSE', size: 22, onClick: () => { this.clearOverlay(); this.mode = 'map'; } }, 33));
+    if (clueN) {
+      const found = this.camp.chapters.filter((ch, i) => ch.meanwhile && (this.save.stars[i] ?? 0) > 0).length;
+      this.overlayButtons.push(new Button(this, 760, 620, { w: 220, h: 54, label: `🔎 CLUES ${found}/${clueN}`, size: 20, accent: 0x8dd8ff, onClick: () => this.showClues() }, 33));
+    }
     this.overlayFocus = 0;
+  }
+
+  /** 🔎 Every "meanwhile" clue in order: found ones in full, the rest as "?" with the chapter that reveals it. */
+  private showClues(): void {
+    sfx.pickup();
+    this.clearOverlay();
+    this.mode = 'result'; this.overlayAt = this.time.now;
+    const g = this.add.graphics().setDepth(30);
+    g.fillStyle(0x0d0805, 0.85).fillRect(0, 0, 1280, 720).fillStyle(0x15202a, 0.98).fillRoundedRect(150, 60, 980, 600, 26).lineStyle(5, 0x8dd8ff, 1).strokeRoundedRect(150, 60, 980, 600, 26);
+    this.overlay.push(g);
+    const clues = this.camp.chapters.map((ch, i) => ({ ch, i })).filter(({ ch }) => ch.meanwhile);
+    const found = clues.filter(({ i }) => (this.save.stars[i] ?? 0) > 0).length;
+    this.overlay.push(withShadow(this.add.text(640, 100, `🔎 THE MYSTERY: ${found}/${clues.length} CLUES`, display(32, '#8dd8ff', { strokeThickness: 6 })).setOrigin(0.5).setDepth(31), 3));
+    const lines = clues.map(({ ch, i }, k) => (this.save.stars[i] ?? 0) > 0 ? `${k + 1}. ${ch.meanwhile!.replace(/^Meanwhile, (.)/, (_m, c: string) => c.toUpperCase())}` : `${k + 1}. ❓ …clear chapter ${i + 1} to find this clue`);
+    if (found === clues.length) lines.push(this.save.endingSeen ? '✔ Mystery solved!' : '👉 Every clue found. The answer is waiting at the last table…');
+    const t = this.add.text(190, 140, lines.join('\n'), body(16, '#e6f2fa', 800, { wordWrap: { width: 900 }, lineSpacing: 7 })).setDepth(31);
+    for (let f = 16; t.height > 430 && f > 10;) t.setFontSize(--f);
+    this.overlay.push(t);
+    this.overlayButtons.push(new Button(this, 530, 620, { w: 200, h: 54, label: '◀ STORY LOG', size: 20, onClick: () => { this.clearOverlay(); this.mode = 'map'; this.showLog(); } }, 33));
+    this.overlayButtons.push(new Button(this, 760, 620, { w: 200, h: 54, label: 'CLOSE', size: 22, onClick: () => { this.clearOverlay(); this.mode = 'map'; } }, 33));
+    this.overlayFocus = 1;
   }
 
   private showEnding(): void {
@@ -805,4 +833,13 @@ Next course: ${nextCh.title}. ${nextRival} is already sharpening the cutlery…`
     for (const b of this.buttons) b.update(dt);
     this.playBtn.update(dt);
   }
+}
+
+/** 👑 Where a KING OF THE PLATE circle goes: the most open of a few spots on the table (away from props). */
+function zoneSpot(L: { obstacles: { x: number; y: number; r?: number; w?: number; h?: number }[] }): { x: number; y: number } {
+  const cx = TABLE.x + TABLE.w / 2, cy = TABLE.y + TABLE.h / 2;
+  const spots = [[cx, cy], [cx - 260, cy], [cx + 260, cy], [cx, cy - 150], [cx, cy + 150], [cx - 260, cy - 150], [cx + 260, cy + 150]];
+  const room = ([x, y]: number[]) => Math.min(...L.obstacles.map(o => Math.hypot(o.x - x, o.y - y) - (o.r ?? Math.max(o.w ?? 0, o.h ?? 0) / 2)), 999);
+  const best = spots.reduce((a, b) => (room(b) > room(a) + 20 ? b : a));
+  return { x: best[0], y: best[1] };
 }

@@ -3,7 +3,7 @@
 import type { GameMode } from './sim/modes';
 import { loadStory } from './story/save';
 /** 📕 how many side stories are finished (their saves are 'kk-side-<name>-v1'). */
-const sideDone = (): number => ['norigon', 'bloblin', 'mothball', 'pizza'].filter(n => loadStory(`kk-side-${n}-v1`, 3).endingSeen).length;
+const sideDone = (): number => ['norigon', 'bloblin', 'mothball', 'pizza', 'toastbat', 'squidgeon', 'velvaroo', 'tacowl'].filter(n => loadStory(`kk-side-${n}-v1`, 3).endingSeen).length;
 
 export interface Stats {
   matches: number; // matches finished with at least one human playing
@@ -79,6 +79,8 @@ export const ACHIEVEMENTS: Achievement[] = [
   { id: 'parry-10', icon: '⚔', name: 'Swatter', desc: 'Parry 10 throws (SWIPE just as cutlery reaches you)', test: s => (s.parries ?? 0) >= 10, progress: s => [s.parries ?? 0, 10] },
   { id: 'brutal-win', icon: '💀', name: 'Bot Breaker', desc: 'Win a match against a BRUTAL bot', test: s => (s.brutalWins ?? 0) >= 1, progress: s => [s.brutalWins ?? 0, 1] },
   { id: 'night-market', icon: '🌙', name: 'Night Shift', desc: 'Finish The Night Market (Story)', test: () => loadStory('kk-story3-v1', 8).endingSeen, progress: () => [loadStory('kk-story3-v1', 8).stars.filter(x => x > 0).length, 8] },
+  { id: 'room-service', icon: '🛎', name: 'Five-Star Service', desc: 'Finish Room Service (Story)', test: () => loadStory('kk-story4-v1', 8).endingSeen, progress: () => [loadStory('kk-story4-v1', 8).stars.filter(x => x > 0).length, 8] },
+  { id: 'side-all', icon: '📚', name: 'Bookworm', desc: 'Finish all 8 side stories', test: () => sideDone() >= 8, progress: () => [sideDone(), 8] },
   { id: 'side-stories', icon: '📕', name: 'Side Dishes', desc: 'Finish 2 side stories (Story ▸ 📚 CAMPAIGNS)', test: () => sideDone() >= 2, progress: () => [sideDone(), 2] },
   { id: 'gauntlet-5', icon: '⚔️', name: 'Gauntlet Runner', desc: 'Clear 5 Gauntlet waves', test: s => s.gauntlet >= 5, progress: s => [s.gauntlet ?? 0, 5] },
   { id: 'gauntlet-10', icon: '🏰', name: 'Gauntlet Master', desc: 'Clear 10 Gauntlet waves', test: s => s.gauntlet >= 10, progress: s => [s.gauntlet ?? 0, 10] },

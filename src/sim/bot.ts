@@ -90,6 +90,9 @@ export class BotBrain {
       if (this.rng.next() < 0.5) this.strafe *= -1;
     }
 
+    // 👑 King of the Plate: head for the zone, and push into it when a rival is standing there
+    const zn = w.opts.zone;
+    if (zn) { const dx = zn.x - p.x, dy = zn.y - p.y, zd = Math.hypot(dx, dy) || 1; if (zd > zn.r * 0.5) add(dx / zd, dy / zd, zd > zn.r ? 1.8 : 0.9); }
     if (w.mode === 'goldenSpoon' && w.spoon) {
       const s = w.spoon;
       if (s.holder === p.id) add(-ux, -uy, 1.4); // keep away from rivals
