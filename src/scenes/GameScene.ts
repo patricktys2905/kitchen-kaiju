@@ -11,11 +11,11 @@ import { ArtRenderer } from '../render/artRender';
 import { drawCutleryShape, drawKaiju, drawTableLive } from '../render/draw';
 import { body, display, popIn, withShadow } from '../render/fonts';
 import { Button, FocusNav } from '../render/ui';
-import { BotBrain, type Difficulty } from '../sim/bot';
+import { BotBrain, type Difficulty, DIFFICULTIES } from '../sim/bot';
 import { P, RULES, SPECIES, TABLE, VIEW } from '../sim/constants';
 import { CUTLERY } from '../sim/cutlery';
 import { angleDiff } from '../sim/math';
-import { MODE_RULES, modeDef, type GameMode } from '../sim/modes';
+import { MODE_RULES, modeDef, type GameMode, TEAM_MODES } from '../sim/modes';
 import { POWER_DEFS, POWERUPS } from '../sim/powerups';
 import { MUTATOR_RULES, twistBlurb, twistName, type Mutator, twistChoices } from '../sim/mutators';
 import { NO_INPUT, World, type GameEvent, type PlayerInput } from '../sim/world';
@@ -133,6 +133,8 @@ export class GameScene extends Phaser.Scene {
   private species: number[] = [];
   /** Scoreboard panel geometry: 4 roomy panels, or 6 slimmer ones when more than 4 play. */
   private get hudW(): number { return this.slots.length > 4 ? 210 : 246; }
+  /** Team names: RED / BLUE, or PEOPLE / HORDE in the co-op mode. */
+  private get tnames(): string[] { return this.mode === 'horde' ? ['PEOPLE', 'HORDE'] : MODE_RULES.teams.names; }
   private hudX(i: number): number { return (this.slots.length > 4 ? 9 : 16) + i * this.hudW; }
   private get hudText(): number { return this.slots.length > 4 ? 42 : 48; }
   private tables: number[] | null = null;
@@ -222,7 +224,7 @@ export class GameScene extends Phaser.Scene {
     this.mode = data.mode ?? 'classic';
     this.powerups = data.story ? false : data.powerups ?? POWERUPS.enabled;
     this.hazards = data.story ? true : data.hazards ?? true;
-    this.world = new World({ players: this.species.map(s => ({ name: SPECIES[s].name, species: s })), kaijuPowers: getSettings().kaijuPowers, kid: getSettings().kidMode || (!!data.story && (data.story.campaign ?? 'main') === 'main' && data.story.chapter < 6 && !data.story.spicy), catchUp: getSettings().catchUp && !data.story && !data.gauntlet && !data.daily && !data.dessert && !data.trial, calmStart: (data.story && ((data.story.campaign ?? 'main') === 'main' && data.story.chapter < 3 || getSettings().kidMode) && !data.story.spicy) || (!data.story && !data.net && !data.gauntlet && !data.trial && !data.daily && !data.dessert && loadStats().matches < 3) ? STORY_CALM : 0, seed, layouts: this.tables ?? undefined, target: this.rounds, mode: this.mode, powerups: this.powerups, hazards: this.hazards, mutator: data.story ? data.story.mutator ?? 'none' : data.dessert || data.daily ? 'none' : data.gauntlet ? data.mutator ?? 'none' : data.mutator, mutator2: data.story || data.dessert || data.daily || data.gauntlet || data.net ? 'none' : data.mutator2, teams: data.teams, survive: data.story?.survive ?? 0, zone: data.zone ?? null, vip: data.vip ?? -1 });
+    this.world = new World({ players: this.species.map(s => ({ name: SPECIES[s].name, species: s })), kaijuPowers: getSettings().kaijuPowers, kid: getSettings().kidMode || (!!data.story && (data.story.campaign ?? 'main') === 'main' && data.story.chapter < 6 && !data.story.spicy), catchUp: getSettings().catchUp && !data.story && !data.gauntlet && !data.daily && !data.dessert && !data.trial, calmStart: (data.story && ((data.story.campaign ?? 'main') === 'main' && data.story.chapter < 3 || getSettings().kidMode) && !data.story.spicy) || (!data.story && !data.net && !data.gauntlet && !data.trial && !data.daily && !data.dessert && loadStats().matches < 3) ? STORY_CALM : 0, seed, layouts: this.tables ?? undefined, target: this.rounds, mode: this.mode, powerups: this.powerups, hazards: this.hazards, mutator: data.story ? data.story.mutator ?? 'none' : data.dessert || data.daily ? 'none' : data.gauntlet ? data.mutator ?? 'none' : data.mutator, mutator2: data.story || data.dessert || data.daily || data.gauntlet || data.net ? 'none' : data.mutator2, teams: data.teams ?? (this.mode === 'horde' ? data.slots.map(s => (s.kind === 'bot' ? 1 : 0)) : undefined), survive: data.story?.survive ?? 0, zone: data.zone ?? null, vip: data.vip ?? -1 });
     this.story = data.story;
     this.practice = null;
     this.callout = { first: false, recent: data.slots.map(() => []), streak: data.slots.map(() => 0), nemesis: data.slots.map(() => null) };
@@ -818,6 +820,7 @@ export class GameScene extends Phaser.Scene {
           this.burst(e.x, e.y, col, 14, 260, 0.45);
           break;
         }
+        case 'goal': sfx.matchWin(); this.shake(0.012, 300); this.burst(e.x, e.y, MODE_RULES.teams.colors[e.team] ?? 0xffffff, 40, 420, 0.8); this.popup(VIEW.w / 2, 240, `⚽ GOAL! ${this.tnames[e.team] ?? ''}`, MODE_RULES.teams.css[e.team] ?? '#ffffff', 40); break;
         case 'parry': sfx.clink(); this.shake(0.004, 100); this.popup(e.x, e.y - 30, '⚔ PARRY!', this.css[e.id], 24); this.rings.push({ x: e.x, y: e.y, r: 0, t: 0, max: 50, color: 0xffffff }); break;
         case 'spoonGrab': sfx.pickup(); this.popup(e.x, e.y - 40, '🥄 GOT IT!', this.css[e.id], 22); this.rings.push({ x: e.x, y: e.y, r: 0, t: 0, max: 60, color: 0xffd24a }); break;
         case 'spoonDrop': this.popup(e.x, e.y - 30, '🥄 DROPPED!', '#ffd24a', 22); break;
@@ -920,7 +923,7 @@ export class GameScene extends Phaser.Scene {
   /** A human won: the winner is human, or (Team Feast) a human is on the winning team. */
   private humanWon(winner: number | null): boolean {
     if (winner === null) return false;
-    if (this.mode !== 'teams') return this.isHuman(winner);
+    if (!TEAM_MODES.includes(this.mode)) return this.isHuman(winner);
     const tm = this.world.players[winner].team;
     return this.slots.some((_, i) => this.isHuman(i) && this.world.players[i].team === tm);
   }
@@ -1123,7 +1126,7 @@ export class GameScene extends Phaser.Scene {
     const cup = this.initData.cup;
     if (!cup || this.world.phase !== 'matchEnd') return this.world.players.map(() => 0);
     const last = cup.game + 1 >= cupGames(this.world.players.length).length;
-    return placePoints(this.world.players, this.world.mode === 'teams').map(v => v * (last ? FINAL_MULTIPLIER : 1));
+    return placePoints(this.world.players, TEAM_MODES.includes(this.world.mode)).map(v => v * (last ? FINAL_MULTIPLIER : 1));
   }
 
   /** 🎓 Story ch1, first time through: a gentle step-by-step coach (THROW → SWIPE → EAT → STOMP).
@@ -1300,6 +1303,7 @@ export class GameScene extends Phaser.Scene {
     }
     if (e.type === 'matchEnd' && this.initData.dessert && e.winner === 0) saveDessert(this.initData.dessert.course + 1);
     this.storyCoach(e);
+    if (e.type === 'roundStart' && this.mode === 'horde' && e.round > 1) for (const b of this.bots) if (b) b.difficulty = DIFFICULTIES[Math.min(DIFFICULTIES.length - 1, DIFFICULTIES.indexOf(b.difficulty as Difficulty) + 1)] as typeof b.difficulty; // 🛡 the next wave is tougher
     if (e.type === 'roundStart' && this.initData.dessert && e.round === 1) { const q = COURSES[this.initData.dessert.course].quip; this.time.delayedCall(200, () => this.popup(VIEW.w / 2, 150, q, '#ffd9a0', 18)); }
     if (e.type === 'matchEnd' && this.initData.gauntlet) {
       const reached = this.initData.gauntlet.wave - (e.winner === 0 ? 0 : 1);
@@ -1324,7 +1328,7 @@ export class GameScene extends Phaser.Scene {
         st.matches++;
         if (this.initData.cup && this.initData.cup.game + 1 >= cupGames(this.slots.length).length) { const tot = this.cupTotals(), best = Math.max(...tot); if (tot.some((v, i) => v === best && this.isHuman(i))) st.cups = (st.cups ?? 0) + 1; }
         this.slots.forEach((_, i) => { if (this.isHuman(i)) st.kaijuPlays[this.species[i]] = (st.kaijuPlays[this.species[i]] ?? 0) + 1; });
-        if (this.slots.filter((_, i) => this.isHuman(i)).length === 1 && this.mode !== 'teams') { // 📊 solo vs bots: a record against each rival kaiju
+        if (this.slots.filter((_, i) => this.isHuman(i)).length === 1 && !TEAM_MODES.includes(this.mode)) { // 📊 solo vs bots: a record against each rival kaiju
           const won = this.humanWon(e.winner); st.vs ??= {};
           this.slots.forEach((_, i) => { if (!this.isHuman(i)) { const r = st.vs![this.species[i]] ?? [0, 0]; st.vs![this.species[i]] = [r[0] + (won ? 1 : 0), r[1] + 1]; } });
         }
@@ -1573,8 +1577,21 @@ export class GameScene extends Phaser.Scene {
       fx.lineStyle(5, r.color, Math.max(0, 1 - r.t / 0.5));
       fx.strokeCircle(r.x, r.y, r.r);
     }
+    // ⚽ FOOD FIGHT FOOTBALL: the goals (RED defends the left, BLUE the right) and the meatball
+    const ball = this.world.ball;
+    if (ball) {
+      const cy = TABLE.y + TABLE.h / 2, gh = MODE_RULES.football.goalHalf;
+      fx.fillStyle(MODE_RULES.teams.colors[0], 0.35); fx.fillRect(TABLE.x - 6, cy - gh, 16, gh * 2);
+      fx.fillStyle(MODE_RULES.teams.colors[1], 0.35); fx.fillRect(TABLE.x + TABLE.w - 10, cy - gh, 16, gh * 2);
+      fx.lineStyle(4, 0xffffff, 0.8); fx.strokeRect(TABLE.x - 6, cy - gh, 16, gh * 2); fx.strokeRect(TABLE.x + TABLE.w - 10, cy - gh, 16, gh * 2);
+      fx.fillStyle(0x000000, 0.25); fx.fillEllipse(ball.x + 4, ball.y + ball.r * 0.8, ball.r * 2, ball.r * 0.8);
+      fx.fillStyle(0x7a3a1c, 1); fx.fillCircle(ball.x, ball.y, ball.r);
+      fx.fillStyle(0xc0392b, 0.9); fx.fillCircle(ball.x - 4, ball.y - 6, ball.r * 0.55);
+      fx.fillStyle(0xffffff, 0.35); fx.fillCircle(ball.x - ball.r * 0.4, ball.y - ball.r * 0.45, ball.r * 0.22);
+      fx.lineStyle(3, 0x2a1408, 1); fx.strokeCircle(ball.x, ball.y, ball.r);
+    }
     // 👑 the zone (glows gold for whoever is alone in it) and 🛡 the ally you protect
-    const zn = this.world.opts.zone;
+    const zn = this.world.zone;
     if (zn) {
       const inside = this.world.alivePlayers().filter(p => Math.hypot(p.x - zn.x, p.y - zn.y) < zn.r), king = inside.length === 1 ? inside[0] : null;
       fx.fillStyle(king ? this.colors[king.id] : 0xffd24a, king ? 0.22 : 0.1); fx.fillCircle(zn.x, zn.y, zn.r);
@@ -1656,7 +1673,7 @@ export class GameScene extends Phaser.Scene {
       if (p.speedT > 0 && Math.random() < 0.5) this.parts.push({ x: p.x + (Math.random() - 0.5) * p.r, y: p.y + p.r * 0.6, vx: -p.vx * 0.2, vy: -30 - Math.random() * 40, life: 0.35, max: 0.35, color: Math.random() < 0.5 ? 0xff5a1a : 0xffd040, size: 3, grav: 0 });
       if (p.sugarT > 0 && Math.random() < 0.3) this.parts.push({ x: p.x + (Math.random() - 0.5) * p.r * 2, y: p.y - p.r, vx: 0, vy: -40, life: 0.5, max: 0.5, color: 0xffffff, size: 2, grav: 0 });
     }
-    if (w.mode === 'teams') {
+    if (TEAM_MODES.includes(w.mode)) {
       for (const p of w.players) {
         if (!p.alive) continue;
         o.lineStyle(4, MODE_RULES.teams.colors[p.team] ?? 0xffffff, 0.9);
@@ -1767,22 +1784,22 @@ export class GameScene extends Phaser.Scene {
       const status = !p.alive ? 'KNOCKED OUT' : p.kaijuT > 0 ? `KAIJU ${Math.ceil(p.kaijuT)}s!` : full ? 'STOMP READY!' : held ? CUTLERY[held.kind].name : 'unarmed';
       let info = `${status} · KOs ${p.kos}`;
       if (w.mode === 'crumbRush') info = !p.alive && p.respawnT > 0 ? `BACK IN ${Math.ceil(p.respawnT)} · 🍪 ${p.pts}` : `🍪 ${p.pts} crumb${p.pts === 1 ? "" : "s"} · KOs ${p.kos}`;
-      if (w.mode === 'teams') info = `${MODE_RULES.teams.names[p.team] ?? ''} · ${status}`;
+      if (TEAM_MODES.includes(w.mode)) info = `${this.tnames[p.team] ?? ''} · ${status}`;
       if (this.bossPhase2 && this.bossSeats().includes(i) && p.alive) info = '👑 PHASE 2: FURIOUS!';
-      if (w.opts.zone) info = `👑 ${Math.floor(p.pts)}/${w.opts.zone.hold}s · KOs ${p.kos}`;
+      if (w.zone) info = !p.alive && p.respawnT > 0 ? `BACK IN ${Math.ceil(p.respawnT)} · 👑 ${Math.floor(p.pts)}s` : `👑 ${Math.floor(p.pts)}/${w.zone.hold}s · KOs ${p.kos}`;
       if (w.mode === 'goldenSpoon') info = !p.alive && p.respawnT > 0 ? `BACK IN ${Math.ceil(p.respawnT)} · 🥄 ${Math.floor(p.pts)}/${MODE_RULES.goldenSpoon.holdToWin}` : `${w.spoon?.holder === p.id ? '🥄 HOLDING! ' : '🥄 '}${Math.floor(p.pts)}/${MODE_RULES.goldenSpoon.holdToWin}s · KOs ${p.kos}`;
       if (w.mode === 'hotDumpling' && w.hot?.id === p.id && p.alive && w.phase === 'play') info = '🥟 HOT! PASS IT!';
       const buffs = (p.speedT > 0 ? POWER_DEFS.hotsauce.short : '') + (p.shieldT > 0 ? POWER_DEFS.mustard.short : '') + (p.sugarT > 0 ? POWER_DEFS.sugar.short : '');
       if (buffs && p.alive) info = `${buffs} ${info}`;
       this.infoTexts[i].setText(info).setScale(1); { const room = this.hudW - this.hudText - 14; if (this.infoTexts[i].width > room) this.infoTexts[i].setScale(room / this.infoTexts[i].width); } // stays inside its card (Kid Mode text is bigger)
-      if (w.mode === 'teams') { g.fillStyle(MODE_RULES.teams.colors[p.team] ?? 0xffffff, 0.9); g.fillRoundedRect(x - 4, 70, pw, 4, 2); }
+      if (TEAM_MODES.includes(w.mode)) { g.fillStyle(MODE_RULES.teams.colors[p.team] ?? 0xffffff, 0.9); g.fillRoundedRect(x - 4, 70, pw, 4, 2); }
     });
     this.roundText.setText(this.initData.gauntlet ? `GAUNTLET ${'❤'.repeat(Math.max(0, this.initData.gauntlet.lives ?? GAUNTLET.lives))}\nWAVE ${this.initData.gauntlet.wave} · ${w.layout.name.toUpperCase()}` : `${w.mode !== 'classic' ? modeDef(w.mode).name + '\n' : ''}ROUND ${w.round} · ${w.layout.name.toUpperCase()}`);
     if (this.slots.length <= 4) { const room = VIEW.w - 16 - (this.hudX(this.slots.length - 1) + this.hudW) - 8; this.roundText.setScale(Math.min(1, room / Math.max(1, this.roundText.width / this.roundText.scaleX))); }
     const left = w.timeLeft();
     let mt = '';
     if (left !== null && (w.phase === 'play' || w.phase === 'countdown')) mt = `⏱ ${Math.ceil(left)}`;
-    if (w.mode === 'teams' && (w.phase === 'play' || w.phase === 'countdown')) { const ts = (t: number) => Math.max(0, ...w.players.filter(p => p.team === t).map(p => p.score)); mt = `🔴 ${MODE_RULES.teams.names[0]} ${ts(0)}  –  ${ts(1)} ${MODE_RULES.teams.names[1]} 🔵${left !== null ? `   ⏱ ${Math.ceil(left)}` : ''}`; }
+    if (TEAM_MODES.includes(w.mode) && (w.phase === 'play' || w.phase === 'countdown')) { const ts = (t: number) => Math.max(0, ...w.players.filter(p => p.team === t).map(p => p.score)); mt = w.mode === 'horde' ? `🛡 WAVE ${w.round} · hold on!${left !== null ? `   ⏱ ${Math.ceil(left)}` : ''}` : `${w.mode === 'football' ? '⚽ ' : ''}🔴 ${this.tnames[0]} ${ts(0)}  –  ${ts(1)} ${this.tnames[1]} 🔵${left !== null ? `   ⏱ ${Math.ceil(left)}` : ''}`; }
     if (w.mode === 'hotDumpling' && w.hot && w.phase === 'play') mt = `🥟 ${w.players[w.hot.id].name} HAS THE HOT DUMPLING`;
     if (w.mode === 'goldenSpoon' && w.spoon && w.phase === 'play') mt = w.spoon.holder !== null ? `⏱ ${Math.ceil(left ?? 0)} · 🥄 ${w.players[w.spoon.holder].name} HAS THE GOLDEN SPOON` : `⏱ ${Math.ceil(left ?? 0)} · 🥄 GRAB THE GOLDEN SPOON!`;
     this.modeText.setText(this.replay ? '' : mt).setColor(left !== null && left < 10 ? '#ff8a7a' : '#ffe9c7'); // hidden under the INSTANT REPLAY label
@@ -1819,7 +1836,7 @@ export class GameScene extends Phaser.Scene {
     } else if (w.phase === 'play' && this.bannerT > 0) {
       main = 'DIG IN!';
     } else if (w.phase === 'roundEnd') {
-      if (w.winner !== null && w.mode === 'teams') { const tm = w.players[w.winner].team; main = `TEAM ${MODE_RULES.teams.names[tm]} WINS THE ROUND`; color = MODE_RULES.teams.css[tm]; }
+      if (w.winner !== null && TEAM_MODES.includes(w.mode)) { const tm = w.players[w.winner].team; main = `TEAM ${this.tnames[tm]} WINS THE ROUND`; color = MODE_RULES.teams.css[tm]; }
       else if (w.winner !== null && w.mode === 'goldenSpoon') { main = `${w.players[w.winner].name} KEPT THE GOLDEN SPOON!`; color = this.css[w.winner]; }
       else if (w.winner !== null && w.mode === 'crumbRush') { main = `${w.players[w.winner].name} ATE THE MOST!`; color = this.css[w.winner]; }
       else if (w.winner !== null) { main = `${w.players[w.winner].name} WINS THE ROUND`; color = this.css[w.winner]; }
@@ -1832,14 +1849,14 @@ export class GameScene extends Phaser.Scene {
       const add = this.cupAdd(), tot = this.cupTotals();
       const order = w.players.map((p, i) => i).sort((a, b) => tot[b] - tot[a]);
       const lead = order[0];
-      const gw = w.winner !== null ? (w.mode === 'teams' ? `TEAM ${MODE_RULES.teams.names[w.players[w.winner].team]}` : w.players[w.winner].name) : 'NOBODY';
+      const gw = w.winner !== null ? (TEAM_MODES.includes(w.mode) ? `TEAM ${this.tnames[w.players[w.winner].team]}` : w.players[w.winner].name) : 'NOBODY';
       main = last ? `🏆 ${w.players[lead].name}\nWINS THE PARTY CUP!` : `GAME ${cup.game + 1}/${games.length}: ${gw} WINS!`;
       color = last ? this.css[lead] : w.winner !== null ? this.css[w.winner] : '#ffd24a';
       const hist = [...(cup.hist ?? []), add];
       const rows = order.map((i, k) => `${k === 0 ? '🏆' : k === 1 ? '🥈' : k === 2 ? '🥉' : `${k + 1}.`} ${w.players[i].name}  ${tot[i]} pt${tot[i] === 1 ? '' : 's'}   (${hist.map((h, g) => `G${g + 1} +${h[i] ?? 0}`).join(', ')})`);
       const shelf = last ? cupShelf().slice(0, 4).map(s => `${s.name} on ${s.date}`).join(' · ') : '';
       const why = RANKED_BY[w.mode];
-      const table = (last ? '' : 'STANDINGS\n') + rows.join('\n') + `\n${cupRules(w.mode === 'teams')}${why ? `\n${why}` : ''}` + (shelf ? `\n🏆 Past champions: ${shelf}` : '');
+      const table = (last ? '' : 'STANDINGS\n') + rows.join('\n') + `\n${cupRules(TEAM_MODES.includes(w.mode))}${why ? `\n${why}` : ''}` + (shelf ? `\n🏆 Past champions: ${shelf}` : '');
       const nextName = last ? '' : modeDef(games[cup.game + 1].mode).name;
       sub = table + (this.net?.role === 'guest'
         ? (last ? '\n\nEsc to leave' : `\n\nNext: ${nextName} · waiting for the host…`)
@@ -1874,10 +1891,10 @@ export class GameScene extends Phaser.Scene {
     } else if (w.phase === 'matchEnd' && w.winner !== null) {
       main = `${SPECIES[this.species[w.winner]].full.toUpperCase()}\nRULES THE TABLE`;
       color = this.css[w.winner];
-      if (w.mode === 'teams') { const tm = w.players[w.winner].team; main = `TEAM ${MODE_RULES.teams.names[tm]}\nRULES THE TABLE`; color = MODE_RULES.teams.css[tm]; }
-      const ranked = w.mode === 'teams' ? w.players.slice().sort((a, b) => (a.team - b.team) || b.kos - a.kos) : w.players.slice().sort((a, b) => b.score - a.score || b.kos - a.kos);
+      if (TEAM_MODES.includes(w.mode)) { const tm = w.players[w.winner].team; main = `TEAM ${this.tnames[tm]}\nRULES THE TABLE`; color = MODE_RULES.teams.css[tm]; }
+      const ranked = TEAM_MODES.includes(w.mode) ? w.players.slice().sort((a, b) => (a.team - b.team) || b.kos - a.kos) : w.players.slice().sort((a, b) => b.score - a.score || b.kos - a.kos);
       const solo = this.slots.filter(sl => sl.kind !== 'bot').length === 1; // one person playing: mark them as YOU
-      const lines = ranked.map((p, i) => `${w.mode === 'teams' ? `${MODE_RULES.teams.names[p.team]} · ` : `${i + 1}. `}${p.name}${solo && this.isHuman(p.id) ? ' (YOU)' : ''}  —  ${p.score} round${p.score === 1 ? '' : 's'} · ${p.kos} KO${p.kos === 1 ? '' : 's'}${w.mode === 'crumbRush' ? ` · 🍪 ${this.tally.crumbs[p.id] ?? 0} eaten` : w.mode === 'goldenSpoon' ? ` · 🥄 ${Math.floor(p.pts)}s held` : ''}`);
+      const lines = ranked.map((p, i) => `${TEAM_MODES.includes(w.mode) ? `${this.tnames[p.team]} · ` : `${i + 1}. `}${p.name}${solo && this.isHuman(p.id) ? ' (YOU)' : ''}  —  ${p.score} round${p.score === 1 ? '' : 's'} · ${p.kos} KO${p.kos === 1 ? '' : 's'}${w.mode === 'crumbRush' ? ` · 🍪 ${this.tally.crumbs[p.id] ?? 0} eaten` : w.mode === 'goldenSpoon' ? ` · 🥄 ${Math.floor(p.pts)}s held` : ''}`);
       // one column (two columns of centred text ran into each other); the font shrinks for 5–6 players
       let table = lines.join('\n');
       if (this.initData.daily) {

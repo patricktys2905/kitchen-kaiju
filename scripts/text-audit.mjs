@@ -122,7 +122,7 @@ for (let k = 0; k < 19; k++) { const ok = await pg.evaluate(k => { const s = win
 // setup screens
 await start('menu', {}, 1800); await audit('free play setup');
 await start('menu', { party: true, mode: 'teams' }, 1800); await audit('party setup');
-for (const m of ['crumbRush', 'hotDumpling', 'goldenSpoon']) { await start('menu', { party: true, mode: m }, 1500); await audit(`party setup ${m}`); }
+for (const m of ['crumbRush', 'hotDumpling', 'goldenSpoon', 'king', 'football', 'horde']) { await start('menu', { party: true, mode: m }, 1500); await audit(`party setup ${m}`); }
 await start('menu', { party: true, mode: 'teams', slots: [0, 1, 2, 3, 4, 5].map(i => ({ kind: 'bot', index: i })), species: [0, 1, 2, 3, 4, 5] }, 1800); await audit('party setup 6 seats');
 await pg.mouse.click(262, 690); await wait(500); await audit('house rules panel');
 await start('menu', {}, 1500); await pg.mouse.click(92, 690); await wait(400); await audit('keys panel');
@@ -149,7 +149,7 @@ await start('story', { result: { chapter: 3, won: false, stars: 0, campaign: 'ma
 await start('story', { result: { chapter: 1, won: false, stars: 0, campaign: 'seconds', myRounds: 0, myKos: 0, myKaiju: 0, myOut: 'fall' } }, 3000); await audit('seconds result defeat');
 // matches
 const six = { slots: [{ kind: 'kb', index: 0 }, ...[1, 2, 3, 4, 5].map(i => ({ kind: 'bot', index: i }))], difficulty: 'easy', species: [0, 1, 2, 3, 4, 5], rounds: 3 };
-for (const mode of ['classic', 'teams', 'crumbRush', 'hotDumpling', 'goldenSpoon']) {
+for (const mode of ['classic', 'teams', 'crumbRush', 'hotDumpling', 'goldenSpoon', 'king', 'football', 'horde']) {
   await start('game', { ...six, mode, party: mode !== 'classic' }, 700); await audit(`${mode} countdown`);
   await wait(2500); await audit(`${mode} play HUD`);
   await pg.evaluate(() => { const w = window.__game.scene.getScene('game').world; w.endRound([w.players[1]]); }); await wait(600); await audit(`${mode} round end`);

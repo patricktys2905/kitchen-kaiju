@@ -4,7 +4,7 @@ import { P, RULES, TABLE } from './constants';
 import { CUTLERY, RARE_CHANCE, RARE_KINDS, STARTER_KINDS, type CutleryKind } from './cutlery';
 import { LAYOUTS, type Layout } from './layouts';
 import { angleDiff, circCircle, circRect, clamp, type Hit } from './math';
-import { MODE_RULES, type GameMode } from './modes';
+import { MODE_RULES, TEAM_MODES, type GameMode } from './modes';
 import { MUTATOR_RULES, type Mutator } from './mutators';
 import { enabledPowers, POWER_DEFS, POWERUPS, type PowerKind } from './powerups';
 import { Rng } from './rng';
@@ -79,6 +79,7 @@ export type GameEvent =
   | { type: 'spawnCutlery'; kind: CutleryKind; x: number; y: number }
   | { type: 'countdown'; n: number }
   | { type: 'go' }
+  | { type: 'goal'; team: number; x: number; y: number }
   | { type: 'roundStart'; round: number; layout: string }
   | { type: 'roundEnd'; winner: number | null }
   | { type: 'matchEnd'; winner: number };
@@ -299,6 +300,10 @@ export class World {
   turnAngle = 0; // Lazy Susan rotation, for drawing
   layout: Layout = LAYOUTS[0];
   private bakeTimer = 0; // 🧁 Workshop cupcakes
+  /** 👑 the gold circle this round (Story KING OF THE PLATE, or the KING party mode) */
+  zone: { x: number; y: number; r: number; hold: number } | null = null;
+  /** ⚽ FOOD FIGHT FOOTBALL: the meatball */
+  ball: { x: number; y: number; vx: number; vy: number; r: number } | null = null;
   layoutIndex = 0;
   phase: Phase = 'countdown';
   phaseT = 0;
@@ -344,7 +349,7 @@ export class World {
     this.powersOn = o.kaijuPowers ?? KAIJU_POWERS.enabled;
     this.calm = o.calmStart ?? 0;
     this.players = o.players.map((p, id) => { const pl = this.makePlayer(id, p.name); pl.species = p.species; pl.kit = this.powersOn ? kitOf(p.species) : null; return pl; });
-    for (const pl of this.players) pl.team = this.mode === 'teams' ? (o.teams?.[pl.id] ?? pl.id % 2) : pl.id;
+    for (const pl of this.players) pl.team = TEAM_MODES.includes(this.mode) ? (o.teams?.[pl.id] ?? pl.id % 2) : pl.id;
     this.startRound();
   }
 
@@ -387,6 +392,8 @@ export class World {
     this.powerShots = [];
     this.frenzy = false;
     this.spoon = null;
+    this.zone = this.opts.zone ?? (this.mode === 'king' ? { ...this.openSpot(), r: MODE_RULES.king.radius, hold: MODE_RULES.king.holdToWin } : null);
+    this.ball = this.mode === 'football' ? { x: TABLE.x + TABLE.w / 2, y: TABLE.y + TABLE.h / 2, vx: 0, vy: 0, r: MODE_RULES.football.ballRadius } : null;
     this.spatula = null;
     this.bakeTimer = RULES.bakeEvery;
     this.spatulaTimer = RULES.spatulaFirst + this.calm;
@@ -965,6 +972,9 @@ export class World {
       p.respawnT = MODE_RULES.crumbRush.respawnDelay;
     }
     if (this.mode === 'practice') p.respawnT = MODE_RULES.practice.respawnDelay;
+    if (this.mode === 'king') p.respawnT = MODE_RULES.king.respawnDelay;
+    if (this.mode === 'football') p.respawnT = MODE_RULES.football.respawnDelay;
+    if (this.mode === 'horde' && p.team !== 0) p.respawnT = MODE_RULES.horde.respawnDelay; // the bots keep coming
     this.emit({ type: 'ko', id: p.id, by: killer && killer !== p ? killer.id : null, cause, x: p.x, y: p.y });
   }
 
@@ -1191,6 +1201,69 @@ export class World {
       if (!this.blockedAt(px, py, 24)) return [px, py];
     }
     return this.freeSpot(60, 0) ?? [cx, cy];
+  }
+
+  /** The most open of a few spots on this table (for the KING circle). */
+  private openSpot(): { x: number; y: number } {
+    const cx = TABLE.x + TABLE.w / 2, cy = TABLE.y + TABLE.h / 2;
+    const spots = [[cx, cy], [cx - 260, cy], [cx + 260, cy], [cx, cy - 150], [cx, cy + 150]];
+    const room = ([x, y]: number[]) => Math.min(999, ...this.layout.obstacles.map(o => (o.shape === 'circle' ? Math.hypot(o.x - x, o.y - y) - o.r : Math.hypot(o.x + o.w / 2 - x, o.y + o.h / 2 - y) - Math.max(o.w, o.h) / 2)));
+    const best = spots.reduce((a, b) => (room(b) > room(a) + 20 ? b : a));
+    return { x: best[0], y: best[1] };
+  }
+
+  /** ⚽ The meatball: rolls with friction, bounces off edges/props, gets bumped, swiped and hit by cutlery; a goal ends the round. */
+  private updateBall(dt: number): void {
+    const b = this.ball, F = MODE_RULES.football;
+    if (!b) return;
+    const cy = TABLE.y + TABLE.h / 2;
+    for (const p of this.players) {
+      if (!p.alive) continue;
+      const dx = b.x - p.x, dy = b.y - p.y, d = Math.hypot(dx, dy) || 0.001;
+      if (d < p.r + b.r) { // bumped
+        const nx = dx / d, ny = dy / d, push = p.r + b.r - d;
+        b.x += nx * push; b.y += ny * push;
+        const along = Math.max(0, p.vx * nx + p.vy * ny);
+        b.vx += nx * (F.push + along * 0.9); b.vy += ny * (F.push + along * 0.9);
+      }
+      if (p.swipeT > 0 && !p.swipeHit.has(-1) && d < p.r + b.r + P.swipeReach + 18) { // swiped: a proper kick along your aim
+        p.swipeHit.add(-1);
+        b.vx = Math.cos(p.aim) * F.kick * (p.kaijuT > 0 ? 1.4 : 1); b.vy = Math.sin(p.aim) * F.kick * (p.kaijuT > 0 ? 1.4 : 1);
+        this.emit({ type: 'bumper', x: b.x, y: b.y });
+      }
+    }
+    for (const c of this.cutlery) { // thrown cutlery knocks it along
+      if (c.state !== 'flying' || Math.hypot(c.x - b.x, c.y - b.y) > b.r + 10) continue;
+      b.vx += c.vx * 0.55; b.vy += c.vy * 0.55;
+    }
+    const k = Math.pow(F.friction, dt);
+    b.vx *= k; b.vy *= k;
+    const sp = Math.hypot(b.vx, b.vy); if (sp > 1100) { b.vx *= 1100 / sp; b.vy *= 1100 / sp; }
+    b.x += b.vx * dt; b.y += b.vy * dt;
+    for (const o of this.layout.obstacles) { // props are solid
+      const h = o.shape === 'circle' ? circCircle(b.x, b.y, b.r, o.x, o.y, o.r) : circRect(b.x, b.y, b.r, o.x, o.y, o.w, o.h);
+      if (!h) continue;
+      b.x += h.nx * h.pen; b.y += h.ny * h.pen;
+      const vn = b.vx * h.nx + b.vy * h.ny;
+      if (vn < 0) { b.vx -= 1.7 * vn * h.nx; b.vy -= 1.7 * vn * h.ny; }
+    }
+    const inMouth = Math.abs(b.y - cy) < F.goalHalf;
+    if (b.x - b.r < TABLE.x) {
+      if (inMouth) { this.scoreGoal(1); return; } // into RED's goal (left): BLUE scores
+      b.x = TABLE.x + b.r; b.vx = Math.abs(b.vx) * 0.7;
+    }
+    if (b.x + b.r > TABLE.x + TABLE.w) {
+      if (inMouth) { this.scoreGoal(0); return; } // into BLUE's goal (right): RED scores
+      b.x = TABLE.x + TABLE.w - b.r; b.vx = -Math.abs(b.vx) * 0.7;
+    }
+    if (b.y - b.r < TABLE.y) { b.y = TABLE.y + b.r; b.vy = Math.abs(b.vy) * 0.7; }
+    if (b.y + b.r > TABLE.y + TABLE.h) { b.y = TABLE.y + TABLE.h - b.r; b.vy = -Math.abs(b.vy) * 0.7; }
+  }
+
+  private scoreGoal(team: number): void {
+    const b = this.ball!;
+    this.emit({ type: 'goal', team, x: b.x, y: b.y });
+    this.endRound(this.players.filter(p => p.team === team));
   }
 
   private freeSpot(margin: number, playerGap: number): [number, number] | null {
@@ -1648,21 +1721,25 @@ export class World {
   // ---------------------------------------------------------------- party modes
   /** True when a and b are on the same team (Team Feast only). */
   friends(a: number | null, b: number | null): boolean {
-    if (this.mode !== 'teams' || a === null || b === null || a === b || MODE_RULES.teams.friendlyFire) return false;
+    if (!TEAM_MODES.includes(this.mode) || a === null || b === null || a === b || MODE_RULES.teams.friendlyFire) return false;
     return this.players[a]?.team === this.players[b]?.team;
   }
 
   /** Seconds left in a timed round (Crumb Rush), else null. */
   timeLeft(): number | null {
     if (this.opts.survive > 0 && this.mode === 'classic') return Math.max(0, this.opts.survive - this.roundT);
-    if (this.opts.zone && this.mode === 'classic') return Math.max(0, RULES.zoneTime - this.roundT);
+    if (this.zone && this.mode === 'classic') return Math.max(0, RULES.zoneTime - this.roundT);
+    if (this.mode === 'king') return Math.max(0, MODE_RULES.king.roundTime - this.roundT);
+    if (this.mode === 'football') return Math.max(0, MODE_RULES.football.roundTime - this.roundT);
+    if (this.mode === 'horde') return Math.max(0, MODE_RULES.horde.roundTime - this.roundT);
     if (this.mode === 'goldenSpoon') return Math.max(0, MODE_RULES.goldenSpoon.roundTime - this.roundT);
     return this.mode === 'crumbRush' ? Math.max(0, MODE_RULES.crumbRush.roundTime - this.roundT) : null;
   }
 
   private updateMode(dt: number): void {
     // 👑 King of the Plate: one kaiju alone in the zone scores its seconds (a crowd scores nothing)
-    const z = this.opts.zone;
+    const z = this.zone;
+    this.updateBall(dt);
     if (z && this.phase === 'play') { const inside = this.alivePlayers().filter(p => Math.hypot(p.x - z.x, p.y - z.y) < z.r); if (inside.length === 1) inside[0].pts += dt; }
     // 🍽 Feeding frenzy: long rounds end in KAIJU fights instead of stand-offs
     if ((this.mode === 'classic' || this.mode === 'teams') && this.roundT > RULES.suddenDeathAt) {
@@ -1685,14 +1762,14 @@ export class World {
         }
       }
     }
-    if (this.mode === 'crumbRush' || this.mode === 'practice' || this.mode === 'goldenSpoon') {
+    if (this.mode === 'crumbRush' || this.mode === 'practice' || this.mode === 'goldenSpoon' || this.mode === 'king' || this.mode === 'football' || this.mode === 'horde') {
       for (const p of this.players) {
         if (p.alive || p.respawnT <= 0) continue;
         p.respawnT -= dt;
         if (p.respawnT > 0) continue;
         p.respawnT = 0;
         const s = this.freeSpot(60, 90) ?? this.layout.spawns[p.id % this.layout.spawns.length];
-        Object.assign(p, { x: s[0], y: s[1], vx: 0, vy: 0, kx: 0, ky: 0, alive: true, invT: this.mode === 'goldenSpoon' ? MODE_RULES.goldenSpoon.respawnShield : MODE_RULES.crumbRush.respawnShield, lastHitBy: null, lastHitT: 0, prev: { throw: true, swipe: true, dash: true, stomp: true } });
+        Object.assign(p, { x: s[0], y: s[1], vx: 0, vy: 0, kx: 0, ky: 0, alive: true, invT: this.mode === 'goldenSpoon' ? MODE_RULES.goldenSpoon.respawnShield : this.mode === 'king' ? MODE_RULES.king.respawnShield : this.mode === 'football' ? MODE_RULES.football.respawnShield : this.mode === 'horde' ? MODE_RULES.horde.respawnShield : MODE_RULES.crumbRush.respawnShield, lastHitBy: null, lastHitT: 0, prev: { throw: true, swipe: true, dash: true, stomp: true } });
         if (p.holding === null && !this.tw('fists')) {
           const c = this.newCutlery(this.rng.pick(STARTER_KINDS), p.x, p.y);
           c.state = 'held'; c.holder = p.id; c.owner = p.id; p.holding = c.id;
@@ -1761,8 +1838,18 @@ export class World {
       const teams = new Set(alive.map(p => p.team)), vip = this.players[this.opts.vip];
       if (vip && !vip.alive) this.endRound(this.players.filter(p => p.team !== vip.team)); // 🛡 the one you protect fell
       else if (teams.size <= 1) this.endRound(alive.length ? this.players.filter(p => p.team === alive[0].team) : []);
-    } else if (this.phase === 'play' && this.players.length > 1 && this.opts.zone && this.mode === 'classic') {
-      const z = this.opts.zone, alive = this.alivePlayers(), king = this.players.find(p => p.pts >= z.hold);
+    } else if (this.phase === 'play' && this.players.length > 1 && this.mode === 'king' && this.zone) {
+      const z = this.zone, king = this.players.find(p => p.pts >= z.hold);
+      if (king) this.endRound([king]);
+      else if (this.roundT >= MODE_RULES.king.roundTime) { const best = Math.max(...this.players.map(p => p.pts)); this.endRound(best > 0 ? this.players.filter(p => p.pts === best).slice(0, 1) : []); }
+    } else if (this.phase === 'play' && this.players.length > 1 && this.mode === 'football') {
+      if (this.roundT >= MODE_RULES.football.roundTime) this.endRound([]); // goals decide rounds (see updateBall)
+    } else if (this.phase === 'play' && this.players.length > 1 && this.mode === 'horde') {
+      const people = this.players.filter(p => p.team === 0);
+      if (!people.some(p => p.alive)) this.endRound(this.players.filter(p => p.team !== 0));
+      else if (this.roundT >= MODE_RULES.horde.roundTime) this.endRound(people);
+    } else if (this.phase === 'play' && this.players.length > 1 && this.zone && this.mode === 'classic') {
+      const z = this.zone, alive = this.alivePlayers(), king = this.players.find(p => p.pts >= z.hold);
       if (king) this.endRound([king]);
       else if (alive.length <= 1) this.endRound(alive);
       else if (this.roundT >= RULES.zoneTime) { const best = Math.max(...this.players.map(p => p.pts)); this.endRound(best > 0 ? this.players.filter(p => p.pts === best).slice(0, 1) : []); }

@@ -1502,3 +1502,36 @@ describe('daily friend board', () => {
     delete (globalThis as { localStorage?: unknown }).localStorage;
   });
 });
+
+describe('new party modes', () => {
+  const boot = (mode: 'king' | 'football' | 'horde', teams?: number[]) => {
+    const w = new World({ players: [{ name: 'A' }, { name: 'B' }, { name: 'C' }], seed: 9, hazards: false, crumbSpawns: false, pickupSpawns: false, layout: 0, mode, teams, target: 3 });
+    while (w.phase !== 'play') w.step(DT, []);
+    return w;
+  };
+  it('KING OF THE PLATE has a gold circle every round, and knocked-out kaiju come back', () => {
+    const w = boot('king');
+    expect(w.zone).toBeTruthy();
+    (w as unknown as { ko: (p: unknown, by: number | null, cause: string) => void }).ko(w.players[2], 0, 'fall');
+    let t = 0; while (!w.players[2].alive && t < 4) { w.step(DT, []); t += DT; }
+    expect(w.players[2].alive).toBe(true);
+  });
+  it('FOOD FIGHT FOOTBALL: the meatball into the right-hand goal scores for RED (team 0)', () => {
+    const w = boot('football');
+    const b = w.ball!;
+    b.x = TABLE.x + TABLE.w - 60; b.y = TABLE.y + TABLE.h / 2; b.vx = 900; b.vy = 0;
+    for (const p of w.players) { p.x = TABLE.x + 200; p.y = TABLE.y + 60; }
+    let t = 0; while (w.phase === 'play' && t < 2) { w.step(DT, []); t += DT; }
+    expect(w.phase).toBe('roundEnd');
+    expect(w.players[w.winner!].team).toBe(0);
+  });
+  it('HORDE: the people lose the round when they are all knocked out; bots come back', () => {
+    const w = boot('horde', [0, 1, 1]);
+    (w as unknown as { ko: (p: unknown, by: number | null, cause: string) => void }).ko(w.players[1], 0, 'fall');
+    let t = 0; while (!w.players[1].alive && t < 5) { w.step(DT, []); t += DT; }
+    expect(w.players[1].alive).toBe(true); // a bot respawned
+    (w as unknown as { ko: (p: unknown, by: number | null, cause: string) => void }).ko(w.players[0], 1, 'fall');
+    t = 0; while (w.phase === 'play' && t < 1) { w.step(DT, []); t += DT; }
+    expect(w.players[w.winner!].team).toBe(1);
+  });
+});

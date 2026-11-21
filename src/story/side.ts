@@ -318,4 +318,5 @@ export const SIDE_STORIES: SideStory[] = [
 
 /** Side stories open once Grand Feast ch5 is reached (ch4 cleared). EASY TO CHANGE. */
 export const SIDE_AFTER_CHAPTER = 4;
-export const sideCut = (s: SideStory, end: boolean): Cutscene => ({ key: s.still, noVideo: true, heading: end ? `${s.title}: THE END` : s.title, caption: end ? s.ending[0].text : s.tagline });
+// The ending has its own still: <still>-end (public/art).
+export const sideCut = (s: SideStory, end: boolean): Cutscene => ({ key: end ? `${s.still}-end` : s.still, noVideo: true, heading: end ? `${s.title}: THE END` : s.title, caption: end ? s.ending[0].text : s.tagline });

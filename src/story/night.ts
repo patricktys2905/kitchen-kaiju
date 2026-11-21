@@ -112,6 +112,16 @@ export const NIGHT_ENDING: Line[] = [
 
 export const NIGHT_OPENING: Cutscene = { key: 'night-open', noVideo: true, heading: 'THE NIGHT MARKET', caption: 'The Golden Spoon is gone. All that\'s left… is a trail of mustard.' };
 export const NIGHT_END_CUT: Cutscene = { key: 'night-end', noVideo: true, heading: 'SPOON: RECOVERED', caption: 'The market\'s open till dawn. Party on, champ.' };
-export const NIGHT_CUTS: Cutscene[] = [];
+/** 🎬 One still before each chapter (same order as NIGHT_CHAPTERS). EASY TO CUSTOMISE: captions here. */
+export const NIGHT_CUTS: Cutscene[] = [
+  { key: 'night-c0', noVideo: true, heading: 'CHAPTER 1 · OPENING NIGHT', caption: 'Free samples! The mustard trail starts right here.' },
+  { key: 'night-c1', noVideo: true, heading: 'CHAPTER 2 · BUDDY SYSTEM', caption: 'Bluebeary saw everything. Bluebeary wants a favour first.' },
+  { key: 'night-c2', noVideo: true, heading: 'CHAPTER 3 · FINDERS KEEPERS', caption: 'A Golden Spoon! …Is the gold supposed to peel off?' },
+  { key: 'night-c3', noVideo: true, heading: 'CHAPTER 4 · NIGHT OWL', caption: 'Tacowl is on night watch. Mostly watching his wallet.' },
+  { key: 'night-c4', noVideo: true, heading: 'CHAPTER 5 · HOT POTATO HOUR', caption: 'Midnight at the grills. Hot dumpling, nobody wants it.' },
+  { key: 'night-c5', noVideo: true, heading: 'CHAPTER 6 · LAST STALL STANDING', caption: 'The bouncers are made of ice cream. Still scary. Ish.' },
+  { key: 'night-c6', noVideo: true, heading: 'CHAPTER 7 · TAG TEAM TAKEDOWN', caption: 'Eight arms on your side. A pouch full of spoons on theirs.' },
+  { key: 'night-c7', noVideo: true, heading: 'CHAPTER 8 · THE MIDNIGHT MUNCHER', caption: 'Found him. He\'s relishing every second.' },
+];
 
 

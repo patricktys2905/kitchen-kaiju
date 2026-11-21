@@ -364,9 +364,7 @@ export class HelpScene extends PanelScene {
           const t = this.add.text(90, y, `${m.blurb}. ${m.howTo}${m.minPlayers > 2 ? ` (${m.minPlayers}+ players; bots fill in.)` : ''}`, body(size, '#f1e4d2', 800, { wordWrap: { width: 1100 }, lineSpacing: 3 })).setDepth(5); this.content.push(t); flow(t, 8);
         }
         y += 4;
-        const th = withShadow(this.add.text(90, y, 'TWISTS (Free Play / Party Modes: the TWIST button)', display(size + 3, '#ffd24a', { strokeThickness: 4 })).setDepth(5), 2); this.content.push(th); flow(th, 2);
-        const tw = this.add.text(90, y, enabledMutators().filter(m => m.id !== 'none').map(m => `${m.name}: ${m.blurb}`).join(' · '), body(Math.max(13, size - 3), '#e9dccb', 800, { wordWrap: { width: 1100 }, lineSpacing: 3 })).setDepth(5); this.content.push(tw); flow(tw, 6);
-        const ft = this.add.text(90, y, 'Play these from the PARTY MODES card on the title screen (MODE ▶ changes the mode).', body(Math.max(11, size - 4), '#cdb9a3', 800)).setDepth(5); this.content.push(ft); flow(ft, 0);
+        const ft = this.add.text(90, y, 'Play these from the PARTY MODES card on the title screen (MODE ▶ changes the mode). ⚡ Twists are on the EXTRAS tab.', body(Math.max(11, size - 4), '#cdb9a3', 800)).setDepth(5); this.content.push(ft); flow(ft, 0);
         if (y <= 708) break;
       }
     }

@@ -91,8 +91,19 @@ export class BotBrain {
     }
 
     // 👑 King of the Plate: head for the zone, and push into it when a rival is standing there
-    const zn = w.opts.zone;
+    const zn = w.zone;
     if (zn) { const dx = zn.x - p.x, dy = zn.y - p.y, zd = Math.hypot(dx, dy) || 1; if (zd > zn.r * 0.5) add(dx / zd, dy / zd, zd > zn.r ? 1.8 : 0.9); }
+    // ⚽ get behind the meatball (on the side away from the goal you attack) and run it in
+    const bl = w.ball;
+    if (bl) {
+      const goalX = p.team === 0 ? TABLE.x + TABLE.w + 60 : TABLE.x - 60, goalY = TABLE.y + TABLE.h / 2;
+      const gx = goalX - bl.x, gy = goalY - bl.y, gd = Math.hypot(gx, gy) || 1;
+      const sx = bl.x - (gx / gd) * (bl.r + p.r + 6), sy = bl.y - (gy / gd) * (bl.r + p.r + 6); // the spot behind the ball
+      const behind = Math.hypot(sx - p.x, sy - p.y) < 30;
+      const tx = behind ? bl.x + gx / gd * 40 : sx, ty = behind ? bl.y + gy / gd * 40 : sy;
+      const ddx = tx - p.x, ddy = ty - p.y, dd = Math.hypot(ddx, ddy) || 1;
+      add(ddx / dd, ddy / dd, 2.4);
+    }
     if (w.mode === 'goldenSpoon' && w.spoon) {
       const s = w.spoon;
       if (s.holder === p.id) add(-ux, -uy, 1.4); // keep away from rivals

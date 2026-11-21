@@ -110,4 +110,14 @@ export const ROOM_ENDING: Line[] = [
 
 export const ROOM_OPENING: Cutscene = { key: 'room-open', noVideo: true, heading: 'ROOM SERVICE', caption: 'The Grand Hotel needs a champion. Floor by floor, table by table.' };
 export const ROOM_END_CUT: Cutscene = { key: 'room-end', noVideo: true, heading: 'CHECKED IN FOR GOOD', caption: 'Head of Room Service. The key card is gold. Obviously.' };
-export const ROOM_CUTS: Cutscene[] = [];
+/** 🎬 One still before each chapter (same order as ROOM_CHAPTERS). EASY TO CUSTOMISE: captions here. */
+export const ROOM_CUTS: Cutscene[] = [
+  { key: 'room-c0', noVideo: true, heading: 'CHAPTER 1 · CHECK-IN', caption: 'The queue for the front desk. Some have been here for days.' },
+  { key: 'room-c1', noVideo: true, heading: 'CHAPTER 2 · BREAKFAST BUFFET', caption: 'All you can eat. They took that personally.' },
+  { key: 'room-c2', noVideo: true, heading: 'CHAPTER 3 · HOUSEKEEPING', caption: 'Minturtle is cleaning up. Toastbat is messing up. Faster.' },
+  { key: 'room-c3', noVideo: true, heading: 'CHAPTER 4 · POOL PARTY', caption: 'The lifeguard is a fish. He takes it VERY seriously.' },
+  { key: 'room-c4', noVideo: true, heading: 'CHAPTER 5 · ELEVATOR BRAWL', caption: 'No talking. No eye contact. No champions.' },
+  { key: 'room-c5', noVideo: true, heading: 'CHAPTER 6 · THE WEDDING CAKE', caption: 'Something old, something new, something about to be eaten.' },
+  { key: 'room-c6', noVideo: true, heading: 'CHAPTER 7 · ROOM SERVICE RUSH', caption: 'One tray. One very hungry hot dog. Keep it moving.' },
+  { key: 'room-c7', noVideo: true, heading: 'CHAPTER 8 · THE NIGHT MANAGER', caption: 'Top floor. Two crowns. Check-out time.' },
+];

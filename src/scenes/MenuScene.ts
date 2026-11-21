@@ -422,7 +422,8 @@ export class MenuScene extends Phaser.Scene {
     if (this.party && MenuScene.cupOn) { this.startCup(); return; } // 🏆 Party Cup switched ON: PLAY starts the Cup
     if (!this.registry.get('demoStarted') && !this.slots.some(s => s.kind !== 'bot')) { this.slots.unshift(isTouchDevice ? { kind: 'touch', index: 0 } : { kind: 'kb', index: 0 }); this.picks.unshift(-1); this.fixPicks(); }
     while (this.slots.length < Math.max(2, modeDef(this.mode).minPlayers)) this.addSlot({ kind: 'bot', index: this.slots.length });
-    if (this.mode === 'teams' && this.slots.length % 2 === 1 && this.slots.length < MAX_PLAYERS) this.addSlot({ kind: 'bot', index: this.slots.length }); // even teams
+    if (this.mode === 'horde' && !this.slots.some(s => s.kind === 'bot')) for (let k = 0; k < 3 && this.slots.length < MAX_PLAYERS; k++) this.addSlot({ kind: 'bot', index: this.slots.length }); // 🛡 a horde needs bots
+    if ((this.mode === 'teams' || this.mode === 'football') && this.slots.length % 2 === 1 && this.slots.length < MAX_PLAYERS) this.addSlot({ kind: 'bot', index: this.slots.length }); // even teams
     this.fixPicks();
     this.scene.start('game', {
       slots: this.slots.slice(), difficulty: this.difficulty, species: this.picks.slice(), botLevels: this.slots.map((s, i) => (s.kind === 'bot' ? this.botLevels[i] ?? null : null)), tables: this.table < 0 ? this.own.tables.slice() : [this.table], rounds: this.rounds, mode: this.mode, powerups: this.powerups, hazards: this.hazards, mutator: this.mutator, mutator2: this.mutator2, party: this.party,
@@ -547,7 +548,7 @@ export class MenuScene extends Phaser.Scene {
     for (let i = 0; i < MAX_PLAYERS; i++) {
       const x = CARD_X(i), s = this.slots[i], img = this.cardImgs[i];
       const sp = s ? this.picks[i] : -1, col = sp >= 0 ? SPECIES[sp].color : 0x4a3a2e;
-      const team = this.mode === 'teams' && !(this.party && MenuScene.cupOn) ? i % 2 : -1, tcol = team >= 0 ? MODE_RULES.teams.colors[team] : 0;
+      const team = (this.mode === 'teams' || this.mode === 'football') && !(this.party && MenuScene.cupOn) ? i % 2 : this.mode === 'horde' && s && !(this.party && MenuScene.cupOn) ? (s.kind === 'bot' ? 1 : 0) : -1, tcol = team >= 0 ? MODE_RULES.teams.colors[team] : 0;
       g.fillStyle(0x000000, 0.5);
       g.fillRoundedRect(x - CARD_W / 2, 184, CARD_W, 216, 16);
       if (team >= 0) {
@@ -555,7 +556,7 @@ export class MenuScene extends Phaser.Scene {
         g.lineStyle(6, tcol, s ? 1 : 0.5); g.strokeRoundedRect(x - CARD_W / 2, 184, CARD_W, 216, 16);
         g.fillStyle(tcol, 1); g.fillRoundedRect(x - 66, 190, 132, 26, 13);
         g.lineStyle(2, 0xffffff, 0.8); g.strokeRoundedRect(x - 66, 190, 132, 26, 13);
-        this.teamTags[i].setText(`${MODE_RULES.teams.names[team]} TEAM`).setVisible(true);
+        this.teamTags[i].setText(this.mode === "horde" ? (team ? "🤖 THE HORDE" : "🛡 YOUR TEAM") : `${MODE_RULES.teams.names[team]} TEAM`).setVisible(true);
       } else {
         this.teamTags[i].setVisible(false);
         g.lineStyle(3, col, 1);

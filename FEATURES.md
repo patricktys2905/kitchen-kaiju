@@ -1225,3 +1225,44 @@ Not done: public rooms / quick-match and a global leaderboard (they need a serve
   - Pop-ups faded in about 1 s and were capped at 3, so testers missed the quips.
   - The bubbles hide during the Instant Replay.
 - **⏪ Instant Replay:** the 🎓 Story ch1 tutorial strip hides while the replay runs (it sat on the KO feed).
+
+## 85. Big expansion, phase 1: three new party modes (incl. co-op)
+- **👑 KING OF THE PLATE** (`king`): a gold circle sits on the most open spot of each table.
+  - Seconds standing ALONE in it score; a crowd scores nothing.
+  - First to 15 s wins the round (or the most after 60 s). Knocked-out kaiju come back.
+  - It uses the same zone rules as the Story goal; `World.zone` now covers both.
+- **⚽ FOOD FIGHT FOOTBALL** (`football`): RED vs BLUE with a meatball (`World.ball`, `updateBall`).
+  - Bump it, SWIPE it (a kick along your aim, harder as KAIJU) or hit it with thrown cutlery.
+  - It bounces off edges and props.
+  - Into the right-hand goal scores for RED, the left for BLUE, and a goal wins the round. No goal in 75 s: nobody scores.
+  - Bots get behind the ball and run it at the goal. Knocked-out kaiju come back.
+- **🛡 HORDE (CO-OP)** (`horde`): every person on one team (PEOPLE) against the bots (THE HORDE).
+  - Bots respawn; people don't. Last 75 s with anyone standing to win the round.
+  - Each round survived, every bot gets one level tougher.
+  - Setup adds 3 bots if there are none.
+- All three work in Free Play / Party setup (seat tags show RED/BLUE, or 🛡 YOUR TEAM / 🤖 THE HORDE).
+  - Team checks now cover every team mode (`TEAM_MODES` in `src/sim/modes.ts`).
+  - The mode line shows "⚽ RED 1 – 0 BLUE" or "🛡 WAVE n".
+  - Numbers live in `MODE_RULES.king / football / horde`.
+- **Tests:** the KING circle and respawn, a FOOTBALL goal for the right team, and HORDE losing when the people fall while bots respawn.
+- **Fixes found by the audit:**
+  - The party setup screen crashed in HORDE when a seat was empty. Empty seats now get no team tag.
+  - The Help → MODES page no longer repeats the twists list, which ran off the screen in Kid Mode and phone mode. It now points to the EXTRAS tab.
+
+## 86. Story scenes check: chapter stills for the Night Market + Room Service, real side-story endings
+- **Check:** all 50 Story scenes (openings, chapter scenes, endings, comics, side stories) were played in a browser and screenshotted. Every scene has its still, and its clip where it uses one.
+- **Chapter scenes:** 🌙 THE NIGHT MARKET and 🛎 ROOM SERVICE now have a scene before each of their 8 chapters, like the Grand Feast and Second Helpings.
+  - These are Gemini stills with a slow zoom and a punny caption.
+  - Data: `NIGHT_CUTS` in `src/story/night.ts`, `ROOM_CUTS` in `src/story/room.ts`.
+  - Art: `night-c0..7`, `room-c0..7`.
+- **Side-story endings:** each 📕 side story ends on its own picture that shows the payoff:
+  - Mothball's spoon night-light.
+  - Tacowl's "Partner" badge.
+  - Velvaroo's cupcake joey.
+  - Toastbat's cooking show, and so on.
+  - `sideCut()` uses `<still>-end`.
+- **Captions:** a caption that wraps to two lines no longer touches its gold heading; the heading moves up to fit.
+- **EASY TO CUSTOMISE:**
+  - Captions live in the `*_CUTS` arrays.
+  - Scene prompts live in `scripts/make-comic-jobs.mjs` (`COMIC_SCENES`).
+  - New keys go in the `CUTS` list in `scripts/process-art.mjs`.

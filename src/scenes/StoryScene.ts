@@ -179,7 +179,7 @@ export class StoryScene extends Phaser.Scene {
   private watchScene(): void {
     if (this.mode !== 'map') return;
     sfx.pickup();
-    if (this.sel < this.save.unlocked) this.playCut(this.camp.cuts[this.sel], () => {});
+    if (this.sel < this.save.unlocked) this.playCut(this.camp.cuts[this.sel] ?? this.camp.opening, () => {});
   }
 
   private camp: Campaign = CAMPAIGNS.main;
@@ -691,7 +691,10 @@ Next course: ${nextCh.title}. ${nextRival} is already sharpening the cutlery…`
   private afterCut: () => void = () => {};
 
   /** Plays a story clip full screen (Veo video; the Gemini still with a slow zoom if the video can't load). */
-  private playCut(cut: Cutscene, then: () => void): void {
+  private playCut(cut: Cutscene | undefined, then: () => void): void {
+    // a still-only scene whose art isn't in yet: an ending falls back to its opening still, anything else is skipped
+    if (cut?.noVideo && !hasArt(cut.key)) cut = cut.key.endsWith('-end') && hasArt(cut.key.slice(0, -4)) ? { ...cut, key: cut.key.slice(0, -4) } : undefined;
+    if (!cut) { then(); return; }
     this.clearOverlay();
     this.mode = 'cut';
     playMusic(null); // the clip has its own soundtrack
@@ -731,6 +734,9 @@ Next course: ${nextCh.title}. ${nextRival} is already sharpening the cutlery…`
     this.overlay.push(g);
     const head = this.add.text(640, 612, cut.heading, display(20, '#ffcf8a', { strokeThickness: 4 })).setOrigin(0.5).setDepth(34).setAlpha(0);
     this.cutCaption = withShadow(this.add.text(640, 656, '', display(30, '#ffffff', { strokeThickness: 6, align: 'center', wordWrap: { width: 1100 } })).setOrigin(0.5).setDepth(34), 4);
+    // a caption that wraps to two lines grows upwards too: lift the heading so they never touch
+    const capH = this.cutCaption.setText(cut.caption).height; this.cutCaption.setText('');
+    head.setY(Math.min(612, 656 - capH / 2 - 18));
     this.tweens.add({ targets: head, alpha: 1, duration: 500, delay: 300 });
     this.overlay.push(head, this.cutCaption);
     const zone = this.add.zone(640, 360, 1280, 720).setInteractive().setDepth(34);
