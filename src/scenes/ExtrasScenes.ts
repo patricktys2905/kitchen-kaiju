@@ -25,7 +25,7 @@ import { isTouchDevice, setTouchMode } from '../touch';
 import { currentHat, HAT_FIT, HAT_SCALE, hatArtKey, hatUnlocked, HATS, HATS_ENABLED, setHat } from '../hats';
 import { colourUnlocked, COLOURS, currentColour, setColour } from '../colours';
 import { GameScene } from './GameScene';
-import { exportSave, importSave } from '../backup';
+import { exportSave, importSave, resetSave } from '../backup';
 import { totalTrialStars, TRIAL_TOKENS, TRIALS, trialStars } from '../trials';
 import { chefsPass, chefsPassText } from '../challengePass';
 import { buy, buyShiny, shinyBlock, isShiny, SHINY, chefRank, completeStep, dailyDeal, loadMeta, MASTERY, masteryInfo, pinAchievement, pinnedAchievement, priceOf, SHOP, weeklyOrders, type OrderStat } from '../meta';
@@ -96,7 +96,7 @@ export class SettingsScene extends PanelScene {
     });
     this.buttons.push(new Button(this, 260, top + rows * step + 26, { w: 330, h: 48, label: '⌨ KEYBOARD / 🎮 PAD', size: 20, accent: 0x4fd1ff, onClick: () => { sfx.go(); this.scene.start('controls'); } }, 6));
     this.buttons.push(new Button(this, 1020, top + rows * step + 26, { w: 330, h: 48, label: '⛶ FULL SCREEN', size: 20, accent: 0xffd24a, onClick: () => { sfx.pickup(); if (document.fullscreenElement) void document.exitFullscreen(); else void document.documentElement.requestFullscreen?.().catch(() => {}); } }, 6));
-    this.buttons.push(new Button(this, 640, top + rows * step + 26, { w: 330, h: 48, label: '💾 BACK UP / MOVE SAVE', size: 20, accent: 0x8dff6a, onClick: () => this.backupPanel() }, 6));
+    this.buttons.push(new Button(this, 640, top + rows * step + 26, { w: 330, h: 48, label: '💾 SAVE: BACK UP · MOVE · RESET', size: 18, accent: 0x8dff6a, onClick: () => this.backupPanel() }, 6));
     this.add.text(640, 706, isTouchDevice ? 'Saved on this device · tap to change' : 'Saved on this device · ENTER / click to change · M mutes during a match', body(15, '#cdb9a3', 800)).setOrigin(0.5).setDepth(5);
   }
 
@@ -116,6 +116,8 @@ export class SettingsScene extends PanelScene {
       <div style="margin-top:14px">Paste a code from another device:</div>
       <textarea id="kk-bk-in" placeholder="KK1-…" style="width:100%;height:70px;margin:8px 0;border-radius:10px;font:12px monospace"></textarea>
       <div style="display:flex;gap:8px;flex-wrap:wrap"><button id="kk-bk-load">Load this save</button><button id="kk-bk-close">Close</button></div>
+      <div style="margin-top:16px;padding-top:12px;border-top:2px solid #4a3e34">Start over: wipes Story, unlocks, tokens, stats, records and runs. Keeps your settings, controls, name and Workshop tables. (Copy your code above first if you might want it back.)</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px"><button id="kk-bk-reset">🗑 Reset save</button></div>
       <div id="kk-bk-msg" style="margin-top:8px;color:#ffd24a"></div></div>`;
     document.body.appendChild(box);
     box.querySelectorAll('button').forEach(b => { b.style.cssText = "font:18px 'Luckiest Guy',sans-serif;padding:8px 16px;border-radius:12px;border:3px solid #ffcf8a;background:#4a2812;color:#ffe9c7;cursor:pointer"; });
@@ -128,6 +130,16 @@ export class SettingsScene extends PanelScene {
       const ta = box.querySelector('#kk-bk-code') as HTMLTextAreaElement;
       ta.select();
       try { await navigator.clipboard.writeText(code); msg.textContent = 'Copied! Keep it somewhere safe (a note or a message to yourself).'; } catch { msg.textContent = 'Select the code above and copy it.'; }
+    };
+    // 🗑 RESET SAVE: two taps (the button turns red and asks again), then everything but settings/controls/name/Workshop tables goes
+    let armed = false;
+    const resetBtn = box.querySelector('#kk-bk-reset') as HTMLElement;
+    resetBtn.style.borderColor = '#ff8a7a';
+    resetBtn.onclick = () => {
+      if (!armed) { armed = true; resetBtn.textContent = '⚠ Tap again to wipe it'; resetBtn.style.background = '#8a1810'; msg.textContent = 'Are you sure? This cannot be undone (unless you copied your code above).'; setTimeout(() => { armed = false; resetBtn.textContent = '🗑 Reset save'; resetBtn.style.background = '#4a2812'; }, 5000); return; }
+      const n = resetSave();
+      msg.textContent = `Save wiped (${n} items). Restarting…`;
+      setTimeout(() => location.reload(), 900);
     };
     (box.querySelector('#kk-bk-load') as HTMLElement).onclick = () => {
       const n = importSave((box.querySelector('#kk-bk-in') as HTMLTextAreaElement).value);

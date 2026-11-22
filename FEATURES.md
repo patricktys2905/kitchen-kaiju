@@ -1432,3 +1432,11 @@ You picked all eight from the concept sheet (`art-src/new-table-options.png`). E
 - **↔ MIRROR guide:** with MIRROR on, the Workshop table shows a dashed purple centre line, plus a faint band 30 px either side (`MIRROR_CENTRE`).
   - A tap inside the band places ONE prop exactly on the line instead of two overlapping twins.
 - **Online ⚡ NEW TWIST + ✓ READY:** suggested again, but already live since §92 (e57a731). It's on the host's results screen online and checked by `npm run smoke:online`.
+
+## 94. 🗑 Reset save
+- **Where:** Settings → 💾 SAVE: BACK UP · MOVE · RESET → **🗑 Reset save**.
+- **Two taps to confirm:** the first turns it red ("⚠ Tap again to wipe it"), and it disarms itself after 5 s.
+- **What it does:** wipes Story, unlocks, tokens, stats, records and runs, then restarts as a brand-new save, with the new-player early unlock goals.
+- **What it keeps:** settings, keyboard and pad controls, your name, and your Workshop tables (`RESET_KEEPS` in `src/backup.ts`).
+- The panel suggests copying your backup code first.
+- Tested in `tests/backup.test.ts`.

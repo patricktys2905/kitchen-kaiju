@@ -22,3 +22,13 @@ export function importSave(code: string): number {
     return 0;
   }
 }
+
+/** 🗑 What a save reset keeps. EASY TO CUSTOMISE. */
+export const RESET_KEEPS = ['kk-settings-v1', 'kk-keys-v1', 'kk-pad-v1', 'kk-name', 'kk-custom-tables'];
+/** Wipes the save (everything starting with "kk-" except RESET_KEEPS). Returns how many items were removed.
+ *  kk-fresh-start goes too, so the restarted save gets the new-player early unlock goals. */
+export function resetSave(): number {
+  const gone = KEYS().filter(k => !RESET_KEEPS.includes(k));
+  for (const k of gone) localStorage.removeItem(k);
+  return gone.length;
+}
